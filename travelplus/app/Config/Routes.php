@@ -23,3 +23,5 @@ $routes->group('(:segment)', ['filter' => 'setlocale'], function ($routes) {
     $routes->get('/', 'Home::index');
     $routes->get('test-db', 'Test::db');
 });
+
+$routes->get('api/destinations', 'Api\Destination::search');

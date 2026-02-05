@@ -49,6 +49,90 @@
     height: auto;
 }
 
+.form-control{
+    border: 0px;
+}
+
+.form-control:focus{
+    border-color: unset;
+    box-shadow: none !important;
+}
+
+.flatpickr-input {
+    white-space: pre-line;
+    line-height: 1.2;
+    height: auto;
+    text-align: center;
+}
+
+
+
+.filter-wrapper .filter-input-wrap .filter-input .single-search-box .datepicker-container .datepicker-wrapper .selected-date h6 {
+    font-size: 16px;
+    font-family: var(--font-poppins);
+    color: var(--title-color);
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 0
+}
+
+
+@media (min-width:992px) and (max-width:1199px) {
+    .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .selected-date h6 {
+        font-size: 15px
+    }
+}
+
+.filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .selected-date span {
+    font-size: 14px;
+    font-family: var(--font-roboto);
+    color: var(--text-color);
+    font-weight: 400;
+    margin-bottom: 0;
+    line-height: 1.4;
+    display: block
+}
+
+@media (max-width:576px) {
+    .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .selected-date span {
+        font-size: 11px
+    }
+}
+
+.date-picker-ui {
+    cursor: pointer;
+    text-align: center;
+}
+
+.d-none {
+    display: none;
+}
+
+.destination-dropdown {
+  position: relative;
+}
+
+.clear-destination {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.clear-destination:hover {
+  color: #111827;
+}
+
+.clear-destination.hidden {
+  display: none;
+}
+
+
 /* _____________________________________________________ */
 /* _____________________________________________________ */
 /* _____________________________________________________ */
@@ -2008,24 +2092,24 @@ body.tt-magic-cursor #magic-cursor {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 105px
+    gap: 50px
 }
 
 @media (max-width:1399px) {
     .topbar-area .topbar-wrap {
-        gap: 50px
+        gap: 30px
     }
 }
 
 @media (max-width:1199px) {
     .topbar-area .topbar-wrap {
-        gap: 40px
+        gap: 20px
     }
 }
 
 .topbar-area .topbar-wrap .header-logo img {
     min-width: 120px;
-    max-width: 120px
+    max-width: 170px
 }
 
 @media (min-width:992px) and (max-width:1199px) {
@@ -2603,13 +2687,13 @@ header.style-1 .header-logo img {
 
 @media (max-width:991px) {
     header.style-1 .header-logo img {
-        width: 110px
+        width: 140px
     }
 }
 
 @media (max-width:576px) {
     header.style-1 .header-logo img {
-        width: 100px
+        width: 130px
     }
 }
 
@@ -3162,6 +3246,7 @@ header.style-1 .main-menu>ul>li>a {
 
 header.style-1 .main-menu>ul>li>a i {
     font-size: 12px;
+    padding-left: 3px;
     color: var(--text-color);
     transition: all .55s ease-in-out
 }
@@ -8217,9 +8302,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
     left: unset
 }
 
-.filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown.destination-dropdown input {
+/* .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown.destination-dropdown input {
     display: none
-}
+} */
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-wrap {
     padding: 10px 0;
@@ -8760,6 +8845,12 @@ header.style-3.two .main-menu>ul>li.active>a i {
     grid-template-columns: 20.5% 19% 19% 20% 13%
 }
 
+.filter-wrapper .filter-input-wrap .filter-input.three {
+  grid-template-columns: 2fr 1.5fr auto;
+  gap: 16px;
+}
+
+
 @media (max-width:1399px) {
     .filter-wrapper .filter-input-wrap .filter-input.two {
         grid-template-columns: 23% 18% 18% 19% 14.5%;
@@ -8772,6 +8863,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
         grid-template-columns: 23% 18% 18% 20% 14%;
         gap: 15px
     }
+
 }
 
 @media (max-width:991px) {
@@ -8782,6 +8874,14 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
     .filter-wrapper .filter-input-wrap .filter-input.two .primary-btn1 {
         grid-column: span 2
+    }
+
+        .filter-wrapper .filter-input-wrap .filter-input.three {
+    grid-template-columns: 1fr !important;
+    }
+
+    .filter-wrapper .filter-input-wrap .filter-input.three button {
+        width: 100%;
     }
 }
 
