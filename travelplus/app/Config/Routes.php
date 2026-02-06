@@ -5,6 +5,8 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
+
+// $routes->setAutoRoute(false);
 $routes->get('/', 'Home::index');
 
 // Sitemap for SEO
@@ -25,3 +27,5 @@ $routes->group('(:segment)', ['filter' => 'setlocale'], function ($routes) {
 });
 
 $routes->get('api/destinations', 'Api\Destination::search');
+
+$routes->get('featured-tour', 'TourController::featured');
