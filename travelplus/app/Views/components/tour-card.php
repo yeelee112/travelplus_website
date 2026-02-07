@@ -8,35 +8,66 @@
             <div class="batch"><span><?= esc($tour['badge']) ?></span></div>
         <?php endif; ?>
     </div>
-
-    <div class="package-content">
-        <h5>
+    <div class="h-100">
+    <div class="package-content d-flex flex-column">
+        <h5 class="clamp-2">
             <a href="<?= $tour['link'] ?>">
                 <?= esc($tour['title']) ?>
             </a>
         </h5>
 
-        <div class="location-and-time">
-            <span><?= esc($tour['location']) ?></span>
+        <div class="location-and-time mb-1">
+            <div class="location"><i class="bi bi-geo-alt"></i><a href="#"><?= esc($tour['continent']) ?> </a>
+            </div>
+            <svg class="arrow" width="25"
+                height="6" viewBox="0 0 25 6" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 3L5 5.88675V0.113249L0 3ZM25 3L20 0.113249V5.88675L25 3ZM4.5 3.5H20.5V2.5H4.5V3.5Z">
+                </path>
+            </svg>
             <span>
-                <?= $tour['duration']['days'] ?> Days / <?= $tour['duration']['nights'] ?> Nights
+                <?= $tour['duration']['days'] ?> Days <?= $tour['duration']['nights'] ?> Nights
             </span>
         </div>
 
-        <div class="btn-and-price-area">
-            <a class="primary-btn1" href="<?= $tour['link'] ?>">
-                Book Now
-            </a>
-
-            <div class="price-area">
-                <h6>Per Person</h6>
-                <span><?= $tour['price']['label'] ?></span>
+        <div class="location-and-time mb-3">
+            <div class="location">
+                <i class="bi bi-calendar"></i>
+                <a href="#">Departure dates: </a>
+                <span><?= esc($tour['departure']) ?> </span>
             </div>
         </div>
+
+        <div class="btn-and-price-area mt-auto">
+            <div class="price-area">
+                <h6>Price from</h6>
+                <span><?= $tour['price']['label'] ?></span>
+            </div>
+            <a class="primary-btn1" href="<?= $tour['link'] ?>">
+                <span>
+                    Book Now
+                    <svg
+                        width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
+                        </path>
+                    </svg>
+                </span>
+                <span>
+                    Book Now
+                    <svg width="10" height="10" viewBox="0 0 10 10"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
+                        </path>
+                    </svg>
+                </span>
+            </a>
+        </div>
+    </div>
     </div>
 </div>
-<!-- 
-<div class="package-card">
+
+<!-- <div class="package-card">
     <div class="package-img-wrap"><a class="package-img" href="../travel-package/details/"><img alt="" loading="lazy"
                 width="550" height="220" decoding="async" data-nimg="1" style="color:transparent"
                 src="<?= base_url('assets/images/avt-tour-02.jpg') ?>"></a>
@@ -52,11 +83,14 @@
                     <path
                         d="M6.83618 8.54554C8.4624 8.54554 9.7807 7.22723 9.7807 5.60102C9.7807 3.9748 8.4624 2.65649 6.83618 2.65649C5.20997 2.65649 3.89166 3.9748 3.89166 5.60102C3.89166 7.22723 5.20997 8.54554 6.83618 8.54554Z">
                     </path>
-                </svg><a href="../travel-package/">Himachal Pradesh, India</a></div><svg class="arrow" width="25"
+                </svg><a href="../travel-package/">Himachal Pradesh, India</a>
+            </div>
+            <svg class="arrow" width="25"
                 height="6" viewBox="0 0 25 6" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 3L5 5.88675V0.113249L0 3ZM25 3L20 0.113249V5.88675L25 3ZM4.5 3.5H20.5V2.5H4.5V3.5Z">
                 </path>
-            </svg><span>05 Days</span>
+            </svg>
+            <span>05 Days</span>
         </div>
         <div class="btn-and-price-area"><a class="primary-btn1" href="../travel-package/details/"><span>Book Now<svg
                         width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">

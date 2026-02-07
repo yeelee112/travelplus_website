@@ -132,6 +132,47 @@
   display: none;
 }
 
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.home-trip-slider .swiper-wrapper {
+  display: flex;
+  align-items: stretch;
+}
+
+.home-trip-slider .swiper-slide {
+  height: auto;      /* QUAN TRỌNG */
+  display: flex;     /* QUAN TRỌNG */
+}
+
+
+.package-card > .h-100 {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.package-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.package-card > .h-100 {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.package-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
 
 /* _____________________________________________________ */
 /* _____________________________________________________ */
@@ -10012,6 +10053,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card {
     padding: 10px;
+    height:100%;
+    display: flex;
+  flex-direction: column;
     border-radius: 20px;
     border: 1px solid var(--borders-color);
     background-color: var(--white-color)
@@ -10177,7 +10221,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .package-card .package-content {
-    padding: 20px 15px 15px
+    padding: 20px 15px 15px;
 }
 
 @media (max-width:1399px) {
@@ -10219,7 +10263,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 30px
 }
 
 @media (min-width:992px) and (max-width:1199px) {
@@ -10231,12 +10274,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
 @media (min-width:768px) and (max-width:991px) {
     .package-card .package-content .location-and-time {
         gap: 5px
-    }
-}
-
-@media (max-width:576px) {
-    .package-card .package-content .location-and-time {
-        margin-bottom: 25px
     }
 }
 
@@ -10289,7 +10326,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .package-card .package-content .location-and-time span {
     color: var(--text-color);
     font-family: var(--font-poppins);
-    font-weight: 600;
     font-size: 14px;
     line-height: 1
 }
@@ -10333,7 +10369,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
     font-size: 14px;
     line-height: 1;
     margin-bottom: 10px;
-    text-align: end
 }
 
 @media (min-width:992px) and (max-width:1199px) {
@@ -10349,7 +10384,13 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .package-card .package-content .btn-and-price-area .price-area span {
-    color: var(--title-color);
+    background: linear-gradient(
+    0deg,
+    var(--primary-color1),
+    var(--primary-color3)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
     font-family: var(--font-poppins);
     font-weight: 600;
     font-size: 25px;

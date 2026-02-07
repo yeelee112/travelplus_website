@@ -9,16 +9,17 @@ class TourCard
         return [
             [
                 'id'    => 1,
-                'title' => 'Bali Paradise Tour',
+                'title' => 'Bali Paradise Tour One Two Three Tour Supers',
                 'slug'  => 'bali-paradise-tour',
-                'link'  => site_url('travel-package/details/bali-paradise-tour'),
+                'link'  => site_url('details/bali-paradise-tour'),
                 'image' => base_url('assets/images/avt-tour-01.jpg'),
                 'badge' => 'Hot Sale!',
-                'location' => 'Indonesia',
+                'continent' => 'Asia',
+                'departure' => '13/02/2026',
                 'duration' => [
                     'days' => 7,
                     'nights' => 6,
-                    'label' => '07 Days / 06 Nights'
+                    'label' => '07 Days - 06 Nights'
                 ],
                 'price' => [
                     'amount' => 139990000,
@@ -34,7 +35,8 @@ class TourCard
                 'link'  => site_url('travel-package/details/backwaters-beaches'),
                 'image' => base_url('assets/images/avt-tour-02.jpg'),
                 'badge' => null,
-                'location' => 'Kerala, India',
+                'continent' => 'European',
+                'departure' => '22/02/2026',
                 'duration' => [
                     'days' => 3,
                     'nights' => 2,
@@ -54,7 +56,8 @@ class TourCard
                 'link'  => site_url('travel-package/details/france-italy-switzerland'),
                 'image' => base_url('assets/images/avt-tour-01.jpg'),
                 'badge' => null,
-                'location' => 'France, Italy, Switzerland',
+                'continent' => 'Oceania',
+                'departure' => '14/02/2026',
                 'duration' => [
                     'days' => 7,
                     'nights' => 6,
