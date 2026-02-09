@@ -10097,8 +10097,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
     height: 0;
     left: 50%;
     top: 50%;
-    background-color: rgba(255, 255, 255, .3);
-    transform: translate(-50%, -50%) rotate(-45deg);
     content: "";
     z-index: 1
 }
@@ -14067,6 +14065,20 @@ header.style-3.two .main-menu>ul>li.active>a i {
     border-radius: 20px
 }
 
+.destination-card2 .destination-img {
+  width: 100%;
+  height: 220px; /* hoặc 200 / 240 tuỳ design */
+  overflow: hidden;
+}
+
+.destination-card2 .destination-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
 @media (max-width:576px) {
     .destination-card2 .destination-img {
         border-radius: 10px
@@ -14084,8 +14096,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
     height: 0;
     left: 50%;
     top: 50%;
-    background-color: rgba(255, 255, 255, .3);
-    transform: translate(-50%, -50%) rotate(-45deg);
     content: "";
     z-index: 1
 }
@@ -14402,19 +14412,19 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .destination-card2.four .destination-content {
-    padding: 30px 35px;
+    padding: 20px 25px;
     text-align: left
 }
 
 @media (min-width:1200px) and (max-width:1399px) {
     .destination-card2.four .destination-content {
-        padding: 25px 20px
+        padding: 20px 15px
     }
 }
 
 @media (min-width:992px) and (max-width:1199px) {
     .destination-card2.four .destination-content {
-        padding: 25px 15px
+        padding: 20px 15px
     }
 }
 

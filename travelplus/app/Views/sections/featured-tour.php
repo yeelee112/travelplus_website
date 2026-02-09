@@ -28,10 +28,5 @@
                 <div class="swiper-pagination2 paginations"></div>
             </div>
         </div>
-    </div><img alt="" loading="lazy" width="70" height="220" decoding="async" data-nimg="1" class="vector1"
-        style="color:transparent" src="../assets/img/home2/vector/home2-package-slider-vector1.svg"><img alt=""
-        loading="lazy" width="68" height="220" decoding="async" data-nimg="1" class="vector2" style="color:transparent"
-        src="../assets/img/home2/vector/home2-package-slider-vector2.svg"><img alt="" loading="lazy" width="60"
-        height="220" decoding="async" data-nimg="1" class="vector3" style="color:transparent"
-        src="../assets/img/home2/vector/home2-package-slider-vector3.svg">
+    </div>
 </div>

@@ -1,0 +1,99 @@
+{
+  "vietnam": [
+    {
+      "title": "Hà Nội",
+      "image": "assets/images/avt-tour-01.jpg",
+      "col": "col-lg-5 col-md-7",
+      "delay": "200ms",
+      "link": "du-lich-ha-noi"
+    },
+    {
+      "title": "Đà Nẵng",
+      "image": "assets/images/avt-tour-02.jpg",
+      "col": "col-lg-3 col-md-5",
+      "delay": "400ms",
+      "link": "du-lich-da-nang"
+    },
+    {
+      "title": "Đà Lạt",
+      "image": "assets/images/avt-tour-01.jpg",
+      "col": "col-lg-4 col-md-7",
+      "delay": "200ms",
+      "link": "du-lich-da-lat"
+    },{
+      "title": "Nha Trang",
+      "image": "assets/images/avt-tour-02.jpg",
+      "col": "col-lg-4 col-md-5",
+      "delay": "200ms",
+      "link": "du-lich-nha-trang"
+    },{
+      "title": "Hội An",
+      "image": "assets/images/avt-tour-01.jpg",
+      "col": "col-lg-3 col-md-7",
+      "delay": "200ms",
+      "link": "du-lich-hoi-an"
+    },{
+      "title": "Sapa",
+      "image": "assets/images/avt-tour-02.jpg",
+      "col": "col-lg-5 col-md-5",
+      "delay": "200ms",
+      "link": "du-lich-sapa"
+    }
+  ],
+  "asia": [
+    {
+      "title": "Tokyo, Japan",
+      "image": "assets/images/avt-tour-01.jpg",
+      "col": "col-lg-5 col-md-7",
+      "delay": "200ms"
+    },
+    {
+      "title": "Korea",
+      "image": "assets/images/avt-tour-02.jpg",
+      "col": "col-lg-3 col-md-5",
+      "delay": "400ms",
+      "link": "du-lich-korea"
+    },
+    {
+      "title": "Đà Lạt",
+      "image": "assets/images/avt-tour-01.jpg",
+      "col": "col-lg-4 col-md-7",
+      "delay": "200ms",
+      "link": "du-lich-da-lat"
+    },{
+      "title": "Nha Trang",
+      "image": "assets/images/avt-tour-02.jpg",
+      "col": "col-lg-4 col-md-5",
+      "delay": "200ms",
+      "link": "du-lich-nha-trang"
+    },{
+      "title": "Hội An",
+      "image": "assets/images/avt-tour-01.jpg",
+      "col": "col-lg-3 col-md-7",
+      "delay": "200ms",
+      "link": "du-lich-hoi-an"
+    },{
+      "title": "Sapa",
+      "image": "assets/images/avt-tour-02.jpg",
+      "col": "col-lg-5 col-md-5",
+      "delay": "200ms",
+      "link": "du-lich-sapa"
+    }
+  ],
+  "europe": [
+    {
+      "title": "Paris, France",
+      "image": "assets/images/avt-tour-02.jpg",
+      "col": "col-lg-4 col-md-6",
+      "delay": "200ms"
+    }
+  ],
+  "america": [
+    {
+      "title": "New York, USA",
+      "image": "assets/images/avt-tour-01.jpg",
+      "col": "col-lg-6 col-md-6",
+      "delay": "200ms"
+    }
+  ]
+}

@@ -1,216 +1,176 @@
-document.addEventListener('DOMContentLoaded', () => {
-   const toggles = document.querySelectorAll('[data-toggle="dropdown"]');
-
-    const closeAll = () => {
-        document.querySelectorAll('.active, .show-menu').forEach(el => {
-            el.classList.remove('active', 'show-menu');
-        });
-    };
-
-    toggles.forEach(btn => {
-        const activeClass = btn.dataset.active || 'active';
-
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-
-            const wrapper = btn.closest(
-                '.language-area, .contact-area, .search-bar, .nav-right'
-            );
-
-
-            if (!wrapper) return;
-
-            const target = wrapper.querySelector(btn.dataset.target);
-            if (!target) return;
-
-            const isOpen = target.classList.contains(activeClass);
-            closeAll();
-
-            if (!isOpen) {
-                target.classList.add(activeClass);
-            }
-        });
-    });
-
-    document.addEventListener('click', closeAll);
-
-    const menuCloseBtn = document.querySelector('.menu-close-btn');
-    const mainMenu = document.querySelector('.main-menu');
-
-    if (!menuCloseBtn || !mainMenu) return;
-
-    menuCloseBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        mainMenu.classList.remove('show-menu');
-    });
-
-    const languageArea = document.querySelector('.language-area');
-    const languageBtn  = document.querySelector('.language-btn');
-    const languageList = document.querySelector('.language-list');
-
-    if (!languageArea || !languageBtn || !languageList) return;
-
-    // Click vào nút → toggle
-    languageBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // không cho nổi ra document
-        languageList.classList.toggle('active');
-    });
-
-    // Click ra ngoài → đóng
-    document.addEventListener('click', () => {
-        languageList.classList.remove('active');
-    });
-
-    // Click trong list → không bị đóng
-    languageList.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    flatpickr('#departure_date', {
-        dateFormat: 'd/m/Y',
-        minDate: 'today',
-        enableTime: false,
-        altInput: true,
-        altFormat: 'D j F, Y', 
-        locale: 'vn',
-        disableMobile: true,
-    });
-});
-
-document.querySelectorAll(".custom-select-wrap").forEach(wrap => {
-  wrap.addEventListener("click", e => {
-    e.stopPropagation();
+document.addEventListener("DOMContentLoaded", () => {
+  flatpickr("#departure_date", {
+    dateFormat: "d/m/Y",
+    minDate: "today",
+    enableTime: false,
+    altInput: true,
+    altFormat: "D j F, Y",
+    locale: "vn",
+    disableMobile: true,
   });
 });
-
-
 document.addEventListener("DOMContentLoaded", () => {
+  /* =====================================================
+     HELPER
+  ===================================================== */
+  const qs = (s, p = document) => p.querySelector(s);
+  const qsa = (s, p = document) => [...p.querySelectorAll(s)];
 
-  /* ===============================
-     CUSTOM SELECT DROPDOWN (Category, Country, Activity...)
-  =============================== */
-  document.querySelectorAll(".category-box").forEach(box => {
+  const closeActive = (selector) => {
+    qsa(selector).forEach((el) => el.classList.remove("active"));
+  };
 
-    const dropdown = box.querySelector(".custom-select-dropdown");
-    const wrap = box.querySelector(".custom-select-wrap");
-    if (!dropdown || !wrap) return; // ⛔ box này không phải dropdown
-
-    const input = dropdown.querySelector("input");
-    const items = wrap.querySelectorAll(".option-list .single-item");
-
-    
-
-    // toggle dropdown
-    dropdown.addEventListener("click", e => {
+  /* =====================================================
+     HEADER DROPDOWN (language / contact / search)
+  ===================================================== */
+  qsa('[data-toggle="dropdown"]').forEach((btn) => {
+    btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      closeAllDropdowns();
+
+      const wrapper = btn.closest(
+        ".language-area, .contact-area, .search-bar, .nav-right",
+      );
+      if (!wrapper) return;
+
+      const target = wrapper.querySelector(btn.dataset.target);
+      if (!target) return;
+
+      const isOpen = target.classList.contains("active");
+
+      // ❗ chỉ đóng dropdown header
+      closeActive(
+        ".language-list.active, .contact-list.active, .search-box.active",
+      );
+
+      if (!isOpen) target.classList.add("active");
+    });
+  });
+
+  /* =====================================================
+     MENU CLOSE
+  ===================================================== */
+  const menuCloseBtn = qs(".menu-close-btn");
+  const mainMenu = qs(".main-menu");
+
+  if (menuCloseBtn && mainMenu) {
+    menuCloseBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      mainMenu.classList.remove("show-menu");
+    });
+  }
+
+  /* =====================================================
+     LANGUAGE DROPDOWN (RIÊNG)
+  ===================================================== */
+  const languageBtn = qs(".language-btn");
+  const languageList = qs(".language-list");
+
+  if (languageBtn && languageList) {
+    languageBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      languageList.classList.toggle("active");
+    });
+
+    languageList.addEventListener("click", (e) => e.stopPropagation());
+  }
+
+  /* =====================================================
+     CUSTOM SELECT (Category / Country / Activity)
+  ===================================================== */
+  qsa(".category-box").forEach((box) => {
+    const dropdown = qs(".custom-select-dropdown", box);
+    const wrap = qs(".custom-select-wrap", box);
+    if (!dropdown || !wrap) return;
+
+    const input = qs("input", dropdown);
+    const items = qsa(".option-list .single-item", wrap);
+
+    dropdown.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeActive(".custom-select-wrap.active");
       wrap.classList.toggle("active");
     });
 
-    // chọn item
-    items.forEach(item => {
+    items.forEach((item) => {
       item.addEventListener("click", () => {
-        const text =
-          item.querySelector("h6")?.innerText ||
-          item.innerText;
-
+        const text = item.querySelector("h6")?.innerText || item.innerText;
         if (input) input.value = text.trim();
         wrap.classList.remove("active");
       });
     });
+
+    wrap.addEventListener("click", (e) => e.stopPropagation());
   });
 
-  // click ra ngoài → đóng hết
-  document.addEventListener("click", () => {
-    closeAllDropdowns();
-  });
+  /* =====================================================
+     DESTINATION DROPDOWN (CHỌN NHANH)
+  ===================================================== */
+  qsa(".destination-box").forEach((box) => {
+    const dropdown = qs(".destination-dropdown", box);
+    const wrap = qs(".custom-select-wrap", box);
+    const items = qsa(".destination-item", box);
 
-  function closeAllDropdowns() {
-    document
-      .querySelectorAll(".custom-select-wrap.active")
-      .forEach(el => el.classList.remove("active"));
-  }
+    const input = qs(".main-destination-input", box);
+    const nameEl = qs(".dest-name", box);
+    const countryEl = qs(".dest-country", box);
+    const placeholder = qs(".placeholder-text", box);
+    const selectedBox = qs(".destination.selected", box);
 
-  /* ===============================
-     FILTER TAB (Tours / Hotels / Visa / Experience)
-  =============================== */
-  const filterTabs = document.querySelectorAll(".filter-item-list .single-item");
-  const filterForms = document.querySelectorAll(".filter-input");
+    if (!dropdown || !wrap) return;
 
-  filterTabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => {
-      filterTabs.forEach(t => t.classList.remove("active"));
-      filterForms.forEach(f => f.classList.remove("show"));
-
-      tab.classList.add("active");
-      if (filterForms[index]) {
-        filterForms[index].classList.add("show");
-      }
-    });
-  });
-
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  document.querySelectorAll(".destination-box").forEach(box => {
-
-    const dropdown = box.querySelector(".destination-dropdown");
-    const wrap = box.querySelector(".custom-select-wrap");
-    const items = box.querySelectorAll(".destination-item");
-
-    const input = box.querySelector(".main-destination-input");
-    const nameEl = box.querySelector(".dest-name");
-    const countryEl = box.querySelector(".dest-country");
-    const placeholder = box.querySelector(".placeholder-text");
-    const selectedBox = box.querySelector(".destination.selected");
-
-    // mở / đóng dropdown
-    dropdown.addEventListener("click", e => {
+    dropdown.addEventListener("click", (e) => {
       e.stopPropagation();
-      closeAll();
+      closeActive(".custom-select-wrap.active");
       wrap.classList.toggle("active");
     });
 
-    // click chọn nơi đến
-    items.forEach(item => {
-      item.addEventListener("click", e => {
+    items.forEach((item) => {
+      item.addEventListener("click", (e) => {
         e.stopPropagation();
 
-        const name = item.dataset.name;
-        const country = item.dataset.country;
+        nameEl.innerText = item.dataset.name;
+        countryEl.innerText = item.dataset.country;
+        input.value = item.dataset.country;
 
-        nameEl.innerText = name;
-        countryEl.innerText = country;
-        input.value = country; // hoặc `${name}, ${country}`
-
-        placeholder.classList.add("hidden");
-        selectedBox.classList.remove("hidden");
+        placeholder?.classList.add("hidden");
+        selectedBox?.classList.remove("hidden");
         wrap.classList.remove("active");
       });
     });
 
-    // không cho click trong dropdown bị đóng
-    wrap.addEventListener("click", e => e.stopPropagation());
+    wrap.addEventListener("click", (e) => e.stopPropagation());
   });
 
-  // click ngoài → đóng hết
-  document.addEventListener("click", closeAll);
+  /* =====================================================
+     FILTER TAB (Tours / Hotels / Visa / Experience)
+  ===================================================== */
+  const filterTabs = qsa(".filter-item-list .single-item");
+  const filterForms = qsa(".filter-input");
 
-  function closeAll() {
-    document
-      .querySelectorAll(".custom-select-wrap.active")
-      .forEach(el => el.classList.remove("active"));
-  }
-});
+  filterTabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => {
+      filterTabs.forEach((t) => t.classList.remove("active"));
+      filterForms.forEach((f) => f.classList.remove("show"));
 
+      tab.classList.add("active");
+      filterForms[index]?.classList.add("show");
+    });
+  });
 
-document.addEventListener("DOMContentLoaded", () => {
+  /* =====================================================
+     CLICK OUTSIDE – ĐÓNG DROPDOWN (CHUNG)
+  ===================================================== */
+  document.addEventListener("click", () => {
+    closeActive(
+      ".language-list.active, .contact-list.active, .search-box.active, .custom-select-wrap.active",
+    );
+  });
 
-  document.querySelectorAll(".destination-box").forEach(box => {
+  /* =====================================================
+     SEARCH DESTINATION
+  ===================================================== */
 
+  document.querySelectorAll(".destination-box").forEach((box) => {
     const input = box.querySelector(".destination-input");
     const wrap = box.querySelector(".custom-select-wrap");
     const list = box.querySelector(".option-list-destination");
@@ -220,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const keyword = input.value.trim();
 
       clearBtn.classList.toggle("hidden", keyword.length === 0);
-
     });
 
     if (!input || !wrap || !list) return;
@@ -243,8 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       timer = setTimeout(() => {
         fetch(`/api/destinations?q=${encodeURIComponent(keyword)}`)
-          .then(res => res.json())
-          .then(data => renderList(data))
+          .then((res) => res.json())
+          .then((data) => renderList(data))
           .catch(() => {
             list.innerHTML = `
               <li class="single-item">
@@ -265,22 +224,25 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      data.forEach(item => {
+      data.forEach((item) => {
         const li = document.createElement("li");
         li.className = "single-item";
 
         li.innerHTML = `
           <h6>
-            ${item.type === 'country'
-              ? item.name
-              : `${item.name}, ${item.country}`}
+            ${
+              item.type === "country"
+                ? item.name
+                : `${item.name}, ${item.country}`
+            }
           </h6>
         `;
 
         li.addEventListener("click", () => {
-          input.value = item.type === 'country'
-            ? item.name
-            : `${item.name}, ${item.country}`;
+          input.value =
+            item.type === "country"
+              ? item.name
+              : `${item.name}, ${item.country}`;
 
           wrap.classList.remove("active");
           list.innerHTML = "";
@@ -291,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // click ra ngoài → đóng dropdown
-    document.addEventListener("click", e => {
+    document.addEventListener("click", (e) => {
       if (!box.contains(e.target)) {
         wrap.classList.remove("active");
       }
@@ -308,12 +270,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       input.focus();
     });
-
   });
 
-});
-
-document.addEventListener("DOMContentLoaded", function () {
+  /* =====================================================
+  BANNER SLIDE
+  ===================================================== */
 
   const sliderEl = document.querySelector(".home6-banner-slider");
 
@@ -345,11 +306,10 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   });
 
-});
+  /* =====================================================
+  TOUR SLIDE
+  ===================================================== */
 
-document.addEventListener("DOMContentLoaded", function () {
-
-  // ===== SWIPER CHA: Popular Package =====
   if (document.querySelector(".home-trip-slider")) {
     new Swiper(".home-trip-slider", {
       slidesPerView: "auto",
@@ -378,5 +338,81 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     });
   }
-});
 
+  /* =====================================================
+  FEATURED DESTINATION – CONTINENT TABS
+  ===================================================== */
+
+  fetch(`${window.BASE_URL}assets/js/data/destinations.json`)
+    .then((res) => res.json())
+    .then((data) => initContinents(data));
+
+  function initContinents(data) {
+    const tabList = document.getElementById("continent-tabs");
+    const tabContent = document.getElementById("continent-contents");
+
+    let isFirst = true;
+
+    Object.keys(data).forEach((key) => {
+      const tabId = `tab-${key}`;
+
+      /* ---------- TAB BUTTON ---------- */
+      tabList.innerHTML += `
+      <li class="nav-item">
+        <button class="nav-link ${isFirst ? "active" : ""}"
+          data-bs-toggle="pill"
+          data-bs-target="#${tabId}"
+          type="button">
+          ${capitalize(key)}
+        </button>
+      </li>
+    `;
+
+      /* ---------- TAB CONTENT ---------- */
+      tabContent.innerHTML += `
+      <div class="tab-pane fade ${isFirst ? "show active" : ""}" id="${tabId}">
+        <div class="row g-xl-4 g-lg-3 gy-4" id="content-${key}"></div>
+      </div>
+    `;
+
+      renderCards(data[key], `content-${key}`);
+      isFirst = false;
+    });
+
+    new WOW().init();
+  }
+
+  function renderCards(items, containerId) {
+    const container = document.getElementById(containerId);
+    let html = "";
+
+    items.forEach((item) => {
+      html += `
+      
+      <div class="${item.col}">
+            <a href="${item.link}">
+
+        <div class="destination-card2 four">
+          <div class="destination-img">
+              <img src="${item.image}" alt="${item.title}">
+          </div>
+          <div class="destination-content-wrap">
+            <div class="destination-content">
+              <h5 class="text-white">${item.title}</h5>
+            </div>
+          </div>
+        </div>
+            </a>
+
+      </div>
+     
+    `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+});
