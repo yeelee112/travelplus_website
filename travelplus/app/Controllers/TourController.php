@@ -11,4 +11,11 @@ class TourController extends BaseController
 
         return view('sections/featured-tour', ['tours' => $tours]);
     }
+
+    public function homeTour()
+    {
+        $tours = TourCard::getAll();
+
+        return view('sections/home-tour', ['tours' => $tours]);
+    }
 }

@@ -29,3 +29,6 @@ $routes->group('(:segment)', ['filter' => 'setlocale'], function ($routes) {
 $routes->get('api/destinations', 'Api\Destination::search');
 
 $routes->get('featured-tour', 'TourController::featured');
+
+$routes->get('home-tour', 'TourController::homeTour');
+

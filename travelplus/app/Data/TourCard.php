@@ -89,6 +89,46 @@ class TourCard
                     'label' => '139.990.000 đ'
                 ],
             ],
+            [
+                'id'    => 5,
+                'title' => 'France - Italy - Switzerland',
+                'slug'  => 'france-italy-switzerland',
+                'link'  => site_url('travel-package/details/france-italy-switzerland'),
+                'image' => base_url('assets/images/avt-tour-01.jpg'),
+                'badge' => null,
+                'continent' => 'Oceania',
+                'departure' => '14/02/2026',
+                'duration' => [
+                    'days' => 7,
+                    'nights' => 6,
+                    'label' => '07 Days / 06 Nights'
+                ],
+                'price' => [
+                    'amount' => 139990000,
+                    'currency' => 'đ',
+                    'label' => '139.990.000 đ'
+                ],
+            ],
+            [
+                'id'    => 6,
+                'title' => 'France - Italy - Switzerland',
+                'slug'  => 'france-italy-switzerland',
+                'link'  => site_url('travel-package/details/france-italy-switzerland'),
+                'image' => base_url('assets/images/avt-tour-01.jpg'),
+                'badge' => null,
+                'continent' => 'Oceania',
+                'departure' => '14/02/2026',
+                'duration' => [
+                    'days' => 7,
+                    'nights' => 6,
+                    'label' => '07 Days / 06 Nights'
+                ],
+                'price' => [
+                    'amount' => 139990000,
+                    'currency' => 'đ',
+                    'label' => '139.990.000 đ'
+                ],
+            ],
         ];
     }
 }
