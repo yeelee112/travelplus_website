@@ -3,7 +3,7 @@
 * {
     margin: 0;
     padding: 0;
-    scroll-behavior: smooth
+    scroll-behavior: smooth;
 }
 
 ::selection {
@@ -173,7 +173,9 @@
   flex-direction: column;
   flex: 1;
 }
-
+.package-content .package-info {
+  flex-grow: 1;
+}   
 /* _____________________________________________________ */
 /* _____________________________________________________ */
 /* _____________________________________________________ */

@@ -23,10 +23,8 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-12 d-flex justify-content-center">
+            <div class=" d-flex justify-content-center">
                 <div class="swiper-pagination2 paginations"></div>
             </div>
-        </div>
     </div>
 </div>

@@ -415,4 +415,99 @@ document.addEventListener("DOMContentLoaded", () => {
   function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
+
+  const progressWrap = document.getElementById("progressWrap");
+  const progressPath = document.getElementById("progressPath");
+
+  if (progressPath) {
+    const pathLength = progressPath.getTotalLength();
+
+    progressPath.style.strokeDasharray = pathLength + " " + pathLength;
+    progressPath.style.strokeDashoffset = pathLength;
+
+    const updateProgress = () => {
+      const scrollY = window.scrollY;
+      const height =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+      const progress = pathLength - (scrollY * pathLength) / height;
+
+      progressPath.style.strokeDashoffset = progress;
+
+      if (scrollY > 50) {
+        progressWrap.classList.add("active-progress");
+      } else {
+        progressWrap.classList.remove("active-progress");
+      }
+    };
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress);
+  }
+
+  // Scroll to top
+  if (progressWrap) {
+    progressWrap.addEventListener("click", function () {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+  }
+
+  /* =========================
+     COUNTER ANIMATION
+  ========================== */
+
+  function initCounter(selector = ".counter", duration = 2000, threshold = 0.8) {
+    const counters = document.querySelectorAll(selector);
+    if (!counters.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= threshold) {
+            const el = entry.target;
+            const target = parseInt(
+              el.innerText.replace(/,/g, ""),
+              10
+            );
+
+            animateCounter(el, target, duration);
+            obs.unobserve(el);
+          }
+        });
+      },
+      {
+        threshold: Array.from({ length: 21 }, (_, i) => i / 20),
+        rootMargin: "0px 0px -10% 0px",
+      }
+    );
+
+    counters.forEach((el) => observer.observe(el));
+  }
+
+  function animateCounter(element, target, duration) {
+    const start = performance.now();
+
+    function update(now) {
+      const progress = Math.min((now - start) / duration, 1);
+
+      const value = Math.floor(
+        target * (1 - Math.pow(1 - progress, 3))
+      );
+
+      element.innerText = value.toLocaleString();
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      } else {
+        element.innerText = target.toLocaleString();
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  initCounter();
 });
