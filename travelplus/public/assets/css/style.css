@@ -1247,7 +1247,7 @@ body.tt-magic-cursor #magic-cursor {
 .progress-wrap {
     position: fixed;
     right: 30px;
-    bottom: 30px;
+    bottom: 90px;
     height: 45px;
     width: 45px;
     cursor: pointer;
@@ -3679,9 +3679,25 @@ header.style-1 .main-menu>ul>li.menu-item-has-children {
     header.style-1 .main-menu>ul>li:hover .mega-menu,
     header.style-1 .main-menu>ul>li:hover>ul.sub-menu {
         display: block;
-        animation: fade-down .3s linear
+        animation: fadeIn .1s linear
     }
 }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  60% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 
 header.style-1 .main-menu>ul>li.active .dropdown-icon2,
 header.style-1 .main-menu>ul>li.active>a,
@@ -8086,7 +8102,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .filter-wrapper .filter-input-wrap {
-    padding: 60px 40px 30px;
+    padding: 40px 30px 20px;
     background-color: var(--white-color);
     box-shadow: 0 4px 25px 0 rgba(0, 0, 0, .08);
     border-radius: 20px
@@ -8094,19 +8110,19 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 @media (max-width:1399px) {
     .filter-wrapper .filter-input-wrap {
-        padding: 60px 30px 30px
+        padding: 40px 30px 20px
     }
 }
 
 @media (min-width:992px) and (max-width:1199px) {
     .filter-wrapper .filter-input-wrap {
-        padding: 60px 20px 30px
+        padding: 40px 20px 20px
     }
 }
 
 @media (max-width:767px) {
     .filter-wrapper .filter-input-wrap {
-        padding: 50px 20px 30px
+        padding: 40px 20px 20px
     }
 }
 
@@ -12767,7 +12783,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section {
-    background-image: url(../media/footer-bg.d183370d.png), linear-gradient(180deg, #110F0F, #110F0F);
+    background-image: linear-gradient(rgba(180, 230, 255, 0.8), rgba(180, 230, 255, 0.9)), url(../images/footer-bg.png);
     background-size: cover;
     background-repeat: no-repeat
 }

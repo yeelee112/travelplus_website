@@ -29,9 +29,13 @@ $destinations = include APPPATH . 'Views/data/destinations.php';
 ?>
 
 <script>
+  const URL_API = "<?= localized_url() ?>";
   window.BASE_URL = "<?= base_url() ?>";
   window.DESTINATIONS = <?= json_encode($destinations, JSON_UNESCAPED_UNICODE) ?>;
 </script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LfgBncsAAAAAEmWNoT1xtCidf_t3tQEK7YkhWvw"></script>
+
+<script type="module" src="<?= base_url('assets/js/about-us.js') ?>"></script>
 
 <script type="module" src="<?= base_url('assets/js/main.js') ?>"></script>
 

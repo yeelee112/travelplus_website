@@ -7,7 +7,7 @@ if (! function_exists('seo_meta')) {
      */
     function seo_meta(array $data = []): string
     {
-        $title = esc($data['title'] ?? setting('App.siteName') ?? 'TravelPlus');
+        $title = esc($data['title'] ?? config('App')->siteName ?? 'TravelPlus');
         $desc = esc($data['description'] ?? 'Explore the world with TravelPlus');
         $image = esc($data['image'] ?? base_url('public/assets/images/og-default.jpg'));
         $canonical = esc($data['canonical'] ?? current_url());

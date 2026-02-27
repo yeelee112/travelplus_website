@@ -6,29 +6,37 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
-// $routes->setAutoRoute(false);
-$routes->get('/', 'Home::index');
+$routes->setDefaultController('Home');
+$routes->setDefaultMethod('index');
+$routes->setAutoRoute(false);
 
-// Sitemap for SEO
-$routes->get('sitemap.xml', 'Sitemap::index');
+/*
+|--------------------------------------------------------------------------
+| Default language (VI)
+|--------------------------------------------------------------------------
+*/
 
-// Localized routes - first segment MAY be locale (en/vi)
-$routes->get('(:segment)', 'Home::index', ['filter' => 'setlocale']);
-// localized sitemap
-$routes->get('(:segment)/sitemap.xml', 'Sitemap::index', ['filter' => 'setlocale']);
+$routes->GET('/', 'Home::index');
+$routes->GET('api/destinations', 'Api\Destination::search');
+$routes->GET('ve-chung-toi', 'AboutUs::index');
 
-$routes->group('(:segment)', ['filter' => 'setlocale'], function ($routes) {
-    $routes->get('/', 'Home::index');
+
+
+$routes->match(['GET','POST'], 'contact', 'Contact::index');
+
+/*
+|--------------------------------------------------------------------------
+| English prefix
+|--------------------------------------------------------------------------
+*/
+
+$routes->group('en', function ($routes) {
+    $routes->GET('/', 'Home::index');
+    $routes->GET('ve-chung-toi', 'AboutUs::index');
+    $routes->match(['GET','POST'], 'contact', 'Contact::index');
+
 });
 
-$routes->group('(:segment)', ['filter' => 'setlocale'], function ($routes) {
-    $routes->get('/', 'Home::index');
-    $routes->get('test-db', 'Test::db');
-});
 
-$routes->get('api/destinations', 'Api\Destination::search');
 
-$routes->get('featured-tour', 'TourController::featured');
-
-$routes->get('home-tour', 'TourController::homeTour');
 

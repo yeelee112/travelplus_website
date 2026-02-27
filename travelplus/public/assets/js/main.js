@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
       list.innerHTML = `<li class="single-item"><h6>Loading...</h6></li>`;
 
       timer = setTimeout(() => {
-        fetch(`/api/destinations?q=${encodeURIComponent(keyword)}`)
+        fetch(`${BASE_URL}api/destinations?q=${encodeURIComponent(keyword)}`)
           .then((res) => res.json())
           .then((data) => renderList(data))
           .catch(() => {
@@ -305,6 +305,9 @@ document.addEventListener("DOMContentLoaded", () => {
       type: "fraction",
     },
   });
+
+
+
 
   /* =====================================================
   TOUR SLIDE
@@ -510,4 +513,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   initCounter();
+
+  const testimonialSwiper = new Swiper(".home1-testimonial-slider", {
+    slidesPerView: "auto",
+    speed: 1500,
+    spaceBetween: 24,
+
+    autoplay: {
+      delay: 2500,
+      pauseOnMouseEnter: true,
+      disableOnInteraction: false,
+    },
+
+    navigation: {
+      nextEl: ".testimonial-slider-next",
+      prevEl: ".testimonial-slider-prev",
+    },
+
+    breakpoints: {
+      280: { slidesPerView: 1 },
+      386: { slidesPerView: 1 },
+      576: { slidesPerView: 1 },
+      768: { slidesPerView: 2, spaceBetween: 15 },
+      992: { slidesPerView: 3, spaceBetween: 15 },
+      1200: { slidesPerView: 3, spaceBetween: 15 },
+      1400: { slidesPerView: 3 },
+    },
+  });
 });

@@ -19,12 +19,6 @@
             <ul class="contact-area">
                 <li class="single-contact">
                     <div class="icon"><img alt="" loading="lazy" width="22" height="22" decoding="async" data-nimg="1"
-                            style="color:transparent" src="/assets/img/home1/icon/whatsapp-icon2.svg"></div>
-                    <div class="content"><span>WhatsApp</span><a href="https://wa.me/91345533865">+91 345 533 865</a>
-                    </div>
-                </li>
-                <li class="single-contact">
-                    <div class="icon"><img alt="" loading="lazy" width="22" height="22" decoding="async" data-nimg="1"
                             style="color:transparent" src="/assets/img/home1/icon/mail-icon2.svg"></div>
                     <div class="content"><span>Mail Us</span><a href="mailto:info@example.com">info@example.com</a>
                     </div>
@@ -45,7 +39,7 @@
                 <div class="col-lg-3 col-md-4 col-sm-6">
                     <div class="footer-logo-and-addition-info"><a class="footer-logo" href="/"><img alt=""
                                 loading="lazy" width="120" height="45" decoding="async" data-nimg="1"
-                                style="color:transparent" src="/assets/img/footer-logo.svg"></a>
+                                style="color:transparent" src="<?= base_url('assets/images/logo.svg') ?>"></a>
                         <div class="address-area"><span>GoFly Travel Agency</span><a href="#">Skyline Plaza, 5th Floor,
                                 123 Main Street Los Angeles, CA 90001, USA</a></div>
                         <ul class="social-list">
@@ -138,7 +132,7 @@
         </div>
     </div>
 </footer>
-<div class="progress-wrap " id="progressWrap"   >
+<div class="progress-wrap " id="progressWrap">
     <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
         <path id="progressPath" d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98"></path>
     </svg>

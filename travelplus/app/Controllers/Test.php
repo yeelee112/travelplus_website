@@ -9,9 +9,9 @@ class Test extends BaseController
         $db = \Config\Database::connect();
 
         return [
-            'username' => $db->getUsername(),
-            'database' => $db->getDatabase(),
-            'driver'   => $db->getPlatform(),
+            // 'username' => $db->getUsername(),
+            // 'database' => $db->getDatabase(),
+            // 'driver'   => $db->getPlatform(),
         ];
     }
 }

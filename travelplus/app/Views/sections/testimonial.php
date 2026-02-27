@@ -31,7 +31,6 @@
                                 <div class="author-area">
                                     <div class="author-img"><img alt="" loading="lazy" width="550" height="220"
                                             decoding="async" data-nimg="1" style="color:transparent"
-                                            srcset="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img1.png&amp;w=640&amp;q=75 1x, /_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img1.png&amp;w=1200&amp;q=75 2x"
                                             src="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img1.png&amp;w=1200&amp;q=75">
                                     </div>
                                     <div class="author-info">
@@ -55,7 +54,6 @@
                                 <div class="author-area">
                                     <div class="author-img"><img alt="" loading="lazy" width="550" height="220"
                                             decoding="async" data-nimg="1" style="color:transparent"
-                                            srcset="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img3.png&amp;w=640&amp;q=75 1x, /_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img3.png&amp;w=1200&amp;q=75 2x"
                                             src="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img3.png&amp;w=1200&amp;q=75">
                                     </div>
                                     <div class="author-info">
@@ -104,7 +102,6 @@
                                 <div class="author-area">
                                     <div class="author-img"><img alt="" loading="lazy" width="550" height="220"
                                             decoding="async" data-nimg="1" style="color:transparent"
-                                            srcset="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img2.png&amp;w=640&amp;q=75 1x, /_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img2.png&amp;w=1200&amp;q=75 2x"
                                             src="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img2.png&amp;w=1200&amp;q=75">
                                     </div>
                                     <div class="author-info">
@@ -128,7 +125,6 @@
                                 <div class="author-area">
                                     <div class="author-img"><img alt="" loading="lazy" width="550" height="220"
                                             decoding="async" data-nimg="1" style="color:transparent"
-                                            srcset="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img4.png&amp;w=640&amp;q=75 1x, /_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img4.png&amp;w=1200&amp;q=75 2x"
                                             src="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img4.png&amp;w=1200&amp;q=75">
                                     </div>
                                     <div class="author-info">
@@ -177,7 +173,6 @@
                                 <div class="author-area">
                                     <div class="author-img"><img alt="" loading="lazy" width="550" height="220"
                                             decoding="async" data-nimg="1" style="color:transparent"
-                                            srcset="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img5.png&amp;w=640&amp;q=75 1x, /_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img5.png&amp;w=1200&amp;q=75 2x"
                                             src="/_next/image?url=%2Fassets%2Fimg%2Fhome1%2Ftestimonial-author-img5.png&amp;w=1200&amp;q=75">
                                     </div>
                                     <div class="author-info">
@@ -190,14 +185,15 @@
                 </div>
             </div>
         </div>
-        <div class="review-and-slider-btn wow animate fadeInUp" data-wow-delay="200ms" data-wow-duration="1500ms"><a
-                href="https://www.trustpilot.com/" class="single-rating"><strong>4.5</strong>
+        <div class="review-and-slider-btn wow animate fadeInUp" data-wow-delay="200ms" data-wow-duration="1500ms">
+            <a href="" class="single-rating">
+                <!-- <strong>4.5</strong>
                 <div class="trustpilot-rating"><img alt="" loading="lazy" width="100" height="24" decoding="async"
                         data-nimg="1" style="color:transparent" src="/assets/img/home1/icon/trustpilot-logo.svg">
                     <div class="rating-area"><img alt="" loading="lazy" width="80" height="16" decoding="async"
                             data-nimg="1" style="color:transparent"
                             src="/assets/img/home1/icon/trustpilot-star.svg"><span>(2K reviews)</span></div>
-                </div>
+                </div> -->
             </a>
             <div class="slider-btn-grp">
                 <div class="slider-btn testimonial-slider-prev"><svg width="14" height="14" viewBox="0 0 14 14"
@@ -216,13 +212,15 @@
                                 stroke-width="1.5" stroke-linecap="round"></path>
                         </g>
                     </svg></div>
-            </div><a href="https://www.tripadvisor.com/" class="single-rating"><strong>4.5</strong>
+            </div>
+            <a href="" class="single-rating">
+                <!-- <strong>4.5</strong>
                 <div class="tripadvisor-rating"><img alt="" loading="lazy" width="135" height="28" decoding="async"
                         data-nimg="1" style="color:transparent" src="/assets/img/home1/icon/tripadvisor-logo.svg">
                     <div class="rating-area"><span>Reviews</span><img alt="" loading="lazy" width="65" height="12"
                             decoding="async" data-nimg="1" style="color:transparent"
                             src="/assets/img/home1/icon/tripadvisor-start.svg"></div>
-                </div>
+                </div> -->
             </a>
         </div>
     </div>
