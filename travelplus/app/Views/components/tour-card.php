@@ -14,7 +14,7 @@
                     <?= esc($tour['title']) ?>
             </h5>
 
-            <div class="location-and-time mb-1">
+            <div class="location-and-time">
                 <div class="location"><i class="bi bi-geo-alt"></i><a href="#"><?= esc($tour['continent']) ?> </a>
                 </div>
                 <svg class="arrow" width="25" height="6" viewBox="0 0 25 6" xmlns="http://www.w3.org/2000/svg">

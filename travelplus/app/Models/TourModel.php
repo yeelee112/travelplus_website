@@ -8,10 +8,14 @@ class TourModel extends Model
 {
     protected $table = 'tours';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['title_en','title_vi','slug','description_en','description_vi','price','image','category_id','published'];
-
-    public function getFeatured($limit = 3)
-    {
-        return $this->where('published', 1)->orderBy('id', 'desc')->findAll($limit);
-    }
+    protected $allowedFields = [
+        'category_id',
+        'departure_location_id',
+        'tour_type',
+        'duration_days',
+        'duration_nights',
+        'thumbnail',
+        'is_featured',
+        'status'
+    ];
 }

@@ -39,7 +39,7 @@
                                 </path>
                             </svg></div><a href="mailto:info@travelplusvn.com">info@travelplusvn.com</a>
                     </li>
-                </ul><a class="header-logo" href="../"><img alt="" loading="lazy" width="550" height="220"
+                </ul><a class="header-logo" href="<?= localized_url('/') ?>"><img alt="" loading="lazy" width="550" height="220"
                         decoding="async" data-nimg="1" style="color:transparent"
                         src="<?= base_url('assets/images/logo.svg') ?>"></a>
                 <div class="topbar-right">
@@ -151,7 +151,7 @@
     </div>
     <header class="style-1 two">
         <div class="container d-flex flex-nowrap align-items-center justify-content-lg-center justify-content-between">
-            <a class="header-logo d-lg-none d-block" href="../"><img alt="" loading="lazy" width="550" height="220"
+            <a class="header-logo d-lg-none d-block" href="<?= localized_url('/') ?>"><img alt="" loading="lazy" width="550" height="220"
                     decoding="async" data-nimg="1" style="color:transparent" src="<?= base_url('assets/images/logo.svg') ?>"></a>
             <div class="main-menu ">
                 <div class="mobile-logo-area d-lg-none d-flex align-items-center justify-content-between"><a
@@ -165,214 +165,29 @@
                     </li> -->
 
                     <li class="menu-item-has-children position-inherit"><a class="drop-down"
-                            href="../destination/">TOUR NƯỚC NGOÀI<i class="bi bi-caret-down-fill"></i></a><i
+                            href="<?= localized_url('tour-nuoc-ngoai') ?>">TOUR NƯỚC NGOÀI<i class="bi bi-caret-down-fill"></i></a><i
                             class="bi bi-plus dropdown-icon"></i>
                         <div class="mega-menu none">
                             <div class="container">
                                 <div class="menu-row">
+                                    <?php foreach ($menu as $continent): ?>
                                     <div class="menu-single-item">
                                         <div class="menu-title">
-                                            <h5>Europe</h5>
+                                            <a href="<?= site_url($continent['slug']) ?>">
+                                                <h5><?= esc($continent['name']) ?></h5>
+                                            </a>
                                         </div><i class="bi bi-plus dropdown-icon"></i>
                                         <ul class="none">
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Ffrance-flag.png%26w%3D48%26q%3D75">Paris,
-                                                    France</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fuk-flag.png%26w%3D48%26q%3D75">United
-                                                    Kingdom</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fnetherland-flag.png%26w%3D48%26q%3D75">Netherlands</a>
+                                            <?php foreach ($continent['countries'] as $country): ?>
+                                            <li>
+                                                <a href="<?= site_url($country['slug']) ?>"><img src="https://flagcdn.com/w20/<?= strtolower($country['code']) ?>.png">
+                                                        <?= esc($country['name']) ?>
+                                                </a>
                                             </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fitaly-flag.png%26w%3D48%26q%3D75">Italy</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fgreece-flag.png%26w%3D48%26q%3D75">Greece</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fromania-flag.png%26w%3D48%26q%3D75">Romania</a>
-                                            </li>
+                                            <?php endforeach; ?>
                                         </ul>
                                     </div>
-                                    <div class="menu-single-item">
-                                        <div class="menu-title">
-                                            <h5>Asia</h5>
-                                        </div><i class="bi bi-plus dropdown-icon"></i>
-                                        <ul class="none">
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fjapan-flag2.png%26w%3D48%26q%3D75">Tokyo,
-                                                    Japan</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Findonesia-flag.png%26w%3D48%26q%3D75">Indonesia</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fthailand-flag.png%26w%3D48%26q%3D75">Thailand</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fmalaysia-flag.png%26w%3D48%26q%3D75">Malaysia</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fvietnam-flag.png%26w%3D48%26q%3D75">Hanoi,
-                                                    Vietnam</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Findia-flag.png%26w%3D48%26q%3D75">India</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="menu-single-item">
-                                        <div class="menu-title">
-                                            <h5>Africa</h5>
-                                        </div><i class="bi bi-plus dropdown-icon"></i>
-                                        <ul>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fegypt-flag.png%26w%3D48%26q%3D75">Egypt</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fsouth-africa-flag.png%26w%3D48%26q%3D75">South
-                                                    Africa</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fzimbabwe-flag.png%26w%3D48%26q%3D75">Zimbabwe</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fkenya-flag.png%26w%3D48%26q%3D75">Kenya</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fmorocco-flag.png%26w%3D48%26q%3D75">Morocco</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fsenegal-flag.png%26w%3D48%26q%3D75">Senegal</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="menu-single-item">
-                                        <div class="menu-title">
-                                            <h5>Oceania</h5>
-                                        </div><i class="bi bi-plus dropdown-icon"></i>
-                                        <ul class="none">
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Faustralia-flag.png%26w%3D48%26q%3D75">Australia</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fsouth-africa-flag.png%26w%3D48%26q%3D75">New
-                                                    Zealand</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpapua-new-guinea-flag.png%26w%3D48%26q%3D75">Papua
-                                                    New Guinea</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="menu-single-item">
-                                        <div class="menu-title">
-                                            <h5>Middle East</h5>
-                                        </div><i class="bi bi-plus dropdown-icon"></i>
-                                        <ul class="none">
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fuae-flag.png%26w%3D48%26q%3D75">United
-                                                    Arab Emirates</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fqatar-flag.png%26w%3D48%26q%3D75">Qatar</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fbahrain-flag.png%26w%3D48%26q%3D75">Bahrain</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fsaudi-arabia-flag.png%26w%3D48%26q%3D75">Saudi
-                                                    Arabia</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fjordan-flag.png%26w%3D48%26q%3D75">Jordan</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpalestine-flag.png%26w%3D48%26q%3D75">Palestine</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="menu-single-item">
-                                        <div class="menu-title">
-                                            <h5>North America</h5>
-                                        </div><i class="bi bi-plus dropdown-icon"></i>
-                                        <ul class="none">
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fus-flag.png%26w%3D48%26q%3D75">United
-                                                    States</a></li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fcanada-flag.png%26w%3D48%26q%3D75">Canada</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fmexico-flag.png%26w%3D32%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fmexico-flag.png%26w%3D48%26q%3D75 2x"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fmexico-flag.png%26w%3D48%26q%3D75">Mexico</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fjamaica-flag.png%26w%3D48%26q%3D75">Jamaica</a>
-                                            </li>
-                                            <li><a href="../destination/details/"><img alt="" loading="lazy" width="18"
-                                                        height="18" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fcosta-rica-flag.png%26w%3D48%26q%3D75">Costa
-                                                    Rica</a></li>
-                                        </ul>
-                                    </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div><img alt="" loading="lazy" width="275" height="365" decoding="async" data-nimg="1"
                                 class="vector1" style="color:transparent"

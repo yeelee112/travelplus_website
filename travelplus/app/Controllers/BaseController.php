@@ -6,6 +6,7 @@ use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use App\Models\LocationModel;
 
 /**
  * BaseController provides a convenient place for loading components
@@ -38,7 +39,13 @@ abstract class BaseController extends Controller
 
         // Caution: Do not edit this line.
         parent::initController($request, $response, $logger);
+        $segment1 = service('uri')->getSegment(1);
+        $locale = ($segment1 === 'en') ? 'en' : 'vi';
 
+        $locationModel = new LocationModel();
+        $menu = $locationModel->getMegaMenu($locale);
+
+        service('renderer')->setVar('menu', $menu);
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }

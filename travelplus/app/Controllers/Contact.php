@@ -38,6 +38,16 @@ class Contact extends BaseController
             return redirect()->back()->with('success', 'Form submitted successfully!');
         }
 
-        return view('contact/index');
+        $data['breadcrumbs'] = [
+            [
+                'label' => 'Trang chủ',
+                'url'   => base_url()
+            ],
+            [
+                'label' => 'Liên hệ'
+            ]
+        ];
+
+        return view('contact/index', $data);
     }
 }

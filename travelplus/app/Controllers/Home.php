@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 use App\Data\TourCard;
+use App\Models\TourModel;
 class Home extends BaseController
 {
     public function index()
@@ -12,4 +13,5 @@ class Home extends BaseController
             'tours' => $tours
         ]);
     }
+
 }

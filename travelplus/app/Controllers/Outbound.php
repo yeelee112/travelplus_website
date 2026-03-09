@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Controllers;
-
-class AboutUs extends BaseController
+use App\Data\TourCard;
+class Outbound extends BaseController
 {
     public function index()
     {
@@ -12,10 +12,12 @@ class AboutUs extends BaseController
                 'url'   => base_url()
             ],
             [
-                'label' => 'Du lịch nước ngoài'
+                'label' => 'Tour nước ngoài'
             ]
         ];
 
-        return view('ve-chung-toi/index', $data);
+        $data['tours'] = TourCard::getAll();
+
+        return view('tour-nuoc-ngoai/index', $data);
     }
 }   

@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Courgette&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
-
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
 * {
     margin: 0;
     padding: 0;
@@ -12,9 +11,9 @@
 }
 
 :root {
-    --font-poppins: "Poppins", sans-serif;
-    --font-roboto: "Roboto", sans-serif;
-    --font-courgette: "Courgette", sans-serif;
+    --font-main: "Google Sans", sans-serif;
+    /* --font-main: "Roboto", sans-serif;
+    --font-main: "Courgette", sans-serif; */
     --white-color: #fff;
     --white-color-opc: 255, 255, 255;
     --black-color: #110F0F;
@@ -49,6 +48,10 @@
     height: auto;
 }
 
+.main-color{
+    color: var(--primary-color1);
+}
+
 .form-control{
     border: 0px;
 }
@@ -69,7 +72,7 @@
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .datepicker-container .datepicker-wrapper .selected-date h6 {
     font-size: 16px;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--title-color);
     font-weight: 500;
     line-height: 1.4;
@@ -85,7 +88,7 @@
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .selected-date span {
     font-size: 14px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-weight: 400;
     margin-bottom: 0;
@@ -176,6 +179,45 @@
 .package-content .package-info {
   flex-grow: 1;
 }   
+
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-weight: 600;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    padding: 0 8px;
+    color: var(--black-color);
+    margin-right: 0.5rem;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #333;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--black-color);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+}
+
+
 /* _____________________________________________________ */
 /* _____________________________________________________ */
 /* _____________________________________________________ */
@@ -191,7 +233,7 @@ html {
 body {
     margin: 0;
     padding: 0;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-size: 16px;
     font-weight: 400;
@@ -371,7 +413,7 @@ body.package-details-page .daterangepicker .calendar-table td {
     padding: 5px;
     font-size: 15px;
     font-weight: 500;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     width: 50px;
     height: 50px
 }
@@ -431,7 +473,7 @@ h4,
 h5,
 h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     line-height: 1.4
 }
@@ -557,11 +599,15 @@ blockquote .content .quote {
 
 blockquote .content p {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 25px;
     font-weight: 500;
     line-height: 35px;
     margin-bottom: 25px
+}
+
+p{
+    font-family: var(--font-main);
 }
 
 @media (min-width:992px) and (max-width:1199px) {
@@ -579,7 +625,7 @@ blockquote .content p {
 
 blockquote .content .name-deg h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 500;
     line-height: 1;
@@ -588,7 +634,7 @@ blockquote .content .name-deg h5 {
 
 blockquote .content .name-deg span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1
@@ -1149,7 +1195,7 @@ body.tt-magic-cursor #magic-cursor {
     backdrop-filter: blur(3px);
     font-size: 15px;
     font-weight: 600;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1.4;
     text-align: center
 }
@@ -1301,7 +1347,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .primary-btn1 {
     background-color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     color: var(--white-color);
@@ -1625,7 +1671,7 @@ body.tt-magic-cursor #magic-cursor {
     height: 56px;
     line-height: 56px;
     color: #AAAAAA;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500;
     background: var(--white-color);
@@ -1674,7 +1720,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .nice-select .list .option {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500;
     border-bottom: 1px solid var(--borders-color)
@@ -1686,7 +1732,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .section-title h2 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 40px;
     font-weight: 600;
     line-height: 1.1;
@@ -1715,7 +1761,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .section-title p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 400;
     line-height: 28px;
@@ -1910,7 +1956,7 @@ body.tt-magic-cursor #magic-cursor {
 }
 
 .form-inner label {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     display: block;
     line-height: 1;
     margin-bottom: 12px
@@ -1926,7 +1972,7 @@ body.tt-magic-cursor #magic-cursor {
 .form-inner input {
     width: 100%;
     background: transparent;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     padding: 10px 20px;
     height: 56px;
     border: 1px solid var(--borders-color);
@@ -1957,7 +2003,7 @@ body.tt-magic-cursor #magic-cursor {
     color: var(--title-color);
     border: 1px solid rgba(var(--black-color-opc), .2);
     outline: none;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     padding: 20px 25px;
@@ -2009,7 +2055,7 @@ body.tt-magic-cursor #magic-cursor {
 .form-inner2 .form-check .form-check-label {
     cursor: pointer;
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     line-height: 1.2
@@ -2043,7 +2089,7 @@ body.tt-magic-cursor #magic-cursor {
     border-radius: 50%;
     padding: 5px;
     font-size: 13px;
-    font-family: var(--font-poppins)
+    font-family: var(--font-main)
 }
 
 .daterangepicker td.active,
@@ -2245,7 +2291,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .topbar-area .topbar-wrap .topbar-right .support-and-language-area>a {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -2288,7 +2334,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .topbar-area .topbar-wrap .topbar-right .support-and-language-area .language-area .language-btn span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
@@ -2327,7 +2373,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .topbar-area .topbar-wrap .topbar-right .support-and-language-area .language-area .language-list li a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     text-transform: capitalize;
     font-size: 12px;
@@ -2426,7 +2472,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .topbar-area.two .contact-list .single-contact a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -2611,7 +2657,7 @@ body.tt-magic-cursor #magic-cursor {
     border: none;
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1;
     color: var(--title-color)
 }
@@ -2654,7 +2700,7 @@ body.tt-magic-cursor #magic-cursor {
 }
 
 .topbar-area.two .search-and-login .search-bar .search-input .quick-search ul li:first-child {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     letter-spacing: .1em;
     font-size: 13px;
@@ -2665,7 +2711,7 @@ body.tt-magic-cursor #magic-cursor {
 
 .topbar-area.two .search-and-login .search-bar .search-input .quick-search ul li a {
     color: rgba(0, 0, 0, .7);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 13px;
     font-weight: 400;
     line-height: 28px;
@@ -2784,7 +2830,7 @@ header.style-1 .contact-area .single-contact .content {
 
 header.style-1 .contact-area .single-contact .content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -2794,7 +2840,7 @@ header.style-1 .contact-area .single-contact .content span {
 
 header.style-1 .contact-area .single-contact .content a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1;
@@ -2947,7 +2993,7 @@ header.style-1 .language-area .language-btn svg {
 
 header.style-1 .language-area .language-btn span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
@@ -3000,7 +3046,7 @@ header.style-1 .language-area .language-list.active {
 
 header.style-1 .language-area .language-list li a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     text-transform: capitalize;
     font-size: 12px;
@@ -3152,7 +3198,7 @@ header.style-1 .search-bar .search-input .search-group .form-inner2 input {
     border: none;
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1;
     color: var(--title-color)
 }
@@ -3195,7 +3241,7 @@ header.style-1 .search-bar .search-input .quick-search ul li {
 }
 
 header.style-1 .search-bar .search-input .quick-search ul li:first-child {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     letter-spacing: .1em;
     font-size: 13px;
@@ -3206,7 +3252,7 @@ header.style-1 .search-bar .search-input .quick-search ul li:first-child {
 
 header.style-1 .search-bar .search-input .quick-search ul li a {
     color: rgba(0, 0, 0, .7);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 13px;
     font-weight: 400;
     line-height: 28px;
@@ -3267,7 +3313,7 @@ header.style-1 .main-menu>ul>li>a {
     letter-spacing: .4px;
     padding: 20px 18px;
     line-height: 1;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     transition: all .5s ease-out 0s;
@@ -3382,7 +3428,7 @@ header.style-1 .main-menu>ul>li ul.sub-menu>li>a {
     padding: 12px 20px;
     color: var(--title-color);
     font-weight: 500;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 14px;
     line-height: 1.2;
     transition: all .4s ease-out 0s;
@@ -3568,7 +3614,7 @@ header.style-1 .main-menu>ul>li .mega-menu .menu-row .menu-single-item .menu-tit
 
 header.style-1 .main-menu>ul>li .mega-menu .menu-row .menu-single-item .menu-title h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 30px;
@@ -3606,7 +3652,7 @@ header.style-1 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li:las
 
 header.style-1 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li>a {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -3629,10 +3675,7 @@ header.style-1 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li>a {
 }
 
 header.style-1 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li>a img {
-    min-width: 15px;
-    max-width: 15px;
-    height: 15px;
-    border-radius: 50%
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
 header.style-1 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li>a:hover {
@@ -4105,7 +4148,7 @@ header.style-1.two .search-bar .search-input .search-group .form-inner2 input {
     border: none;
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1;
     color: var(--title-color)
 }
@@ -4148,7 +4191,7 @@ header.style-1.two .search-bar .search-input .quick-search ul li {
 }
 
 header.style-1.two .search-bar .search-input .quick-search ul li:first-child {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     letter-spacing: .1em;
     font-size: 13px;
@@ -4159,7 +4202,7 @@ header.style-1.two .search-bar .search-input .quick-search ul li:first-child {
 
 header.style-1.two .search-bar .search-input .quick-search ul li a {
     color: rgba(0, 0, 0, .7);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 13px;
     font-weight: 400;
     line-height: 28px;
@@ -4199,7 +4242,7 @@ header.style-1.two .language-and-login-area .language-area .language-btn svg {
 
 header.style-1.two .language-and-login-area .language-area .language-btn span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
@@ -4240,7 +4283,7 @@ header.style-1.two .language-and-login-area .language-area .language-list.active
 
 header.style-1.two .language-and-login-area .language-area .language-list li a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     text-transform: capitalize;
     font-size: 12px;
@@ -4498,7 +4541,7 @@ header.style-1.three .search-bar .search-input .search-group .form-inner2 input 
     border: none;
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1;
     color: var(--title-color)
 }
@@ -4541,7 +4584,7 @@ header.style-1.three .search-bar .search-input .quick-search ul li {
 }
 
 header.style-1.three .search-bar .search-input .quick-search ul li:first-child {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     letter-spacing: .1em;
     font-size: 13px;
@@ -4552,7 +4595,7 @@ header.style-1.three .search-bar .search-input .quick-search ul li:first-child {
 
 header.style-1.three .search-bar .search-input .quick-search ul li a {
     color: rgba(0, 0, 0, .7);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 13px;
     font-weight: 400;
     line-height: 28px;
@@ -4592,7 +4635,7 @@ header.style-1.three .language-and-login-area .language-area .language-btn svg {
 
 header.style-1.three .language-and-login-area .language-area .language-btn span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
@@ -4633,7 +4676,7 @@ header.style-1.three .language-and-login-area .language-area .language-list.acti
 
 header.style-1.three .language-and-login-area .language-area .language-list li a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     text-transform: capitalize;
     font-size: 12px;
@@ -4868,7 +4911,7 @@ header.style-2 .contact-area .content {
 
 header.style-2 .contact-area .content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -4878,7 +4921,7 @@ header.style-2 .contact-area .content span {
 
 header.style-2 .contact-area .content a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -5023,7 +5066,7 @@ header.style-2 .search-bar .search-input .search-group .form-inner2 input {
     border: none;
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1;
     color: var(--title-color)
 }
@@ -5066,7 +5109,7 @@ header.style-2 .search-bar .search-input .quick-search ul li {
 }
 
 header.style-2 .search-bar .search-input .quick-search ul li:first-child {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     letter-spacing: .1em;
     font-size: 13px;
@@ -5077,7 +5120,7 @@ header.style-2 .search-bar .search-input .quick-search ul li:first-child {
 
 header.style-2 .search-bar .search-input .quick-search ul li a {
     color: rgba(0, 0, 0, .7);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 13px;
     font-weight: 400;
     line-height: 28px;
@@ -5230,7 +5273,7 @@ header.style-2 .main-menu>ul>li>a {
     letter-spacing: .4px;
     padding: 34px 18px;
     line-height: 1;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     transition: all .5s ease-out 0s;
@@ -5350,7 +5393,7 @@ header.style-2 .main-menu>ul>li ul.sub-menu>li>a {
     padding: 12px 20px;
     color: var(--title-color);
     font-weight: 500;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 14px;
     line-height: 1.2;
     transition: all .4s ease-out 0s;
@@ -5528,7 +5571,7 @@ header.style-2 .main-menu>ul>li .mega-menu .menu-row .menu-single-item .menu-tit
 
 header.style-2 .main-menu>ul>li .mega-menu .menu-row .menu-single-item .menu-title h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 30px;
@@ -5566,7 +5609,7 @@ header.style-2 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li:las
 
 header.style-2 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li>a {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -6146,7 +6189,7 @@ header.style-2.two .contact-and-search-area .search-bar .search-input .search-gr
     border: none;
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1;
     color: var(--title-color)
 }
@@ -6189,7 +6232,7 @@ header.style-2.two .contact-and-search-area .search-bar .search-input .quick-sea
 }
 
 header.style-2.two .contact-and-search-area .search-bar .search-input .quick-search ul li:first-child {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     letter-spacing: .1em;
     font-size: 13px;
@@ -6200,7 +6243,7 @@ header.style-2.two .contact-and-search-area .search-bar .search-input .quick-sea
 
 header.style-2.two .contact-and-search-area .search-bar .search-input .quick-search ul li a {
     color: rgba(var(--title-color-opc), .7);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 13px;
     font-weight: 400;
     line-height: 28px;
@@ -6242,7 +6285,7 @@ header.style-2.two .language-area .language-btn svg {
 
 header.style-2.two .language-area .language-btn span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
@@ -6281,7 +6324,7 @@ header.style-2.two .language-area .language-list.active {
 
 header.style-2.two .language-area .language-list li a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     text-transform: capitalize;
     font-size: 12px;
@@ -6416,7 +6459,7 @@ header.style-3 .contact-area .icon svg {
 
 header.style-3 .contact-area .content span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -6426,7 +6469,7 @@ header.style-3 .contact-area .content span {
 
 header.style-3 .contact-area .content a {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -6577,7 +6620,7 @@ header.style-3 .search-bar .search-input .search-group .form-inner2 input {
     border: none;
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1;
     color: var(--title-color)
 }
@@ -6620,7 +6663,7 @@ header.style-3 .search-bar .search-input .quick-search ul li {
 }
 
 header.style-3 .search-bar .search-input .quick-search ul li:first-child {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     letter-spacing: .1em;
     font-size: 13px;
@@ -6631,7 +6674,7 @@ header.style-3 .search-bar .search-input .quick-search ul li:first-child {
 
 header.style-3 .search-bar .search-input .quick-search ul li a {
     color: rgba(0, 0, 0, .7);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 13px;
     font-weight: 400;
     line-height: 28px;
@@ -6821,7 +6864,7 @@ header.style-3 .main-menu>ul>li>a {
     letter-spacing: .4px;
     padding: 5px 12px;
     line-height: 1;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     transition: all .5s ease-out 0s;
@@ -6925,7 +6968,7 @@ header.style-3 .main-menu>ul>li ul.sub-menu>li>a {
     padding: 12px 20px;
     color: var(--title-color);
     font-weight: 500;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 14px;
     line-height: 1.2;
     transition: all .4s ease-out 0s;
@@ -7098,7 +7141,7 @@ header.style-3 .main-menu>ul>li .mega-menu .menu-row .menu-single-item .menu-tit
 
 header.style-3 .main-menu>ul>li .mega-menu .menu-row .menu-single-item .menu-title h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 30px;
@@ -7136,7 +7179,7 @@ header.style-3 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li:las
 
 header.style-3 .main-menu>ul>li .mega-menu .menu-row .menu-single-item ul li>a {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -7697,7 +7740,7 @@ header.style-3.two .search-and-login .search-bar .search-input .search-group .fo
     border: none;
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     line-height: 1;
     color: var(--white-color)
 }
@@ -7740,7 +7783,7 @@ header.style-3.two .search-and-login .search-bar .search-input .quick-search ul 
 }
 
 header.style-3.two .search-and-login .search-bar .search-input .quick-search ul li:first-child {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     letter-spacing: .1em;
     font-size: 13px;
@@ -7751,7 +7794,7 @@ header.style-3.two .search-and-login .search-bar .search-input .quick-search ul 
 
 header.style-3.two .search-and-login .search-bar .search-input .quick-search ul li a {
     color: rgba(255, 255, 255, .7);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 13px;
     font-weight: 400;
     line-height: 28px;
@@ -7864,7 +7907,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .top-offer-text-slider-section .top-offer-text-slider-wrap a {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -7935,7 +7978,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-banner-section .banner-content-wrap .banner-content h1 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 800;
     font-size: 50px;
     line-height: 1.2;
@@ -7957,7 +8000,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-banner-section .banner-content-wrap .banner-content p {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 28px;
@@ -8028,7 +8071,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items: center;
     gap: 8px;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -8216,7 +8259,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown input {
     background-color: transparent;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -8238,7 +8281,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown h6 {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     line-height: 1;
@@ -8262,7 +8305,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown>span {
     font-size: 14px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-weight: 400;
     margin-bottom: 0;
@@ -8282,7 +8325,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .input-field-value .destination h6 {
     font-size: 16px;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--title-color);
     font-weight: 500;
     line-height: 1.4;
@@ -8297,7 +8340,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .input-field-value .destination span {
     font-size: 14px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-weight: 400;
     margin-bottom: 0;
@@ -8315,7 +8358,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .hotel-selected-date-checkout h6,
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .selected-date h6 {
     font-size: 16px;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--title-color);
     font-weight: 500;
     line-height: 1.4;
@@ -8335,7 +8378,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .hotel-selected-date-checkout span,
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-dropdown .selected-date span {
     font-size: 14px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-weight: 400;
     margin-bottom: 0;
@@ -8464,7 +8507,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-wrap .option-list li .destination h6,
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-wrap .option-list-destination li .destination h6 {
     font-size: 14px;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--title-color);
     font-weight: 500;
     line-height: 1.4;
@@ -8482,7 +8525,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-wrap .option-list li .destination span,
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-wrap .option-list-destination li .destination span {
     font-size: 12px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-weight: 400;
     margin-bottom: 0;
@@ -8501,7 +8544,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-wrap .option-list-destination li .tour span {
     color: var(--white-color);
     font-weight: 400;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 11px;
     line-height: 1;
     text-align: center;
@@ -8550,7 +8593,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box .custom-select-wrap .option-list-destination li.single-item h6 {
     font-size: 14px;
     font-weight: 500;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--text-color);
     margin-bottom: 0
 }
@@ -8686,7 +8729,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box.room-field .custom-select-dropdown h6 {
     font-size: 16px;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--title-color);
     font-weight: 500;
     line-height: 1.4;
@@ -8701,7 +8744,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box.room-field .custom-select-dropdown>span {
     font-size: 14px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-weight: 400;
     margin-bottom: 0;
@@ -8734,7 +8777,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box.room-field .custom-select-wrap .title-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -8742,7 +8785,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box.room-field .custom-select-wrap .title-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1.4;
@@ -8774,7 +8817,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box.room-field .custom-select-wrap .room-list .single-room .room-title h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1;
@@ -8807,7 +8850,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box.room-field .custom-select-wrap .room-list .single-room .guest-count .single-item .title h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     margin-bottom: 5px
@@ -8815,7 +8858,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input .single-search-box.room-field .custom-select-wrap .room-list .single-room .guest-count .single-item .title span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 400;
     margin-bottom: 0
@@ -8851,7 +8894,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     text-align: center;
     line-height: 1;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500
 }
@@ -8957,7 +9000,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap>p {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.7;
@@ -9022,7 +9065,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper.two .filter-input-wrap h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 28px;
@@ -9162,7 +9205,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper.three .filter-input-wrap h6 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 28px;
@@ -9302,7 +9345,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-destination-section .nav-pills .nav-item .nav-link {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1;
@@ -9365,7 +9408,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     justify-content: center;
     gap: 5px;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1;
@@ -9417,7 +9460,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-card .destination-content .content p {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.8;
@@ -9567,7 +9610,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .service-wrapper .service-list .single-service .content h4 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1.4;
@@ -9594,7 +9637,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .service-wrapper .service-list .single-service .content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -9643,7 +9686,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .service-wrapper .batch span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px
@@ -9651,7 +9694,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .service-wrapper .batch a {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -9846,7 +9889,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .service-wrapper.three .section-title a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -10018,7 +10061,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .service-wrapper.five .section-title h2 span {
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400
 }
 
@@ -10139,7 +10182,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card .package-img-wrap .batch span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -10258,7 +10301,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card .package-content h5 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1.4;
@@ -10312,7 +10355,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card .package-content .location-and-time .location a {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -10341,7 +10384,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card .package-content .location-and-time span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 14px;
     line-height: 1
 }
@@ -10380,7 +10423,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card .package-content .btn-and-price-area .price-area h6 {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -10407,7 +10450,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1;
@@ -10458,7 +10501,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items: center;
     gap: 5px;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1
@@ -10487,7 +10530,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     background-color: var(--black-color);
     border-radius: 10px;
     color: #AAAAAA;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 20px;
@@ -10554,7 +10597,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card.two .package-content .location-and-time span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1
@@ -10587,7 +10630,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card.three .package-content .location-and-time span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1
@@ -10601,7 +10644,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card.four .package-img-wrap .map-view-btn {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -10678,7 +10721,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card.four .package-content .package-content-title-area .rating-area span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1
@@ -10696,7 +10739,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card.four .package-content .package-content-title-area .package-features li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -10727,7 +10770,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card.four .package-content .package-info-list li {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 20px;
@@ -10769,7 +10812,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card.four .package-content .location-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 20px;
@@ -10851,7 +10894,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-offer-banner-section .banner-content>span {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 20px;
     line-height: 1;
@@ -10874,7 +10917,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-offer-banner-section .banner-content h2 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 70px;
     line-height: 1.1;
@@ -10937,7 +10980,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-offer-banner-section .banner-content .author-area h5 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1;
@@ -10952,7 +10995,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-offer-banner-section .banner-content .author-area span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1
@@ -11003,7 +11046,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-location-search-section .location-search-wrapper .location-search-content h2 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 40px;
@@ -11083,7 +11126,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-location-search-section .location-search-wrapper .location-search-content .location-search-area .search-area .dropdown .dropdown-search {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -11138,7 +11181,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-location-search-section .location-search-wrapper .location-search-content .location-search-area .search-area .dropdown .dropdown-list li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 500;
     padding: 7px 20px;
@@ -11210,7 +11253,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-location-search-section .location-search-wrapper .location-search-content ul li {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.4;
@@ -11261,7 +11304,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-location-search-section .location-search-wrapper .location-search-content .contact-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px
@@ -11269,7 +11312,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-location-search-section .location-search-wrapper .location-search-content .contact-area a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -11316,7 +11359,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .partner-section .partner-title h5 {
     color: #545454;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1.5;
@@ -11524,7 +11567,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card .blog-content .blog-content-top .location {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -11568,7 +11611,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card .blog-content .blog-content-top h4 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1.4;
@@ -11605,7 +11648,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card .blog-content .blog-content-top .blog-date {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -11647,7 +11690,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card .blog-content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 18px;
     line-height: 28px;
@@ -11770,7 +11813,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-testimonial-section .review-wrap .tripadvisor-rating-area .tripadvisor-rating .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1
@@ -11794,7 +11837,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-testimonial-section .review-wrap .trustpilot-rating-area strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1
@@ -11810,7 +11853,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home1-testimonial-section .review-wrap .trustpilot-rating-area .trustpilot-rating .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1
@@ -11921,7 +11964,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .testimonial-card .author-area .author-info h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 700;
     font-size: 20px;
     line-height: 1.3;
@@ -11942,7 +11985,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .testimonial-card .author-area .author-info span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -11993,7 +12036,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .testimonial-card h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1.3;
@@ -12016,7 +12059,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .testimonial-card p {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 20px;
     line-height: 30px;
@@ -12327,7 +12370,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .faq-wrap .accordion .accordion-item .accordion-header .accordion-button {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 600;
     line-height: 1.4;
@@ -12390,7 +12433,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .faq-wrap .accordion .accordion-item .accordion-body {
     padding: 0 30px 20px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 400;
     line-height: 1.5;
@@ -12539,7 +12582,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .counter-section .single-counter .content .number h2,
 .counter-section .single-counter .content .number span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 32px;
     font-weight: 600;
     line-height: 1;
@@ -12564,7 +12607,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .counter-section .single-counter .content span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 500;
     line-height: 20.83px
@@ -12835,7 +12878,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-contact-wrap .inquiry-area .content h6 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1.3;
@@ -12850,7 +12893,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-contact-wrap .inquiry-area .content span {
     color: var(--white-text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 28px
@@ -12929,7 +12972,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-contact-wrap .contact-area .single-contact .content span {
     color: var(--white-text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -12946,7 +12989,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-contact-wrap .contact-area .single-contact .content a {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1;
@@ -13021,7 +13064,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-menu-wrap .footer-logo-and-addition-info .address-area span {
     color: var(--white-text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -13031,7 +13074,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-menu-wrap .footer-logo-and-addition-info .address-area a {
     color: var(--white-text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
@@ -13121,7 +13164,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-menu-wrap .language-area .language-btn span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
@@ -13189,7 +13232,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-menu-wrap .language-area .language-list li a {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     text-transform: capitalize;
     font-size: 12px;
@@ -13218,7 +13261,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-menu-wrap .footer-widget .widget-title h5 {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 20px;
     line-height: 1;
@@ -13248,7 +13291,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-menu-wrap .footer-widget .widget-list li a {
     color: var(--white-text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -13312,7 +13355,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-menu-wrap .footer-widget .contact-list .single-contact .content span {
     color: var(--white-text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -13322,7 +13365,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-menu-wrap .footer-widget .contact-list .single-contact .content a {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -13373,7 +13416,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-bottom .copyright-and-payment-method-area p {
     color: var(--white-text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.8;
@@ -13405,7 +13448,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .footer-section .footer-bottom .copyright-and-payment-method-area .payment-method-area span {
     color: var(--white-text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1
@@ -13749,7 +13792,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .home2-banner-section .banner-wrapper .banner-content-wrap .banner-content h1,
 .home2-banner-section .banner-wrapper .banner-content-wrap .banner-content h2 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 800;
     font-size: 70px;
     line-height: 1.1;
@@ -13810,7 +13853,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-banner-section .banner-wrapper .banner-content-wrap .banner-content p {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 28px;
@@ -14135,7 +14178,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-card2 .destination-content h5 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1.3;
@@ -14160,7 +14203,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-card2 .destination-content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1
@@ -14603,7 +14646,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .home2-about-section .counter-area .single-counter h2 {
     margin-bottom: 0;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 70px;
     line-height: 1;
@@ -14636,7 +14679,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-about-section .counter-area .single-counter span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
@@ -14707,7 +14750,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-about-section .service-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1.3;
@@ -14730,7 +14773,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     display: flex;
     gap: 15px;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 28px;
@@ -14796,7 +14839,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-about-section .rating-area>span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1
@@ -14810,7 +14853,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-about-section .rating-area p {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -14890,7 +14933,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-offer-banner-section .offer-banner-wrap .offer-banner-content>span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -14910,7 +14953,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-offer-banner-section .offer-banner-wrap .offer-banner-content h2 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 40px;
     line-height: 1.2;
@@ -15050,7 +15093,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-award-banner-section .banner-content .award-rating-area h4 {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 25px;
     line-height: 40px;
@@ -15067,7 +15110,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-award-banner-section .banner-content .award-rating-area .rating span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 25px;
     line-height: 1
@@ -15088,7 +15131,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-award-banner-section .banner-content h3 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 1;
@@ -15115,7 +15158,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-award-banner-section .banner-content h2 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 700;
     font-size: 100px;
     line-height: 1;
@@ -15169,7 +15212,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-award-banner-section .banner-content>span {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 48px;
     line-height: 1;
@@ -15337,7 +15380,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2 .blog-img-wrap .blog-date {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 25px;
     line-height: 1;
@@ -15388,7 +15431,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2 .location {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -15458,7 +15501,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2 .blog-content h4 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1.4;
@@ -15489,7 +15532,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2 .blog-content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
@@ -15592,7 +15635,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2.two .blog-content .blog-date {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -15660,7 +15703,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2.three .blog-content .batch {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -15728,7 +15771,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2.three .blog-content .blog-meta li {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -15795,7 +15838,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2.four .blog-content .blog-date {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -15880,7 +15923,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2.five .blog-content .blog-date {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -16019,7 +16062,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-card2.six .blog-content .blog-date {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -16127,7 +16170,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-testimonial-section .review-and-slider-btn .single-rating strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1;
@@ -16150,7 +16193,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-testimonial-section .review-and-slider-btn .single-rating .trustpilot-rating .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1
@@ -16165,7 +16208,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-testimonial-section .review-and-slider-btn .single-rating .tripadvisor-rating .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1
@@ -16363,7 +16406,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .home2-gallery-section .gallery-img-grp .counter-area .content .number h2,
 .home2-gallery-section .gallery-img-grp .counter-area .content .number span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 32px;
     font-weight: 600;
     line-height: 1;
@@ -16396,7 +16439,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home2-gallery-section .gallery-img-grp .counter-area .content span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 500;
     line-height: 20.83px
@@ -16728,7 +16771,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-banner-section .banner-wrapper .banner-content-wrap .banner-content .award-rating-area h4 {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 25px;
     line-height: 40px;
@@ -16768,7 +16811,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-banner-section .banner-wrapper .banner-content-wrap .banner-content .award-rating-area .rating span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 25px;
     line-height: 1
@@ -16802,7 +16845,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .home3-banner-section .banner-wrapper .banner-content-wrap .banner-content h1,
 .home3-banner-section .banner-wrapper .banner-content-wrap .banner-content h2 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 700;
     font-size: 60px;
     line-height: 1.1;
@@ -16863,7 +16906,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-banner-section .banner-wrapper .banner-content-wrap .banner-content p {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 20px;
     line-height: 28px;
@@ -17045,7 +17088,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-destination-section .section-title span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -17133,7 +17176,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-destination-section .feature-and-rating-area .single-feature h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 30px;
@@ -17196,7 +17239,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-destination-section .feature-and-rating-area .rating-area p {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -17269,7 +17312,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-about-section .about-content .section-title h4 {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 25px;
     line-height: 35px;
@@ -17330,7 +17373,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-about-section .about-content .section-title a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -17414,7 +17457,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-about-section .about-content .review-area .single-rating strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1;
@@ -17451,7 +17494,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-about-section .about-content .review-area .single-rating .tripadvisor-rating .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1
@@ -17545,7 +17588,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-tour-guide-section .bottom-area .batch span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px
@@ -17560,7 +17603,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-tour-guide-section .bottom-area .batch a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -17756,7 +17799,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .tour-guide-card .guide-info h5 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 30px;
@@ -17781,7 +17824,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .tour-guide-card .guide-info span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -18057,7 +18100,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home3-testimonial-section .testimonial-img-area .testimonial-img-grp .counter-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -18210,7 +18253,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     outline: none;
     background-color: transparent;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -18258,7 +18301,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-and-newsletter-section .newsletter-section .newsletter-wrapper span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1
@@ -18506,7 +18549,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-banner-section .banner-content-wrap .banner-content h1 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 800;
     font-size: 60px;
     line-height: 1.2;
@@ -18553,7 +18596,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-banner-section .banner-content-wrap .banner-content>p {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 28px;
@@ -18581,7 +18624,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .home4-banner-section .banner-content-wrap .banner-content>p span {
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400
 }
 
@@ -18673,7 +18716,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-feature-section .feature-card h4 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 35px;
@@ -18695,7 +18738,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-feature-section .feature-card p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -18763,7 +18806,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-feature-section .bottom-area .batch span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px
@@ -18778,7 +18821,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-feature-section .bottom-area .batch a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -19047,7 +19090,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-about-section .about-wrapper .about-content>ul li {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1.2;
@@ -19103,7 +19146,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .home4-about-section .about-wrapper .about-content .counter-wrapper .single-counter h2 {
     margin-bottom: 0;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 70px;
     line-height: 1;
@@ -19148,7 +19191,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-about-section .about-wrapper .about-content .counter-wrapper .single-counter span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
@@ -19220,7 +19263,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-about-section .about-wrapper .about-content .counter-wrapper .counter-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -19266,7 +19309,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-about-section .about-wrapper .about-content .btn-area .about-btn {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -19328,7 +19371,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-about-section .about-wrapper .about-img-grp .single-grp .counter-wrapper .counter-area h2 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 1;
@@ -19341,7 +19384,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-about-section .about-wrapper .about-img-grp .single-grp .counter-wrapper .counter-area span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1
@@ -19452,7 +19495,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-why-choose-us-section .single-rating strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1;
@@ -19474,7 +19517,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-why-choose-us-section .single-rating .tripadvisor-rating .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1
@@ -19551,7 +19594,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-why-choose-us-section .single-feature h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 30px;
@@ -19746,7 +19789,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .why-choose-video-area .why-choose-video-wrap .contact-wrap .contact-area h6 {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -19787,7 +19830,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .why-choose-video-area .why-choose-video-wrap .contact-wrap .contact-area .single-contact .content span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -19797,7 +19840,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .why-choose-video-area .why-choose-video-wrap .contact-wrap .contact-area .single-contact .content a {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1
@@ -20013,7 +20056,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-counter-section .counter-wrapper .single-counter .content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1;
@@ -20036,7 +20079,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home4-counter-section .counter-wrapper .single-counter .content h2 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 700;
     font-size: 40px;
     line-height: 1;
@@ -20472,7 +20515,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .home5-banner-section .banner-wrapper .banner-content-wrap .banner-content h1,
 .home5-banner-section .banner-wrapper .banner-content-wrap .banner-content h2 {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 100px;
     line-height: 1.1;
@@ -20521,7 +20564,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-banner-section .banner-wrapper .banner-content-wrap .banner-content p {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 20px;
     line-height: 28px;
@@ -20709,7 +20752,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-banner-contact-wrap .banner-contact-area .inquiry-area .content h6 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -20724,7 +20767,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-banner-contact-wrap .banner-contact-area .inquiry-area .content span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 28px
@@ -20828,7 +20871,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-banner-contact-wrap .banner-contact-area .contact-area .single-contact .content span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -20845,7 +20888,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-banner-contact-wrap .banner-contact-area .contact-area .single-contact .content a {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -21012,7 +21055,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .refund-area .refund-wrap .refund-content h4 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 35px;
@@ -21033,7 +21076,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .refund-area .refund-wrap .refund-content h4 span {
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400
 }
 
@@ -21048,7 +21091,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     gap: 8px;
     margin-bottom: 15px;
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px
@@ -21181,7 +21224,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-about-section .about-content .section-title h4 {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 25px;
     line-height: 35px;
@@ -21210,7 +21253,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .home5-about-section .about-content .section-title h4 span {
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400
 }
 
@@ -21253,7 +21296,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-about-section .about-content .section-title a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -21507,7 +21550,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-about-section .counter-area .single-counter .content h2 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 32px;
     font-weight: 600;
     line-height: 1;
@@ -21541,7 +21584,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home5-about-section .counter-area .single-counter .content span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 500;
     line-height: 20.83px
@@ -21822,7 +21865,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .home6-banner-section .banner-wrapper .banner-content-wrap .banner-content h1,
 .home6-banner-section .banner-wrapper .banner-content-wrap .banner-content h2 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 700;
     font-size: 70px;
     line-height: 1.1;
@@ -22036,7 +22079,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-banner-section .slider-btn-grp .franctional-pagi1 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 25px;
     font-weight: 600
 }
@@ -22187,7 +22230,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-card3 .destination-content h2 a {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 50px;
     line-height: 1.1;
@@ -22223,7 +22266,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-card3 .destination-content span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -22508,7 +22551,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-offer-banner-section .banner-wrapper .banner-content-wrap .banner-content .discount-area h2 {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 70px;
     line-height: 1;
@@ -22535,7 +22578,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-offer-banner-section .banner-wrapper .banner-content-wrap .banner-content .discount-area span {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 30px;
     line-height: 1;
@@ -22562,7 +22605,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-offer-banner-section .banner-wrapper .banner-content-wrap .banner-content .location-area h3 {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 50px;
     line-height: 1.2;
@@ -22590,7 +22633,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-offer-banner-section .banner-wrapper .banner-content-wrap .banner-content .location-area span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1.3
@@ -22812,7 +22855,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-about-section .section-title span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -22860,7 +22903,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-about-section .about-wrapper .about-content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 18px;
     line-height: 28px;
@@ -22967,7 +23010,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-about-section .about-wrapper .about-content .btn-and-counter-area .counter-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -23158,7 +23201,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-activity-banner-section .banner-content h2 {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 100px;
     line-height: 1;
@@ -23203,7 +23246,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-activity-banner-section .banner-content a {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 20px;
     line-height: 1;
@@ -23572,7 +23615,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-newletter-section .newsletter-wrapper h3 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 40px;
@@ -23620,7 +23663,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     outline: none;
     background-color: transparent;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -23668,7 +23711,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home6-newletter-section .newsletter-wrapper span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1
@@ -23873,7 +23916,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-banner-section .banner-wrapper .banner-content-wrap .banner-content>span {
     color: var(--title-color2);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 32px;
     line-height: 1;
@@ -23909,7 +23952,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .home7-banner-section .banner-wrapper .banner-content-wrap .banner-content h1,
 .home7-banner-section .banner-wrapper .banner-content-wrap .banner-content h2 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 700;
     font-size: 70px;
     line-height: 1.1;
@@ -24211,7 +24254,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-banner-bottom .single-contact .content span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -24221,7 +24264,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-banner-bottom .single-contact .content a {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1;
@@ -24257,7 +24300,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-banner-bottom .award-rating-area h4 {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 25px;
     line-height: 40px;
@@ -24297,7 +24340,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-banner-bottom .award-rating-area .rating span {
     color: var(--title-color2);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 25px;
     line-height: 1
@@ -24591,7 +24634,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-destination-section .feature-wrapper .feature-list .single-feature .content h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 30px;
@@ -24626,7 +24669,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-destination-section .feature-wrapper .feature-list .single-feature .content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
@@ -24706,7 +24749,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-destination-section .feature-wrapper .rating-and-btn-area .rating-area p {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -24722,7 +24765,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-destination-section .feature-wrapper .rating-and-btn-area a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -24849,7 +24892,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-about-section .about-content .content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 18px;
     line-height: 28px;
@@ -24966,7 +25009,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-about-section .about-content .btn-and-counter-area .counter-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -25080,7 +25123,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-about-section .about-img-area .counter-wrapper .single-counter h2 {
     color: var(--title-color2);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 60px;
     line-height: 1;
@@ -25133,7 +25176,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-about-section .about-img-area .counter-wrapper .single-counter span {
     color: var(--title-color2);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -25270,7 +25313,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-offer-banner-section .banner-wrapper .banner-content h2 {
     color: var(--title-color2);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 40px;
     line-height: 50px;
@@ -25334,7 +25377,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-offer-banner-section .banner-wrapper .banner-content ul li {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -25535,7 +25578,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-activity-tab-section .nav-pills .nav-item .nav-link h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
@@ -25619,7 +25662,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-activity-tab-section .activity-tab-wrapper .single-activity .activity-content h4 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1.3;
@@ -25640,7 +25683,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-activity-tab-section .activity-tab-wrapper .single-activity .activity-content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1.7;
@@ -25867,7 +25910,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-newsletter-section .newsletter-wrapper h3 {
     color: var(--title-color2);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 40px;
@@ -25907,7 +25950,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     outline: none;
     background-color: transparent;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -25955,7 +25998,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home7-newsletter-section .newsletter-wrapper span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 18px;
     line-height: 1
@@ -26050,7 +26093,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-banner-section .banner-content-wrapper .banner-title-area>span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 20px;
     line-height: 1;
@@ -26075,7 +26118,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-banner-section .banner-content-wrapper .banner-title-area h1 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 700;
     font-size: 58px;
     line-height: 1.1;
@@ -26112,7 +26155,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-banner-section .banner-content-wrapper .banner-title-area p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 20px;
     line-height: 30px;
@@ -26163,7 +26206,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-banner-section .banner-content-wrapper .award-and-btn-area>span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -26260,7 +26303,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-feature-section .single-feature h4 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1.3;
@@ -26289,7 +26332,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-feature-section .single-feature p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -26368,7 +26411,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-visa-slider-section .visa-card .content h4 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1.3;
@@ -26387,7 +26430,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-visa-slider-section .visa-card .content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
@@ -26460,7 +26503,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-process-section .process-wrapper .process-card .process-no {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1;
@@ -26490,7 +26533,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-process-section .process-wrapper .process-card h4 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1.3;
@@ -26525,7 +26568,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-process-section .process-wrapper .process-card p {
     color: var(--white-text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
@@ -26602,7 +26645,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-process-section .apply-area .contact-area .content span {
     color: var(--white-text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -26612,7 +26655,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-process-section .apply-area .contact-area .content a {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1
@@ -26620,7 +26663,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-process-section .apply-area strong {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1
@@ -26768,7 +26811,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-company-intro-section .company-intro-content .video-area span {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 20px;
     line-height: 1
@@ -26781,7 +26824,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-company-intro-section .company-intro-content p {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 25px;
     line-height: 35px;
@@ -26803,7 +26846,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-company-intro-section .company-intro-content .signature-area span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -26861,7 +26904,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-country-serve-section .single-item .title-area h4 {
     color: var(--primary-color4);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1.3;
@@ -26927,7 +26970,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-country-serve-section .single-item ul li {
     color: var(--primary-color4);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 20px;
     line-height: 1;
@@ -27063,7 +27106,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-contact-section .contact-wrapper .contact-content .section-title>span {
     color: var(--primary-color4);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -27232,7 +27275,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .home8-testimoninal-section .testimonial-wrapper .section-title .rating-area .content span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 12px;
     line-height: 1
@@ -27399,7 +27442,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .breadcrumb-section .banner-content>span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 30px;
@@ -27439,7 +27482,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .breadcrumb-section .banner-content h1 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 50px;
     line-height: 1.2;
@@ -27473,7 +27516,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .breadcrumb-section .banner-content .breadcrumb-list li {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -27508,7 +27551,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .breadcrumb-section .banner-content .batch span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1;
@@ -27719,7 +27762,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .breadcrumb-section.four .banner-content .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1
@@ -27775,7 +27818,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .breadcrumb-section.four .banner-content .location-area .location a {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1.3;
@@ -27794,7 +27837,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .breadcrumb-section.four .banner-content .location-area .map-view {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -27838,7 +27881,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-page .nav-pills .nav-item .nav-link {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1;
@@ -27893,7 +27936,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .pagination-area .paginations .page-item a {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     line-height: 1;
@@ -27932,7 +27975,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     justify-content: center;
     gap: 4px;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     line-height: 1;
@@ -27986,7 +28029,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     display: block;
     text-align: center;
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1;
@@ -27995,7 +28038,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .inspiration-details .activite-tag h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     line-height: 1;
@@ -28021,7 +28064,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .inspiration-details .activite-tag ul li a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1;
@@ -28080,7 +28123,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .inspiration-details .single-visit h5 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 28px;
@@ -28146,7 +28189,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .inspiration-details .tag-and-social-area .tag-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -28165,7 +28208,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .inspiration-details .tag-and-social-area .tag-area .tag-list li a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -28194,7 +28237,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .inspiration-details .tag-and-social-area .social-area h6 {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -28369,7 +28412,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     line-height: 1;
     margin-bottom: 0;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 600
 }
@@ -28382,7 +28425,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .comment-area .comment .single-comment-area .comment-content .author-name-deg span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     line-height: 1
@@ -28407,7 +28450,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .comment-area .comment .single-comment-area .comment-content .replay-btn {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     display: inline-flex;
@@ -28472,7 +28515,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .comment-area .comment .single-comment-area .comment-content .review-item-list li span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1
@@ -28533,7 +28576,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     padding-left: 10px;
     width: 100%;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1
@@ -28546,7 +28589,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-sidebar-area .widget-title {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 25px;
     font-weight: 600;
     line-height: .9;
@@ -28626,7 +28669,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-sidebar-area .single-widget .category-list li a span {
     color: var(--black-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     line-height: 1;
@@ -28670,7 +28713,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-sidebar-area .single-widget .recent-post-widget .recent-post-content>a {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500;
     display: block;
@@ -28694,7 +28737,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-sidebar-area .single-widget .recent-post-widget .recent-post-content h6 a {
     color: var(--black-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
@@ -28750,7 +28793,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .blog-sidebar-area .single-widget .tag-list li a {
     color: var(--black-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     display: block;
@@ -28834,7 +28877,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-breadcrumb-bottom .details-breadcrumb-bottom-wrapper .left-content ul li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -28855,7 +28898,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-breadcrumb-bottom .details-breadcrumb-bottom-wrapper .left-content .rating-area {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -28889,7 +28932,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-breadcrumb-bottom .details-breadcrumb-bottom-wrapper .right-content span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -29065,7 +29108,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .package-info-wrap .package-info-list li .content span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -29075,7 +29118,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .package-info-wrap .package-info-list li .content strong {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -29156,7 +29199,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .items-list li {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 18px;
     line-height: 28px;
@@ -29223,7 +29266,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-title .expand-btn {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1
@@ -29279,7 +29322,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .location-title h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1.3;
@@ -29366,7 +29409,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 500;
     line-height: 1.4;
@@ -29435,7 +29478,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item .accordion-body {
     padding: 30px 0 0;
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     line-height: 24px;
@@ -29482,7 +29525,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item .accordion-body .facilities-list li .single-item {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
@@ -29511,7 +29554,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item .accordion-body .facilities-list li .single-item .facilities-title h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -29536,7 +29579,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item .accordion-body .facilities-list li a {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     line-height: 1;
@@ -29568,7 +29611,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .map-area .leaflet-popup-content h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -29577,7 +29620,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .map-area .leaflet-popup-content strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1;
@@ -29586,7 +29629,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .map-area .leaflet-popup-content span {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -29616,7 +29659,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-warpper .feature-list-area .single-feature-list h5 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1.3;
@@ -29690,7 +29733,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-sidebar .pricing-and-booking-area .batch span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -29712,7 +29755,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-sidebar .pricing-and-booking-area .price-area h6 {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -29722,7 +29765,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-sidebar .pricing-and-booking-area .price-area span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 1
@@ -29766,7 +29809,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-sidebar .pricing-and-booking-area ul li {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.4;
@@ -29813,7 +29856,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-sidebar .pricing-and-booking-area>span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.4;
@@ -29873,7 +29916,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .package-details-page .package-details-sidebar .customize-package-banner-wrap h2 span {
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     display: block
 }
@@ -29898,7 +29941,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-sidebar .customize-package-banner-wrap>ul li {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.5;
@@ -29985,7 +30028,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-sidebar .customize-package-banner-wrap .counter-area h6 {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -30067,7 +30110,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .customer-rating-area .rating-wrapper .rating-area>span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -30092,7 +30135,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .customer-rating-area .rating-wrapper .rating-area P {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.5;
@@ -30159,7 +30202,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .customer-rating-area .rating-wrapper .progress-list .single-progress>span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -30240,7 +30283,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .customer-rating-area .rating-wrapper .progress-list .single-progress .rating-progress-bar-wrap .data-per {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -30302,7 +30345,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items: center;
     gap: 6px;
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1;
@@ -30334,7 +30377,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-card .location-content h6 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1.5;
@@ -30347,7 +30390,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-card .location-content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -30466,7 +30509,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .nav-pills .nav-item .nav-link {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -30525,7 +30568,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .single-activity .title {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -30561,7 +30604,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .single-activity .activity-card .activity-content h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 24px;
@@ -30576,7 +30619,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .single-activity .activity-card .activity-content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
@@ -30591,7 +30634,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .single-activity .activity-card .activity-content a {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -30633,7 +30676,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .content-wrapper ul li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -30697,7 +30740,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .content-wrapper .accommodation-wrap .accommodation-content h6 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1.3;
@@ -30715,7 +30758,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .content-wrapper .accommodation-wrap .accommodation-content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
@@ -30773,7 +30816,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .content-wrapper .accommodation-wrap .accommodation-content .rating-and-location-area .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1
@@ -30781,7 +30824,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .content-wrapper .accommodation-wrap .accommodation-content .rating-and-location-area .location {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1;
@@ -30801,7 +30844,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .content-wrapper .transport-wrap h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -30835,7 +30878,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .location-details-modal .modal-dialog .modal-content .modal-body .content-wrapper .transport-wrap .title-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px
@@ -30964,7 +31007,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .rating-modal .modal-dialog .modal-content .modal-body .star-rating-list li span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -31161,7 +31204,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-dropdown h6 {
     font-size: 16px;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--title-color);
     font-weight: 500;
     line-height: 1.4;
@@ -31176,7 +31219,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-dropdown>span {
     font-size: 14px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-weight: 400;
     margin-bottom: 0;
@@ -31227,7 +31270,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-wrap .title-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -31235,7 +31278,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-wrap .title-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1.4;
@@ -31264,7 +31307,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-wrap .guest-count .single-item .title h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     margin-bottom: 5px
@@ -31272,7 +31315,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-wrap .guest-count .single-item .title span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 400;
     margin-bottom: 0
@@ -31308,7 +31351,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     text-align: center;
     line-height: 1;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500
 }
@@ -31430,7 +31473,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-header .accordion-button .batch span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -31475,7 +31518,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-header .accordion-button .title-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 500;
     line-height: 1.4;
@@ -31490,7 +31533,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-header .accordion-button>span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1
@@ -31608,7 +31651,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .tour-info-and-calculate-area .price-calculate span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1;
@@ -31642,7 +31685,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
@@ -31740,7 +31783,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .service-info-wrap .service-info h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 28px;
@@ -31775,7 +31818,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -31819,7 +31862,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     text-align: center;
     line-height: 1;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500
 }
@@ -32005,7 +32048,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-grid-page .package-grid-top-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.5
@@ -32107,7 +32150,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-grid-page .package-grid-top-area .selector-and-list-grid-area .filter-btn span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500;
     line-height: 1;
@@ -32139,7 +32182,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-grid-page .package-card .package-content .package-info li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.5;
@@ -32289,7 +32332,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-sidebar-area .sidebar-wrapper .title-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -32381,7 +32424,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-sidebar-area .sidebar-wrapper .single-widgets .checkbox-container ul li .containerss strong {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -32500,7 +32543,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-sidebar-area .sidebar-wrapper .single-widgets .checkbox-container.two>span {
     color: var(--primary-color1);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 700;
     font-size: 15px;
     line-height: 1;
@@ -32528,7 +32571,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-sidebar-area .sidebar-wrapper .single-widgets .tour-type li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -32566,7 +32609,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-sidebar-area .sidebar-wrapper .single-widgets .range-wrap .slider-labels .caption {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     line-height: 1;
@@ -32787,7 +32830,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .map-view-modal .modal-dialog .modal-content .title-area .rating-area span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1
@@ -32810,7 +32853,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .map-view-modal .modal-dialog .modal-content .title-area .package-features li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -32871,7 +32914,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .map-view-modal .modal-dialog .modal-content .modal-body .map-area .leaflet-popup-content h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -32880,7 +32923,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .map-view-modal .modal-dialog .modal-content .modal-body .map-area .leaflet-popup-content strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1;
@@ -32889,7 +32932,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .map-view-modal .modal-dialog .modal-content .modal-body .map-area .leaflet-popup-content span {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -32929,7 +32972,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .map-view-modal .modal-dialog .modal-content .modal-body .bottom-area strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 1;
@@ -32952,7 +32995,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .map-view-modal .modal-dialog .modal-content .modal-body .bottom-area>span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 22px;
     line-height: 1.5;
@@ -33054,7 +33097,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-card4 .destination-img-wrap .destination-title-area h2 {
     color: var(--white-color);
-    font-family: var(--font-courgette);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 40px;
     line-height: 1.2;
@@ -33081,7 +33124,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-card4 .destination-img-wrap .destination-title-area span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -33152,7 +33195,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-card4 .destination-wrapper .destination-list li>a {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1.2;
@@ -33346,7 +33389,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-details-section .destination-details-content .destination-info li {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -33382,7 +33425,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     background-color: var(--black-color);
     border-radius: 10px;
     color: #FFF8F8;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 20px;
@@ -33589,7 +33632,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-dt-why-choose-section ul li {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1;
@@ -33798,7 +33841,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .destionation-dt-customer-gallery-section .destionation-dt-customer-gallery-slider .success-story-card .success-story-content-wrap .success-story-content .author-info h6,
 .visa-dt-success-story-section .destionation-dt-customer-gallery-slider .success-story-card .success-story-content-wrap .success-story-content .author-info h6 {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -33808,7 +33851,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .destionation-dt-customer-gallery-section .destionation-dt-customer-gallery-slider .success-story-card .success-story-content-wrap .success-story-content .author-info span,
 .visa-dt-success-story-section .destionation-dt-customer-gallery-slider .success-story-card .success-story-content-wrap .success-story-content .author-info span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1
@@ -33917,7 +33960,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-dt-travel-season-section .travel-season-card .travel-season-top-area .travel-season-content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1
@@ -33935,7 +33978,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-dt-travel-season-section .travel-season-card .travel-season-top-area .travel-season-content .highlights-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1;
@@ -33950,7 +33993,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-dt-travel-season-section .travel-season-card .travel-season-top-area .travel-season-content .highlights-area ul li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1.4;
@@ -33980,7 +34023,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .destination-dt-travel-season-section .travel-season-card .note {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.5;
@@ -34215,7 +34258,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .contact-page .single-contact h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -34666,7 +34709,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .shop-page .shop-sidebar .single-widgets .cart-menu .product-list .single-product .content h6 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 500;
     line-height: 28px;
@@ -34685,7 +34728,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .shop-page .shop-sidebar .single-widgets .cart-menu .product-list .single-product .content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 600;
     line-height: 1
@@ -34704,7 +34747,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .shop-page .shop-sidebar .single-widgets .cart-menu .total-price span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 600;
     line-height: 1
@@ -34718,7 +34761,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .shop-page .shop-sidebar .single-widgets .cart-menu .total-price strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 600;
     line-height: 1
@@ -34766,7 +34809,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .shop-page .shop-sidebar .single-widgets .checkbox-container ul li .containerss span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     line-height: 1;
@@ -34840,7 +34883,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .shop-page .shop-sidebar .single-widgets .tag-list li a {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     transition: .35s;
@@ -34880,7 +34923,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .shop-page .shop-sidebar .single-widgets.widget_search .wp-block-search__inside-wrapper input {
     background-color: transparent;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     border: none;
@@ -34952,7 +34995,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items: center;
     gap: 8px;
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -34993,7 +35036,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-card .product-card-content h6 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1.4;
@@ -35006,7 +35049,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-card .product-card-content span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -35178,7 +35221,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-details-page .product-details-content h2 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 45px;
     font-weight: 600;
     line-height: 1.2;
@@ -35212,7 +35255,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-details-page .product-details-content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 400;
     line-height: 1.5;
@@ -35251,7 +35294,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-details-page .product-details-content ul li {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 18px;
     line-height: 22.68px;
@@ -35288,7 +35331,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-details-page .product-details-content .price-tag h5 {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 22px;
     font-weight: 600;
     line-height: 1;
@@ -35378,7 +35421,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     background-color: transparent;
     color: var(--title-color);
     text-align: center;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 600
 }
@@ -35403,7 +35446,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .product-details-page .product-details-content .aditional-info>li {
     line-height: 1;
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     margin-bottom: 20px;
@@ -35418,7 +35461,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-details-page .product-details-content .aditional-info>li span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     display: inline-block;
     margin-right: 5px
@@ -35426,7 +35469,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-details-page .product-details-content .aditional-info>li a {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     transition: .35s;
@@ -35457,7 +35500,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .product-details-page .product-description-and-review-area .nav2 .nav-link {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     padding: 6px 15px;
@@ -35664,7 +35707,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-widget-title h4 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 28px;
     font-weight: 600;
     line-height: 1.4;
@@ -35694,7 +35737,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-shopping-wrapper .cart-table thead tr th {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 600;
     line-height: 1;
@@ -35720,7 +35763,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .cart-page .cart-shopping-wrapper .cart-table tbody tr td {
     padding: 30px 15px;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     line-height: 1
@@ -35760,7 +35803,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-shopping-wrapper .cart-table tbody tr td .product-info-wrapper .product-info-content h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 600;
     line-height: 1.4;
@@ -35775,7 +35818,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-shopping-wrapper .cart-table tbody tr td .product-info-wrapper .product-info-content p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     line-height: 1;
@@ -35804,7 +35847,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-shopping-wrapper .cart-table tbody tr td .product-info-wrapper .product-info-content ul li {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     line-height: 1;
@@ -35854,7 +35897,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items: center;
     justify-content: center;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
@@ -35885,7 +35928,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items: center;
     justify-content: center;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 600;
     text-align: center
@@ -35919,7 +35962,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
         position: absolute;
         left: 15px;
         color: var(--text-color);
-        font-family: var(--font-poppins);
+        font-family: var(--font-main);
         font-size: 18px;
         font-weight: 600
     }
@@ -35933,7 +35976,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-shopping-wrapper .details-button {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     line-height: 1;
@@ -35995,7 +36038,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     justify-content: space-between;
     margin-bottom: 30px;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     line-height: 1
@@ -36008,7 +36051,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-order-sum-area .order-summary-wrap .order-summary-list li strong {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     line-height: 1;
@@ -36021,7 +36064,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-order-sum-area .order-summary-wrap .order-summary-list li .order-info p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 500;
     line-height: 1;
@@ -36030,7 +36073,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-order-sum-area .order-summary-wrap .order-summary-list li .order-info span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 600;
     line-height: 1
@@ -36043,7 +36086,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .cart-page .cart-order-sum-area .order-summary-wrap .order-summary-list li .coupon-area span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 500;
     line-height: 1;
@@ -36077,7 +36120,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     background-color: var(--black-color);
     border: 1px solid var(--black-color);
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 600;
     letter-spacing: .48px;
@@ -36136,7 +36179,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .checkout-page .checkout-form-wrapper .checkout-form-title h4 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 28px;
     font-weight: 600;
     line-height: 1.4;
@@ -36297,7 +36340,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .checkout-page .order-sum-area .cart-body ul .single-item .item-area .main-item .content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 15px;
     display: inline-block;
@@ -36311,7 +36354,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .checkout-page .order-sum-area .cart-body ul .single-item .item-area .main-item .content h6 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1.3;
@@ -36372,7 +36415,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items: center;
     justify-content: center;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 600;
     text-align: center
@@ -36395,7 +36438,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     justify-content: space-between;
     margin-bottom: 30px;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500;
     line-height: 1;
@@ -36405,7 +36448,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .checkout-page .order-sum-area .cart-footer .pricing-area ul li strong {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 600;
     line-height: 1;
@@ -36418,7 +36461,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .checkout-page .order-sum-area .cart-footer .pricing-area ul li .order-info p {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 500;
     line-height: 1;
@@ -36427,7 +36470,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .checkout-page .order-sum-area .cart-footer .pricing-area ul li .order-info span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 600;
     line-height: 1
@@ -36451,7 +36494,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .checkout-page .choose-payment-method h6 {
     margin-bottom: 10px;
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 500
 }
@@ -36585,7 +36628,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .guider-details-page .guider-img-wrap .guider-social-area span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -36688,7 +36731,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .guider-details-page .guider-details-content .guider-name-desig span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1;
@@ -36773,7 +36816,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .guider-details-page .guider-details-content .guider-operator-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 24px
@@ -36861,7 +36904,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .guider-details-page .guider-details-content .contact-info .single-contact .content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -36877,7 +36920,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .guider-details-page .guider-details-content .contact-info .single-contact .content a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1;
@@ -37020,7 +37063,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-package-grid-section .visa-package-card .visa-package-content h5 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 30px;
@@ -37044,7 +37087,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-package-grid-section .visa-package-card .visa-package-content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.4;
@@ -37074,7 +37117,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .why-choose-visa-section .section-title span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -37195,7 +37238,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-list-area .single-visa h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 28px;
@@ -37210,7 +37253,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-list-area .single-visa span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 28px
@@ -37306,7 +37349,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-details-wrapper .info-list li {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 18px;
     line-height: 28px;
@@ -37542,7 +37585,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-dt-sidebar .visa-info-wrap .title-area span {
     color: var(--primary-color1);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
@@ -37578,7 +37621,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-dt-sidebar .visa-info-wrap .pricing-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -37588,7 +37631,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-dt-sidebar .visa-info-wrap .pricing-area strong {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 1
@@ -37631,7 +37674,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-dt-sidebar .visa-info-wrap>span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
@@ -37734,7 +37777,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-dt-sidebar .visa-assistance-wrap .visa-assistance-content ul li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -37795,7 +37838,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-dt-sidebar .visa-assistance-wrap .visa-assistance-content .contact-area .content span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1;
@@ -37805,7 +37848,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .visa-details-page .visa-dt-sidebar .visa-assistance-wrap .visa-assistance-content .contact-area .content a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1;
@@ -37953,7 +37996,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .visa-apply-modal .modal-dialog .modal-content .modal-body .image-drop-area .dropzone .content h6 {
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.6;
@@ -38141,7 +38184,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-grid-page .hotel-grid-top-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.5
@@ -38250,7 +38293,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-grid-page .hotel-grid-top-area .selector-and-list-grid-area .filter-btn span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500;
     line-height: 1;
@@ -38336,7 +38379,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-img-wrap .batch span {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -38402,7 +38445,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-content .rating-area span {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1
@@ -38414,7 +38457,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-content h5 a {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
     line-height: 1.4;
@@ -38469,7 +38512,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-content .location-area .location a {
     color: var(--text-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -38488,7 +38531,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-content .location-area .map-view {
     color: var(--primary-color1);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 12px;
     line-height: 1;
@@ -38538,7 +38581,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-content .hotel-feature-list li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1;
@@ -38578,7 +38621,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-content .cancellation span {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1
@@ -38618,7 +38661,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-content .btn-and-price-area .price-area h6 {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -38640,7 +38683,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-card .hotel-content .btn-and-price-area .price-area span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 25px;
     line-height: 1;
@@ -38826,7 +38869,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     background-color: rgba(16, 12, 8, .6);
     color: var(--white-color);
     text-align: center;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 600;
     letter-spacing: .6px;
@@ -38861,7 +38904,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     background-color: rgba(16, 12, 8, .6);
     color: var(--white-color);
     text-align: center;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 600;
     letter-spacing: .6px;
@@ -38978,7 +39021,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .hotel-dt-facilities-area .facilities-wrap .single-facilities .facilities-list li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
@@ -39073,7 +39116,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .single-field .custom-select-dropdown h6 {
     font-size: 16px;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--title-color);
     font-weight: 500;
     line-height: 1.4;
@@ -39088,7 +39131,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .single-field .custom-select-dropdown>span {
     font-size: 14px;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     color: var(--text-color);
     font-weight: 400;
     margin-bottom: 0;
@@ -39151,7 +39194,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .single-field .custom-select-wrap .title-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
     line-height: 1
@@ -39159,7 +39202,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .single-field .custom-select-wrap .title-area span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 14px;
     line-height: 1.4;
@@ -39191,7 +39234,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .single-field .custom-select-wrap .room-list .single-room .room-title h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1;
@@ -39224,7 +39267,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .single-field .custom-select-wrap .room-list .single-room .guest-count .single-item .title h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 16px;
     font-weight: 400;
     margin-bottom: 5px
@@ -39232,7 +39275,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .single-field .custom-select-wrap .room-list .single-room .guest-count .single-item .title span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 400;
     margin-bottom: 0
@@ -39268,7 +39311,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     text-align: center;
     line-height: 1;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 500
 }
@@ -39391,7 +39434,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .hotel-room-list .accordion .accordion-item .accordion-header .accordion-button .batch span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1;
@@ -39436,7 +39479,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .hotel-room-list .accordion .accordion-item .accordion-header .accordion-button .title-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-size: 18px;
     font-weight: 500;
     line-height: 1.4;
@@ -39451,7 +39494,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .hotel-room-list .accordion .accordion-item .accordion-header .accordion-button>span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 1
@@ -39582,7 +39625,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .booking-area .hotel-room-list .accordion .accordion-item .accordion-body .additional-service-area h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
@@ -39619,7 +39662,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items: center;
     gap: 5px;
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
     line-height: 1.3
@@ -39684,7 +39727,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-wrapper .additional-info .items-list li {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 400;
     font-size: 18px;
     line-height: 28px;
@@ -39774,7 +39817,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-sidebar .pricing-and-booking-area .batch span {
     color: var(--white-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 14px;
     line-height: 1;
@@ -39796,7 +39839,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-sidebar .pricing-and-booking-area .price-area h6 {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
@@ -39806,7 +39849,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-sidebar .pricing-and-booking-area .price-area span {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
     line-height: 1
@@ -39850,7 +39893,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-sidebar .pricing-and-booking-area ul li {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.4;
@@ -39897,7 +39940,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .hotel-details-page .hotel-details-sidebar .pricing-and-booking-area>span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.4;
@@ -39999,7 +40042,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .calendar-wrapper .calendar-dates .date .price {
     color: var(--title-color) !important;
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 11px !important;
     font-weight: 600
 }
@@ -40078,7 +40121,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .calendar-wrapper .calendar-actions a {
     color: var(--white-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-size: 15px;
     font-weight: 500;
     letter-spacing: .05em;
@@ -40181,7 +40224,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .about-section .about-content .section-title h4 {
     color: var(--title-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 25px;
     line-height: 35px;
@@ -40265,7 +40308,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .about-section .about-content .founder-area .founder-info h6 {
     color: var(--title-color);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
     line-height: 1;
@@ -40274,7 +40317,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .about-section .about-content .founder-area .founder-info span {
     color: var(--text-color);
-    font-family: var(--font-roboto);
+    font-family: var(--font-main);
     font-weight: 500;
     font-size: 14px;
     line-height: 1

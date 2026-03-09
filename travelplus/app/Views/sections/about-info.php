@@ -1,15 +1,3 @@
-<div class="breadcrumb-section"
-    style="background-image:linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(../assets/img/innerpages/breadcrumb-bg2.jpg)">
-    <div class="container">
-        <div class="banner-content">
-            <h1>About Travel Plus</h1>
-            <ul class="breadcrumb-list">
-                <li><a href="../">Home</a></li>
-                <li>About Travel Plus</li>
-            </ul>
-        </div>
-    </div>
-</div>
 <div class="about-section pt-100 mb-100">
     <div class="container">
         <div class="about-wrapper">
@@ -306,52 +294,40 @@
             <div class="marquee">
                 <div class="marquee__group"><a href="#"><img alt="" loading="lazy" width="550" height="220"
                             decoding="async" data-nimg="1" style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-01.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-01.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-01.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-02.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-02.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-02.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-03.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-03.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-03.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-04.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-04.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-04.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-05.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-05.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-05.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-06.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-06.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-06.png%26w%3D1200%26q%3D75"></a>
                 </div>
                 <div aria-hidden="true" class="marquee__group"><a href="#"><img alt="" loading="lazy" width="550"
                             height="220" decoding="async" data-nimg="1" style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-01.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-01.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-01.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-02.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-02.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-02.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-03.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-03.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-03.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-04.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-04.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-04.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-05.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-05.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-05.png%26w%3D1200%26q%3D75"></a><a
                         href="#"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1"
                             style="color:transparent"
-                            srcset="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-06.png%26w%3D640%26q%3D75 1x, ../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-06.png%26w%3D1200%26q%3D75 2x"
                             src="../_next/image/url%3D%252Fassets%252Fimg%252Fhome1%252Fpartner-06.png%26w%3D1200%26q%3D75"></a>
                 </div>
             </div>

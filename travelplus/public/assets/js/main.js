@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
     locale: "vn",
     disableMobile: true,
   });
+
+  $('select').niceSelect();
 });
 document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
