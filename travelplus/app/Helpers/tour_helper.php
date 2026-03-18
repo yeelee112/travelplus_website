@@ -1,12 +1,20 @@
 <?php
 
-function getTourCards(): array
-{
-    return require APPPATH . 'Data/TourCard';
+use App\Services\TourCatalogService;
+
+if (!function_exists('getTourCards')) {
+    function getTourCards(?string $locale = null, int $limit = 6): array
+    {
+        $locale = $locale ?? service('request')->getLocale();
+        $service = new TourCatalogService();
+
+        return $service->getHomeTours($locale, $limit);
+    }
 }
 
-function getFeaturedTours(int $limit = 6): array
-{
-    $tours = getTourCards();
-    return array_slice($tours, 0, $limit);
+if (!function_exists('getFeaturedTours')) {
+    function getFeaturedTours(int $limit = 6, ?string $locale = null): array
+    {
+        return getTourCards($locale, $limit);
+    }
 }

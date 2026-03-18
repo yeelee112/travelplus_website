@@ -27,14 +27,9 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js" integrity="sha512-NqYds8su6jivy1/WLoW8x1tZMRD7/1ZfhWG/jcRQLOzV1k1rIODCpMgoBnar5QXshKJGV7vi0LXLNXPoFsM5Zg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js" integrity="sha512-Eak/29OTpb36LLo2r47IpVzPBLXnAMPAVypbSZiZ4Qkf8p/7S/XRG5xp7OKWPPYfJT6metI+IORkR5G8F900+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<?php
-$destinations = include APPPATH . 'Views/data/destinations.php';
-?>
-
 <script>
   const URL_API = "<?= localized_url() ?>";
   window.BASE_URL = "<?= base_url() ?>";
-  window.DESTINATIONS = <?= json_encode($destinations, JSON_UNESCAPED_UNICODE) ?>;
 </script>
 <script src="https://www.google.com/recaptcha/api.js?render=6LfgBncsAAAAAEmWNoT1xtCidf_t3tQEK7YkhWvw"></script>
 

@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Controllers;
-use App\Data\TourCard;
-use App\Models\TourModel;
+use App\Services\TourCatalogService;
+
 class Home extends BaseController
 {
     public function index()
     {
-        $tours = TourCard::getAll();
+        $tourService = new TourCatalogService();
+        $tours = $tourService->getHomeTours($this->request->getLocale(), 6);
 
         return view('home/index', [
             'tours' => $tours

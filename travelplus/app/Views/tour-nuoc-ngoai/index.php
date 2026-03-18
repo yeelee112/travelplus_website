@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <?= view('layouts/breadcrumb') ?>
-<!-- <?= $this->include('sections/tour-list-show') ?> -->
+<?= $this->include('sections/tour-list-show') ?>
 
 
 

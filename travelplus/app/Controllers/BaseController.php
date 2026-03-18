@@ -39,8 +39,7 @@ abstract class BaseController extends Controller
 
         // Caution: Do not edit this line.
         parent::initController($request, $response, $logger);
-        $segment1 = service('uri')->getSegment(1);
-        $locale = ($segment1 === 'en') ? 'en' : 'vi';
+        $locale = $request->getLocale() ?: 'vi';
 
         $locationModel = new LocationModel();
         $menu = $locationModel->getMegaMenu($locale);

@@ -1,23 +1,34 @@
 <?php
 
 namespace App\Controllers;
-use App\Data\TourCard;
+
+use App\Services\TourCatalogService;
+
 class Outbound extends BaseController
 {
     public function index()
     {
         $data['breadcrumbs'] = [
             [
-                'label' => 'Trang chủ',
+                'label' => 'Trang chu',
                 'url'   => base_url()
             ],
             [
-                'label' => 'Tour nước ngoài'
+                'label' => 'Tour nuoc ngoai'
             ]
         ];
 
-        $data['tours'] = TourCard::getAll();
+        $tourService = new TourCatalogService();
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        $result = $tourService->getPagedTours($this->request->getLocale(), 9, $page, 'outbound');
+
+        $data['tours'] = $result['tours'];
+        $data['pagination'] = [
+            'total' => $result['total'],
+            'page' => $result['page'],
+            'lastPage' => $result['lastPage'],
+        ];
 
         return view('tour-nuoc-ngoai/index', $data);
     }
-}   
+}
