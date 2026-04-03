@@ -3567,6 +3567,10 @@ header.style-1 .main-menu>ul>li .mega-menu .menu-row {
     gap: 48px
 }
 
+.grid-temp-col-5 {
+    grid-template-columns: repeat(5, 1fr) !important
+}
+
 @media (max-width:1399px) {
     header.style-1 .main-menu>ul>li .mega-menu .menu-row {
         gap: 35px
@@ -27557,10 +27561,10 @@ header.style-3.two .main-menu>ul>li.active>a i {
     line-height: 1;
     display: inline-block;
     padding: 14px 30px;
-    background-color: rgba(var(--white-color-opc), .2);
-    -webkit-backdrop-filter: blur(150px);
-    backdrop-filter: blur(150px);
-    border: 1px solid rgba(var(--white-color-opc), .1);
+    background-color: rgb(119 119 119 / 50%);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(var(--white-color-opc), .4);
     border-radius: 100px
 }
 
@@ -29384,8 +29388,8 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item {
-    margin-bottom: 45px;
-    border: 1px solid transparent
+    margin-bottom: 30px;
+    /* border: 1px solid transparent */
 }
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item:last-child {
@@ -29403,8 +29407,8 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button {
-    padding: 0 0 25px;
-    border-bottom: 1px solid var(--borders-color)
+    padding: 0 0 20px;
+    /* border-bottom: 1px solid var(--borders-color) */
 }
 
 .package-details-page .package-details-warpper .tour-itinerary-area .itinerary-list .single-itinerary .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button h6 {
@@ -29415,7 +29419,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     line-height: 1.4;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; */
     gap: 30px
 }
 
@@ -29482,7 +29486,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
     font-size: 16px;
     font-weight: 400;
     line-height: 24px;
-    text-align: left
+    text-align: left;
+    padding: 0 10px 25px;
+
 }
 
 @media (max-width:767px) {
@@ -29695,8 +29701,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-details-page .package-details-sidebar .pricing-and-booking-area {
     padding: 40px;
-    background-color: #F2F2FF;
-    border-radius: 20px
+    background-color: #ffffff;
+    border-radius: 20px;
+    border: 1px solid var(--primary-color1);
 }
 
 @media (min-width:1200px) and (max-width:1399px) {
@@ -30331,8 +30338,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
     height: 0;
     left: 50%;
     top: 50%;
-    background-color: rgba(255, 255, 255, .3);
-    transform: translate(-50%, -50%) rotate(-45deg);
     content: "";
     z-index: 1
 }

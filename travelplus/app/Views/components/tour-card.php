@@ -15,7 +15,7 @@
             </h5>
 
             <div class="location-and-time">
-                <div class="location"><i class="bi bi-geo-alt"></i><a href="#"><?= esc($tour['continent']) ?> </a>
+                <div class="location"><i class="bi bi-geo-alt"></i><a href="<?= esc($tour['continent_link'] ?? '#') ?>"><?= esc($tour['continent']) ?> </a>
                 </div>
                 <svg class="arrow" width="25" height="6" viewBox="0 0 25 6" xmlns="http://www.w3.org/2000/svg">
                     <path d="M0 3L5 5.88675V0.113249L0 3ZM25 3L20 0.113249V5.88675L25 3ZM4.5 3.5H20.5V2.5H4.5V3.5Z">

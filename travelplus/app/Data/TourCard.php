@@ -15,6 +15,7 @@ class TourCard
                 'image' => base_url('assets/images/avt-tour-01.jpg'),
                 'badge' => 'Hot Sale!',
                 'continent' => 'Asia',
+                'continent_link' => localized_url('chau-a'),
                 'departure' => '13/02/2026',
                 'duration' => [
                     'days' => 7,
@@ -36,6 +37,7 @@ class TourCard
                 'image' => base_url('assets/images/avt-tour-02.jpg'),
                 'badge' => null,
                 'continent' => 'European',
+                'continent_link' => localized_url('chau-au'),
                 'departure' => '22/02/2026',
                 'duration' => [
                     'days' => 3,
@@ -57,6 +59,7 @@ class TourCard
                 'image' => base_url('assets/images/avt-tour-01.jpg'),
                 'badge' => null,
                 'continent' => 'Oceania',
+                'continent_link' => localized_url('chau-dai-duong'),
                 'departure' => '14/02/2026',
                 'duration' => [
                     'days' => 7,
@@ -77,6 +80,7 @@ class TourCard
                 'image' => base_url('assets/images/avt-tour-01.jpg'),
                 'badge' => null,
                 'continent' => 'Oceania',
+                'continent_link' => localized_url('chau-dai-duong'),
                 'departure' => '14/02/2026',
                 'duration' => [
                     'days' => 7,
@@ -97,6 +101,7 @@ class TourCard
                 'image' => base_url('assets/images/avt-tour-01.jpg'),
                 'badge' => null,
                 'continent' => 'Oceania',
+                'continent_link' => localized_url('chau-dai-duong'),
                 'departure' => '14/02/2026',
                 'duration' => [
                     'days' => 7,
@@ -117,6 +122,7 @@ class TourCard
                 'image' => base_url('assets/images/avt-tour-01.jpg'),
                 'badge' => null,
                 'continent' => 'Oceania',
+                'continent_link' => localized_url('chau-dai-duong'),
                 'departure' => '14/02/2026',
                 'duration' => [
                     'days' => 7,

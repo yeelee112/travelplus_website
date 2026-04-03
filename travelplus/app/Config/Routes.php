@@ -20,6 +20,10 @@ $routes->GET('/', 'Home::index');
 $routes->GET('api/destinations', 'Api\Destination::search');
 $routes->GET('ve-chung-toi', 'AboutUs::index');
 $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
+$routes->GET('tour-trong-nuoc', 'Domestic::index');
+$routes->GET('tour-preview', 'TourController::preview');
+$routes->get('tour-trong-nuoc/(:segment)', 'Domestic::region/vi/$1');
+$routes->get('tour-trong-nuoc/(:segment)/(:segment)', 'Domestic::province/vi/$1/$2');
 
 
 
@@ -38,6 +42,10 @@ $routes->group('en', function ($routes) {
     $routes->GET('ve-chung-toi', 'AboutUs::index');
     $routes->match(['GET','POST'], 'contact', 'Contact::index');
     $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
+    $routes->GET('tour-trong-nuoc', 'Domestic::index');
+    $routes->GET('tour-preview', 'TourController::preview');
+    $routes->get('tour-trong-nuoc/(:segment)', 'Domestic::region/en/$1');
+    $routes->get('tour-trong-nuoc/(:segment)/(:segment)', 'Domestic::province/en/$1/$2');
     $routes->get('(:segment)', 'LocationController::continent/en/$1');
     $routes->get('(:segment)/(:segment)', 'LocationController::country/en/$1/$2');
     $routes->get('(:segment)/(:segment)/(:segment)', 'LocationController::province/en/$1/$2/$3');

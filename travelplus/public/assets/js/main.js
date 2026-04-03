@@ -1,17 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  flatpickr("#departure_date", {
-    dateFormat: "d/m/Y",
-    minDate: "today",
-    enableTime: false,
-    altInput: true,
-    altFormat: "D j F, Y",
-    locale: "vn",
-    disableMobile: true,
-  });
-
-  $('select').niceSelect();
-});
-document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
      HELPER
   ===================================================== */
@@ -51,8 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
      MENU CLOSE
   ===================================================== */
+  const mobileMenuBtn = qs(".mobile-menu-btn");
   const menuCloseBtn = qs(".menu-close-btn");
   const mainMenu = qs(".main-menu");
+
+  if (mobileMenuBtn && mainMenu) {
+    mobileMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      mainMenu.classList.add("show-menu");
+    });
+  }
 
   if (menuCloseBtn && mainMenu) {
     menuCloseBtn.addEventListener("click", (e) => {
@@ -64,17 +59,63 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
      LANGUAGE DROPDOWN (RIÊNG)
   ===================================================== */
-  const languageBtn = qs(".language-btn");
-  const languageList = qs(".language-list");
+  qsa(".language-area").forEach((area) => {
+    const languageBtn = qs(".language-btn", area);
+    const languageList = qs(".language-list", area);
 
-  if (languageBtn && languageList) {
+    if (!languageBtn || !languageList) return;
+
     languageBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       languageList.classList.toggle("active");
     });
 
     languageList.addEventListener("click", (e) => e.stopPropagation());
-  }
+  });
+
+  /* =====================================================
+     MOBILE SUB MENU
+  ===================================================== */
+  qsa("header .menu-item-has-children").forEach((item) => {
+    const dropdownIcon = qs(".dropdown-icon", item);
+    const submenu = qs(".sub-menu, .mega-menu", item);
+
+    if (!dropdownIcon || !submenu) return;
+
+    dropdownIcon.addEventListener("click", (e) => {
+      if (window.innerWidth >= 992) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      item.classList.toggle("active");
+      dropdownIcon.classList.toggle("active");
+
+      const isOpen = submenu.style.display === "block";
+      submenu.classList.toggle("none", isOpen);
+      submenu.style.display = isOpen ? "none" : "block";
+    });
+  });
+
+  qsa("header .mega-menu .menu-single-item").forEach((item) => {
+    const dropdownIcon = qs(".dropdown-icon", item);
+    const submenu = qs("ul", item);
+
+    if (!dropdownIcon || !submenu) return;
+
+    dropdownIcon.addEventListener("click", (e) => {
+      if (window.innerWidth >= 992) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      dropdownIcon.classList.toggle("active");
+
+      const isOpen = submenu.style.display === "block";
+      submenu.classList.toggle("none", isOpen);
+      submenu.style.display = isOpen ? "none" : "block";
+    });
+  });
 
   /* =====================================================
      CUSTOM SELECT (Category / Country / Activity)
@@ -542,4 +583,15 @@ document.addEventListener("DOMContentLoaded", () => {
       1400: { slidesPerView: 3 },
     },
   });
+
+    flatpickr("#departure_date", {
+    dateFormat: "d/m/Y",
+    minDate: "today",
+    enableTime: false,
+    altInput: true,
+    altFormat: "D j F, Y",
+    locale: "vn",
+    disableMobile: true,
+  });
+
 });

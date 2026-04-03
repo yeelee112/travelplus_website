@@ -5,6 +5,11 @@ use App\Services\TourCatalogService;
 
 class TourController extends BaseController
 {
+    public function preview()
+    {
+        return view('tour/index');
+    }
+
     public function featured()
     {
         $tourService = new TourCatalogService();

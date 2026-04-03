@@ -1,6 +1,6 @@
 <?php
 $pagination = $pagination ?? ['total' => count($tours ?? []), 'page' => 1, 'lastPage' => 1];
-$baseUrl = localized_url('tour-nuoc-ngoai');
+$baseUrl = current_url();
 $currentPage = (int) ($pagination['page'] ?? 1);
 $lastPage = (int) ($pagination['lastPage'] ?? 1);
 $total = (int) ($pagination['total'] ?? 0);

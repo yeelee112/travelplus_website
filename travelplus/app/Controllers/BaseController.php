@@ -7,6 +7,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use App\Models\LocationModel;
+use App\Services\DomesticRegionService;
 
 /**
  * BaseController provides a convenient place for loading components
@@ -43,8 +44,11 @@ abstract class BaseController extends Controller
 
         $locationModel = new LocationModel();
         $menu = $locationModel->getMegaMenu($locale);
+        $domesticRegionService = new DomesticRegionService();
+        $domesticMenu = $domesticRegionService->getMenu($locale);
 
         service('renderer')->setVar('menu', $menu);
+        service('renderer')->setVar('domesticMenu', $domesticMenu);
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }

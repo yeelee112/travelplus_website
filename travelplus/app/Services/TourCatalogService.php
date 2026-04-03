@@ -23,7 +23,13 @@ class TourCatalogService
     /**
      * @return array{tours: array<int, array<string, mixed>>, total: int, page: int, perPage: int, lastPage: int}
      */
-    public function getPagedTours(string $locale = 'vi', int $perPage = 9, int $page = 1, ?string $tourType = null): array
+    public function getPagedTours(
+        string $locale = 'vi',
+        int $perPage = 9,
+        int $page = 1,
+        ?string $tourType = null,
+        array $locationFilter = []
+    ): array
     {
         $page = max(1, $page);
         $perPage = max(1, $perPage);
@@ -43,21 +49,26 @@ class TourCatalogService
             ];
         }
 
-        $countBuilder = $this->baseToursBuilder($locale, $tourType);
-        $total = (int) $countBuilder->countAllResults();
+        $countRow = $this->baseToursBuilder($locale, $tourType, $locationFilter)
+            ->select('COUNT(DISTINCT t.id) AS total', false)
+            ->get()
+            ->getRowArray();
+        $total = (int) ($countRow['total'] ?? 0);
         $lastPage = max(1, (int) ceil(max(1, $total) / $perPage));
         $page = min($page, $lastPage);
         $offset = ($page - 1) * $perPage;
 
-        $rows = $this->baseToursBuilder($locale, $tourType)
+        $rows = $this->baseToursBuilder($locale, $tourType, $locationFilter)
             ->select(
                 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                 'tt.name AS title, tt.slug AS slug,' .
+                'MIN(dl.id) AS destination_id,' .
                 'MIN(td.departure_date) AS departure_date,' .
                 'MIN(td.price) AS min_price,' .
-                'COALESCE(dltn.name, t.tour_type) AS departure_name'
+                'COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type) AS continent_name,' .
+                'COALESCE(dlgptn.slug, dlptn.slug, dltn.slug) AS continent_slug'
             )
-            ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug, dltn.name')
+            ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug, dlgptn.name, dlptn.name, dltn.name, dlgptn.slug, dlptn.slug, dltn.slug')
             ->orderBy($this->getSortField(), 'DESC')
             ->limit($perPage, $offset)
             ->get()
@@ -72,21 +83,29 @@ class TourCatalogService
         ];
     }
 
-    private function fetchTours(string $locale, int $limit, int $offset, ?string $tourType = null): array
+    private function fetchTours(
+        string $locale,
+        int $limit,
+        int $offset,
+        ?string $tourType = null,
+        array $locationFilter = []
+    ): array
     {
         if (!$this->hasSchemaForTourCatalog()) {
             return $this->fallbackTours($offset, $limit);
         }
 
-        $rows = $this->baseToursBuilder($locale, $tourType)
+        $rows = $this->baseToursBuilder($locale, $tourType, $locationFilter)
             ->select(
                 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                 'tt.name AS title, tt.slug AS slug,' .
+                'MIN(dl.id) AS destination_id,' .
                 'MIN(td.departure_date) AS departure_date,' .
                 'MIN(td.price) AS min_price,' .
-                'COALESCE(dltn.name, t.tour_type) AS departure_name'
+                'COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type) AS continent_name,' .
+                'COALESCE(dlgptn.slug, dlptn.slug, dltn.slug) AS continent_slug'
             )
-            ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug, dltn.name')
+            ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug, dlgptn.name, dlptn.name, dltn.name, dlgptn.slug, dlptn.slug, dltn.slug')
             ->orderBy($this->getSortField(), 'DESC')
             ->limit($limit, $offset)
             ->get()
@@ -99,19 +118,75 @@ class TourCatalogService
         return $this->mapRowsToCards($rows);
     }
 
-    private function baseToursBuilder(string $locale, ?string $tourType = null): BaseBuilder
+    private function baseToursBuilder(string $locale, ?string $tourType = null, array $locationFilter = []): BaseBuilder
     {
         $builder = $this->db->table('tours t')
             ->join('tour_translations tt', 'tt.tour_id = t.id AND tt.locale = ' . $this->db->escape($locale), 'inner')
             ->join('tour_departures td', 'td.tour_id = t.id AND td.status = "open"', 'left')
-            ->join('location_translations dltn', 'dltn.location_id = t.departure_location_id AND dltn.locale = ' . $this->db->escape($locale), 'left')
+            ->join('tour_destinations tdst', 'tdst.tour_id = t.id', 'left')
+            ->join('locations dl', 'dl.id = tdst.location_id', 'left')
+            ->join('locations dlp', 'dlp.id = dl.parent_id', 'left')
+            ->join('locations dlgp', 'dlgp.id = dlp.parent_id', 'left')
+            ->join('location_translations dltn', 'dltn.location_id = dl.id AND dltn.locale = ' . $this->db->escape($locale), 'left')
+            ->join('location_translations dlptn', 'dlptn.location_id = dlp.id AND dlptn.locale = ' . $this->db->escape($locale), 'left')
+            ->join('location_translations dlgptn', 'dlgptn.location_id = dlgp.id AND dlgptn.locale = ' . $this->db->escape($locale), 'left')
             ->where('t.status', 'published');
 
         if ($tourType !== null) {
             $builder->where('t.tour_type', $tourType);
         }
 
+        $this->applyLocationFilter($builder, $locationFilter);
+
         return $builder;
+    }
+
+    private function applyLocationFilter(BaseBuilder $builder, array $locationFilter): void
+    {
+        $type = (string) ($locationFilter['type'] ?? '');
+        $id = isset($locationFilter['id']) ? (int) $locationFilter['id'] : 0;
+
+        if ($type === '') {
+            return;
+        }
+
+        if ($type === 'region') {
+            $ids = array_values(array_filter(array_map('intval', $locationFilter['ids'] ?? [])));
+
+            if ($ids !== []) {
+                $builder->whereIn('dl.id', $ids);
+            }
+
+            return;
+        }
+
+        if ($id <= 0) {
+            return;
+        }
+
+        if ($type === 'continent') {
+            $builder->groupStart()
+                ->where('dl.id', $id)
+                ->orWhere('dl.parent_id', $id)
+                ->orWhere('dlp.parent_id', $id)
+                ->groupEnd();
+
+            return;
+        }
+
+        if ($type === 'country') {
+            $builder->groupStart()
+                ->where('dl.id', $id)
+                ->orWhere('dl.parent_id', $id)
+                ->groupEnd();
+
+            return;
+        }
+
+        if ($type === 'province') {
+            $builder->where('dl.id', $id);
+            return;
+        }
     }
 
     private function getSortField(): string
@@ -128,6 +203,8 @@ class TourCatalogService
         return $this->db->tableExists('tours')
             && $this->db->tableExists('tour_translations')
             && $this->db->tableExists('tour_departures')
+            && $this->db->tableExists('tour_destinations')
+            && $this->db->tableExists('locations')
             && $this->db->tableExists('location_translations');
     }
 
@@ -146,21 +223,37 @@ class TourCatalogService
     private function mapRowsToCards(array $rows): array
     {
         $cards = [];
+        $domesticRegionService = new DomesticRegionService();
 
         foreach ($rows as $row) {
             $id = (int) ($row['id'] ?? 0);
             $days = (int) ($row['duration_days'] ?? 0);
             $nights = (int) ($row['duration_nights'] ?? 0);
             $price = (float) ($row['min_price'] ?? 0);
+            $tourType = (string) ($row['tour_type'] ?? '');
+            $destinationId = (int) ($row['destination_id'] ?? 0);
+
+            $locationName = (string) ($row['continent_name'] ?? 'International');
+            $locationLink = !empty($row['continent_slug']) ? localized_url((string) $row['continent_slug']) : '#';
+
+            if ($tourType === 'inbound' && $destinationId > 0) {
+                $region = $domesticRegionService->getRegionByProvinceId(service('request')->getLocale(), $destinationId);
+
+                if ($region !== null) {
+                    $locationName = (string) $region['name'];
+                    $locationLink = localized_url('tour-trong-nuoc/' . $region['slug']);
+                }
+            }
 
             $cards[] = [
                 'id'        => $id,
                 'title'     => (string) ($row['title'] ?? ('Tour #' . $id)),
                 'slug'      => (string) ($row['slug'] ?? ('tour-' . $id)),
-                'link'      => localized_url('tour-nuoc-ngoai'),
+                'link'      => $tourType === 'inbound' ? localized_url('tour-trong-nuoc') : localized_url('tour-nuoc-ngoai'),
                 'image'     => $this->resolveImage((string) ($row['thumbnail'] ?? '')),
                 'badge'     => !empty($row['is_featured']) ? 'Hot Sale!' : null,
-                'continent' => (string) ($row['departure_name'] ?? 'International'),
+                'continent' => $locationName,
+                'continent_link' => $locationLink,
                 'departure' => $this->formatDate((string) ($row['departure_date'] ?? '')),
                 'duration'  => [
                     'days'   => $days,
