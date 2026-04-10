@@ -226,7 +226,7 @@ $enUrl = switch_locale_url('en');
                             <li class=""><a href="../visa/details/">Visa Package Details</a></li>
                         </ul>
                     </li>
-                    <li class="menu-item-has-children "><a href="#" class="drop-down">Pages<i
+                    <li class="menu-item-has-children "><a href="#" class="drop-down">Dịch vụ<i
                                 class="bi bi-caret-down-fill"></i></a><i class="bi bi-plus dropdown-icon"></i>
                         <ul class="sub-menu none">
                             <li class=""><a href="../about/">About GoFly</a></li>
@@ -294,7 +294,7 @@ $enUrl = switch_locale_url('en');
                             <li class=""><a href="../error/">404</a></li>
                         </ul>
                     </li>
-                    <li class=""><a href="<?= localized_url('contact') ?>">Contact</a></li>
+                    <li class=""><a href="<?= localized_url('contact') ?>">Liên hệ</a></li>
                 </ul>
                 <div class="language-and-login-area d-lg-none d-block">
                     <div class="language-area">

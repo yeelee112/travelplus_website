@@ -60,4 +60,33 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
+
+      if (document.querySelector(".home1-trip-slider")) {
+    new Swiper(".home1-trip-slider", {
+      slidesPerView: "auto",
+      speed: 1500,
+      spaceBetween: 24,
+
+      autoplay: {
+        delay: 2500,
+        pauseOnMouseEnter: true,
+        disableOnInteraction: false,
+      },
+
+      pagination: {
+        el: ".swiper-pagination2",
+        clickable: true,
+      },
+
+      breakpoints: {
+        280: { slidesPerView: 1 },
+        386: { slidesPerView: 1 },
+        576: { slidesPerView: 1 },
+        768: { slidesPerView: 2, spaceBetween: 15 },
+        992: { slidesPerView: 3 },
+        1200: { slidesPerView: 3 },
+        1400: { slidesPerView: 3 },
+      },
+    });
+  }
 });
