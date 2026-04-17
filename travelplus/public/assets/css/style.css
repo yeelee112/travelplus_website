@@ -32,7 +32,8 @@
     --primary-color3-opc: 135, 175, 69;
     --primary-color4: #1B2072;
     --primary-color4-opc: 27, 32, 114;
-    --borders-color: #E8E8E8
+    --borders-color: #E8E8E8;
+    --red-color: #f61418;
 }
 
 /* _____________________________________________________ */
@@ -220,6 +221,30 @@
 .flatpickr-day{
     border-radius: 0px !important;
 }
+
+.booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-header .accordion-button span sub {
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+    bottom: 0;
+}
+
+.quantity-counter a .bi::before{
+    vertical-align: -0.2em;
+}
+
+
+.booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .btn-area .primary-btn1 {
+    width: 100%;
+}
+
+.additional-service-area h6 sub{
+    bottom: 0px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 400;
+}
+
 
 /* _____________________________________________________ */
 /* _____________________________________________________ */
@@ -2371,7 +2396,7 @@ body.tt-magic-cursor #magic-cursor {
 .topbar-area .topbar-wrap .topbar-right .support-and-language-area .language-area .language-list.active {
     display: block;
     transform: scaleY(1) translateX(-50%);
-    animation: fade-up .5s linear
+    animation: fade-up .2s linear
 }
 
 .topbar-area .topbar-wrap .topbar-right .support-and-language-area .language-area .language-list li a {
@@ -2592,7 +2617,7 @@ body.tt-magic-cursor #magic-cursor {
 .topbar-area.two .search-and-login .search-bar .search-input.active {
     display: block;
     transform: scaleY(1);
-    animation: fade-up2 .5s linear
+    animation: fade-up2 .2s linear
 }
 
 .topbar-area.two .search-and-login .search-bar .search-input .search-close {
@@ -15379,8 +15404,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
     height: 0;
     left: 50%;
     top: 50%;
-    background-color: rgba(255, 255, 255, .3);
-    transform: translate(-50%, -50%) rotate(-45deg);
     content: "";
     z-index: 1
 }
@@ -15541,10 +15564,14 @@ header.style-3.two .main-menu>ul>li.active>a i {
     color: var(--text-color);
     font-family: var(--font-main);
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 24px;
     margin-bottom: 0;
-    margin-top: 20px
+    margin-top: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;       /* số dòng muốn hiển thị */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 @media (min-width:1200px) and (max-width:1399px) {
@@ -16001,7 +16028,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .blog-card2.six .blog-img-wrap .blog-img img {
-    min-height: 250px
+    max-height: 250px
 }
 
 .blog-card2.six .location {
@@ -16108,8 +16135,8 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .blog-card2.six .blog-content p {
-    font-size: 18px;
-    line-height: 28px
+    font-size: 16px;
+    line-height: 24px
 }
 
 @media (min-width:992px) and (max-width:1199px) {
@@ -29776,7 +29803,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .package-details-page .package-details-sidebar .pricing-and-booking-area .price-area span {
-    color: #d42d2d;
+    color: var(--red-color);
     font-family: var(--font-main);
     font-weight: 600;
     font-size: 32px;
@@ -31137,7 +31164,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     text-align: center;
     padding: 0;
     border: unset;
-    margin-bottom: 55px
+    margin-bottom: 20px
 }
 
 @media (max-width:767px) {
@@ -31205,11 +31232,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-dropdown input {
-    opacity: 0;
     width: 100%;
     height: 100%;
-    position: absolute;
-    cursor: pointer
+    cursor: pointer;
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-dropdown h6 {
@@ -31298,7 +31323,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .booking-modal .modal-dialog .modal-content .modal-body .single-field .custom-select-wrap .guest-count {
     margin: 0;
     list-style: none;
-    padding: 25px 15px;
+    padding: 10px 15px;
     border: 1px solid var(--borders-color);
     border-radius: 10px
 }
@@ -31537,14 +31562,18 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 @media (max-width:576px) {
     .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-header .accordion-button .title-area h6 {
-        font-size: 17px
+        font-size: 17px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-header .accordion-button>span {
-    color: var(--title-color);
+    color: var(--primary-color1);
     font-family: var(--font-main);
-    font-weight: 500;
+    font-weight: 600;
     font-size: 18px;
     line-height: 1
 }
@@ -31563,7 +31592,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     box-shadow: none;
     border-bottom: none;
     border-radius: 10px 10px 0 0;
-    padding-bottom: 20px
+    padding-bottom: 0px;
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-header .accordion-button:not(.collapsed) .title-area .check {
@@ -31588,7 +31617,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body {
-    padding: 0 35px 35px 55px;
+    padding: 0 35px 35px 30px;
     border: 1px solid transparent;
     border-top: none;
     background-color: var(--white-color);
@@ -31699,7 +31728,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
-    margin-bottom: 20px
+    margin-bottom: 10px
 }
 
 @media (max-width:576px) {
@@ -31720,7 +31749,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
     justify-content: space-between;
     gap: 15px;
     width: 100%;
-    margin-bottom: 20px
+    padding-top: 10px;
+    margin-top: 15px;
+    border-top: 1px solid var(--borders-color);
 }
 
 @media (max-width:576px) {
@@ -31797,84 +31828,107 @@ header.style-3.two .main-menu>ul>li.active>a i {
     font-weight: 500;
     font-size: 16px;
     line-height: 28px;
-    margin-bottom: 5px
+    margin-bottom: 0;
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .service-info-wrap .service-info p {
-    color: var(--text-color);
-    font-size: 16px;
-    line-height: 24px;
+    color: var(--primary-color3);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
     margin-bottom: 0
 }
 
 @media (max-width:576px) {
     .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .service-info-wrap .service-info p {
-        font-size: 15px
+        font-size: 20px
     }
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area {
     text-align: end;
-    margin-top: 7px
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 190px
 }
 
 @media (max-width:576px) {
     .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area {
         margin-top: 0;
         text-align: start;
-        padding-left: 20px
+        padding-left: 0;
+        width: 100%;
+        min-width: 0;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px
     }
-}
 
-.booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area span {
-    color: var(--title-color);
-    font-family: var(--font-main);
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 1;
-    display: block;
-    margin-bottom: 20px
-}
-
-@media (max-width:576px) {
-    .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area span {
-        margin-bottom: 15px
-    }
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area .quantity-counter {
     display: flex;
-    align-items: center
+    align-items: center;
+    gap: 14px
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area .quantity-counter a {
-    height: 24px;
-    min-width: 24px;
-    max-width: 24px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
     border-radius: 50%;
-    border: 1px solid var(--primary-color1);
+    border: 1px solid var(--primary-color3);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: .35s;
-    font-size: 20px;
-    color: var(--primary-color1)
+    font-size: 24px;
+    color: var(--primary-color3)
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area .quantity-counter a:hover {
     color: var(--white-color);
-    background-color: var(--primary-color1)
+    background-color: var(--primary-color3)
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .service-list li .pricing-and-count-area .quantity-counter input {
-    width: 40px;
+    width: 52px;
     background-color: transparent;
     text-align: center;
     line-height: 1;
     color: var(--title-color);
     font-family: var(--font-main);
-    font-size: 14px;
-    font-weight: 500
+    font-size: 22px;
+    font-weight: 700
+}
+
+.booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .booking-total-area {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 20px;
+    margin-top: 15px;
+    border-top: 1px dashed var(--primary-color1);
+}
+
+.booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .booking-total-area .booking-total-label {
+    color: var(--title-color);
+    font-family: var(--font-main);
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 0
+}
+
+.booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .additional-service-area .booking-total-area .booking-grand-total {
+    color: var(--red-color);
+    font-family: var(--font-main);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2
 }
 
 .booking-modal .modal-dialog .modal-content .modal-body .package-list .accordion .accordion-item .accordion-body .btn-area {

@@ -19,6 +19,8 @@ $routes->setAutoRoute(false);
 $routes->GET('/', 'Home::index');
 $routes->GET('api/destinations', 'Api\Destination::search');
 $routes->GET('ve-chung-toi', 'AboutUs::index');
+$routes->GET('cam-hung-du-lich', 'Blog::index');
+
 $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
 $routes->GET('tour-trong-nuoc', 'Domestic::index');
 $routes->GET('tour-preview', 'TourController::preview');
@@ -28,6 +30,7 @@ $routes->get('tour-trong-nuoc/(:segment)/(:segment)', 'Domestic::province/vi/$1/
 
 
 $routes->match(['GET','POST'], 'contact', 'Contact::index');
+
 
 
 

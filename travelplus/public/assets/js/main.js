@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const isOpen = target.classList.contains("active");
 
-      // ❗ chỉ đóng dropdown header
       closeActive(
         ".language-list.active, .contact-list.active, .search-box.active",
       );
@@ -120,13 +119,51 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
      CUSTOM SELECT (Category / Country / Activity)
   ===================================================== */
-  qsa(".category-box").forEach((box) => {
+  qsa(".category-box, .single-field").forEach((box) => {
     const dropdown = qs(".custom-select-dropdown", box);
     const wrap = qs(".custom-select-wrap", box);
     if (!dropdown || !wrap) return;
 
     const input = qs("input", dropdown);
     const items = qsa(".option-list .single-item", wrap);
+    const countInputs = qsa(".quantity__input", wrap);
+    const maxTravelers = 15;
+    const summaryCounts = {
+      adult: qs('[data-summary="adult"]', box),
+      child: qs('[data-summary="child"]', box),
+      infant: qs('[data-summary="infant"]', box),
+    };
+
+    const getTotalTravelers = () =>
+      countInputs.reduce((sum, field) => {
+        const value = Number.parseInt(field.value, 10);
+        return sum + (Number.isNaN(value) ? 0 : value);
+      }, 0);
+
+    const updateTravelerSummary = () => {
+      if (countInputs.length === 0) return;
+
+      countInputs.forEach((field) => {
+        const quantityName = field.name.replace("_quantity", "");
+        const summaryTarget = summaryCounts[quantityName];
+
+        if (!summaryTarget) return;
+
+        const value = Number.parseInt(field.value, 10);
+        const normalizedValue = Number.isNaN(value) ? 0 : value;
+        summaryTarget.textContent = String(normalizedValue);
+
+        const summaryItem = summaryTarget.closest(".traveler-summary__item");
+        if (!summaryItem) return;
+
+        if (quantityName === "adult") {
+          summaryItem.style.display = "";
+          return;
+        }
+
+        summaryItem.style.display = normalizedValue > 0 ? "" : "none";
+      });
+    };
 
     dropdown.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -143,6 +180,61 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     wrap.addEventListener("click", (e) => e.stopPropagation());
+
+    qsa(".guest-quantity__minus, .guest-quantity__plus", wrap).forEach((button) => {
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const container = button.closest(".quantity-counter");
+        const quantityInput = qs(".quantity__input", container);
+
+        if (!quantityInput) return;
+
+        const currentValue = Number.parseInt(quantityInput.value, 10) || 0;
+        const minValue = Number.parseInt(quantityInput.dataset.min ?? "0", 10) || 0;
+        let nextValue = button.classList.contains("guest-quantity__minus")
+          ? Math.max(minValue, currentValue - 1)
+          : currentValue + 1;
+
+        if (button.classList.contains("guest-quantity__plus")) {
+          const totalWithoutCurrent = getTotalTravelers() - currentValue;
+          nextValue = Math.min(nextValue, maxTravelers - totalWithoutCurrent);
+          nextValue = Math.max(minValue, nextValue);
+        }
+
+        quantityInput.value = String(nextValue);
+        updateTravelerSummary();
+      });
+    });
+
+    countInputs.forEach((field) => {
+      field.addEventListener("click", (e) => e.stopPropagation());
+      field.addEventListener("input", () => {
+        const minValue = Number.parseInt(field.dataset.min ?? "0", 10) || 0;
+        let currentValue = Number.parseInt(field.value, 10);
+
+        if (Number.isNaN(currentValue)) {
+          currentValue = minValue;
+        }
+
+        if (currentValue < minValue) {
+          currentValue = minValue;
+        }
+
+        const totalWithoutCurrent = getTotalTravelers() - (Number.parseInt(field.value, 10) || 0);
+        const maxAllowedForField = Math.max(minValue, maxTravelers - totalWithoutCurrent);
+
+        if (currentValue > maxAllowedForField) {
+          currentValue = maxAllowedForField;
+        }
+
+        field.value = String(currentValue);
+        updateTravelerSummary();
+      });
+    });
+
+    updateTravelerSummary();
   });
 
   /* =====================================================

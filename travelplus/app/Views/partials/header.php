@@ -294,6 +294,7 @@ $enUrl = switch_locale_url('en');
                             <li class=""><a href="../error/">404</a></li>
                         </ul>
                     </li>
+                    <li class=""><a href="<?= localized_url('cam-hung-du-lich') ?>">Cảm Hứng Du Lịch</a></li>
                     <li class=""><a href="<?= localized_url('contact') ?>">Liên hệ</a></li>
                 </ul>
                 <div class="language-and-login-area d-lg-none d-block">

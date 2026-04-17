@@ -22,7 +22,6 @@ document.getElementById("contactForm").addEventListener("submit", function(e) {
     grecaptcha.ready(function() {
         grecaptcha.execute('6LfgBncsAAAAAEmWNoT1xtCidf_t3tQEK7YkhWvw', {action: 'contact'}).then(function(token) {
 
-            console.log("TOKEN:", token); // để debug
 
             document.getElementById("recaptcha_token").value = token;
 

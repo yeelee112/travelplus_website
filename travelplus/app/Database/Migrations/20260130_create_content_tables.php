@@ -6,9 +6,7 @@ use CodeIgniter\Database\Migration;
 
 class CreateContentTables extends Migration
 {
-    public function up()
-    {
-        // categories
+    public function up(){
         $this->forge->addField([
             'id' => ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
             'name_en' => ['type' => 'VARCHAR', 'constraint' => 255],
@@ -21,7 +19,6 @@ class CreateContentTables extends Migration
         $this->forge->addKey('id', true);
         $this->forge->createTable('categories', true);
 
-        // tours
         $this->forge->addField([
             'id' => ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
             'title_en' => ['type' => 'VARCHAR', 'constraint' => 255],
@@ -39,7 +36,6 @@ class CreateContentTables extends Migration
         $this->forge->addKey('id', true);
         $this->forge->createTable('tours', true);
 
-        // posts
         $this->forge->addField([
             'id' => ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
             'title_en' => ['type' => 'VARCHAR', 'constraint' => 255],
@@ -56,8 +52,7 @@ class CreateContentTables extends Migration
         $this->forge->createTable('posts', true);
     }
 
-    public function down()
-    {
+    public function down(){
         $this->forge->dropTable('posts', true);
         $this->forge->dropTable('tours', true);
         $this->forge->dropTable('categories', true);
