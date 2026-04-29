@@ -219,7 +219,7 @@ $enUrl = switch_locale_url('en');
                                 src="../assets/img/home1/mega-menu-vector2.svg">
                         </div>
                     </li>
-                    <li class="menu-item-has-children "><a class="drop-down" href="../visa/">Visa<i
+                    <li class="menu-item-has-children "><a class="drop-down" href="<?= localized_url('dich-vu-visa') ?>">Visa<i
                                 class="bi bi-caret-down-fill"></i></a><i class="bi bi-plus dropdown-icon"></i>
                         <ul class="sub-menu none">
                             <li class=""><a href="../visa/">Visa Package</a></li>

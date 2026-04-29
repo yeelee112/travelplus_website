@@ -1,45 +1,61 @@
+<?php
+$title = (string) ($tour['title'] ?? '');
+$link = (string) ($tour['link'] ?? '#');
+$image = (string) ($tour['image'] ?? '');
+$badge = $tour['badge'] ?? null;
+$locationName = (string) ($tour['continent'] ?? '');
+$locationLink = (string) ($tour['continent_link'] ?? '#');
+$durationLabel = (string) ($tour['duration']['label'] ?? trim(($tour['duration']['days'] ?? '') . ' Days ' . ($tour['duration']['nights'] ?? '') . ' Nights'));
+$departureLabel = (string) ($tour['departure'] ?? '');
+$priceLabel = (string) ($tour['price']['label'] ?? '');
+?>
+
 <div class="package-card">
     <div class="package-img-wrap">
-        <a class="package-img" href="<?= $tour['link'] ?>">
-            <img src="<?= $tour['image'] ?>" alt="<?= esc($tour['title']) ?>">
+        <a class="package-img" href="<?= esc($link) ?>">
+            <img src="<?= esc($image) ?>" alt="<?= esc($title) ?>">
         </a>
 
-        <?php if (!empty($tour['badge'])): ?>
-            <div class="batch"><span><?= esc($tour['badge']) ?></span></div>
+        <?php if (!empty($badge)): ?>
+            <div class="batch"><span><?= esc($badge) ?></span></div>
         <?php endif; ?>
     </div>
     <div class="h-100">
         <div class="package-content d-flex flex-column">
             <h5 class="clamp-2">
-                    <?= esc($tour['title']) ?>
+                <a href="<?= esc($link) ?>">
+                    <?= esc($title) ?>
+                </a>
             </h5>
 
             <div class="location-and-time">
-                <div class="location"><i class="bi bi-geo-alt"></i><a href="<?= esc($tour['continent_link'] ?? '#') ?>"><?= esc($tour['continent']) ?> </a>
+                <div class="location"><i class="bi bi-geo-alt"></i><a href="<?= esc($locationLink) ?>"><?= esc($locationName) ?> </a>
                 </div>
                 <svg class="arrow" width="25" height="6" viewBox="0 0 25 6" xmlns="http://www.w3.org/2000/svg">
                     <path d="M0 3L5 5.88675V0.113249L0 3ZM25 3L20 0.113249V5.88675L25 3ZM4.5 3.5H20.5V2.5H4.5V3.5Z">
                     </path>
                 </svg>
                 <span>
-                    <?= $tour['duration']['days'] ?> Days <?= $tour['duration']['nights'] ?> Nights
+                    <?= esc($durationLabel) ?>
                 </span>
             </div>
 
-            <div class="location-and-time mb-3">
-                <div class="location">
-                    <i class="bi bi-calendar"></i>
-                    <a href="#">Departure dates: </a>
-                    <span><?= esc($tour['departure']) ?> </span>
+            <?php if ($departureLabel !== ''): ?>
+                <div class="location-and-time mb-3">
+                    <div class="location">
+                        <i class="bi bi-calendar"></i>
+                        <a href="<?= esc($link) ?>">Departure dates: </a>
+                        <span><?= esc($departureLabel) ?> </span>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
 
             <div class="btn-and-price-area mt-auto">
                 <div class="price-area">
                     <h6>Price from</h6>
-                    <span><?= $tour['price']['label'] ?></span>
+                    <span><?= esc($priceLabel) ?></span>
                 </div>
-                <a class="primary-btn1" href="<?= $tour['link'] ?>">
+                <a class="primary-btn1" href="<?= esc($link) ?>">
                     <span>
                         Book Now
                         <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">

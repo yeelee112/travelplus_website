@@ -15,6 +15,9 @@ if (!function_exists('getTourCards')) {
 if (!function_exists('getFeaturedTours')) {
     function getFeaturedTours(int $limit = 6, ?string $locale = null): array
     {
-        return getTourCards($locale, $limit);
+        $locale = $locale ?? service('request')->getLocale();
+        $service = new TourCatalogService();
+
+        return $service->getFeaturedTours($locale, $limit);
     }
 }

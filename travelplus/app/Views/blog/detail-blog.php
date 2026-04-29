@@ -1,24 +1,56 @@
 <div class="travel-inspiration-page pt-100 mb-100">
     <div class="container">
         <div class="row gy-5 justify-content-between">
-            <div class="col-xl-7 col-lg-8">
-                <div class="row gy-md-5 gy-4 mb-60">
+            <div class="col-xl-8 col-lg-8">
+                <div class="row gy-md-4 gy-3 mb-30">
                     <div class="col-lg-12">
                         <div class="blog-card2 six">
-                            <div class="blog-img-wrap"><a class="blog-img" href="../details/"><img alt="" loading="lazy"
-                                        width="999" height="220" decoding="async" data-nimg="1"
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/">
+                                    <img alt="" loading="lazy" width="999" height="220" decoding="async" data-nimg="1"
                                         style="color:transparent"
-                                        src="<?= base_url('assets/images/home/banner02.jpg') ?>"></a><a class="location"
-                                    href="../"><svg width="14" height="14" viewBox="0 0 14 14"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M6.83615 0C3.77766 0 1.28891 2.48879 1.28891 5.54892C1.28891 7.93837 4.6241 11.8351 6.05811 13.3994C6.25669 13.6175 6.54154 13.7411 6.83615 13.7411C7.13076 13.7411 7.41561 13.6175 7.6142 13.3994C9.04821 11.8351 12.3834 7.93833 12.3834 5.54892C12.3834 2.48879 9.89464 0 6.83615 0ZM7.31469 13.1243C7.18936 13.2594 7.02008 13.3342 6.83615 13.3342C6.65222 13.3342 6.48295 13.2594 6.35761 13.1243C4.95614 11.5959 1.69584 7.79515 1.69584 5.54896C1.69584 2.7134 4.00067 0.406933 6.83615 0.406933C9.67164 0.406933 11.9765 2.7134 11.9765 5.54896C11.9765 7.79515 8.71617 11.5959 7.31469 13.1243Z">
-                                        </path>
-                                        <path
-                                            d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
-                                        </path>
-                                    </svg>Vietnam</a></div>
-                            <div class="blog-content"><a class="blog-date" href="../">24 February, 2025</a>
+                                        src="<?= base_url('assets/images/home/banner02.jpg') ?>">
+                                </a>
+                                <a class="location" href="../">
+                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+                                        xmlns:xlink="http://www.w3.org/1999/xlink" width="14" height="14" x="0" y="0"
+                                        viewBox="0 0 512 512" style="enable-background:new 0 0 512 512"
+                                        xml:space="preserve">
+                                        <g>
+                                            <path fill="#FFDA2D"
+                                                d="m272.5 268.5-54.958 84.957-52.443 22.442C134.2 340.499 101.201 298.5 85.6 245.4L117 187l50.5-23.5c-.899 5.4-1.5 10.8-1.5 16.5 0 49.499 40.499 90 90 90 5.7 0 11.1-.601 16.5-1.5z"
+                                                opacity="1" data-original="#ffda2d"></path>
+                                            <path fill="#80AEF8"
+                                                d="M344.51 196.41c.9-5.37 1.49-10.74 1.49-16.41 0-49.46-40.44-89.94-89.89-90H256c-5.7 0-11.1.6-16.5 1.5l79.8-79.8c48.3 18 87 56.7 105 105l-79.8 79.8c0-.03.01-.06.01-.09z"
+                                                opacity="1" data-original="#80aef8"></path>
+                                            <path fill="#4086F4"
+                                                d="M424.3 116.7 397 170l-52.5 26.5c0-.03.01-.06.01-.09.9-5.37 1.49-10.74 1.49-16.41 0-49.46-40.44-89.94-89.89-90h-.08V74.97L274 35l45.3-23.3c48.3 18 87 56.7 105 105z"
+                                                opacity="1" data-original="#4086f4"></path>
+                                            <path fill="#59C36A"
+                                                d="m424.3 116.7-79.8 79.799c-6.901 36.301-35.7 65.1-72.001 72.001h-.001l-86.872 86.871-20.528 20.527c5.101 5.7 9.6 10.802 14.401 16.201C212.5 429.6 241 463.999 241 497c0 8.399 6.599 15 15 15s15-6.601 15-15c0-33.001 28.5-67.4 61.5-104.9C378.701 340.199 436 275.4 436 180c0-22.2-3.9-43.5-11.7-63.3z"
+                                                opacity="1" data-original="#59c36a"></path>
+                                            <path fill="#00A66C"
+                                                d="m424.3 116.7-79.799 79.798v.001c-6.901 36.301-35.7 65.1-72.001 72.001h-.002l-16.467 16.466v227.028C264.417 511.976 271 505.388 271 497c0-33.001 28.5-67.4 61.5-104.9C378.701 340.199 436 275.4 436 180c0-22.2-3.9-43.5-11.7-63.3z"
+                                                opacity="1" data-original="#00a66c"></path>
+                                            <path fill="#FDBF00"
+                                                d="M256.031 284.969 272.5 268.5c-5.389.897-10.779 1.492-16.469 1.496z"
+                                                opacity="1" data-original="#fdbf00"></path>
+                                            <path fill="#4086F4"
+                                                d="m319.3 11.7-79.8 79.8c-18.3 3.6-34.501 12.299-47.1 24.901L146 97l-17.2-44.2C161.201 20.099 206.201 0 256 0c22.2 0 43.5 3.9 63.3 11.7z"
+                                                opacity="1" data-original="#4086f4"></path>
+                                            <path fill="#4175DF"
+                                                d="M256.031 74.969 319.3 11.7C299.51 3.903 278.22.007 256.032.003v74.966z"
+                                                opacity="1" data-original="#4175df"></path>
+                                            <path fill="#F03800"
+                                                d="M192.4 116.4c-12.599 12.6-21.301 28.799-24.9 47.1l-81.9 81.9c-6-20.099-9.6-41.7-9.6-65.4 0-49.801 20.099-94.801 52.8-127.2z"
+                                                opacity="1" data-original="#f03800"></path>
+                                        </g>
+                                    </svg>
+                                    Vietnam
+                                </a>
+                                <a class="blog-category" href="../">Tin tức</a>
+                            </div>
+                            <div class="blog-content">
                                 <h4><a href="../details/">Top 10 Beaches to Visit This Summer Season.</a></h4>
                                 <p>Start with the Maldives, known for its crystal-clear waters, luxurious overwater
                                     bungalows, and vibrant coral reefs. Maui, Hawaii offers golden sands, dramatic
@@ -28,11 +60,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-12">
-                        <div class="blog-card2 six">
-                            <div class="blog-img-wrap"><a class="blog-img" href="../details/"><img alt="" loading="lazy"
-                                        width="999" height="220" decoding="async" data-nimg="1"
-                                        style="color:transparent"
+                </div>
+                <div class="row gy-md-4 gy-3 mb-60">
+                    <div class="col-lg-6 col-md-6 wow animate fadeInDown" data-wow-delay="200ms"
+                        data-wow-duration="1500ms">
+                        <div class="blog-card2 two">
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/"><img alt="" loading="lazy" width="550"
+                                        height="220" decoding="async" data-nimg="1" style="color:transparent"
                                         src="<?= base_url('assets/images/home/banner03.webp') ?>"></a><a
                                     class="location" href="../"><svg width="14" height="14" viewBox="0 0 14 14"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -42,20 +77,25 @@
                                         <path
                                             d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
                                         </path>
-                                    </svg>Maldives</a></div>
-                            <div class="blog-content"><a class="blog-date" href="../">28 February, 2025</a>
-                                <h4><a href="../details/">Dream. Explore. Discover. Where Will You Go Next?</a></h4>
-                                <p>The world is filled with endless possibilities waiting to be explored. From the
-                                    serene beaches of the Maldives to the rugged mountains of Switzerland, every
-                                    corner of the planet offers something unique.</p>
+                                    </svg>Tokyeo, Japan
+                                </a>
+                                <a class="blog-category" href="../">24 February, 2025</a>
+                            </div>
+                            <div class="blog-content">
+                                <h4><a href="../details/">Nature, Culture &amp; Thrill: Travel Stories That Inspire.</a>
+                                </h4>
+                                <p>Nature, Culture &amp; Thrill: Travel Stories Inspire is a collection of experiences
+                                    from
+                                    explorers.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-12">
-                        <div class="blog-card2 six">
-                            <div class="blog-img-wrap"><a class="blog-img" href="../details/"><img alt="" loading="lazy"
-                                        width="999" height="220" decoding="async" data-nimg="1"
-                                        style="color:transparent"
+                    <div class="col-lg-6 col-md-6 wow animate fadeInDown" data-wow-delay="200ms"
+                        data-wow-duration="1500ms">
+                        <div class="blog-card2 two">
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/"><img alt="" loading="lazy" width="550"
+                                        height="220" decoding="async" data-nimg="1" style="color:transparent"
                                         src="<?= base_url('assets/images/home/banner01.jpg') ?>"></a><a class="location"
                                     href="../"><svg width="14" height="14" viewBox="0 0 14 14"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -65,21 +105,81 @@
                                         <path
                                             d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
                                         </path>
-                                    </svg>Norway</a></div>
-                            <div class="blog-content"><a class="blog-date" href="../">01 April, 2025</a>
-                                <h4><a href="../details/">Hiking, Trekking &amp; Thrill-Seeking.</a></h4>
-                                <p>Hiking, Trekking &amp; Thrill-Seeking—for those who crave adventure and the great
-                                    outdoors, these experiences are for you. From scaling the towering peaks of the
-                                    Himalayas to trekking through the rugged trails of the Swiss Alps, every step
-                                    offers new challenges and breathtaking views.</p>
+                                    </svg>Tokyeo, Japan
+                                </a>
+                                <a class="blog-category" href="../">24 February, 2025</a>
+                            </div>
+                            <div class="blog-content">
+                                <h4><a href="../details/">Nature, Culture &amp; Thrill: Travel Stories That Inspire.</a>
+                                </h4>
+                                <p>Nature, Culture &amp; Thrill: Travel Stories Inspire is a collection of experiences
+                                    from
+                                    explorers.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-12">
-                        <div class="blog-card2 six">
-                            <div class="blog-img-wrap"><a class="blog-img" href="../details/"><img alt="" loading="lazy"
-                                        width="999" height="220" decoding="async" data-nimg="1"
-                                        style="color:transparent"
+                    <div class="col-lg-6 col-md-6 wow animate fadeInDown" data-wow-delay="200ms"
+                        data-wow-duration="1500ms">
+                        <div class="blog-card2 two">
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/"><img alt="" loading="lazy" width="550"
+                                        height="220" decoding="async" data-nimg="1" style="color:transparent"
+                                        src="<?= base_url('assets/images/home/banner02.jpg') ?>"></a><a class="location"
+                                    href="../"><svg width="14" height="14" viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M6.83615 0C3.77766 0 1.28891 2.48879 1.28891 5.54892C1.28891 7.93837 4.6241 11.8351 6.05811 13.3994C6.25669 13.6175 6.54154 13.7411 6.83615 13.7411C7.13076 13.7411 7.41561 13.6175 7.6142 13.3994C9.04821 11.8351 12.3834 7.93833 12.3834 5.54892C12.3834 2.48879 9.89464 0 6.83615 0ZM7.31469 13.1243C7.18936 13.2594 7.02008 13.3342 6.83615 13.3342C6.65222 13.3342 6.48295 13.2594 6.35761 13.1243C4.95614 11.5959 1.69584 7.79515 1.69584 5.54896C1.69584 2.7134 4.00067 0.406933 6.83615 0.406933C9.67164 0.406933 11.9765 2.7134 11.9765 5.54896C11.9765 7.79515 8.71617 11.5959 7.31469 13.1243Z">
+                                        </path>
+                                        <path
+                                            d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
+                                        </path>
+                                    </svg>Tokyeo, Japan
+                                </a>
+                                <a class="blog-category" href="../">24 February, 2025</a>
+                            </div>
+                            <div class="blog-content">
+                                <h4><a href="../details/">Nature, Culture &amp; Thrill: Travel Stories That Inspire.</a>
+                                </h4>
+                                <p>Nature, Culture &amp; Thrill: Travel Stories Inspire is a collection of experiences
+                                    from
+                                    explorers.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 wow animate fadeInDown" data-wow-delay="200ms"
+                        data-wow-duration="1500ms">
+                        <div class="blog-card2 two">
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/"><img alt="" loading="lazy" width="550"
+                                        height="220" decoding="async" data-nimg="1" style="color:transparent"
+                                        src="<?= base_url('assets/images/home/banner03.webp') ?>"></a><a
+                                    class="location" href="../"><svg width="14" height="14" viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M6.83615 0C3.77766 0 1.28891 2.48879 1.28891 5.54892C1.28891 7.93837 4.6241 11.8351 6.05811 13.3994C6.25669 13.6175 6.54154 13.7411 6.83615 13.7411C7.13076 13.7411 7.41561 13.6175 7.6142 13.3994C9.04821 11.8351 12.3834 7.93833 12.3834 5.54892C12.3834 2.48879 9.89464 0 6.83615 0ZM7.31469 13.1243C7.18936 13.2594 7.02008 13.3342 6.83615 13.3342C6.65222 13.3342 6.48295 13.2594 6.35761 13.1243C4.95614 11.5959 1.69584 7.79515 1.69584 5.54896C1.69584 2.7134 4.00067 0.406933 6.83615 0.406933C9.67164 0.406933 11.9765 2.7134 11.9765 5.54896C11.9765 7.79515 8.71617 11.5959 7.31469 13.1243Z">
+                                        </path>
+                                        <path
+                                            d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
+                                        </path>
+                                    </svg>Tokyeo, Japan
+                                </a>
+                                <a class="blog-category" href="../">24 February, 2025</a>
+                            </div>
+                            <div class="blog-content">
+                                <h4><a href="../details/">Nature, Culture &amp; Thrill: Travel Stories That Inspire.</a>
+                                </h4>
+                                <p>Nature, Culture &amp; Thrill: Travel Stories Inspire is a collection of experiences
+                                    from
+                                    explorers.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 wow animate fadeInDown" data-wow-delay="200ms"
+                        data-wow-duration="1500ms">
+                        <div class="blog-card2 two">
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/"><img alt="" loading="lazy" width="550"
+                                        height="220" decoding="async" data-nimg="1" style="color:transparent"
                                         src="<?= base_url('assets/images/home/banner01.jpg') ?>"></a><a class="location"
                                     href="../"><svg width="14" height="14" viewBox="0 0 14 14"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -89,13 +189,100 @@
                                         <path
                                             d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
                                         </path>
-                                    </svg>Brazil</a></div>
-                            <div class="blog-content"><a class="blog-date" href="../">14 March, 2025</a>
-                                <h4><a href="../details/">Wildlife Safari Adventures You Can’t Miss.</a></h4>
-                                <p>Embark on wildlife safari adventures you can’t miss and witness nature's raw
-                                    beauty up close. From the vast savannas of Africa to the lush jungles of India
-                                    and Sri Lanka, these safaris offer incredible opportunities to spot the world's
-                                    most majestic creatures in their natural habitats.</p>
+                                    </svg>Tokyeo, Japan
+                                </a>
+                                <a class="blog-category" href="../">24 February, 2025</a>
+                            </div>
+                            <div class="blog-content">
+                                <h4><a href="../details/">Nature, Culture &amp; Thrill: Travel Stories That Inspire.</a>
+                                </h4>
+                                <p>Nature, Culture &amp; Thrill: Travel Stories Inspire is a collection of experiences
+                                    from
+                                    explorers.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 wow animate fadeInDown" data-wow-delay="200ms"
+                        data-wow-duration="1500ms">
+                        <div class="blog-card2 two">
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/"><img alt="" loading="lazy" width="550"
+                                        height="220" decoding="async" data-nimg="1" style="color:transparent"
+                                        src="<?= base_url('assets/images/home/banner02.jpg') ?>"></a><a class="location"
+                                    href="../"><svg width="14" height="14" viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M6.83615 0C3.77766 0 1.28891 2.48879 1.28891 5.54892C1.28891 7.93837 4.6241 11.8351 6.05811 13.3994C6.25669 13.6175 6.54154 13.7411 6.83615 13.7411C7.13076 13.7411 7.41561 13.6175 7.6142 13.3994C9.04821 11.8351 12.3834 7.93833 12.3834 5.54892C12.3834 2.48879 9.89464 0 6.83615 0ZM7.31469 13.1243C7.18936 13.2594 7.02008 13.3342 6.83615 13.3342C6.65222 13.3342 6.48295 13.2594 6.35761 13.1243C4.95614 11.5959 1.69584 7.79515 1.69584 5.54896C1.69584 2.7134 4.00067 0.406933 6.83615 0.406933C9.67164 0.406933 11.9765 2.7134 11.9765 5.54896C11.9765 7.79515 8.71617 11.5959 7.31469 13.1243Z">
+                                        </path>
+                                        <path
+                                            d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
+                                        </path>
+                                    </svg>Tokyeo, Japan
+                                </a>
+                                <a class="blog-category" href="../">24 February, 2025</a>
+                            </div>
+                            <div class="blog-content">
+                                <h4><a href="../details/">Nature, Culture &amp; Thrill: Travel Stories That Inspire.</a>
+                                </h4>
+                                <p>Nature, Culture &amp; Thrill: Travel Stories Inspire is a collection of experiences
+                                    from
+                                    explorers.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 wow animate fadeInDown" data-wow-delay="200ms"
+                        data-wow-duration="1500ms">
+                        <div class="blog-card2 two">
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/"><img alt="" loading="lazy" width="550"
+                                        height="220" decoding="async" data-nimg="1" style="color:transparent"
+                                        src="<?= base_url('assets/images/home/banner01.jpg') ?>"></a><a class="location"
+                                    href="../"><svg width="14" height="14" viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M6.83615 0C3.77766 0 1.28891 2.48879 1.28891 5.54892C1.28891 7.93837 4.6241 11.8351 6.05811 13.3994C6.25669 13.6175 6.54154 13.7411 6.83615 13.7411C7.13076 13.7411 7.41561 13.6175 7.6142 13.3994C9.04821 11.8351 12.3834 7.93833 12.3834 5.54892C12.3834 2.48879 9.89464 0 6.83615 0ZM7.31469 13.1243C7.18936 13.2594 7.02008 13.3342 6.83615 13.3342C6.65222 13.3342 6.48295 13.2594 6.35761 13.1243C4.95614 11.5959 1.69584 7.79515 1.69584 5.54896C1.69584 2.7134 4.00067 0.406933 6.83615 0.406933C9.67164 0.406933 11.9765 2.7134 11.9765 5.54896C11.9765 7.79515 8.71617 11.5959 7.31469 13.1243Z">
+                                        </path>
+                                        <path
+                                            d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
+                                        </path>
+                                    </svg>Tokyeo, Japan
+                                </a>
+                                <a class="blog-category" href="../">24 February, 2025</a>
+                            </div>
+                            <div class="blog-content">
+                                <h4><a href="../details/">Nature, Culture &amp; Thrill: Travel Stories That Inspire.</a>
+                                </h4>
+                                <p>Nature, Culture &amp; Thrill: Travel Stories Inspire is a collection of experiences
+                                    from
+                                    explorers.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 wow animate fadeInDown" data-wow-delay="200ms"
+                        data-wow-duration="1500ms">
+                        <div class="blog-card2 two">
+                            <div class="blog-img-wrap">
+                                <a class="blog-img" href="../details/"><img alt="" loading="lazy" width="550"
+                                        height="220" decoding="async" data-nimg="1" style="color:transparent"
+                                        src="<?= base_url('assets/images/home/banner02.jpg') ?>"></a><a class="location"
+                                    href="../"><svg width="14" height="14" viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M6.83615 0C3.77766 0 1.28891 2.48879 1.28891 5.54892C1.28891 7.93837 4.6241 11.8351 6.05811 13.3994C6.25669 13.6175 6.54154 13.7411 6.83615 13.7411C7.13076 13.7411 7.41561 13.6175 7.6142 13.3994C9.04821 11.8351 12.3834 7.93833 12.3834 5.54892C12.3834 2.48879 9.89464 0 6.83615 0ZM7.31469 13.1243C7.18936 13.2594 7.02008 13.3342 6.83615 13.3342C6.65222 13.3342 6.48295 13.2594 6.35761 13.1243C4.95614 11.5959 1.69584 7.79515 1.69584 5.54896C1.69584 2.7134 4.00067 0.406933 6.83615 0.406933C9.67164 0.406933 11.9765 2.7134 11.9765 5.54896C11.9765 7.79515 8.71617 11.5959 7.31469 13.1243Z">
+                                        </path>
+                                        <path
+                                            d="M6.83618 8.54529C8.4624 8.54529 9.7807 7.22698 9.7807 5.60077C9.7807 3.97456 8.4624 2.65625 6.83618 2.65625C5.20997 2.65625 3.89166 3.97456 3.89166 5.60077C3.89166 7.22698 5.20997 8.54529 6.83618 8.54529Z">
+                                        </path>
+                                    </svg>Tokyeo, Japan
+                                </a>
+                                <a class="blog-category" href="../">24 February, 2025</a>
+                            </div>
+                            <div class="blog-content">
+                                <h4><a href="../details/">Nature, Culture &amp; Thrill: Travel Stories That Inspire.</a>
+                                </h4>
+                                <p>Nature, Culture &amp; Thrill: Travel Stories Inspire is a collection of experiences
+                                    from
+                                    explorers.</p>
                             </div>
                         </div>
                     </div>
@@ -138,39 +325,120 @@
                         </form>
                     </div>
                     <div class="single-widget mb-40">
-                        <h5 class="widget-title"><svg width="22" height="22" viewBox="0 0 22 22"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M20.9688 11C20.9726 12.1773 20.9019 13.3538 20.7569 14.5221C20.1691 19.1327 18.5625 20.9688 18.5625 20.9688H1.03125V18.9062C14.1316 17.7671 11.6596 7.89809 10.4264 4.54609C10.1607 4.50672 9.89326 4.48091 9.625 4.46875C9.625 4.46875 4.46875 4.125 4.8125 8.25C4.8125 8.25 2.0625 7.5625 2.75 4.8125C3.4375 2.0625 6.1875 2.75 6.1875 2.75C6.1875 2.75 6.875 1.03125 9.28125 1.03125C11.6875 1.03125 12.7188 3.09375 12.7188 3.09375C14.4375 1.03125 20.9688 3.78125 20.9688 11Z">
-                                </path>
-                                <path
-                                    d="M10.9981 20.9687C10.9981 20.9687 15.4669 18.5625 15.4669 14.4375C15.4669 10.3125 13.0606 11.3437 13.0606 11.3437C13.0606 11.3437 13.4044 9.625 11.6856 8.9375C9.96688 8.25 8.93563 9.625 8.93563 9.625C8.93563 9.625 5.84188 8.25 5.15437 11C4.46688 13.75 7.56063 13.75 7.56063 13.75C7.56063 13.75 7.25692 11.7483 9.27938 11.3437C10.9981 11 15.8106 13.75 10.9981 20.9687Z">
-                                </path>
-                                <path
-                                    d="M20.9697 11C20.9736 12.1773 20.9028 13.3538 20.7579 14.5222C18.5635 8.9375 15.9196 5.35777 10.4273 4.54609C10.1617 4.50672 9.89423 4.48091 9.62596 4.46875C9.62596 4.46875 4.46971 4.125 4.81346 8.25C4.81346 8.25 2.06346 7.5625 2.75096 4.8125C3.43846 2.0625 6.18846 2.75 6.18846 2.75C6.18846 2.75 6.87596 1.03125 9.28221 1.03125C11.6885 1.03125 12.7197 3.09375 12.7197 3.09375C14.4385 1.03125 20.9697 3.78125 20.9697 11Z">
-                                </path>
-                            </svg>Categories</h5>
+                        <h5 class="widget-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+                                xmlns:xlink="http://www.w3.org/1999/xlink" width="22" height="22" x="0" y="0"
+                                viewBox="0 0 24 24" style="enable-background:new 0 0 512 512" xml:space="preserve"
+                                class="">
+                                <g>
+                                    <g data-name="Layer 2">
+                                        <g fill="#1F95F8">
+                                            <rect width="9.5" height="9.5" x="1.25" y="1.25" rx="2.75" fill="#009CDE"
+                                                opacity="1" data-original="#1f95f8" class=""></rect>
+                                            <rect width="9.5" height="9.5" x="13.25" y="1.25" rx="2.75" fill="#009CDE"
+                                                opacity="1" data-original="#1f95f8" class=""></rect>
+                                            <rect width="9.5" height="9.5" x="1.25" y="13.25" rx="2.75" fill="#009CDE"
+                                                opacity="1" data-original="#1f95f8" class=""></rect>
+                                        </g>
+                                        <path fill="#A6D45A"
+                                            d="m22.823 16.763-3.586-3.586a1.751 1.751 0 0 0-2.474 0l-3.586 3.586a1.751 1.751 0 0 0 0 2.474l3.586 3.586a1.752 1.752 0 0 0 2.474 0l3.586-3.586a1.751 1.751 0 0 0 0-2.474z"
+                                            opacity="1" data-original="#54d6c0" class=""></path>
+                                    </g>
+                                </g>
+                            </svg>
+                            Categories
+                        </h5>
                         <ul class="category-list">
-                            <li><a href="../"><span>Adventure Tours</span><span>(10)</span></a></li>
-                            <li><a href="../"><span>Beach Holidays</span><span>(05)</span></a></li>
-                            <li><a href="../"><span>Cultural &amp; Heritage Tours</span><span>(02)</span></a></li>
-                            <li><a href="../"><span>Family Vacations</span><span>(08)</span></a></li>
-                            <li><a href="../"><span>Cruises &amp; Ocean</span><span>(04)</span></a></li>
+                            <li>
+                                <a href="../">
+                                    <span>Adventure Tours</span>
+                                    <span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" x="0"
+                                            y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512"
+                                            xml:space="preserve" class="">
+                                            <g>
+                                                <path fill="#009CDE"
+                                                    d="M506.1 269.3c.7-.9 1.4-1.8 2-2.8 0 0 .1-.1.1-.2.6-1 1.2-2 1.6-3.1v-.1c.5-1.1.9-2.2 1.2-3.3v-.2c.1-.6.3-1.1.4-1.6.1-.5.2-1.1.3-1.6v-.4c.1-.5.1-1 .1-1.5v-2.3c0-.5 0-1-.1-1.5-.1-.8 0-.1 0-.1 0-.5-.1-1.1-.2-1.6l-.1-.4c-.2-1.1-.5-2.3-.9-3.4v-.1c-.8-2.3-1.9-4.5-3.3-6.5l-.1-.2c-.3-.5-.7-.9-1-1.3 0-.1-.1-.1-.2-.2-.3-.4-.6-.7-.9-1l-.3-.3-.2-.2L395.2 126c-9.8-9.8-25.6-9.8-35.4 0s-9.8 25.6 0 35.4l66.7 66.7H25c-13.8 0-25 11.2-25 25.1 0 13.8 11.2 25 25 25h401.4L354 350.6c-9.8 9.8-9.8 25.6 0 35.4s25.6 9.8 35.4 0l115.2-115.2c.4-.4.8-.8 1.1-1.2z"
+                                                    opacity="1" data-original="#099924" class=""></path>
+                                            </g>
+                                        </svg>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../">
+                                    <span>Beach Holidays</span>
+                                    <span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path fill="#009CDE" d="M506.1 269.3c.7-.9 1.4-1.8 2-2.8 0 0 .1-.1.1-.2.6-1 1.2-2 1.6-3.1v-.1c.5-1.1.9-2.2 1.2-3.3v-.2c.1-.6.3-1.1.4-1.6.1-.5.2-1.1.3-1.6v-.4c.1-.5.1-1 .1-1.5v-2.3c0-.5 0-1-.1-1.5-.1-.8 0-.1 0-.1 0-.5-.1-1.1-.2-1.6l-.1-.4c-.2-1.1-.5-2.3-.9-3.4v-.1c-.8-2.3-1.9-4.5-3.3-6.5l-.1-.2c-.3-.5-.7-.9-1-1.3 0-.1-.1-.1-.2-.2-.3-.4-.6-.7-.9-1l-.3-.3-.2-.2L395.2 126c-9.8-9.8-25.6-9.8-35.4 0s-9.8 25.6 0 35.4l66.7 66.7H25c-13.8 0-25 11.2-25 25.1 0 13.8 11.2 25 25 25h401.4L354 350.6c-9.8 9.8-9.8 25.6 0 35.4s25.6 9.8 35.4 0l115.2-115.2c.4-.4.8-.8 1.1-1.2z" opacity="1" data-original="#099924" class=""></path></g></svg>   
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../">
+                                    <span>Beach Holidays</span>
+                                    <span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path fill="#009CDE" d="M506.1 269.3c.7-.9 1.4-1.8 2-2.8 0 0 .1-.1.1-.2.6-1 1.2-2 1.6-3.1v-.1c.5-1.1.9-2.2 1.2-3.3v-.2c.1-.6.3-1.1.4-1.6.1-.5.2-1.1.3-1.6v-.4c.1-.5.1-1 .1-1.5v-2.3c0-.5 0-1-.1-1.5-.1-.8 0-.1 0-.1 0-.5-.1-1.1-.2-1.6l-.1-.4c-.2-1.1-.5-2.3-.9-3.4v-.1c-.8-2.3-1.9-4.5-3.3-6.5l-.1-.2c-.3-.5-.7-.9-1-1.3 0-.1-.1-.1-.2-.2-.3-.4-.6-.7-.9-1l-.3-.3-.2-.2L395.2 126c-9.8-9.8-25.6-9.8-35.4 0s-9.8 25.6 0 35.4l66.7 66.7H25c-13.8 0-25 11.2-25 25.1 0 13.8 11.2 25 25 25h401.4L354 350.6c-9.8 9.8-9.8 25.6 0 35.4s25.6 9.8 35.4 0l115.2-115.2c.4-.4.8-.8 1.1-1.2z" opacity="1" data-original="#099924" class=""></path></g></svg>   
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../">
+                                    <span>Beach Holidays</span>
+                                    <span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path fill="#009CDE" d="M506.1 269.3c.7-.9 1.4-1.8 2-2.8 0 0 .1-.1.1-.2.6-1 1.2-2 1.6-3.1v-.1c.5-1.1.9-2.2 1.2-3.3v-.2c.1-.6.3-1.1.4-1.6.1-.5.2-1.1.3-1.6v-.4c.1-.5.1-1 .1-1.5v-2.3c0-.5 0-1-.1-1.5-.1-.8 0-.1 0-.1 0-.5-.1-1.1-.2-1.6l-.1-.4c-.2-1.1-.5-2.3-.9-3.4v-.1c-.8-2.3-1.9-4.5-3.3-6.5l-.1-.2c-.3-.5-.7-.9-1-1.3 0-.1-.1-.1-.2-.2-.3-.4-.6-.7-.9-1l-.3-.3-.2-.2L395.2 126c-9.8-9.8-25.6-9.8-35.4 0s-9.8 25.6 0 35.4l66.7 66.7H25c-13.8 0-25 11.2-25 25.1 0 13.8 11.2 25 25 25h401.4L354 350.6c-9.8 9.8-9.8 25.6 0 35.4s25.6 9.8 35.4 0l115.2-115.2c.4-.4.8-.8 1.1-1.2z" opacity="1" data-original="#099924" class=""></path></g></svg>   
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../">
+                                    <span>Beach Holidays</span>
+                                    <span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path fill="#009CDE" d="M506.1 269.3c.7-.9 1.4-1.8 2-2.8 0 0 .1-.1.1-.2.6-1 1.2-2 1.6-3.1v-.1c.5-1.1.9-2.2 1.2-3.3v-.2c.1-.6.3-1.1.4-1.6.1-.5.2-1.1.3-1.6v-.4c.1-.5.1-1 .1-1.5v-2.3c0-.5 0-1-.1-1.5-.1-.8 0-.1 0-.1 0-.5-.1-1.1-.2-1.6l-.1-.4c-.2-1.1-.5-2.3-.9-3.4v-.1c-.8-2.3-1.9-4.5-3.3-6.5l-.1-.2c-.3-.5-.7-.9-1-1.3 0-.1-.1-.1-.2-.2-.3-.4-.6-.7-.9-1l-.3-.3-.2-.2L395.2 126c-9.8-9.8-25.6-9.8-35.4 0s-9.8 25.6 0 35.4l66.7 66.7H25c-13.8 0-25 11.2-25 25.1 0 13.8 11.2 25 25 25h401.4L354 350.6c-9.8 9.8-9.8 25.6 0 35.4s25.6 9.8 35.4 0l115.2-115.2c.4-.4.8-.8 1.1-1.2z" opacity="1" data-original="#099924" class=""></path></g></svg>   
+                                    </span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                     <div class="single-widget mb-30">
-                        <h5 class="widget-title"><svg width="22" height="22" viewBox="0 0 22 22"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M20.9688 11C20.9726 12.1773 20.9019 13.3538 20.7569 14.5221C20.1691 19.1327 18.5625 20.9688 18.5625 20.9688H1.03125V18.9062C14.1316 17.7671 11.6596 7.89809 10.4264 4.54609C10.1607 4.50672 9.89326 4.48091 9.625 4.46875C9.625 4.46875 4.46875 4.125 4.8125 8.25C4.8125 8.25 2.0625 7.5625 2.75 4.8125C3.4375 2.0625 6.1875 2.75 6.1875 2.75C6.1875 2.75 6.875 1.03125 9.28125 1.03125C11.6875 1.03125 12.7188 3.09375 12.7188 3.09375C14.4375 1.03125 20.9688 3.78125 20.9688 11Z">
-                                </path>
-                                <path
-                                    d="M10.9981 20.9687C10.9981 20.9687 15.4669 18.5625 15.4669 14.4375C15.4669 10.3125 13.0606 11.3437 13.0606 11.3437C13.0606 11.3437 13.4044 9.625 11.6856 8.9375C9.96688 8.25 8.93563 9.625 8.93563 9.625C8.93563 9.625 5.84188 8.25 5.15437 11C4.46688 13.75 7.56063 13.75 7.56063 13.75C7.56063 13.75 7.25692 11.7483 9.27938 11.3437C10.9981 11 15.8106 13.75 10.9981 20.9687Z">
-                                </path>
-                                <path
-                                    d="M20.9697 11C20.9736 12.1773 20.9028 13.3538 20.7579 14.5222C18.5635 8.9375 15.9196 5.35777 10.4273 4.54609C10.1617 4.50672 9.89423 4.48091 9.62596 4.46875C9.62596 4.46875 4.46971 4.125 4.81346 8.25C4.81346 8.25 2.06346 7.5625 2.75096 4.8125C3.43846 2.0625 6.18846 2.75 6.18846 2.75C6.18846 2.75 6.87596 1.03125 9.28221 1.03125C11.6885 1.03125 12.7197 3.09375 12.7197 3.09375C14.4385 1.03125 20.9697 3.78125 20.9697 11Z">
-                                </path>
-                            </svg>Recent Post</h5>
+                        <h5 class="widget-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+                                xmlns:xlink="http://www.w3.org/1999/xlink" width="22" height="22" x="0" y="0"
+                                viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve"
+                                class="">
+                                <defs>
+                                    <linearGradient id="a" x1="256" x2="256" y1="512" y2="0"
+                                        gradientUnits="userSpaceOnUse">
+                                        <stop stop-opacity="1" stop-color="#009cde" offset="0"></stop>
+                                        <stop stop-opacity="1" stop-color="#009cde" offset="1"></stop>
+                                    </linearGradient>
+                                    <linearGradient id="b" x1="266.083" x2="266.083" y1="421.022" y2="290.978"
+                                        gradientUnits="userSpaceOnUse">
+                                        <stop stop-opacity="1" stop-color="#ffffff" offset="0"></stop>
+                                        <stop stop-opacity="1" stop-color="#ffffff" offset="1"></stop>
+                                    </linearGradient>
+                                </defs>
+                                <g>
+                                    <linearGradient id="a" x1="256" x2="256" y1="512" y2="0"
+                                        gradientUnits="userSpaceOnUse">
+                                        <stop stop-opacity="1" stop-color="#009cde" offset="0"></stop>
+                                        <stop stop-opacity="1" stop-color="#009cde" offset="1"></stop>
+                                    </linearGradient>
+                                    <linearGradient id="b" x1="266.083" x2="266.083" y1="421.022" y2="290.978"
+                                        gradientUnits="userSpaceOnUse">
+                                        <stop stop-opacity="1" stop-color="#ffffff" offset="0"></stop>
+                                        <stop stop-opacity="1" stop-color="#ffffff" offset="1"></stop>
+                                    </linearGradient>
+                                    <path fill="url(&quot;#a&quot;)"
+                                        d="M451.759 314.762c2.584-107.161-62.379-167.716-65.162-170.256a15 15 0 0 0-25.084 10.179c-.033.543-3.172 45.395-36.231 72.413 3.161-33.093.914-63.757-6.73-91.474-8.205-29.75-22.604-56.187-42.794-78.578-30.512-33.836-65.756-49.501-84.049-55.827 0 0-3.528-1.122-5.274-1.201-5.757-.272-11.154 2.8-13.888 7.871a15.01 15.01 0 0 0-1.045 11.801c1.142 4.979 15.582 73.524-26.71 121.815-41.716 42.373-87.741 110.564-84.458 174.754C60.333 424.191 148.146 512 256.082 512s195.75-87.809 195.75-195.743c0-.505-.025-1.004-.073-1.495z"
+                                        opacity="1" data-original="url(#a)" class=""></path>
+                                    <path fill="url(&quot;#b&quot;)"
+                                        d="M206.083 406V306c0-11.437 12.287-18.667 22.285-13.112l90 50c10.287 5.715 10.287 20.51 0 26.225l-90 50c-9.998 5.554-22.285-1.675-22.285-13.113z"
+                                        opacity="1" data-original="url(#b)"></path>
+                                </g>
+                            </svg>
+                            Popular Post
+                        </h5>
                         <div class="recent-post-widget mb-30">
                             <div class="recent-post-img"><a href="../details/"><img alt="" loading="lazy" width="550"
                                         height="220" decoding="async" data-nimg="1" style="color:transparent"

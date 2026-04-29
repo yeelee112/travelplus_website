@@ -1,3 +1,6 @@
+<?php $homeTours = $homeTours ?? $tours ?? getTourCards(null, 6); ?>
+
+<?php if (! empty($homeTours)): ?>
 <div class="home2-oneday-trip-section mb-100">
     <div class="container">
         <div class="row justify-content-center mb-50 wow animate fadeInDown" data-wow-delay="200ms"
@@ -11,7 +14,7 @@
         </div>
         <div class="row g-4 mb-40">
 
-            <?php foreach ($tours as $tour): ?>
+            <?php foreach ($homeTours as $tour): ?>
                 <div class="col-lg-4 col-md-6 wow animate fadeInDown" data-wow-delay="200ms" data-wow-duration="1500ms">
                     <?= view('components/tour-card', ['tour' => $tour]) ?>
                 </div>
@@ -34,3 +37,4 @@
         </div>
     </div>
 </div>
+<?php endif; ?>

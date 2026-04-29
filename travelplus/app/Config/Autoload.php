@@ -89,7 +89,7 @@ class Autoload extends AutoloadConfig
      * @var list<string>
      */
 
-    public $helpers = ['url', 'url_helper_custom'];
+    public $helpers = ['url', 'url_helper_custom', 'tour'];
 
     
 }

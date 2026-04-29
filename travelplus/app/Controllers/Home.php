@@ -8,10 +8,11 @@ class Home extends BaseController
     public function index()
     {
         $tourService = new TourCatalogService();
-        $tours = $tourService->getHomeTours($this->request->getLocale(), 6);
+        $locale = $this->request->getLocale();
 
         return view('home/index', [
-            'tours' => $tours
+            'featuredTours' => $tourService->getFeaturedTours($locale, 6),
+            'homeTours' => $tourService->getHomeTours($locale, 6),
         ]);
     }
 

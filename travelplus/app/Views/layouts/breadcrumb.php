@@ -1,5 +1,5 @@
 <?php if (!empty($breadcrumbs)): ?>
-    <div class="container pt-3">
+    <div class="container pt-3 pb-3">
         <nav aria-label="breadcrumb" class="breadcrumb-wrapper">
             <ol class="breadcrumb">
 
@@ -55,5 +55,5 @@
       ]
     }
     </script>
-
+    
 <?php endif; ?>
