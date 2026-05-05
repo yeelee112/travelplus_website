@@ -45,10 +45,25 @@ $maxTravelers = max(1, (int) ($tour['max_travelers'] ?? 15));
 $durationLabel = ($tour['duration']['days'] ?? 0) . ' Ngày ' . ($tour['duration']['nights'] ?? 0) . ' Đêm';
 $departureLabel = (string) ($firstDeparture['date_label'] ?? $tour['departure'] ?? '');
 $reviewSummary = $tour['review_summary'] ?? ['count' => 0, 'overall' => 0, 'destination' => 0, 'transport' => 0, 'value' => 0];
+
+$reviewAverage = ($reviewSummary['overall'] + $reviewSummary['destination'] + $reviewSummary['transport'] + $reviewSummary['value']) / 4;
 $reviews = $tour['reviews'] ?? [];
 $reviewPages = array_chunk($reviews, 3);
 $relatedTours = $relatedTours ?? [];
-$reviewLabel = $reviewSummary['overall'] >= 4.5 ? 'Excellent!' : ($reviewSummary['overall'] >= 4 ? 'Very Good' : ($reviewSummary['overall'] > 0 ? 'Good' : 'Chua co danh gia'));
+$googleEnabled = config(\Config\SocialAuth::class)->googleEnabled;
+
+function getReviewLabel($rating) {
+    if ($rating >= 4.5) return 'Excellent';
+    if ($rating >= 4.0) return 'Very Good';
+    if ($rating >= 3.5) return 'Good';
+    if ($rating >= 3.0) return 'Average';
+    if ($rating >= 2.0) return 'Poor';
+    if ($rating > 0) return 'Bad';
+    return 'No reviews yet';
+}
+
+$reviewLabel = getReviewLabel($reviewSummary['overall']);
+
 $reviewMetrics = [
     'overall' => 'Overall',
     'destination' => 'Destination',
@@ -68,6 +83,7 @@ $reviewMetrics = [
                 <div class="batch">
                     <span><?= esc($durationLabel) ?><?= $departureLabel !== '' ? ' | Khởi hành: ' . esc($departureLabel) : '' ?></span>
                 </div>
+                </form>
             </div>
         </div>
     </div>
@@ -149,6 +165,22 @@ $reviewMetrics = [
                     
             </div>
             <div class="modal-body">
+                <form action="<?= localized_url('booking/proceed') ?>" method="post" data-booking-proceed-form>
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="tour_id" value="<?= esc((string) ($tour['id'] ?? 0)) ?>">
+                    <input type="hidden" name="tour_title" value="<?= esc($tour['title']) ?>">
+                    <input type="hidden" name="tour_image" value="<?= esc($tour['image']) ?>">
+                    <input type="hidden" name="tour_link" value="<?= esc(current_url()) ?>">
+                    <input type="hidden" name="departure_label" value="<?= esc($departureLabel) ?>">
+                    <input type="hidden" name="duration_label" value="<?= esc($durationLabel) ?>">
+                    <input type="hidden" name="adult_price" value="<?= esc((string) $adultPrice) ?>">
+                    <input type="hidden" name="child_price" value="<?= esc((string) $childPrice) ?>">
+                    <input type="hidden" name="infant_price" value="<?= esc((string) $infantPrice) ?>">
+                    <input type="hidden" name="max_travelers" value="<?= esc((string) $maxTravelers) ?>">
+                    <input type="hidden" name="adult_quantity" value="1" data-booking-quantity-hidden="adult">
+                    <input type="hidden" name="child_quantity" value="0" data-booking-quantity-hidden="child">
+                    <input type="hidden" name="infant_quantity" value="0" data-booking-quantity-hidden="infant">
+                    <input type="hidden" name="grand_total" value="<?= esc((string) $adultPrice) ?>" data-booking-grand-total-hidden>
                 <div class="package-list">
                     <div class="accordion accordion-flush" id="accordionFlushPackage">
                         <div class="accordion-item">
@@ -211,7 +243,7 @@ $reviewMetrics = [
                                         </div>
                                     </div>
                                     <div class="btn-area">
-                                        <a class="primary-btn1 two" href="../../checkout/">
+                                        <button class="primary-btn1 two" type="submit">
                                             <span>
                                                 Đặt ngay
                                                 <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
@@ -226,9 +258,67 @@ $reviewMetrics = [
                                                     </path>
                                                 </svg>
                                             </span>
-                                        </a>
+                                        </button>
+                                        <div class="alert alert-danger d-none mt-3" data-booking-proceed-error></div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal rating-modal fade" id="proceedBookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content"><button type="button" class="close-btn" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <div class="modal-body">
+                <div class="row g-0 proceed-booking-modal">
+                    <div class="col-lg-6 proceed-booking-col">
+                        <div class="modal-login-form-wrapper h-100">
+                            <h6>ALREADY A MEMBER?</h6>
+                            <form action="<?= localized_url('auth/login') ?>" method="post" data-booking-login-form>
+                                <?= csrf_field() ?>
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <div class="form-inner">
+                                            <label>Username or E-mail</label>
+                                            <input type="text" name="identity" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-inner">
+                                            <label>Password</label>
+                                            <input type="password" name="password" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-danger d-none" data-booking-login-error></div>
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-between align-items-center">
+                                        <button type="submit" class="primary-btn1 two"><span>Sign In!</span><span>Sign In!</span></button>
+                                        <a href="<?= localized_url('account/register') ?>">Forget Password?</a>
+
+                                    </div>
+                                    <?php if ($googleEnabled): ?>
+                                        <div class="col-12">
+                                            <a href="<?= localized_url('auth/google') ?>" class="primary-btn1 transparent w-100"><span>Google Sign In</span><span>Google Sign In</span></a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 proceed-booking-col">
+                        <div class="modal-login-form-wrapper h-100 text-center">
+                            <h6>DON'T HAVE AN ACCOUNT? CREATE ONE.</h6>
+                            <p>When you book with an account, you will be able to track your payment status, track the confirmation and you can also rate the tour after you finished the tour.</p>
+                            <div class="d-grid gap-3">
+                                <a href="<?= localized_url('account/register') ?>" class="primary-btn1 two w-100"><span>Sign Up</span><span>Sign Up</span></a>
+                                <div class="proceed-booking-divider">OR</div>
+                                <a href="<?= localized_url('booking/guest') ?>" class="primary-btn1 two w-100"><span>Continue As Guest</span><span>Continue As Guest</span></a>
                             </div>
                         </div>
                     </div>
@@ -703,7 +793,7 @@ $reviewMetrics = [
                             <div class="rating-area">
                                 <span><?= esc($reviewLabel) ?></span>
                                 <ul><?= render_review_stars((float) $reviewSummary['overall']) ?></ul>
-                                <p><strong><?= esc(number_format((float) $reviewSummary['overall'], 1)) ?></strong> based on <?= esc((string) $reviewSummary['count']) ?> reviews</p>
+                                <p><strong><?= esc(number_format((float) $reviewAverage, 1)) ?></strong> based on <?= esc((string) $reviewSummary['count']) ?> reviews</p>
                                 <button class="primary-btn1 two" data-bs-toggle="modal" data-bs-target="#ratingModal"><span>Write a Review</span><span>Write a Review</span></button>
                             </div>
                             <ul class="progress-list">

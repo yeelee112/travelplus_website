@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        const bookingForm = serviceArea.closest('[data-booking-proceed-form]');
         const maxTravelers = Number.parseInt(serviceArea.dataset.maxTravelers || '15', 10);
         const totalElement = serviceArea.querySelector('.booking-grand-total');
 
@@ -109,12 +110,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 const quantity = Number.parseInt(input?.value || '0', 10) || 0;
                 const unitPrice = Number.parseInt(item.dataset.unitPrice || '0', 10) || 0;
                 const lineTotal = quantity * unitPrice;
+                const serviceType = item.dataset.serviceType || '';
 
                 grandTotal += lineTotal;
+
+                if (bookingForm && serviceType) {
+                    const hiddenInput = bookingForm.querySelector(`[data-booking-quantity-hidden="${serviceType}"]`);
+                    if (hiddenInput instanceof HTMLInputElement) {
+                        hiddenInput.value = String(quantity);
+                    }
+                }
             });
 
             if (totalElement) {
                 totalElement.textContent = formatVnd(grandTotal);
+            }
+
+            if (bookingForm) {
+                const grandTotalInput = bookingForm.querySelector('[data-booking-grand-total-hidden]');
+                if (grandTotalInput instanceof HTMLInputElement) {
+                    grandTotalInput.value = String(grandTotal);
+                }
             }
         };
 
@@ -158,6 +174,105 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateTotals();
     });
+
+    const bookingProceedForm = document.querySelector('[data-booking-proceed-form]');
+
+    if (bookingProceedForm) {
+        const errorBox = bookingProceedForm.querySelector('[data-booking-proceed-error]');
+
+        bookingProceedForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (errorBox) {
+                errorBox.className = 'alert alert-danger d-none mt-3';
+                errorBox.textContent = '';
+            }
+
+            const formData = new FormData(bookingProceedForm);
+
+            try {
+                const response = await fetch(bookingProceedForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                const payload = await response.json();
+
+                if (!response.ok || !payload.ok) {
+                    if (errorBox) {
+                        errorBox.className = 'alert alert-danger mt-3';
+                        errorBox.textContent = payload.message || 'Could not continue booking.';
+                    }
+                    return;
+                }
+
+                if (payload.redirect) {
+                    window.location.href = payload.redirect;
+                    return;
+                }
+
+                const bookingModal = document.getElementById('bookingModal');
+                const proceedModal = document.getElementById('proceedBookingModal');
+
+                if (bookingModal && proceedModal && typeof bootstrap !== 'undefined') {
+                    bootstrap.Modal.getOrCreateInstance(bookingModal).hide();
+                    bootstrap.Modal.getOrCreateInstance(proceedModal).show();
+                }
+            } catch (error) {
+                if (errorBox) {
+                    errorBox.className = 'alert alert-danger mt-3';
+                    errorBox.textContent = 'Could not continue booking right now.';
+                }
+            }
+        });
+    }
+
+    const bookingLoginForm = document.querySelector('[data-booking-login-form]');
+
+    if (bookingLoginForm) {
+        const loginErrorBox = bookingLoginForm.querySelector('[data-booking-login-error]');
+
+        bookingLoginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (loginErrorBox) {
+                loginErrorBox.className = 'alert alert-danger d-none';
+                loginErrorBox.textContent = '';
+            }
+
+            const formData = new FormData(bookingLoginForm);
+
+            try {
+                const response = await fetch(bookingLoginForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                const payload = await response.json();
+
+                if (!response.ok || !payload.ok) {
+                    if (loginErrorBox) {
+                        loginErrorBox.className = 'alert alert-danger';
+                        loginErrorBox.textContent = payload.message || 'Login failed.';
+                    }
+                    return;
+                }
+
+                window.location.href = payload.redirect || `${window.BASE_URL}/booking/checkout`;
+            } catch (error) {
+                if (loginErrorBox) {
+                    loginErrorBox.className = 'alert alert-danger';
+                    loginErrorBox.textContent = 'Could not sign in right now.';
+                }
+            }
+        });
+    }
 
     const reviewForm = document.querySelector('[data-tour-review-form]');
 

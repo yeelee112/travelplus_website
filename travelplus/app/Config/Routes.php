@@ -25,6 +25,15 @@ $routes->GET('dich-vu-visa', 'Visa::index');
 $routes->GET('admin/tours/create', 'Admin\Tours::create');
 $routes->POST('admin/tours', 'Admin\Tours::store');
 
+$routes->match(['GET', 'POST'], 'account/register', 'AuthController::register');
+$routes->POST('auth/login', 'AuthController::login');
+$routes->GET('auth/logout', 'AuthController::logout');
+$routes->GET('auth/google', 'AuthController::google');
+$routes->GET('auth/google/callback', 'AuthController::googleCallback');
+$routes->POST('booking/proceed', 'BookingController::proceed');
+$routes->match(['GET', 'POST'], 'booking/guest', 'BookingController::continueGuest');
+$routes->GET('booking/checkout', 'BookingController::checkout');
+
 $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
 $routes->GET('tour-trong-nuoc', 'Domestic::index');
 $routes->GET('tour-preview', 'TourController::preview');
@@ -51,6 +60,15 @@ $routes->group('en', function ($routes) {
     $routes->GET('/', 'Home::index');
     $routes->GET('ve-chung-toi', 'AboutUs::index');
     $routes->match(['GET','POST'], 'contact', 'Contact::index');
+
+    $routes->match(['GET', 'POST'], 'account/register', 'AuthController::register');
+    $routes->POST('auth/login', 'AuthController::login');
+    $routes->GET('auth/logout', 'AuthController::logout');
+    $routes->GET('auth/google', 'AuthController::google');
+    $routes->GET('auth/google/callback', 'AuthController::googleCallback');
+    $routes->POST('booking/proceed', 'BookingController::proceed');
+    $routes->match(['GET', 'POST'], 'booking/guest', 'BookingController::continueGuest');
+    $routes->GET('booking/checkout', 'BookingController::checkout');
 
     
     $routes->GET('tour-nuoc-ngoai', 'Outbound::index');

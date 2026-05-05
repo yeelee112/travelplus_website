@@ -46,9 +46,11 @@ abstract class BaseController extends Controller
         $menu = $locationModel->getMegaMenu($locale);
         $domesticRegionService = new DomesticRegionService();
         $domesticMenu = $domesticRegionService->getMenu($locale);
+        $authUser = session()->get('auth_user');
 
         service('renderer')->setVar('menu', $menu);
         service('renderer')->setVar('domesticMenu', $domesticMenu);
+        service('renderer')->setVar('authUser', is_array($authUser) ? $authUser : null);
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }
