@@ -13,20 +13,21 @@
                     </g>
                 </svg>
                 <div class="content">
-                    <h6>To More Inquiry</h6><span>Don’t hesitate Call to GoFly.</span>
+                    <h6>Cần tư vấn thêm?</h6><span>Đừng ngần ngại, hãy liên hệ Travel Plus ngay!</span>
                 </div>
             </div>
             <ul class="contact-area">
                 <li class="single-contact">
-                    <div class="icon"><img alt="" loading="lazy" width="22" height="22" decoding="async" data-nimg="1"
-                            style="color:transparent" src="/assets/img/home1/icon/mail-icon2.svg"></div>
-                    <div class="content"><span>Mail Us</span><a href="mailto:info@example.com">info@example.com</a>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="22" height="22" x="0" y="0" viewBox="0 0 100 100" style="enable-background:new 0 0 512 512" xml:space="preserve"><g><path d="M90.99 16.75H9.01l37.98 32.416a4.638 4.638 0 0 0 6.02 0zM69 48.037l28.5 28.5V23.666zM46.987 61.684l-8.767-7.466L9.188 83.25h81.624L61.729 54.218l-8.721 7.46a4.638 4.638 0 0 1-6.021.006zM2.5 23.666v52.82l28.5-28.5z" fill="#009CDE" opacity="1" data-original="#009CDE"></path></g></svg>
+                        </div>
+                    <div class="content"><span>Email</span><a href="mailto:info@example.com">info@travelplusvn.com</a>
                     </div>
                 </li>
                 <li class="single-contact">
-                    <div class="icon"><img alt="" loading="lazy" width="22" height="22" decoding="async" data-nimg="1"
-                            style="color:transparent" src="/assets/img/home1/icon/call-icon.svg"></div>
-                    <div class="content"><span>Call Us</span><a href="tel:+91456453345">+91 456 453 345</a></div>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="22" height="22" x="0" y="0" viewBox="0 0 513.64 513.64" style="enable-background:new 0 0 512 512" xml:space="preserve"><g><path d="m499.66 376.96-71.68-71.68c-25.6-25.6-69.12-15.359-79.36 17.92-7.68 23.041-33.28 35.841-56.32 30.72-51.2-12.8-120.32-79.36-133.12-133.12-7.68-23.041 7.68-48.641 30.72-56.32 33.28-10.24 43.52-53.76 17.92-79.36l-71.68-71.68c-20.48-17.92-51.2-17.92-69.12 0L18.38 62.08c-48.64 51.2 5.12 186.88 125.44 307.2s256 176.641 307.2 125.44l48.64-48.64c17.921-20.48 17.921-51.2 0-69.12z" fill="#009CDE" opacity="1" data-original="#009CDE"></path></g></svg></div>
+                    <div class="content"><span>Hotline</span><a href="tel:+91456453345">+84 79 568 1 568</a></div>
                 </li>
             </ul>
         </div><svg class="divider" width="1320" height="6" viewBox="0 0 1320 6" xmlns="http://www.w3.org/2000/svg">
@@ -37,19 +38,28 @@
         <div class="footer-menu-wrap">
             <div class="row gy-md-4 gy-5">
                 <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="footer-logo-and-addition-info"><a class="footer-logo" href="/"><img alt=""
-                                loading="lazy" width="120" height="45" decoding="async" data-nimg="1"
+                    <div class="footer-logo-and-addition-info">
+                        <a class="footer-logo" href="/"><img alt=""
+                                loading="lazy" width="240" height="auto" decoding="async" data-nimg="1"
                                 style="color:transparent" src="<?= base_url('assets/images/logo.svg') ?>"></a>
-                        <div class="address-area"><span>GoFly Travel Agency</span><a href="#">Skyline Plaza, 5th Floor,
-                                123 Main Street Los Angeles, CA 90001, USA</a></div>
+                        <div class="address-area">
+                            <span>Văn phòng Hồ Chí Minh</span>
+                            <a href="#">3/30A đường Thích Quảng Đức, Phường Đức Nhuận, TP.HCM</a>
+                        </div>
+                         <div class="address-area">
+                            <span>Văn phòng Hà Nội</span>
+                            <a href="#">47 đường Lê Văn Hưu, Phường Hai Bà Trưng, Hà Nội</a>
+                        </div>
+                         <div class="address-area">
+                            <span>Văn phòng Đà Nẵng</span>
+                            <a href="#">Tầng 4 Tòa nhà Trực thăng Miền Trung, đường Nguyễn Văn Linh, Phường Hòa Cường, Đà Nẵng</a>
+                        </div>
                         <ul class="social-list">
                             <li><a href="https://www.facebook.com/"><i class="bx bxl-facebook"></i></a></li>
                             <li><a href="https://www.linkedin.com/"><i class="bx bxl-linkedin"></i></a></li>
                             <li><a href="https://www.youtube.com/"><i class="bx bxl-youtube"></i></a></li>
                             <li><a href="https://www.instagram.com/"><i class="bx bxl-instagram-alt"></i></a></li>
-                        </ul><a href="#"><img alt="" loading="lazy" width="157" height="50" decoding="async"
-                                data-nimg="1" style="color:transparent"
-                                src="/assets/img/home1/icon/google-play.svg"></a>
+                        </ul>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-4 col-sm-6 d-flex justify-content-md-end">

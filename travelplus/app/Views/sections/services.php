@@ -5,7 +5,7 @@
                     data-wow-duration="1500ms">
                     <div class="col-lg-9">
                         <div class="section-title">
-                            <h2>Travel Plus – Your Trusted Travel Partner</h2><svg height="6" viewBox="0 0 872 6"
+                            <h2>Travel Plus – Đối tác du lịch đáng tin cậy của bạn</h2><svg height="6" viewBox="0 0 872 6"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M5 2.5L0 0.113249V5.88675L5 3.5V2.5ZM867 3.5L872 5.88675V0.113249L867 2.5V3.5ZM4.5 3.5H867.5V2.5H4.5V3.5Z">
@@ -28,8 +28,8 @@
                                 </g>
                             </svg></div>
                         <div class="content">
-                            <h4>Easy Tour Booking</h4>
-                            <p>Domestic and international tours with professional consultation, clear booking process, and full support throughout your journey.</p>
+                            <h4>Đặt tour dễ dàng</h4>
+                            <p>Các tour du lịch trong nước và quốc tế với tư vấn chuyên nghiệp, quy trình đặt tour rõ ràng và hỗ trợ xuyên suốt hành trình của bạn.</p>
                         </div>
                     </li>
                     <li class="single-service">
@@ -40,8 +40,8 @@
                                 </path>
                             </svg></div>
                         <div class="content">
-                            <h4>Best Travel Deals</h4>
-                            <p>Competitive prices for family vacations, corporate trips, event tours, and sports travel packages including World Cup tours.</p>
+                            <h4>Ưu đãi du lịch tốt nhất</h4>
+                            <p>Giá cả cạnh tranh cho du lịch gia đình, công ty, tour sự kiện và các gói du lịch thể thao như World Cup.</p>
                         </div>
                     </li>
                     <li class="single-service">
@@ -52,14 +52,14 @@
                                 </path>
                             </svg></div>
                         <div class="content">
-                            <h4>Custom Travel Plans</h4>
-                            <p>Flexible itineraries tailored to your schedule, interests, and budget with support for flights, hotels, and visa services.</p>
+                            <h4>Kế hoạch du lịch theo yêu cầu</h4>
+                            <p>Lịch trình linh hoạt được thiết kế theo thời gian, sở thích và ngân sách của bạn, kèm hỗ trợ vé máy bay, khách sạn và visa.</p>
                         </div>
                     </li>
                 </ul>
                 <div class="bottom-area d-flex justify-content-center wow animate fadeInUp" data-wow-delay="200ms"
                     data-wow-duration="1500ms">
-                    <div class="batch two"><a href="../travel-package/">Discover Today<svg width="10" height="10"
+                    <div class="batch two"><a href="../travel-package/">Khám phá ngay<svg width="10" height="10"
                                 viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M1 9L9 1M9 1C7.22222 1.33333 3.33333 2 1 1M9 1C8.66667 2.66667 8 6.33333 9 9"
                                     stroke-width="1.5" stroke-linecap="round"></path>

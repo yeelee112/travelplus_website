@@ -12,7 +12,7 @@
                     <div class="content">
                         <div class="number">
                             <h2 class="counter">26</h2><span>K+</span>
-                        </div><span>Tour Completed</span>
+                        </div><span>Số hành trình</span>
                     </div>
                 </div><svg class="line" width="6" height="215" viewBox="0 0 6 215" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -30,8 +30,8 @@
                         </svg></div>
                     <div class="content">
                         <div class="number">
-                            <h2 class="counter">12</h2><span>+</span>
-                        </div><span>Travel Experience</span>
+                            <h2 class="counter">19 </h2><span>+</span>
+                        </div><span>Năm kinh nghiệm</span>
                     </div>
                 </div><svg class="line" width="6" height="215" viewBox="0 0 6 215" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -62,8 +62,8 @@
                         </svg></div>
                     <div class="content">
                         <div class="number">
-                            <h2 class="counter">20</h2><span>+</span>
-                        </div><span>Happy Traveler</span>
+                            <h2 class="counter">2000</h2><span>+</span>
+                        </div><span>Khách hàng hài lòng</span>
                     </div>
                 </div><svg class="line" width="6" height="215" viewBox="0 0 6 215" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -88,7 +88,7 @@
                     <div class="content">
                         <div class="number">
                             <h2 class="counter">98</h2><span>%</span>
-                        </div><span>Retention Rate</span>
+                        </div><span>Tỷ lệ khách quay lại</span>
                     </div>
                 </div>
             </div>

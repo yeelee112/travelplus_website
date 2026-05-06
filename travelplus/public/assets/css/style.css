@@ -12954,7 +12954,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section .footer-contact-wrap .inquiry-area .content h6 {
-    color: var(--white-color);
+    color: var(--primary-color4);
     font-family: var(--font-main);
     font-weight: 600;
     font-size: 18px;
@@ -12969,9 +12969,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section .footer-contact-wrap .inquiry-area .content span {
-    color: var(--white-text-color);
+    color: var(--text-color);
     font-family: var(--font-main);
-    font-weight: 600;
+    font-weight: 400;
     font-size: 18px;
     line-height: 28px
 }
@@ -13048,9 +13048,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section .footer-contact-wrap .contact-area .single-contact .content span {
-    color: var(--white-text-color);
+    color: var(--primary-color4);
     font-family: var(--font-main);
-    font-weight: 500;
+    font-weight: 600;
     font-size: 16px;
     line-height: 1;
     display: block;
@@ -13065,7 +13065,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section .footer-contact-wrap .contact-area .single-contact .content a {
-    color: var(--white-color);
+    color: var(--black-color);
     font-family: var(--font-main);
     font-weight: 600;
     font-size: 20px;
@@ -13140,7 +13140,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section .footer-menu-wrap .footer-logo-and-addition-info .address-area span {
-    color: var(--white-text-color);
+    color: var(--primary-color4);
     font-family: var(--font-main);
     font-weight: 600;
     font-size: 16px;
@@ -13150,7 +13150,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section .footer-menu-wrap .footer-logo-and-addition-info .address-area a {
-    color: var(--white-text-color);
+    color: var(--black-color);
     font-family: var(--font-main);
     font-weight: 400;
     font-size: 16px;
@@ -13337,9 +13337,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section .footer-menu-wrap .footer-widget .widget-title h5 {
-    color: var(--white-color);
+    color: var(--primary-color4);
     font-family: var(--font-main);
-    font-weight: 500;
+    font-weight: 600;
     font-size: 20px;
     line-height: 1;
     margin-bottom: 0
@@ -13367,7 +13367,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .footer-section .footer-menu-wrap .footer-widget .widget-list li a {
-    color: var(--white-text-color);
+    color: #292727;
     font-family: var(--font-main);
     font-weight: 500;
     font-size: 16px;
