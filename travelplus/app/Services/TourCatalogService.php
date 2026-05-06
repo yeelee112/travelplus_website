@@ -158,6 +158,91 @@ class TourCatalogService
         ];
     }
 
+    /**
+     * @return array{tours: array<int, array<string, mixed>>, total: int, page: int, perPage: int, lastPage: int}
+     */
+    public function searchTours(
+        string $locale,
+        string $query,
+        string $departureDate = '',
+        int $perPage = 9,
+        int $page = 1
+    ): array {
+        $page = max(1, $page);
+        $perPage = max(1, $perPage);
+        $query = trim($query);
+
+        if ($query === '' && $departureDate === '') {
+            return $this->getPagedTours($locale, $perPage, $page);
+        }
+
+        if (!$this->hasSchemaForTourCatalog()) {
+            return [
+                'tours' => [],
+                'total' => 0,
+                'page' => 1,
+                'perPage' => $perPage,
+                'lastPage' => 1,
+            ];
+        }
+
+        $builder = $this->baseToursBuilder($locale)
+            ->join('tour_media tm', 'tm.tour_id = t.id AND tm.type = "gallery"', 'left');
+
+        if ($query !== '') {
+            $slugKeyword = str_replace(' ', '-', mb_strtolower($query));
+
+            $builder->groupStart()
+                ->like('tt.name', $query)
+                ->orLike('dltn.name', $query)
+                ->orLike('dlptn.name', $query)
+                ->orLike('dlgptn.name', $query)
+                ->orLike('tm.alt_text', $query)
+                ->orLike('tt.slug', $slugKeyword)
+                ->groupEnd();
+        }
+
+        $normalizedDate = $this->normalizeSearchDate($departureDate);
+
+        if ($normalizedDate !== null) {
+            $builder->where('DATE(td.departure_date)', $normalizedDate);
+        }
+
+        $countRow = (clone $builder)
+            ->select('COUNT(DISTINCT t.id) AS total', false)
+            ->get()
+            ->getRowArray();
+
+        $total = (int) ($countRow['total'] ?? 0);
+        $lastPage = max(1, (int) ceil(max(1, $total) / $perPage));
+        $page = min($page, $lastPage);
+        $offset = ($page - 1) * $perPage;
+
+        $rows = $builder
+            ->select(
+                't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
+                'tt.name AS title, tt.slug AS slug,' .
+                'MIN(dl.id) AS destination_id,' .
+                'MIN(td.departure_date) AS departure_date,' .
+                'MIN(t.base_price) AS min_price,' .
+                'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
+                'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug'
+            )
+            ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug')
+            ->orderBy($this->getSortField(), 'DESC')
+            ->limit($perPage, $offset)
+            ->get()
+            ->getResultArray();
+
+        return [
+            'tours' => $this->mapRowsToCards($rows),
+            'total' => $total,
+            'page' => $page,
+            'perPage' => $perPage,
+            'lastPage' => $lastPage,
+        ];
+    }
+
     private function fetchTours(
         string $locale,
         int $limit,
@@ -276,6 +361,27 @@ class TourCatalogService
         }
 
         return 't.id';
+    }
+
+    private function normalizeSearchDate(string $value): ?string
+    {
+        $value = trim($value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        $formats = ['d/m/Y', 'Y-m-d'];
+
+        foreach ($formats as $format) {
+            $date = \DateTime::createFromFormat($format, $value);
+
+            if ($date instanceof \DateTime) {
+                return $date->format('Y-m-d');
+            }
+        }
+
+        return null;
     }
 
     private function hasSchemaForTourCatalog(): bool

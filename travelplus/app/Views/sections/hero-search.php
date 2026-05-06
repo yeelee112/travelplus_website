@@ -156,7 +156,7 @@
                 </svg><span>Experience</span></li>
         </ul>
         <div class="filter-input-wrap">
-            <form class="filter-input show">
+            <form class="filter-input show" action="<?= esc(localized_url(service('request')->getLocale() === 'en' ? 'tour-search' : 'tim-kiem-tour')) ?>" method="get" data-tour-search-form>
                 <div class="single-search-box destination-box"><svg width="18" height="18" viewBox="0 0 18 18"
                         xmlns="http://www.w3.org/2000/svg">
                         <g>
@@ -169,7 +169,7 @@
                         </g>
                     </svg>
                     <div class="custom-select-dropdown destination-dropdown">
-                        <input type="text" name="destination" class="destination-input"
+                        <input type="text" name="q" class="destination-input"
                             placeholder="Nhập quốc gia hoặc điểm đến" autocomplete="off">
                         <!-- <span></span> -->
                         <button type="button" class="clear-destination hidden">×</button>
@@ -206,7 +206,7 @@
                     <div class="datepicker-container">
                         <div class="datepicker-wrapper">
                             <div class="datepicker__input-container">
-                                <input type="text" id="departure_date" class="form-control"
+                                <input type="text" id="departure_date" class="form-control" name="departure_date"
                                     placeholder="Chọn ngày khởi hành">
                                 <!-- <div class="selected-date">
                                     <h6>THu71 2 asdjas</h6>
@@ -217,42 +217,7 @@
                     </div>
 
                 </div>
-                <div class="single-search-box category-box"><svg width="20" height="20" viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <g>
-                            <path
-                                d="M19.3024 4.186H10C9.81501 4.186 9.63755 4.1125 9.50671 3.98166C9.37587 3.85082 9.30237 3.67336 9.30237 3.48833C9.30237 3.30329 9.37587 3.12583 9.50671 2.99499C9.63755 2.86415 9.81501 2.79065 10 2.79065H19.3024C19.4874 2.79065 19.6649 2.86415 19.7957 2.99499C19.9266 3.12583 20.0001 3.30329 20.0001 3.48833C20.0001 3.67336 19.9266 3.85082 19.7957 3.98166C19.6649 4.1125 19.4874 4.186 19.3024 4.186ZM17.4419 7.90695H10C9.81501 7.90695 9.63755 7.83344 9.50671 7.7026C9.37587 7.57176 9.30237 7.39431 9.30237 7.20927C9.30237 7.02424 9.37587 6.84678 9.50671 6.71594C9.63755 6.5851 9.81501 6.5116 10 6.5116H17.4419C17.627 6.5116 17.8044 6.5851 17.9353 6.71594C18.0661 6.84678 18.1396 7.02424 18.1396 7.20927C18.1396 7.39431 18.0661 7.57176 17.9353 7.7026C17.8044 7.83344 17.627 7.90695 17.4419 7.90695ZM19.3024 13.4884H10C9.81501 13.4884 9.63755 13.4149 9.50671 13.284C9.37587 13.1532 9.30237 12.9757 9.30237 12.7907C9.30237 12.6057 9.37587 12.4282 9.50671 12.2974C9.63755 12.1665 9.81501 12.093 10 12.093H19.3024C19.4874 12.093 19.6649 12.1665 19.7957 12.2974C19.9266 12.4282 20.0001 12.6057 20.0001 12.7907C20.0001 12.9757 19.9266 13.1532 19.7957 13.284C19.6649 13.4149 19.4874 13.4884 19.3024 13.4884ZM17.4419 17.2093H10C9.81501 17.2093 9.63755 17.1358 9.50671 17.005C9.37587 16.8741 9.30237 16.6967 9.30237 16.5116C9.30237 16.3266 9.37587 16.1491 9.50671 16.0183C9.63755 15.8875 9.81501 15.814 10 15.814H17.4419C17.627 15.814 17.8044 15.8875 17.9353 16.0183C18.0661 16.1491 18.1396 16.3266 18.1396 16.5116C18.1396 16.6967 18.0661 16.8741 17.9353 17.005C17.8044 17.1358 17.627 17.2093 17.4419 17.2093Z">
-                            </path>
-                            <path
-                                d="M3.48826 8.83719C5.41485 8.83719 6.97665 7.27538 6.97665 5.3488C6.97665 3.42222 5.41485 1.86041 3.48826 1.86041C1.56168 1.86041 -0.00012207 3.42222 -0.00012207 5.3488C-0.00012207 7.27538 1.56168 8.83719 3.48826 8.83719Z">
-                            </path>
-                            <path
-                                d="M3.48826 18.1396C5.41485 18.1396 6.97665 16.5778 6.97665 14.6512C6.97665 12.7246 5.41485 11.1628 3.48826 11.1628C1.56168 11.1628 -0.00012207 12.7246 -0.00012207 14.6512C-0.00012207 16.5778 1.56168 18.1396 3.48826 18.1396Z">
-                            </path>
-                        </g>
-                    </svg>
-                    <div class="custom-select-dropdown"><input type="text" readonly=""
-                            value="Family Tour"><span>Category</span></div>
-                    <div class="custom-select-wrap two ">
-                        <ul class="option-list">
-                            <li class="single-item">
-                                <h6>Family Tour</h6>
-                            </li>
-                            <li class="single-item">
-                                <h6>Honeymoon Tour</h6>
-                            </li>
-                            <li class="single-item">
-                                <h6>Group Tour</h6>
-                            </li>
-                            <li class="single-item">
-                                <h6>Adventure Tour</h6>
-                            </li>
-                            <li class="single-item">
-                                <h6>Solo Tour</h6>
-                            </li>
-                        </ul>
-                    </div>
-                </div><button type="submit" class="primary-btn1"><span><svg width="18" height="18" viewBox="0 0 18 18"
+                <button type="submit" class="primary-btn1"><span><svg width="18" height="18" viewBox="0 0 18 18"
                             xmlns="http://www.w3.org/2000/svg">
                             <g>
                                 <path

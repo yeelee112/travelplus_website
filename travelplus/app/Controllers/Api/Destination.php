@@ -36,7 +36,7 @@ class Destination extends Controller
     private function getDestinationIndex(string $locale): array
     {
         $cache = Services::cache();
-        $cacheKey = 'destination_search_index_v2_' . $locale;
+        $cacheKey = 'destination_search_index_v5_' . $locale;
         $cached = $cache->get($cacheKey);
 
         if (is_array($cached)) {
@@ -100,6 +100,43 @@ class Destination extends Controller
                 'search_text' => mb_strtolower($text),
                 'payload' => $payload,
             ];
+        }
+
+        if (
+            $db->tableExists('tour_media')
+            && $db->tableExists('tour_translations')
+            && $db->tableExists('tours')
+        ) {
+            $mediaRows = $db->table('tour_media tm')
+                ->select('tm.alt_text, tm.file_path, tt.name AS tour_name')
+                ->join('tours t', 't.id = tm.tour_id', 'inner')
+                ->join('tour_translations tt', 'tt.tour_id = t.id AND tt.locale = ' . $db->escape($locale), 'inner')
+                ->where('tm.type', 'gallery')
+                ->where('t.status', 'published')
+                ->get()
+                ->getResultArray();
+
+            foreach ($mediaRows as $row) {
+                $altText = trim((string) ($row['alt_text'] ?? ''));
+                $filePath = trim((string) ($row['file_path'] ?? ''));
+                $tourName = trim((string) ($row['tour_name'] ?? ''));
+                $fileName = pathinfo($filePath, PATHINFO_FILENAME);
+                $fileName = trim(str_replace(['-', '_'], ' ', (string) $fileName));
+                $name = $altText !== '' ? $altText : $fileName;
+
+                if ($name === '') {
+                    continue;
+                }
+
+                $index[] = [
+                    'search_text' => mb_strtolower(trim($name . ' ' . $altText . ' ' . $fileName . ' ' . $tourName)),
+                    'payload' => [
+                        'type' => 'gallery',
+                        'name' => $name,
+                        'tour' => $tourName,
+                    ],
+                ];
+            }
         }
 
         return $index;

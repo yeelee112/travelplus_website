@@ -31,9 +31,9 @@
 </script>
 <script src="https://www.google.com/recaptcha/api.js?render=6LfgBncsAAAAAEmWNoT1xtCidf_t3tQEK7YkhWvw"></script>
 
-<script type="module" src="<?= base_url('assets/js/about-us.js') ?>"></script>
+<script type="module" src="<?= base_url('assets/js/about-us.js?v=20260506-1') ?>"></script>
 
-<script type="module" src="<?= base_url('assets/js/main.js') ?>"></script>
+<script type="module" src="<?= base_url('assets/js/main.js?v=20260506-1') ?>"></script>
 <?= $this->renderSection('scripts') ?>
 
 </body>

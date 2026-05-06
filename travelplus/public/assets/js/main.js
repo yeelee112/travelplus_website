@@ -310,6 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const wrap = box.querySelector(".custom-select-wrap");
     const list = box.querySelector(".option-list-destination");
     const clearBtn = box.querySelector(".clear-destination");
+    const form = box.closest("form");
 
     input.addEventListener("input", () => {
       const keyword = input.value.trim();
@@ -317,14 +318,49 @@ document.addEventListener("DOMContentLoaded", () => {
       clearBtn.classList.toggle("hidden", keyword.length === 0);
     });
 
-    if (!input || !wrap || !list) return;
+    if (!input || !wrap || !list || !clearBtn) return;
 
     let timer = null;
+    let currentItems = [];
+
+    const truncateText = function (value, maxLength = 42) {
+      const text = String(value || "").trim();
+
+      if (text.length <= maxLength) {
+        return text;
+      }
+
+      return `${text.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+    };
+
+    const getItemLabel = function (item) {
+      if (item.type === "country") {
+        return item.name;
+      }
+
+      if (item.type === "gallery") {
+        const tourLabel = truncateText(item.tour || "", 34);
+        return tourLabel ? `${item.name} - ${tourLabel}` : item.name;
+      }
+
+      if (!item.country || item.country === "undefined") {
+        return item.name;
+      }
+
+      return `${item.name}, ${item.country}`;
+    };
+
+    const selectItem = function (item) {
+      input.value = item.name || "";
+      wrap.classList.remove("active");
+      list.innerHTML = "";
+    };
 
     input.addEventListener("input", () => {
       const keyword = input.value.trim();
 
       clearTimeout(timer);
+      currentItems = [];
 
       if (keyword.length < 2) {
         wrap.classList.remove("active");
@@ -350,8 +386,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderList(data) {
       list.innerHTML = "";
+      currentItems = Array.isArray(data) ? data : [];
 
-      if (data.length === 0) {
+      if (currentItems.length === 0) {
         list.innerHTML = `
           <li class="single-item">
             <h6>No results found</h6>
@@ -359,28 +396,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      data.forEach((item) => {
+      currentItems.forEach((item) => {
         const li = document.createElement("li");
         li.className = "single-item";
 
-        li.innerHTML = `
-          <h6>
-            ${
-              item.type === "country"
-                ? item.name
-                : `${item.name}, ${item.country}`
-            }
-          </h6>
-        `;
+        li.innerHTML = `<h6>${getItemLabel(item)}</h6>`;
 
         li.addEventListener("click", () => {
-          input.value =
-            item.type === "country"
-              ? item.name
-              : `${item.name}, ${item.country}`;
-
-          wrap.classList.remove("active");
-          list.innerHTML = "";
+          selectItem(item);
         });
 
         list.appendChild(li);
@@ -388,6 +411,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // click ra ngoài → đóng dropdown
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") {
+        return;
+      }
+
+      if (currentItems.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+      selectItem(currentItems[0]);
+
+      if (form) {
+        form.requestSubmit();
+      }
+    });
+
+    if (form && form.hasAttribute("data-tour-search-form")) {
+      form.addEventListener("submit", (event) => {
+        const departureInput = form.querySelector('[name="departure_date"]');
+        const keyword = input.value.trim();
+        const departureValue = departureInput ? departureInput.value.trim() : "";
+
+        if (keyword === "" && departureValue === "") {
+          event.preventDefault();
+          input.focus();
+          return;
+        }
+
+        if (currentItems.length > 0) {
+          selectItem(currentItems[0]);
+        }
+      });
+    }
+
     document.addEventListener("click", (e) => {
       if (!box.contains(e.target)) {
         wrap.classList.remove("active");

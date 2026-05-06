@@ -1,9 +1,10 @@
-<?= $this->extend('layouts/main') ?>
+﻿<?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
 <?php
 $authUser = is_array($authUser ?? null) ? $authUser : null;
 $booking = is_array($pendingBooking ?? null) ? $pendingBooking : [];
+$locale = service('request')->getLocale();
 $checkoutMode = (string) ($checkoutMode ?? 'guest');
 $adultQuantity = max(0, (int) ($booking['adult_quantity'] ?? 0));
 $childQuantity = max(0, (int) ($booking['child_quantity'] ?? 0));
@@ -12,15 +13,44 @@ $travelerCount = $adultQuantity + $childQuantity + $infantQuantity;
 $grandTotal = (float) ($booking['grand_total'] ?? 0);
 $depositRate = 0.10;
 $depositAmount = $grandTotal * $depositRate;
+$checkoutNotice = trim((string) ($checkoutNotice ?? ''));
+$checkoutError = trim((string) ($checkoutError ?? ''));
 $formatCurrency = static fn(float $amount): string => number_format($amount, 0, ',', '.') . ' VND';
+$travelerParts = [];
+
+if ($adultQuantity > 0) {
+    $travelerParts[] = $adultQuantity . ' người lớn';
+}
+
+if ($childQuantity > 0) {
+    $travelerParts[] = $childQuantity . ' trẻ em';
+}
+
+if ($infantQuantity > 0) {
+    $travelerParts[] = $infantQuantity . ' em bé';
+}
+
+$travelerSummary = $travelerCount . ' người';
+
+if ($travelerParts !== []) {
+    $travelerSummary .= ' (' . implode(', ', $travelerParts) . ')';
+}
 ?>
 <div class="container pt-100 pb-100 checkout-stepper-page" data-checkout-stepper>
     <div class="row g-4">
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <div class="package-details-warpper">
                 <div class="section-title mb-30">
                     <h2>Checkout</h2>
                 </div>
+
+                <?php if ($checkoutNotice !== ''): ?>
+                    <div class="alert alert-success"><?= esc($checkoutNotice) ?></div>
+                <?php endif; ?>
+
+                <?php if ($checkoutError !== ''): ?>
+                    <div class="alert alert-danger"><?= esc($checkoutError) ?></div>
+                <?php endif; ?>
 
                 <?php if ($authUser !== null): ?>
                     <div class="alert alert-success">
@@ -166,11 +196,11 @@ $formatCurrency = static fn(float $amount): string => number_format($amount, 0, 
                                     </div>
 
                                     <div class="checkout-price-row">
-                                        <span>Total Price</span>
+                                        <span>Tổng tiền</span>
                                         <strong><?= esc($formatCurrency($grandTotal)) ?></strong>
                                     </div>
                                     <div class="checkout-price-row">
-                                        <span data-payment-plan-label>10% Deposit</span>
+                                        <span data-payment-plan-label>Trả trước 10%</span>
                                         <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
                                     </div>
 
@@ -189,28 +219,45 @@ $formatCurrency = static fn(float $amount): string => number_format($amount, 0, 
                                 <div class="checkout-stepper-card">
                                     <h5 class="checkout-card-title">Phương thức thanh toán</h5>
                                     <div class="checkout-payment-options">
-                                        <label class="checkout-payment-option">
+                                        <label class="checkout-payment-option is-selected">
                                             <input type="radio" name="payment_method" value="paypal" checked>
-                                            <span>PayPal</span>
+                                            <span class="checkout-payment-logo-wrap" aria-hidden="true">
+                                                <img src="<?= esc(base_url('assets/images/payments/Paypal-Logo.png')) ?>" alt="" class="checkout-payment-logo">
+                                            </span>
                                         </label>
                                         <label class="checkout-payment-option">
                                             <input type="radio" name="payment_method" value="momo">
-                                            <span>MoMo</span>
+                                            <span class="checkout-payment-logo-wrap" aria-hidden="true">
+                                                <img src="<?= esc(base_url('assets/images/payments/MOMO-Logo-App.png')) ?>" alt="" class="checkout-payment-logo">
+                                            </span>
                                         </label>
                                         <label class="checkout-payment-option">
                                             <input type="radio" name="payment_method" value="zalopay">
-                                            <span>ZaloPay</span>
+                                            <span class="checkout-payment-logo-wrap" aria-hidden="true">
+                                                <img src="<?= esc(base_url('assets/images/payments/ZaloPay-Logo.png')) ?>" alt="" class="checkout-payment-logo">
+                                            </span>
                                         </label>
                                         <label class="checkout-payment-option">
-                                            <input type="radio" name="payment_method" value="vietqr" data-vietqr-trigger>
-                                            <span>VietQR</span>
+                                            <input type="radio" name="payment_method" value="vietqr">
+                                            <span class="checkout-payment-logo-wrap" aria-hidden="true">
+                                                <img src="<?= esc(base_url('assets/images/payments/VietQR-Logo.png')) ?>" alt="" class="checkout-payment-logo">
+                                            </span>
                                         </label>
                                     </div>
-                                    <div class="checkout-vietqr-box" data-vietqr-box hidden>
-                                        <div class="checkout-vietqr-qr">QR</div>
+                                    <div class="checkout-vietqr-box" data-vietqr-box data-vietqr-create-url="<?= esc(localized_url('booking/vietqr/generate')) ?>" data-vietqr-complete-url="<?= esc(localized_url('booking/vietqr/complete')) ?>" hidden>
+                                        <div class="checkout-vietqr-qr">
+                                            <img src="" alt="VietQR" data-vietqr-image hidden>
+                                            <span data-vietqr-placeholder>QR</span>
+                                        </div>
                                         <div>
                                             <h6>VietQR</h6>
-                                            <p>Hiển thị mã QR chuyển khoản tại đây khi ông nối cổng thanh toán thật.</p>
+                                            <p data-vietqr-message>Quét mã để chuyển khoản theo đúng số tiền và nội dung.</p>
+                                            <div class="checkout-vietqr-meta">
+                                                <div><strong>Số tiền:</strong> <span data-vietqr-amount>-</span></div>
+                                                <div><strong>Nội dung:</strong> <span data-vietqr-add-info>-</span></div>
+                                                <div><strong>Tài khoản:</strong> <span data-vietqr-account-name>-</span></div>
+                                                <div><strong>Số tài khoản:</strong> <span data-vietqr-account-no>-</span></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -218,7 +265,12 @@ $formatCurrency = static fn(float $amount): string => number_format($amount, 0, 
                                 <div class="checkout-terms-wrap">
                                     <label class="checkout-terms-check">
                                         <input type="checkbox" name="agree_terms" data-agree-terms>
-                                        <span>I agree with Terms of Service and Privacy Statement</span>
+                                        <span>
+                                            Tôi đồng ý với
+                                            <a href="<?= esc(localized_url($locale === 'en' ? 'terms-of-service' : 'dieu-khoan-su-dung')) ?>" target="_blank" rel="noopener noreferrer">Điều khoản sử dụng</a>
+                                            &
+                                            <a href="<?= esc(localized_url($locale === 'en' ? 'privacy-statement' : 'chinh-sach-bao-mat')) ?>" target="_blank" rel="noopener noreferrer">Chính sách bảo mật</a>
+                                        </span>
                                     </label>
                                     <p class="checkout-inline-error" data-step-error hidden></p>
                                 </div>
@@ -226,6 +278,7 @@ $formatCurrency = static fn(float $amount): string => number_format($amount, 0, 
 
                             <div class="col-xl-5">
                                 <div class="checkout-stepper-card checkout-booking-summary">
+                                    <img class="checkout-booking-image pb-10" src="<?= esc($booking['tour_image']) ?>" alt="Tour Image" >
                                     <h5 class="checkout-card-title"><?= esc((string) ($booking['tour_title'] ?? 'Tour booking')) ?></h5>
                                     <div class="checkout-summary-list">
                                         <div class="checkout-summary-item">
@@ -238,19 +291,7 @@ $formatCurrency = static fn(float $amount): string => number_format($amount, 0, 
                                         </div>
                                         <div class="checkout-summary-item">
                                             <span>Travelers</span>
-                                            <strong><?= esc((string) $travelerCount) ?> người</strong>
-                                        </div>
-                                        <div class="checkout-summary-item">
-                                            <span>Người lớn</span>
-                                            <strong><?= esc((string) $adultQuantity) ?></strong>
-                                        </div>
-                                        <div class="checkout-summary-item">
-                                            <span>Trẻ em</span>
-                                            <strong><?= esc((string) $childQuantity) ?></strong>
-                                        </div>
-                                        <div class="checkout-summary-item">
-                                            <span>Em bé</span>
-                                            <strong><?= esc((string) $infantQuantity) ?></strong>
+                                            <strong><?= esc($travelerSummary) ?></strong>
                                         </div>
                                         <div class="checkout-summary-item total">
                                             <span>Số tiền cần thanh toán</span>
@@ -263,7 +304,7 @@ $formatCurrency = static fn(float $amount): string => number_format($amount, 0, 
 
                         <div class="checkout-stepper-actions">
                             <button type="button" class="primary-btn1 transparent" data-step-prev="1">Quay lại</button>
-                            <button type="button" class="primary-btn1" data-step-next="3">Hoàn tất</button>
+                            <button type="button" class="primary-btn1" data-step-next="3" data-paypal-submit data-paypal-create-url="<?= esc(localized_url('booking/paypal/create-order')) ?>">Hoàn tất</button>
                         </div>
                     </div>
 
@@ -304,55 +345,18 @@ $formatCurrency = static fn(float $amount): string => number_format($amount, 0, 
                                     <strong data-summary-output="note">-</strong>
                                 </div>
                             </div>
-                            <div class="checkout-finish-note">
-                                Đây là bước hoàn tất UI. Khi ông nối cổng thanh toán thật, nút xác nhận cuối sẽ gọi backend tạo order và transaction.
+                            <div class="checkout-finish-note" data-step-three-note>
+                                Với VietQR, sau khi chuyển khoản xong hãy bấm xác nhận để hệ thống ghi nhận booking và chuyển sang trang hoàn tất.
                             </div>
                         </div>
 
                         <div class="checkout-stepper-actions">
                             <button type="button" class="primary-btn1 transparent" data-step-prev="2">Quay lại</button>
-                            <a href="<?= esc((string) ($booking['tour_link'] ?? localized_url(''))) ?>" class="primary-btn1">Về trang tour</a>
+                            <button type="button" class="primary-btn1" data-vietqr-complete>Xác nhận đã chuyển khoản</button>
+                            <a href="<?= esc((string) ($booking['tour_link'] ?? localized_url(''))) ?>" class="primary-btn1 d-none" data-step-three-tour-link>Về trang tour</a>
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="tour-sidebar">
-                <div class="booking-form-wrap checkout-sidebar-card">
-                    <div class="tour-date-wrap">
-                        <h5>Thông tin booking</h5>
-                        <div class="tour-date">
-                            <span>Tên tour</span>
-                            <h6><?= esc((string) ($booking['tour_title'] ?? '')) ?></h6>
-                        </div>
-                        <div class="tour-date">
-                            <span>Khởi hành</span>
-                            <h6><?= esc((string) ($booking['departure_label'] ?? '')) ?></h6>
-                        </div>
-                        <div class="tour-date">
-                            <span>Thời lượng</span>
-                            <h6><?= esc((string) ($booking['duration_label'] ?? '')) ?></h6>
-                        </div>
-                        <div class="tour-date">
-                            <span>Người lớn</span>
-                            <h6><?= esc((string) $adultQuantity) ?></h6>
-                        </div>
-                        <div class="tour-date">
-                            <span>Trẻ em</span>
-                            <h6><?= esc((string) $childQuantity) ?></h6>
-                        </div>
-                        <div class="tour-date">
-                            <span>Em bé</span>
-                            <h6><?= esc((string) $infantQuantity) ?></h6>
-                        </div>
-                        <div class="tour-date total">
-                            <span>Tổng tiền</span>
-                            <h6><?= esc($formatCurrency($grandTotal)) ?></h6>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -383,6 +387,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const priceBreakdown = root.querySelector('[data-price-breakdown]');
     const breakdownToggle = root.querySelector('[data-price-breakdown-toggle]');
     const couponPlaceholder = root.querySelector('[data-coupon-placeholder]');
+    const paypalSubmitButton = root.querySelector('[data-step-pane="2"] [data-paypal-submit]');
+    const vietQrCreateUrl = vietQrBox ? vietQrBox.dataset.vietqrCreateUrl : '';
+    const vietQrCompleteUrl = vietQrBox ? vietQrBox.dataset.vietqrCompleteUrl : '';
+    const vietQrCompleteButton = root.querySelector('[data-vietqr-complete]');
+    const stepThreeNote = root.querySelector('[data-step-three-note]');
+    const stepThreeTourLink = root.querySelector('[data-step-three-tour-link]');
+    const vietQrImage = root.querySelector('[data-vietqr-image]');
+    const vietQrPlaceholder = root.querySelector('[data-vietqr-placeholder]');
+    const vietQrMessage = root.querySelector('[data-vietqr-message]');
+    const vietQrAmount = root.querySelector('[data-vietqr-amount]');
+    const vietQrAddInfo = root.querySelector('[data-vietqr-add-info]');
+    const vietQrAccountName = root.querySelector('[data-vietqr-account-name]');
+    const vietQrAccountNo = root.querySelector('[data-vietqr-account-no]');
+    const stepThreeTab = root.querySelector('[data-step-target="3"]');
+    const stepThreePane = root.querySelector('[data-step-pane="3"]');
+    const stepLines = Array.from(root.querySelectorAll('.checkout-stepper-header .step-line'));
+    const stepThreeLine = stepLines.length > 1 ? stepLines[1] : null;
+    const defaultStepTwoLabel = paypalSubmitButton ? paypalSubmitButton.textContent.trim() : 'Tiếp tục';
     const currency = new Intl.NumberFormat('vi-VN');
     const totals = {
         full: <?= json_encode($grandTotal) ?>,
@@ -402,9 +424,67 @@ document.addEventListener('DOMContentLoaded', function () {
         zalopay: 'ZaloPay',
         vietqr: 'VietQR'
     };
+    let lastVietQrKey = '';
 
     const formatCurrency = function (amount) {
         return currency.format(amount) + ' VND';
+    };
+
+    const clearError = function () {
+        if (!errorBox) {
+            return;
+        }
+
+        errorBox.hidden = true;
+        errorBox.textContent = '';
+    };
+
+    const setError = function (message) {
+        if (!errorBox) {
+            return;
+        }
+
+        errorBox.hidden = false;
+        errorBox.textContent = message;
+    };
+
+    const setVietQrState = function (state) {
+        if (!vietQrBox) {
+            return;
+        }
+
+        if (state.image && vietQrImage) {
+            vietQrImage.src = state.image;
+            vietQrImage.hidden = false;
+        } else if (vietQrImage) {
+            vietQrImage.hidden = true;
+            vietQrImage.removeAttribute('src');
+        }
+
+        if (vietQrPlaceholder) {
+            vietQrPlaceholder.hidden = !!state.image;
+            vietQrPlaceholder.textContent = state.placeholder || 'QR';
+        }
+
+        if (vietQrMessage) {
+            vietQrMessage.textContent = state.message || '';
+        }
+
+        if (vietQrAmount) {
+            vietQrAmount.textContent = state.amount || '-';
+        }
+
+        if (vietQrAddInfo) {
+            vietQrAddInfo.textContent = state.addInfo || '-';
+        }
+
+        if (vietQrAccountName) {
+            vietQrAccountName.textContent = state.accountName || '-';
+        }
+
+        if (vietQrAccountNo) {
+            vietQrAccountNo.textContent = state.accountNo || '-';
+        }
     };
 
     const setStep = function (step) {
@@ -450,38 +530,147 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
+    const generateVietQr = async function () {
+        if (!vietQrBox || vietQrCreateUrl === '') {
+            return;
+        }
+
+        const selectedMethod = paymentMethodInputs.find(function (input) {
+            return input.checked;
+        });
+        const selectedPlan = paymentPlanInputs.find(function (input) {
+            return input.checked;
+        });
+
+        if (!selectedMethod || selectedMethod.value !== 'vietqr') {
+            return;
+        }
+
+        const plan = selectedPlan ? selectedPlan.value : 'deposit';
+        const key = selectedMethod.value + ':' + plan;
+
+        if (key === lastVietQrKey && vietQrImage && !vietQrImage.hidden) {
+            return;
+        }
+
+        setVietQrState({
+            image: '',
+            placeholder: '...',
+            message: 'Đang tạo mã VietQR...',
+            amount: formatCurrency(totals[plan] || 0),
+            addInfo: '-',
+            accountName: '-',
+            accountNo: '-',
+        });
+
+        try {
+            const formData = new FormData();
+            formData.append('payment_method', 'vietqr');
+            formData.append('payment_plan', plan);
+            summaryFields.forEach(function (field) {
+                formData.append(field.name, field.value.trim());
+            });
+
+            const response = await fetch(vietQrCreateUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok || !payload.ok || !payload.qr) {
+                throw new Error(payload.message || 'Không thể tạo mã VietQR.');
+            }
+
+            lastVietQrKey = key;
+            setVietQrState({
+                image: payload.qr.image || '',
+                placeholder: 'QR',
+                message: 'Quét mã để chuyển khoản theo đúng số tiền và nội dung.',
+                amount: formatCurrency(Number(payload.qr.amount || 0)),
+                addInfo: payload.qr.add_info || '-',
+                accountName: payload.qr.account_name || '-',
+                accountNo: payload.qr.account_no || '-',
+            });
+        } catch (error) {
+            lastVietQrKey = '';
+            setVietQrState({
+                image: '',
+                placeholder: 'QR',
+                message: error.message || 'Không thể tạo mã VietQR.',
+                amount: formatCurrency(totals[plan] || 0),
+                addInfo: '-',
+                accountName: '-',
+                accountNo: '-',
+            });
+        }
+    };
+
     const updatePaymentMethod = function () {
         const selectedMethod = paymentMethodInputs.find(function (input) {
             return input.checked;
         });
         const method = selectedMethod ? selectedMethod.value : 'paypal';
         const label = paymentLabels[method] || method;
+        const isPaypal = method === 'paypal';
+        const isVietQr = method === 'vietqr';
 
         paymentMethodOutputs.forEach(function (output) {
             output.textContent = label;
         });
 
+        paymentMethodInputs.forEach(function (input) {
+            const option = input.closest('.checkout-payment-option');
+
+            if (! option) {
+                return;
+            }
+
+            option.classList.toggle('is-selected', input.checked);
+        });
+
         if (vietQrBox) {
             vietQrBox.hidden = method !== 'vietqr';
         }
-    };
 
-    const clearError = function () {
-        if (!errorBox) {
-            return;
+        if (paypalSubmitButton) {
+            paypalSubmitButton.textContent = isPaypal ? 'Thanh toán với PayPal' : defaultStepTwoLabel;
         }
 
-        errorBox.hidden = true;
-        errorBox.textContent = '';
-    };
-
-    const setError = function (message) {
-        if (!errorBox) {
-            return;
+        if (stepThreeTab) {
+            stepThreeTab.classList.toggle('d-none', isPaypal);
         }
 
-        errorBox.hidden = false;
-        errorBox.textContent = message;
+        if (stepThreePane) {
+            stepThreePane.classList.toggle('d-none', isPaypal);
+        }
+
+        if (stepThreeLine) {
+            stepThreeLine.classList.toggle('d-none', isPaypal);
+        }
+
+        if (vietQrCompleteButton) {
+            vietQrCompleteButton.classList.toggle('d-none', !isVietQr);
+        }
+
+        if (stepThreeTourLink) {
+            stepThreeTourLink.classList.toggle('d-none', isVietQr);
+        }
+
+        if (stepThreeNote) {
+            stepThreeNote.textContent = isVietQr
+                ? 'Với VietQR, sau khi chuyển khoản xong hãy bấm xác nhận để hệ thống ghi nhận booking và chuyển sang trang hoàn tất.'
+                : 'Phương thức này chưa được nối thanh toán tự động. Có thể quay lại chọn PayPal hoặc VietQR để test flow hoàn tất.';
+        }
+
+        if (method === 'vietqr') {
+            generateVietQr();
+        } else {
+            lastVietQrKey = '';
+        }
     };
 
     const validateStepOne = function () {
@@ -514,15 +703,126 @@ document.addEventListener('DOMContentLoaded', function () {
         return false;
     };
 
+    const startPayPalCheckout = async function () {
+        clearError();
+
+        if (!validateStepOne() || !validateStepTwo()) {
+            return;
+        }
+
+        updateSummary();
+        updatePaymentPlan();
+        updatePaymentMethod();
+
+        const selectedMethod = paymentMethodInputs.find(function (input) {
+            return input.checked;
+        });
+        const selectedPlan = paymentPlanInputs.find(function (input) {
+            return input.checked;
+        });
+
+        if (!selectedMethod || selectedMethod.value !== 'paypal') {
+            setError('Hiện tại mới nối PayPal sandbox. Hãy chọn PayPal để test.');
+            return;
+        }
+
+        if (!paypalSubmitButton) {
+            setError('Không tìm thấy nút thanh toán PayPal.');
+            return;
+        }
+
+        paypalSubmitButton.setAttribute('disabled', 'disabled');
+        paypalSubmitButton.textContent = 'Đang chuyển sang PayPal...';
+
+        try {
+            const formData = new FormData();
+            formData.append('payment_method', selectedMethod.value);
+            formData.append('payment_plan', selectedPlan ? selectedPlan.value : 'deposit');
+            summaryFields.forEach(function (field) {
+                formData.append(field.name, field.value.trim());
+            });
+
+            const response = await fetch(paypalSubmitButton.dataset.paypalCreateUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok || !payload.ok || !payload.redirect) {
+                throw new Error(payload.message || 'Không thể tạo giao dịch PayPal.');
+            }
+
+            window.location.href = payload.redirect;
+        } catch (error) {
+            setError(error.message || 'Không thể kết nối PayPal sandbox.');
+            paypalSubmitButton.removeAttribute('disabled');
+            updatePaymentMethod();
+        }
+    };
+
+    const completeVietQrCheckout = async function () {
+        clearError();
+
+        if (!validateStepOne() || !validateStepTwo()) {
+            return;
+        }
+
+        if (vietQrCompleteUrl === '') {
+            setError('Không tìm thấy cấu hình hoàn tất VietQR.');
+            return;
+        }
+
+        if (vietQrCompleteButton) {
+            vietQrCompleteButton.setAttribute('disabled', 'disabled');
+            vietQrCompleteButton.textContent = 'Đang ghi nhận...';
+        }
+
+        try {
+            const response = await fetch(vietQrCompleteUrl, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok || !payload.ok || !payload.redirect) {
+                throw new Error(payload.message || 'Không thể hoàn tất booking VietQR.');
+            }
+
+            window.location.href = payload.redirect;
+        } catch (error) {
+            setError(error.message || 'Không thể hoàn tất booking VietQR.');
+
+            if (vietQrCompleteButton) {
+                vietQrCompleteButton.removeAttribute('disabled');
+                vietQrCompleteButton.textContent = 'Xác nhận đã chuyển khoản';
+            }
+        }
+    };
+
     tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
             const targetStep = Number(tab.dataset.stepTarget);
+            const selectedMethod = paymentMethodInputs.find(function (input) {
+                return input.checked;
+            });
+            const method = selectedMethod ? selectedMethod.value : 'paypal';
 
             if (targetStep === 2 && !validateStepOne()) {
                 return;
             }
 
             if (targetStep === 3) {
+                if (method === 'paypal') {
+                    return;
+                }
+
                 if (!validateStepOne() || !validateStepTwo()) {
                     return;
                 }
@@ -536,8 +836,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     nextButtons.forEach(function (button) {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', async function () {
             const nextStep = Number(button.dataset.stepNext);
+            const selectedMethod = paymentMethodInputs.find(function (input) {
+                return input.checked;
+            });
+            const method = selectedMethod ? selectedMethod.value : 'paypal';
 
             if (nextStep === 2 && !validateStepOne()) {
                 return;
@@ -545,6 +849,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (nextStep === 3) {
                 if (!validateStepOne() || !validateStepTwo()) {
+                    return;
+                }
+
+                if (method === 'paypal') {
+                    await startPayPalCheckout();
                     return;
                 }
             }
@@ -563,12 +872,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    if (vietQrCompleteButton) {
+        vietQrCompleteButton.addEventListener('click', async function () {
+            await completeVietQrCheckout();
+        });
+    }
+
     summaryFields.forEach(function (field) {
         field.addEventListener('input', updateSummary);
     });
 
     paymentPlanInputs.forEach(function (input) {
-        input.addEventListener('change', updatePaymentPlan);
+        input.addEventListener('change', function () {
+            updatePaymentPlan();
+            lastVietQrKey = '';
+
+            const selectedMethod = paymentMethodInputs.find(function (item) {
+                return item.checked;
+            });
+
+            if (selectedMethod && selectedMethod.value === 'vietqr') {
+                generateVietQr();
+            }
+        });
     });
 
     paymentMethodInputs.forEach(function (input) {

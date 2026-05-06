@@ -8252,7 +8252,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .filter-wrapper .filter-input-wrap .filter-input {
     display: grid;
-    grid-template-columns: 31% 24.5% 24.5% 14%;
+    grid-template-columns: 47% 24.5% 24.5%;
     grid-gap: 24px;
     gap: 24px;
     display: none
@@ -8260,14 +8260,14 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 @media (max-width:1399px) {
     .filter-wrapper .filter-input-wrap .filter-input {
-        grid-template-columns: 29% 24% 24% 16%
+        grid-template-columns: 47% 24% 24%;
     }
 }
 
 @media (min-width:992px) and (max-width:1199px) {
     .filter-wrapper .filter-input-wrap .filter-input {
         gap: 16px;
-        grid-template-columns: 28% 24% 24% 18%
+        grid-template-columns: 47% 24% 24%;
     }
 }
 
@@ -10474,7 +10474,7 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .package-card .package-content .btn-and-price-area {
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     justify-content: space-between;
     gap: 15px;
     margin-bottom: 5px
@@ -15805,12 +15805,11 @@ header.style-3.two .main-menu>ul>li.active>a i {
     background-size: 0 1.5px;
     background-repeat: no-repeat;
     background-position: right 90%;
-    transition: background-size .75s
-}
-
-.blog-card2.two .blog-content h4 a:hover {
-    background-size: 100% 1.5px;
-    background-position: 0 90%
+    transition: background-size .75s;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .blog-card2.three .blog-content {
@@ -41106,12 +41105,15 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .checkout-coupon-input input{
     min-height:48px;
+    border: 1px dashed var(--borders-color);
+    border-radius: 14px;
+    padding: 5px 10px;
 }
 
 .checkout-text-btn{
     border:0;
     background:transparent;
-    color:#5c84f5;
+    color:var(--primary-color1);
     font-weight:600;
     padding:0;
     white-space:nowrap;
@@ -41124,6 +41126,10 @@ header.style-3.two .main-menu>ul>li.active>a i {
     margin-top:20px;
 }
 
+.checkout-payment-options{
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+}
+
 .checkout-plan-option,
 .checkout-payment-option{
     border:1px solid var(--borders-color);
@@ -41133,6 +41139,49 @@ header.style-3.two .main-menu>ul>li.active>a i {
     align-items:center;
     gap:12px;
     cursor:pointer;
+}
+
+.checkout-payment-option{
+    min-height:68px;
+    padding:12px 14px;
+    justify-content:center;
+    text-align:center;
+    transition:all .2s ease;
+}
+
+.checkout-payment-option input{
+    position:absolute;
+    opacity:0;
+    pointer-events:none;
+}
+
+.checkout-payment-logo-wrap{
+    width:84px;
+    height:30px;
+    flex:0 0 84px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.checkout-payment-option > span:last-child{
+    width:100%;
+    font-size:14px;
+    font-weight:600;
+    line-height:1.2;
+}
+
+.checkout-payment-logo{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    display:block;
+}
+
+.checkout-payment-option.is-selected{
+    border-color:var(--primary-color1);
+    background:#eef8ff;
+    box-shadow:0 10px 24px rgba(0, 159, 227, 0.12);
 }
 
 .checkout-plan-option input,
@@ -41152,8 +41201,8 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .checkout-vietqr-qr{
-    width:90px;
-    height:90px;
+    width:100%;
+    height:auto;
     border-radius:12px;
     background:#f2f5ff;
     color:var(--primary-color1);
@@ -41162,6 +41211,21 @@ header.style-3.two .main-menu>ul>li.active>a i {
     justify-content:center;
     font-weight:700;
     font-size:24px;
+    overflow:hidden;
+}
+
+.checkout-vietqr-qr img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.checkout-vietqr-meta{
+    margin-top:10px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size:14px;
 }
 
 .checkout-booking-summary{
@@ -41181,8 +41245,9 @@ header.style-3.two .main-menu>ul>li.active>a i {
 }
 
 .checkout-summary-item.total strong{
-    color:var(--primary-color1);
-    font-size:20px;
+    color:var(--red-color);
+    font-size:30px;
+    font-weight: 800;
 }
 
 .checkout-stepper-actions{
@@ -41205,7 +41270,6 @@ header.style-3.two .main-menu>ul>li.active>a i {
 
 .checkout-terms-check{
     display:flex;
-    align-items:flex-start;
     gap:10px;
     color:var(--title-color);
     font-size:15px;
@@ -41284,4 +41348,23 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .modal-login-form-wrapper label{
     font-size: 14px;
     color: #7e7e7e;
+}
+
+.checkout-booking-image{
+    border-radius: 10px;
+    min-height: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    width: 100%;
+    transition: all .5s ease-out;
+    margin-bottom: 20px;
+}
+
+
+.checkout-stepper-card .section-title h2{
+    text-align: center;
+}
+
+.checkout-stepper-card .section-title p{
+    text-align: center;
 }
