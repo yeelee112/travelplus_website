@@ -1,4 +1,5 @@
 <?php
+$locale = service('request')->getLocale() ?: 'vi';
 $pagination = $pagination ?? ['total' => count($tours ?? []), 'page' => 1, 'lastPage' => 1];
 $baseUrl = current_url();
 $queryParams = $_GET ?? [];
@@ -13,12 +14,12 @@ $lastPage = (int) ($pagination['lastPage'] ?? 1);
 $total = (int) ($pagination['total'] ?? 0);
 ?>
 
-<div class="package-grid-page pt-100 mb-100">
+<div class="package-grid-page mb-100">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="package-grid-top-area">
-                    <span><strong><?= esc($total) ?></strong> Unforgettable Journeys Await!</span>
+                    <span><?= lang('Frontend.listing.matchingExperiences', [esc((string) $total)], $locale) ?></span>
                 </div>
                 <div class="list-grid-product-wrap column-2-wrapper">
                     <div class="row g-4 mb-40">
@@ -34,7 +35,7 @@ $total = (int) ($pagination['total'] ?? 0);
                     <div class="pagination-area mt-60 wow animate fadeInUp" data-wow-delay="200ms" data-wow-duration="1500ms">
                         <div class="paginations-button">
                             <?php if ($currentPage > 1): ?>
-                                <a href="<?= esc($buildPageUrl($currentPage - 1)) ?>">Prev</a>
+                                <a href="<?= esc($buildPageUrl($currentPage - 1)) ?>"><?= esc(lang('Frontend.pagination.prev', [], $locale)) ?></a>
                             <?php endif; ?>
                         </div>
                         <ul class="paginations">
@@ -46,7 +47,7 @@ $total = (int) ($pagination['total'] ?? 0);
                         </ul>
                         <div class="paginations-button">
                             <?php if ($currentPage < $lastPage): ?>
-                                <a href="<?= esc($buildPageUrl($currentPage + 1)) ?>">Next</a>
+                                <a href="<?= esc($buildPageUrl($currentPage + 1)) ?>"><?= esc(lang('Frontend.pagination.next', [], $locale)) ?></a>
                             <?php endif; ?>
                         </div>
                     </div>

@@ -1,18 +1,14 @@
-<?php if (!empty($breadcrumbs)): ?>
+<?php if (! empty($breadcrumbs)): ?>
+    <?php $locale = service('request')->getLocale() ?: 'vi'; $homeLabel = lang('Frontend.common.home', [], $locale); ?>
     <div class="container pt-3 pb-3">
         <nav aria-label="breadcrumb" class="breadcrumb-wrapper">
             <ol class="breadcrumb">
-
                 <?php foreach ($breadcrumbs as $index => $crumb): ?>
-
                     <?php if ($index === 0): ?>
                         <li class="breadcrumb-item">
-                            <a href="<?= localized_url('/') ?>" aria-label="Trang chủ" title="Trang chủ">
+                            <a href="<?= localized_url('/') ?>" aria-label="<?= esc($homeLabel) ?>" title="<?= esc($homeLabel) ?>">
                                 <i class="bi bi-house-fill main-color"></i>
-                                <!-- Text ẩn cho SEO + Screen reader -->
-                                <span class="visually-hidden">
-                                    Trang chủ
-                                </span>
+                                <span class="visually-hidden"><?= esc($homeLabel) ?></span>
                             </a>
                         </li>
                     <?php else: ?>
@@ -33,27 +29,22 @@
         </nav>
     </div>
 
-    <!-- ================= SEO Schema ================= -->
-
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-
         <?php foreach ($breadcrumbs as $index => $crumb): ?>
             {
               "@type": "ListItem",
               "position": <?= $index + 1 ?>,
-              "name": "<?= esc($crumb['label']) ?>",
-              <?php if (isset($crumb['url'])): ?>
+              "name": "<?= esc($crumb['label']) ?>"
+              <?php if (isset($crumb['url'])): ?>,
                   "item": "<?= $crumb['url'] ?>"
               <?php endif; ?>
             }<?= $index < count($breadcrumbs) - 1 ? ',' : '' ?>
         <?php endforeach; ?>
-
       ]
     }
     </script>
-    
 <?php endif; ?>

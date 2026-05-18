@@ -1,7 +1,11 @@
 <?php
+
 namespace App\Controllers;
 
+use App\Services\EntityViewService;
+use App\Services\SeoService;
 use App\Services\TourCatalogService;
+use App\Services\TourEnquiryNotificationService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 class TourController extends BaseController
@@ -31,31 +35,59 @@ class TourController extends BaseController
     public function detail(string $tourType, string $locale, string $locationSlug, string $tourSlug)
     {
         $tourService = new TourCatalogService();
+        $seo = new SeoService();
+        $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $tour = $tourService->findTourBySlug($locale, $tourSlug, $tourType);
 
         if ($tour === null) {
             throw PageNotFoundException::forPageNotFound();
         }
 
+        (new EntityViewService())->incrementOncePerSession('tours', (int) ($tour['id'] ?? 0), 'tour');
+
         $listPath = $tourType === 'inbound' ? 'tour-trong-nuoc' : 'tour-nuoc-ngoai';
         $listLabel = $tourType === 'inbound'
-            ? ($locale === 'en' ? 'Domestic Tours' : 'Tour trong nuoc')
-            : ($locale === 'en' ? 'Outbound Tours' : 'Tour nuoc ngoai');
+            ? $t('common.domesticTours')
+            : $t('common.outboundTours');
+        $canonicalUrl = current_url();
+        $metaTitle = trim((string) ($tour['meta_title'] ?? '')) ?: ((string) $tour['title'] . ' | Travel Plus');
+        $metaDesc = $seo->excerpt(
+            trim((string) ($tour['meta_description'] ?? '')) !== ''
+                ? (string) $tour['meta_description']
+                : (string) ($tour['short_description'] ?? $tour['overview'] ?? $tour['description'] ?? ''),
+            160
+        );
+        $breadcrumbs = [
+            ['label' => $t('common.home'), 'url' => localized_url('/')],
+            ['label' => $listLabel, 'url' => localized_url($listPath)],
+            ['label' => (string) ($tour['continent'] ?? ''), 'url' => (string) ($tour['continent_link'] ?? '')],
+            ['label' => (string) $tour['title']],
+        ];
 
         return view('tour/index', [
             'tour' => $tour,
             'relatedTours' => $tourService->getRelatedTours($locale, $tour, 6),
-            'breadcrumbs' => [
-                ['label' => $locale === 'en' ? 'Home' : 'Trang chu', 'url' => localized_url('/')],
-                ['label' => $listLabel, 'url' => localized_url($listPath)],
-                ['label' => (string) ($tour['continent'] ?? ''), 'url' => (string) ($tour['continent_link'] ?? '')],
-                ['label' => (string) $tour['title']],
+            'breadcrumbs' => $breadcrumbs,
+            'meta_title' => $metaTitle,
+            'meta_desc' => $metaDesc,
+            'canonical_url' => $canonicalUrl,
+            'meta_image' => (string) ($tour['image'] ?? base_url('assets/images/TravelPlus_CompanyProfile.png')),
+            'alternate_links' => [
+                ['hreflang' => 'vi', 'href' => switch_locale_url('vi')],
+                ['hreflang' => 'en', 'href' => switch_locale_url('en')],
+                ['hreflang' => 'x-default', 'href' => switch_locale_url('vi')],
+            ],
+            'schema_graph' => [
+                $seo->organizationSchema(),
+                $seo->breadcrumbSchema($breadcrumbs, $canonicalUrl),
+                $seo->tourSchema($tour, $canonicalUrl),
             ],
         ]);
     }
 
     public function submitReview()
     {
+        $locale = $this->request->getLocale() ?: 'vi';
         $rules = [
             'tour_id' => 'required|is_natural_no_zero',
             'reviewer_name' => 'required|min_length[2]|max_length[255]',
@@ -70,7 +102,7 @@ class TourController extends BaseController
         if (! $this->validate($rules)) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Dữ liệu review chưa hợp lệ.',
+                'message' => lang('Frontend.tour.review.invalid', [], $locale),
                 'errors' => $this->validator->getErrors(),
             ]);
         }
@@ -80,7 +112,7 @@ class TourController extends BaseController
         if (! $db->tableExists('tour_reviews')) {
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => 'Bảng tour_reviews chưa tồn tại.',
+                'message' => lang('Frontend.tour.review.tableMissing', [], $locale),
             ]);
         }
 
@@ -103,7 +135,57 @@ class TourController extends BaseController
 
         return $this->response->setJSON([
             'ok' => true,
-            'message' => 'Đã gửi đánh giá. Review sẽ hiển thị sau khi được duyệt.',
+            'message' => lang('Frontend.tour.review.success', [], $locale),
+        ]);
+    }
+
+    public function submitEnquiry()
+    {
+        $locale = $this->request->getLocale() ?: 'vi';
+        $rules = [
+            'tour_id' => 'required|is_natural_no_zero',
+            'tour_title' => 'required|max_length[255]',
+            'tour_link' => 'permit_empty|max_length[500]',
+            'full_name' => 'required|min_length[2]|max_length[255]',
+            'email' => 'required|valid_email|max_length[255]',
+            'phone' => 'required|min_length[8]|max_length[30]',
+            'travel_date' => 'permit_empty|max_length[50]',
+            'travelers' => 'permit_empty|max_length[50]',
+            'message' => 'required|min_length[10]|max_length[3000]',
+        ];
+
+        if (! $this->validate($rules)) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok' => false,
+                'message' => lang('Frontend.tour.enquiry.invalid', [], $locale),
+                'errors' => $this->validator->getErrors(),
+            ]);
+        }
+
+        $post = $this->request->getPost();
+        $enquiry = [
+            'tour_id' => (int) $post['tour_id'],
+            'tour_title' => trim((string) $post['tour_title']),
+            'tour_link' => trim((string) ($post['tour_link'] ?? '')),
+            'full_name' => trim((string) $post['full_name']),
+            'email' => trim((string) $post['email']),
+            'phone' => trim((string) $post['phone']),
+            'travel_date' => trim((string) ($post['travel_date'] ?? '')),
+            'travelers' => trim((string) ($post['travelers'] ?? '')),
+            'message' => trim((string) ($post['message'] ?? '')),
+        ];
+
+        $notificationService = new TourEnquiryNotificationService();
+        if (! $notificationService->sendEnquiryEmails($enquiry)) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'ok' => false,
+                'message' => lang('Frontend.tour.enquiry.mailFailed', [], $locale),
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'ok' => true,
+            'message' => lang('Frontend.tour.enquiry.success', [], $locale),
         ]);
     }
 

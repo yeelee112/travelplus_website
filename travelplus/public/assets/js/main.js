@@ -14,6 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
   ===================================================== */
   qsa('[data-toggle="dropdown"]').forEach((btn) => {
     btn.addEventListener("click", (e) => {
+      if (btn.closest(".search-bar")) {
+        return;
+      }
+
       e.stopPropagation();
 
       const wrapper = btn.closest(
@@ -27,11 +31,43 @@ document.addEventListener("DOMContentLoaded", () => {
       const isOpen = target.classList.contains("active");
 
       closeActive(
-        ".language-list.active, .contact-list.active, .search-box.active",
+        ".language-list.active, .contact-list.active, .search-box.active, .search-input.active",
       );
 
       if (!isOpen) target.classList.add("active");
     });
+  });
+
+  qsa(".search-bar").forEach((bar) => {
+    const searchBtn = qs(".search-btn", bar);
+    const panel = qs(".search-input", bar);
+    const closeBtn = qs(".search-close", bar);
+
+    if (searchBtn && panel) {
+      searchBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const shouldOpen = !panel.classList.contains("active");
+        closeActive(".search-input.active");
+
+        if (shouldOpen) {
+          panel.classList.add("active");
+        }
+      });
+    }
+
+    if (panel) {
+      panel.addEventListener("click", (event) => event.stopPropagation());
+    }
+
+    if (closeBtn && panel) {
+      closeBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        panel.classList.remove("active");
+      });
+    }
   });
 
   /* =====================================================
@@ -70,6 +106,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     languageList.addEventListener("click", (e) => e.stopPropagation());
+  });
+
+  qsa(".account-dropdown").forEach((area) => {
+    const accountBtn = qs(".account-btn", area);
+    const accountList = qs(".account-list", area);
+
+    if (!accountBtn || !accountList) return;
+
+    accountBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeActive(".account-list.active");
+      accountList.classList.toggle("active");
+    });
+
+    accountList.addEventListener("click", (e) => e.stopPropagation());
   });
 
   /* =====================================================
@@ -297,8 +348,9 @@ document.addEventListener("DOMContentLoaded", () => {
   ===================================================== */
   document.addEventListener("click", () => {
     closeActive(
-      ".language-list.active, .contact-list.active, .search-box.active, .custom-select-wrap.active",
+      ".language-list.active, .contact-list.active, .search-box.active, .search-input.active, .custom-select-wrap.active",
     );
+    closeActive(".account-list.active");
   });
 
   /* =====================================================
@@ -539,9 +591,14 @@ document.addEventListener("DOMContentLoaded", () => {
   FEATURED DESTINATION – CONTINENT TABS
   ===================================================== */
 
-  fetch(`${window.BASE_URL}assets/js/data/destinations.json`)
-    .then((res) => res.json())
-    .then((data) => initContinents(data));
+  const tabList = document.getElementById("continent-tabs");
+  const tabContent = document.getElementById("continent-contents");
+
+  if (tabList && tabContent && !tabList.dataset.serverRendered) {
+    fetch(`${window.BASE_URL}assets/js/data/destinations.json`)
+      .then((res) => res.json())
+      .then((data) => initContinents(data));
+  }
 
   function initContinents(data) {
     const tabList = document.getElementById("continent-tabs");

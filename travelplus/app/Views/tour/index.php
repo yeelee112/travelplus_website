@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/main') ?>
+﻿<?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
 <?php
@@ -42,7 +42,6 @@ $adultPrice = $adultPrice > 0 ? $adultPrice : (float) ($tour['price']['amount'] 
 $childPrice = $adultPrice * 0.85;
 $infantPrice = $adultPrice * 0.25;
 $maxTravelers = max(1, (int) ($tour['max_travelers'] ?? 15));
-$durationLabel = ($tour['duration']['days'] ?? 0) . ' Ngày ' . ($tour['duration']['nights'] ?? 0) . ' Đêm';
 $departureLabel = (string) ($firstDeparture['date_label'] ?? $tour['departure'] ?? '');
 $reviewSummary = $tour['review_summary'] ?? ['count' => 0, 'overall' => 0, 'destination' => 0, 'transport' => 0, 'value' => 0];
 
@@ -51,24 +50,36 @@ $reviews = $tour['reviews'] ?? [];
 $reviewPages = array_chunk($reviews, 3);
 $relatedTours = $relatedTours ?? [];
 $googleEnabled = config(\Config\SocialAuth::class)->googleEnabled;
+$t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
 
-function getReviewLabel($rating) {
-    if ($rating >= 4.5) return 'Excellent';
-    if ($rating >= 4.0) return 'Very Good';
-    if ($rating >= 3.5) return 'Good';
-    if ($rating >= 3.0) return 'Average';
-    if ($rating >= 2.0) return 'Poor';
-    if ($rating > 0) return 'Bad';
-    return 'No reviews yet';
-}
-
-$reviewLabel = getReviewLabel($reviewSummary['overall']);
-
+$durationLabel = ($tour['duration']['days'] ?? 0) . ' ' . $t('tour.duration.days') . ' ' . ($tour['duration']['nights'] ?? 0) . ' ' . $t('tour.duration.nights');
+$reviewLabel = match (true) {
+    $reviewSummary['overall'] >= 4.5 => $t('tour.reviewLabel.excellent'),
+    $reviewSummary['overall'] >= 4.0 => $t('tour.reviewLabel.veryGood'),
+    $reviewSummary['overall'] >= 3.5 => $t('tour.reviewLabel.good'),
+    $reviewSummary['overall'] >= 3.0 => $t('tour.reviewLabel.average'),
+    $reviewSummary['overall'] >= 2.0 => $t('tour.reviewLabel.poor'),
+    $reviewSummary['overall'] > 0 => $t('tour.reviewLabel.terrible'),
+    default => $t('tour.reviewLabel.none'),
+};
 $reviewMetrics = [
-    'overall' => 'Overall',
-    'destination' => 'Destination',
-    'transport' => 'Transport',
-    'value' => 'Value',
+    'overall' => $t('tour.reviewMetric.overall'),
+    'destination' => $t('tour.reviewMetric.destination'),
+    'transport' => $t('tour.reviewMetric.transport'),
+    'value' => $t('tour.reviewMetric.value'),
+];
+$enquiryLabels = [
+    'title' => $t('tour.enquiry.title'),
+    'intro' => $t('tour.enquiry.intro'),
+    'tour' => $t('tour.enquiry.tour'),
+    'name' => $t('tour.enquiry.name'),
+    'email' => $t('tour.enquiry.email'),
+    'phone' => $t('tour.enquiry.phone'),
+    'date' => $t('tour.enquiry.date'),
+    'travelers' => $t('tour.enquiry.travelers'),
+    'message' => $t('tour.enquiry.message'),
+    'agree' => $t('tour.enquiry.agree'),
+    'submit' => $t('tour.enquiry.submit'),
 ];
 ?>
 
@@ -81,9 +92,8 @@ $reviewMetrics = [
             <div class="banner-content">
                 <h1><?= esc($tour['title']) ?></h1>
                 <div class="batch">
-                    <span><?= esc($durationLabel) ?><?= $departureLabel !== '' ? ' | Khởi hành: ' . esc($departureLabel) : '' ?></span>
+                    <span><?= esc($durationLabel) ?><?= $departureLabel !== '' ? ' | ' . esc($t('tour.booking.departurePrefix')) . ' ' . esc($departureLabel) : '' ?></span>
                 </div>
-                </form>
             </div>
         </div>
     </div>
@@ -92,9 +102,9 @@ $reviewMetrics = [
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content"><button type="button" class="close-btn" data-bs-dismiss="modal"
-                aria-label="Close"><i class="bi bi-x-lg"></i></button>
+                aria-label="<?= esc(lang('Frontend.common.close', [], $locale)) ?>"><i class="bi bi-x-lg"></i></button>
             <div class="modal-body">
-                <h4 class="modal-title" id="ratingModalLabel">Give Your Review</h4>
+                <h4 class="modal-title" id="ratingModalLabel"><?= esc($t('tour.review.title')) ?></h4>
                 <form class="review-form-wrapper" data-tour-review-form method="post" action="<?= localized_url('tour/reviews') ?>">
                     <?= csrf_field() ?>
                     <input type="hidden" name="tour_id" value="<?= esc($tour['id'] ?? 0) ?>">
@@ -105,7 +115,7 @@ $reviewMetrics = [
                                 <div class="rating-container" data-rating-input="<?= esc($metricKey) ?>">
                                     <input type="hidden" name="rating_<?= esc($metricKey) ?>" value="0">
                                     <?php for ($star = 1; $star <= 5; $star++): ?>
-                                        <button type="button" class="rating-star-btn" data-value="<?= esc($star) ?>" aria-label="<?= esc($metricLabel . ' ' . $star . ' stars') ?>">
+                                        <button type="button" class="rating-star-btn" data-value="<?= esc($star) ?>" aria-label="<?= esc($metricLabel . ' ' . $star . ' sao') ?>">
                                             <i class="bi bi-star star-icon"></i>
                                         </button>
                                     <?php endfor; ?>
@@ -115,30 +125,29 @@ $reviewMetrics = [
                     </ul>
                     <div class="row g-4 mb-50">
                         <div class="col-lg-12">
-                            <div class="form-inner"><label>Your Feedback</label><textarea name="content"
-                                    placeholder="Write your review"></textarea></div>
+                            <div class="form-inner"><label><?= esc($t('tour.review.content')) ?></label><textarea name="content"
+                                    placeholder="<?= esc($t('tour.review.contentPlaceholder')) ?>"></textarea></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-inner"><label>Email Address</label><input type="email" name="reviewer_email"
-                                    placeholder="Email Address"></div>
+                            <div class="form-inner"><label><?= esc($t('tour.review.email')) ?></label><input type="email" name="reviewer_email"
+                                    placeholder="<?= esc($t('tour.review.email')) ?>"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-inner"><label>Your Name</label><input type="text" name="reviewer_name" placeholder="Your Name">
+                            <div class="form-inner"><label><?= esc($t('tour.review.name')) ?></label><input type="text" name="reviewer_name" placeholder="<?= esc($t('tour.review.name')) ?>">
                             </div>
                         </div>
                         <div class="col-md-12 d-none" data-review-message></div>
                         <div class="col-md-12 d-none" data-review-errors></div>
                         <div class="col-md-12">
-                            <p class="mb-0">Review will be submitted for approval before appearing publicly.</p>
+                            <p class="mb-0"><?= esc($t('tour.review.note')) ?></p>
                         </div>
                     </div>
-                    <div class="form-inner"><button type="submit" class="primary-btn1 black-bg"><span>Post
-                                Comment<svg width="10" height="10" viewBox="0 0 10 10"
+                    <div class="form-inner"><button type="submit" class="primary-btn1 black-bg"><span><?= esc($t('tour.review.submit')) ?><svg width="10" height="10" viewBox="0 0 10 10"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
                                     </path>
-                                </svg></span><span>Post Comment<svg width="10" height="10" viewBox="0 0 10 10"
+                                </svg></span><span><?= esc($t('tour.review.submit')) ?><svg width="10" height="10" viewBox="0 0 10 10"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
@@ -152,15 +161,15 @@ $reviewMetrics = [
 <div class="modal booking-modal fade" id="bookingModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content"><button type="button" class="close-btn" data-bs-dismiss="modal"
-                aria-label="Close"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+                aria-label="<?= esc(lang('Frontend.common.close', [], $locale)) ?>"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M2.00247 0.500545C1.79016 0.505525 1.58918 0.582706 1.4362 0.735547L0.694403 1.479C0.345704 1.82743 0.389689 2.43243 0.79164 2.83493L3.00694 5.05341L0.79164 7.27092C0.389689 7.67328 0.345566 8.27842 0.694403 8.62753L1.4362 9.37044C1.7849 9.71872 2.38879 9.67543 2.7913 9.27293L5.00659 7.05473L7.22189 9.27293C7.62467 9.67543 8.22898 9.71872 8.57699 9.37044L9.31989 8.62753C9.6679 8.27856 9.62461 7.67342 9.22182 7.27092L7.00653 5.05341L9.22182 2.83493C9.62461 2.43243 9.6679 1.82743 9.31989 1.479L8.57699 0.735547C8.22898 0.386433 7.62467 0.430557 7.22189 0.833614L5.00659 3.05126L2.7913 0.833753C2.56515 0.606635 2.27482 0.493906 2.00247 0.500545Z">
                     </path>
                 </svg></button>
             <div class="modal-header">
-                <h4>Báo giá tóm tắt</h4>
+                <h4><?= esc($t('tour.booking.summaryTitle')) ?></h4>
                 <p>
-                    Hãy chọn ngày khởi hành phù hợp để tiếp tục chuyến đi của bạn.
+                    <?= esc($t('tour.booking.summaryDesc')) ?>
                 </p>
                     
             </div>
@@ -188,25 +197,25 @@ $reviewMetrics = [
                                 <div class="accordion-button" role="button" data-bs-toggle="collapse"
                                     data-bs-target="#flush-package-collapseOne" aria-expanded="false"
                                     aria-controls="flush-package-collapseOne">
-                                    <div class="batch"><span>Chi tiết</span></div>
+                                    <div class="batch"><span><?= esc($t('tour.booking.details')) ?></span></div>
                                     <div class="title-area"><span class="check"></span>
                                         <h6><?= esc($tour['title']) ?></h6>
-                                    </div><span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub>/người</sub></span>
+                                    </div><span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub><?= esc($t('tour.booking.perPerson')) ?></sub></span>
                                 </div>
                             </div>
                             <div class="accordion-collapse collapse show"
                                 aria-labelledby="flush-package-headingOne" data-bs-parent="#accordionFlushPackage">
                                 <div class="accordion-body">
                                     <div class="tour-info-and-calculate-area">
-                                        <p><?= esc($durationLabel) ?><?= $departureLabel !== '' ? ' | Khởi hành: ' . esc($departureLabel) : '' ?></p>
+                                        <p><?= esc($durationLabel) ?><?= $departureLabel !== '' ? ' | ' . esc($t('tour.booking.departurePrefix')) . ' ' . esc($departureLabel) : '' ?></p>
                                     </div>
                                     <div class="additional-service-area" data-max-travelers="<?= esc($maxTravelers) ?>">
-                                        <h6>Số lượng người <sub>(Tối đa <?= esc($maxTravelers) ?> người)</sub></h6>
+                                        <h6><?= esc($t('tour.booking.travelersTitle')) ?> <sub>(<?= esc($t('tour.booking.travelersMax', [$maxTravelers])) ?>)</sub></h6>
                                         <ul class="service-list booking-service-list">
                                             <li class="booking-service-item" data-service-type="adult" data-unit-price="<?= $adultPrice ?>" data-min="1">
                                                 <div class="service-info-wrap">
                                                     <div class="service-info">
-                                                        <h6>Người lớn</h6>
+                                                        <h6><?= esc($t('tour.booking.adult')) ?></h6>
                                                         <p><?= esc(number_format($adultPrice, 0, ',', '.')) ?></p>
                                                     </div>
                                                 </div>
@@ -217,8 +226,8 @@ $reviewMetrics = [
                                             <li class="booking-service-item" data-service-type="child" data-unit-price="<?= $childPrice ?>" data-min="0">
                                                 <div class="service-info-wrap">
                                                     <div class="service-info">
-                                                        <h6>Trẻ em (2 - 10 tuổi)</h6>
-                                                        <p><p><?= esc(number_format($childPrice, 0, ',', '.')) ?></p>
+                                                        <h6><?= esc($t('tour.booking.child')) ?></h6>
+                                                        <p><?= esc(number_format($childPrice, 0, ',', '.')) ?></p>
                                                     </div>
                                                 </div>
                                                 <div class="pricing-and-count-area">
@@ -228,7 +237,7 @@ $reviewMetrics = [
                                             <li class="booking-service-item" data-service-type="infant" data-unit-price="<?= $infantPrice ?>" data-min="0">
                                                 <div class="service-info-wrap">
                                                     <div class="service-info">
-                                                        <h6>Em bé (Dưới 2 tuổi)</h6>
+                                                        <h6><?= esc($t('tour.booking.infant')) ?></h6>
                                                         <p><?= esc(number_format($infantPrice, 0, ',', '.')) ?>₫</p>
                                                     </div>
                                                 </div>
@@ -238,21 +247,21 @@ $reviewMetrics = [
                                             </li>
                                         </ul>
                                         <div class="booking-total-area">
-                                            <span class="booking-total-label">Tổng giá tour: </span>
+                                            <span class="booking-total-label"><?= esc($t('tour.booking.total')) ?> </span>
                                             <strong class="booking-grand-total"><?= esc(number_format($adultPrice, 0, ',', '.')) ?></strong>
                                         </div>
                                     </div>
                                     <div class="btn-area">
                                         <button class="primary-btn1 two" type="submit">
                                             <span>
-                                                Đặt ngay
+                                                <?= esc($t('tour.booking.bookNow')) ?>
                                                 <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
                                                     </path>
                                                 </svg>
                                             </span>
                                             <span>
-                                                Đặt ngay
+                                                <?= esc($t('tour.booking.bookNow')) ?>
                                                 <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
                                                     </path>
@@ -273,24 +282,25 @@ $reviewMetrics = [
 </div>
 <div class="modal rating-modal fade" id="proceedBookingModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content"><button type="button" class="close-btn" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+        <div class="modal-content"><button type="button" class="close-btn" data-bs-dismiss="modal" aria-label="<?= esc(lang('Frontend.common.close', [], $locale)) ?>"><i class="bi bi-x-lg"></i></button>
             <div class="modal-body">
                 <div class="row g-0 proceed-booking-modal">
                     <div class="col-lg-6 proceed-booking-col">
                         <div class="modal-login-form-wrapper h-100">
-                            <h6>ALREADY A MEMBER?</h6>
+                            <h6><?= esc($t('tour.account.hasAccount')) ?></h6>
                             <form action="<?= localized_url('auth/login') ?>" method="post" data-booking-login-form>
                                 <?= csrf_field() ?>
+                                <input type="hidden" name="return_to" value="<?= esc(current_url()) ?>">
                                 <div class="row g-2">
                                     <div class="col-12">
                                         <div class="form-inner">
-                                            <label>Username or E-mail</label>
+                                            <label><?= esc($t('tour.account.usernameOrEmail')) ?></label>
                                             <input type="text" name="identity" required>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-inner">
-                                            <label>Password</label>
+                                            <label><?= esc($t('tour.account.password')) ?></label>
                                             <input type="password" name="password" required>
                                         </div>
                                     </div>
@@ -298,13 +308,13 @@ $reviewMetrics = [
                                         <div class="alert alert-danger d-none" data-booking-login-error></div>
                                     </div>
                                     <div class="col-12 d-flex justify-content-between align-items-center">
-                                        <button type="submit" class="primary-btn1 two"><span>Sign In!</span><span>Sign In!</span></button>
-                                        <a href="<?= localized_url('account/register') ?>">Forget Password?</a>
+                                        <button type="submit" class="primary-btn1 two"><span><?= esc($t('auth.login')) ?></span><span><?= esc($t('auth.login')) ?></span></button>
+                                        <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.forgotPassword', $locale) ?>"><?= esc($t('tour.account.forgotPassword')) ?></a>
 
                                     </div>
                                     <?php if ($googleEnabled): ?>
                                         <div class="col-12">
-                                            <a href="<?= localized_url('auth/google') ?>" class="primary-btn1 transparent w-100"><span>Google Sign In</span><span>Google Sign In</span></a>
+                                            <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.google', $locale) . '?return_to=' . rawurlencode(current_url()) ?>" class="primary-btn1 transparent w-100"><span><?= esc(lang('Frontend.common.signInWithGoogle', [], $locale)) ?></span><span><?= esc(lang('Frontend.common.signInWithGoogle', [], $locale)) ?></span></a>
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -313,12 +323,12 @@ $reviewMetrics = [
                     </div>
                     <div class="col-lg-6 proceed-booking-col">
                         <div class="modal-login-form-wrapper h-100 text-center">
-                            <h6>DON'T HAVE AN ACCOUNT? CREATE ONE.</h6>
-                            <p>When you book with an account, you will be able to track your payment status, track the confirmation and you can also rate the tour after you finished the tour.</p>
+                            <h6><?= esc($t('tour.account.noAccount')) ?></h6>
+                            <p><?= esc($t('tour.account.registerDesc')) ?></p>
                             <div class="d-grid gap-3">
-                                <a href="<?= localized_url('account/register') ?>" class="primary-btn1 two w-100"><span>Sign Up</span><span>Sign Up</span></a>
-                                <div class="proceed-booking-divider">OR</div>
-                                <a href="<?= localized_url('booking/guest') ?>" class="primary-btn1 two w-100"><span>Continue As Guest</span><span>Continue As Guest</span></a>
+                                <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.register', $locale) . '?return_to=' . rawurlencode(current_url()) ?>" class="primary-btn1 two w-100"><span><?= esc($t('tour.account.register')) ?></span><span><?= esc($t('tour.account.register')) ?></span></a>
+                                <div class="proceed-booking-divider"><?= esc($t('tour.account.or')) ?></div>
+                                <a href="<?= \App\Data\LocalizedPathCatalog::url('booking.guest', $locale) ?>" class="primary-btn1 two w-100"><span><?= esc($t('tour.account.continueGuest')) ?></span><span><?= esc($t('tour.account.continueGuest')) ?></span></a>
                             </div>
                         </div>
                     </div>
@@ -331,58 +341,86 @@ $reviewMetrics = [
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content"><button type="button" class="close-btn" data-bs-dismiss="modal"
-                aria-label="Close"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+                aria-label="<?= esc(lang('Frontend.common.close', [], $locale)) ?>"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M2.00247 0.500545C1.79016 0.505525 1.58918 0.582706 1.4362 0.735547L0.694403 1.479C0.345704 1.82743 0.389689 2.43243 0.79164 2.83493L3.00694 5.05341L0.79164 7.27092C0.389689 7.67328 0.345566 8.27842 0.694403 8.62753L1.4362 9.37044C1.7849 9.71872 2.38879 9.67543 2.7913 9.27293L5.00659 7.05473L7.22189 9.27293C7.62467 9.67543 8.22898 9.71872 8.57699 9.37044L9.31989 8.62753C9.6679 8.27856 9.62461 7.67342 9.22182 7.27092L7.00653 5.05341L9.22182 2.83493C9.62461 2.43243 9.6679 1.82743 9.31989 1.479L8.57699 0.735547C8.22898 0.386433 7.62467 0.430557 7.22189 0.833614L5.00659 3.05126L2.7913 0.833753C2.56515 0.606635 2.27482 0.493906 2.00247 0.500545Z">
                     </path>
                 </svg></button>
             <div class="modal-body">
-                <h4 class="modal-title" id="enquiryModalLabel">We'd Love to Hear From You!</h4>
-                <form class="enquiry-form-wrapper">
-                    <div class="row g-4 mb-50">
-                        <div class="col-md-6">
-                            <div class="form-inner"><label>Full Name</label><input type="text" placeholder="Your Name">
+                <h4 class="modal-title" id="enquiryModalLabel"><?= esc($enquiryLabels['title']) ?></h4>
+                <p class="mb-4"><?= esc($enquiryLabels['intro']) ?></p>
+                <form class="enquiry-form-wrapper" data-tour-enquiry-form method="post" action="<?= localized_url('tour/enquiry') ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="tour_id" value="<?= esc((string) ($tour['id'] ?? 0)) ?>">
+                    <input type="hidden" name="tour_title" value="<?= esc($tour['title']) ?>">
+                    <input type="hidden" name="tour_link" value="<?= esc(current_url()) ?>">
+                    <div class="row g-4 mb-40">
+                        <div class="col-md-12">
+                            <div class="form-inner">
+                                <label><?= esc($enquiryLabels['tour']) ?></label>
+                                <input type="text" value="<?= esc($tour['title']) ?>" readonly>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-inner"><label>Email Address</label><input type="email"
-                                    placeholder="Email Address"></div>
+                            <div class="form-inner">
+                                <label><?= esc($enquiryLabels['name']) ?></label>
+                                <input type="text" name="full_name" placeholder="<?= esc($enquiryLabels['name']) ?>">
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-inner"><label>Number of People*</label><input type="text"
-                                    placeholder="Number of people"></div>
+                            <div class="form-inner">
+                                <label><?= esc($enquiryLabels['email']) ?></label>
+                                <input type="email" name="email" placeholder="<?= esc($enquiryLabels['email']) ?>">
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-inner"><label>Travel Date</label>
-                                <div class="date-field-area"><input type="date" name="inOut" value="2026-05-15"><svg class="calender-icon" width="14" height="14"
-                                        viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+                            <div class="form-inner">
+                                <label><?= esc($enquiryLabels['phone']) ?></label>
+                                <input type="text" name="phone" placeholder="<?= esc($enquiryLabels['phone']) ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-inner">
+                                <label><?= esc($enquiryLabels['date']) ?></label>
+                                <div class="date-field-area">
+                                    <input type="date" name="travel_date" min="<?= esc(date('Y-m-d')) ?>">
+                                    <svg class="calender-icon" width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                                         <g>
-                                            <path
-                                                d="M12.1953 1.09375H10.9375V0.4375C10.9375 0.195891 10.7416 0 10.5 0C10.2584 0 10.0625 0.195891 10.0625 0.4375V1.09375H3.9375V0.4375C3.9375 0.195891 3.74164 0 3.5 0C3.25836 0 3.0625 0.195891 3.0625 0.4375V1.09375H1.80469C0.809566 1.09375 0 1.90332 0 2.89844V12.1953C0 13.1904 0.809566 14 1.80469 14H12.1953C13.1904 14 14 13.1904 14 12.1953V2.89844C14 1.90332 13.1904 1.09375 12.1953 1.09375ZM13.125 12.1953C13.125 12.7088 12.7088 13.125 12.1953 13.125H1.80469C1.29123 13.125 0.875 12.7088 0.875 12.1953V4.94922C0.875 4.91296 0.889404 4.87818 0.915044 4.85254C0.940684 4.8269 0.975459 4.8125 1.01172 4.8125H12.9883C13.0245 4.8125 13.0593 4.8269 13.085 4.85254C13.1106 4.87818 13.125 4.91296 13.125 4.94922V12.1953Z">
-                                            </path>
+                                            <path d="M12.1953 1.09375H10.9375V0.4375C10.9375 0.195891 10.7416 0 10.5 0C10.2584 0 10.0625 0.195891 10.0625 0.4375V1.09375H3.9375V0.4375C3.9375 0.195891 3.74164 0 3.5 0C3.25836 0 3.0625 0.195891 3.0625 0.4375V1.09375H1.80469C0.809566 1.09375 0 1.90332 0 2.89844V12.1953C0 13.1904 0.809566 14 1.80469 14H12.1953C13.1904 14 14 13.1904 14 12.1953V2.89844C14 1.90332 13.1904 1.09375 12.1953 1.09375ZM13.125 12.1953C13.125 12.7088 12.7088 13.125 12.1953 13.125H1.80469C1.29123 13.125 0.875 12.7088 0.875 12.1953V4.94922C0.875 4.91296 0.889404 4.87818 0.915044 4.85254C0.940684 4.8269 0.975459 4.8125 1.01172 4.8125H12.9883C13.0245 4.8125 13.0593 4.8269 13.085 4.85254C13.1106 4.87818 13.125 4.91296 13.125 4.94922V12.1953Z"></path>
                                         </g>
-                                    </svg></div>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-inner">
+                                <label><?= esc($enquiryLabels['travelers']) ?></label>
+                                <input type="text" name="travelers" placeholder="<?= esc($t('tour.enquiry.travelersPlaceholder')) ?>">
                             </div>
                         </div>
                         <div class="col-lg-12">
-                            <div class="form-inner"><label>Tour Details</label><textarea
-                                    placeholder="Write about tour info"></textarea></div>
+                            <div class="form-inner">
+                                <label><?= esc($enquiryLabels['message']) ?></label>
+                                <textarea name="message" placeholder="<?= esc($enquiryLabels['message']) ?>"></textarea>
+                            </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-inner2">
-                                <div class="form-check"><input class="form-check-input" type="checkbox"
-                                        id="formCheck2"><label class="form-check-label" for="formCheck2">Save my
-                                        email address &amp; name when I comment further time.</label></div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tourEnquiryConsent" checked disabled>
+                                    <label class="form-check-label" for="tourEnquiryConsent"><?= esc($enquiryLabels['agree']) ?></label>
+                                </div>
                             </div>
                         </div>
+                        <div class="col-md-12 d-none" data-enquiry-message></div>
+                        <div class="col-md-12 d-none" data-enquiry-errors></div>
                     </div>
-                    <div class="form-inner"><button type="submit" class="primary-btn1 black-bg"><span>Post
-                                Comment<svg width="10" height="10" viewBox="0 0 10 10"
+                    <div class="form-inner"><button type="submit" class="primary-btn1 black-bg"><span><?= esc($enquiryLabels['submit']) ?><svg width="10" height="10" viewBox="0 0 10 10"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
                                     </path>
-                                </svg></span><span>Post Comment<svg width="10" height="10" viewBox="0 0 10 10"
+                                </svg></span><span><?= esc($enquiryLabels['submit']) ?><svg width="10" height="10" viewBox="0 0 10 10"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
@@ -399,7 +437,7 @@ $reviewMetrics = [
             <div class="col-xl-7 col-lg-8">
                 <div class="package-details-warpper">
                     <div class="package-info-wrap mb-60">
-                        <h4>Tổng quan về tour</h4>
+                        <h4><?= esc($t('tour.overview.title')) ?></h4>
                         <p><?= tour_detail_html($tour['description']) ?></p>
                         <ul class="package-info-list">
                             <li><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
@@ -415,7 +453,7 @@ $reviewMetrics = [
                                         </path>
                                     </g>
                                 </svg>
-                                <div class="content"><span>Khách sạn</span><strong>3-4 sao</strong></div>
+                                <div class="content"><span><?= esc($t('tour.overview.hotel')) ?></span><strong><?= esc($t('tour.overview.hotelValue')) ?></strong></div>
                             </li>
                             <li><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -425,7 +463,7 @@ $reviewMetrics = [
                                         d="M28.5937 2.34375H27.6562C26.5377 2.34501 25.4654 2.78988 24.6745 3.58078C23.8836 4.37168 23.4387 5.444 23.4375 6.5625V7.55859C22.4473 6.43566 21.2428 5.52171 19.8948 4.87032C18.5468 4.21892 17.0823 3.84319 15.5872 3.76515C14.0921 3.68711 12.5964 3.90833 11.1879 4.41585C9.77944 4.92337 8.48642 5.70696 7.3847 6.7207L7.13398 2.78262C7.12506 2.65931 7.06779 2.54452 6.97464 2.46324C6.88149 2.38195 6.76 2.34076 6.63662 2.34863C6.51324 2.35649 6.39797 2.41278 6.3159 2.50524C6.23382 2.59769 6.1916 2.71883 6.19841 2.84227L6.49607 7.5174C6.28015 7.66934 5.66638 7.89756 4.68745 7.95504V2.8125C4.68745 2.68818 4.63807 2.56895 4.55016 2.48104C4.46225 2.39314 4.34302 2.34375 4.2187 2.34375C4.09438 2.34375 3.97515 2.39314 3.88725 2.48104C3.79934 2.56895 3.74995 2.68818 3.74995 2.8125V7.95498C2.82693 7.89979 2.18275 7.68961 1.9414 7.51594L2.239 2.84232C2.24581 2.71888 2.20358 2.59775 2.12151 2.50529C2.03944 2.41284 1.92416 2.35655 1.80078 2.34869C1.67741 2.34082 1.55592 2.38201 1.46277 2.4633C1.36962 2.54458 1.31235 2.65937 1.30343 2.78268L0.941262 8.4699C0.909135 9.01667 1.08368 9.55555 1.43029 9.97965C1.77689 10.4037 2.27023 10.6821 2.81245 10.7595V15.4688C2.68813 15.4688 2.5689 15.5181 2.481 15.606C2.39309 15.694 2.3437 15.8132 2.3437 15.9375V24.8438C2.3437 25.341 2.54125 25.8179 2.89288 26.1696C3.24451 26.5212 3.72142 26.7188 4.2187 26.7188C4.71598 26.7188 5.1929 26.5212 5.54453 26.1696C5.89616 25.8179 6.0937 25.341 6.0937 24.8438V21.8718C7.28797 23.4181 8.86423 24.6269 10.6674 25.3793C12.4706 26.1316 14.4385 26.4016 16.3777 26.1627C18.3168 25.9237 20.1604 25.1841 21.727 24.0165C23.2936 22.849 24.5293 21.2937 25.3125 19.5037V24.8438C25.3125 25.341 25.51 25.8179 25.8616 26.1696C26.2133 26.5212 26.6902 26.7188 27.1875 26.7188C27.6847 26.7188 28.1616 26.5212 28.5133 26.1696C28.8649 25.8179 29.0625 25.341 29.0625 24.8438V2.8125C29.0625 2.68818 29.0131 2.56895 28.9252 2.48104C28.8373 2.39314 28.718 2.34375 28.5937 2.34375ZM5.1562 24.8438C5.1562 25.0924 5.05743 25.3308 4.88162 25.5067C4.7058 25.6825 4.46734 25.7812 4.2187 25.7812C3.97006 25.7812 3.73161 25.6825 3.55579 25.5067C3.37998 25.3308 3.2812 25.0924 3.2812 24.8438V16.4062H5.1562V24.8438ZM3.74995 15.4688V10.7812H4.68745V15.4688H3.74995ZM5.31669 9.84375H3.12071C2.95143 9.84376 2.78391 9.80926 2.6284 9.74236C2.47289 9.67546 2.33266 9.57755 2.21626 9.45463C2.09986 9.3317 2.00974 9.18634 1.95141 9.02742C1.89308 8.8685 1.86777 8.69935 1.877 8.53031C2.40259 8.74652 3.17573 8.90625 4.2187 8.90625C5.07529 8.90625 5.9355 8.78643 6.56029 8.53254C6.56926 8.7014 6.54375 8.87031 6.4853 9.02899C6.42686 9.18766 6.3367 9.33277 6.22034 9.45546C6.10398 9.57815 5.96384 9.67586 5.80848 9.74261C5.65312 9.80937 5.48579 9.84378 5.31669 9.84375ZM21.989 22.5831C20.855 23.6282 19.501 24.4057 18.0267 24.8583C16.5525 25.3109 14.9955 25.4272 13.4703 25.1984C11.9452 24.9697 10.4908 24.4018 9.2142 23.5366C7.93757 22.6714 6.87124 21.531 6.0937 20.1991V15.9375C6.0937 15.8132 6.04432 15.694 5.95641 15.606C5.8685 15.5181 5.74927 15.4688 5.62495 15.4688V10.7595C6.16757 10.682 6.66122 10.4034 7.00785 9.97878C7.35448 9.55419 7.52872 9.01475 7.49597 8.46762L7.46368 7.96131C8.51072 6.84001 9.79479 5.96649 11.2223 5.40442C12.6497 4.84236 14.1846 4.60592 15.7151 4.71233C17.2455 4.81875 18.733 5.26534 20.0689 6.01956C21.4049 6.77377 22.5557 7.8166 23.4375 9.07201V15.9375C23.4375 16.0618 23.4868 16.181 23.5747 16.269C23.6627 16.3569 23.7819 16.4062 23.9062 16.4062H25.2169C24.8931 18.7783 23.7515 20.9629 21.989 22.5831ZM28.125 24.8438C28.125 25.0924 28.0262 25.3308 27.8504 25.5067C27.6746 25.6825 27.4361 25.7812 27.1875 25.7812C26.9388 25.7812 26.7004 25.6825 26.5245 25.5067C26.3487 25.3308 26.25 25.0924 26.25 24.8438V16.4062H28.125V24.8438ZM28.125 15.4688H24.375V6.5625C24.3759 5.69256 24.7219 4.85853 25.3371 4.24339C25.9522 3.62824 26.7863 3.28223 27.6562 3.28125H28.125V15.4688Z">
                                     </path>
                                 </svg>
-                                <div class="content"><span>Ẩm thực</span><strong>Sáng, trưa và tối</strong></div>
+                                <div class="content"><span><?= esc($t('tour.overview.meals')) ?></span><strong><?= esc($t('tour.overview.mealsValue')) ?></strong></div>
                             </li>
                             <li><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -438,7 +476,7 @@ $reviewMetrics = [
                                         d="M23.207 4.6875H6.80078C6.47723 4.6875 6.21484 4.94988 6.21484 5.27344V15C6.21484 15.3236 6.47723 15.5859 6.80078 15.5859H23.207C23.5306 15.5859 23.793 15.3236 23.793 15V5.27344C23.793 4.94988 23.5306 4.6875 23.207 4.6875ZM14.418 14.4141H7.38672V5.85938H14.418V14.4141ZM22.6211 14.4141H15.5898V5.85938H22.6211V14.4141ZM17.3477 2.34375H12.6602C12.3366 2.34375 12.0742 2.60613 12.0742 2.92969C12.0742 3.25324 12.3366 3.51562 12.6602 3.51562H17.3477C17.6712 3.51562 17.9336 3.25324 17.9336 2.92969C17.9336 2.60613 17.6712 2.34375 17.3477 2.34375ZM21.4492 17.3438C20.1569 17.3438 19.1055 18.3952 19.1055 19.6875C19.1055 20.9798 20.1569 22.0312 21.4492 22.0312C22.7416 22.0312 23.793 20.9798 23.793 19.6875C23.793 18.3952 22.7416 17.3438 21.4492 17.3438ZM21.4492 20.8594C20.803 20.8594 20.2773 20.3337 20.2773 19.6875C20.2773 19.0413 20.803 18.5156 21.4492 18.5156C22.0954 18.5156 22.6211 19.0413 22.6211 19.6875C22.6211 20.3337 22.0954 20.8594 21.4492 20.8594ZM8.55859 17.3438C7.26625 17.3438 6.21484 18.3952 6.21484 19.6875C6.21484 20.9798 7.26631 22.0312 8.55859 22.0312C9.85094 22.0312 10.9023 20.9798 10.9023 19.6875C10.9023 18.3952 9.85094 17.3438 8.55859 17.3438ZM8.55859 20.8594C7.91242 20.8594 7.38672 20.3337 7.38672 19.6875C7.38672 19.0413 7.91242 18.5156 8.55859 18.5156C9.20477 18.5156 9.73047 19.0413 9.73047 19.6875C9.73047 20.3337 9.20477 20.8594 8.55859 20.8594ZM17.3477 17.9297H12.6602C12.3366 17.9297 12.0742 18.1921 12.0742 18.5156C12.0742 18.8392 12.3366 19.1016 12.6602 19.1016H17.3477C17.6712 19.1016 17.9336 18.8392 17.9336 18.5156C17.9336 18.1921 17.6713 17.9297 17.3477 17.9297ZM17.3477 20.2734H12.6602C12.3366 20.2734 12.0742 20.5358 12.0742 20.8594C12.0742 21.1829 12.3366 21.4453 12.6602 21.4453H17.3477C17.6712 21.4453 17.9336 21.1829 17.9336 20.8594C17.9336 20.5358 17.6713 20.2734 17.3477 20.2734Z">
                                     </path>
                                 </svg>
-                                <div class="content"><span>Phương tiện</span><strong>Máy bay, xe taxi</strong></div>
+                                <div class="content"><span><?= esc($t('tour.overview.transport')) ?></span><strong><?= esc($t('tour.overview.transportValue')) ?></strong></div>
                             </li>
                             <li><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -454,7 +492,7 @@ $reviewMetrics = [
                                         d="M5.53766 20.3029C3.51568 20.3029 1.61419 19.5226 0.183813 18.1062C0.124633 18.0477 0.0778577 17.9778 0.0462837 17.9008C0.0147097 17.8238 -0.00101469 17.7413 5.07368e-05 17.6581C0.0384684 14.6432 2.52283 12.1902 5.53766 12.1902C7.6517 12.1902 9.55159 13.3652 10.4958 15.2571C10.5444 15.3541 10.8184 16.139 10.3067 16.3637C9.8013 16.5856 9.42509 15.8871 9.38733 15.8115C8.65383 14.342 7.17909 13.4297 5.53796 13.4297C3.28601 13.4297 1.41556 15.1923 1.2513 17.4108C2.42357 18.4783 3.93518 19.0634 5.53796 19.0634C6.13634 19.0634 6.7248 18.9807 7.28697 18.8183C7.61578 18.7225 7.9594 18.9125 8.05455 19.2413C8.1497 19.5701 7.96035 19.9137 7.63154 20.0089C6.95727 20.2037 6.25261 20.3029 5.53766 20.3029Z">
                                     </path>
                                 </svg>
-                                <div class="content"><span>Nhóm</span><strong>10-20</strong></div>
+                                <div class="content"><span><?= esc($t('tour.overview.group')) ?></span><strong><?= esc($t('tour.overview.groupValue')) ?></strong></div>
                             </li>
                             <li><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                                     <g>
@@ -472,7 +510,7 @@ $reviewMetrics = [
                                         </path>
                                     </g>
                                 </svg>
-                                <div class="content"><span>Hướng dẫn viên</span><strong>Người Việt</strong></div>
+                                <div class="content"><span><?= esc($t('tour.overview.guide')) ?></span><strong><?= esc($t('tour.overview.guideValue')) ?></strong></div>
                             </li>
                             <li><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -482,13 +520,13 @@ $reviewMetrics = [
                                         d="M21.4162 2.39625H8.58375C7.28125 2.39625 6.3725 2.39625 5.66625 2.455C4.9725 2.51125 4.575 2.6175 4.2725 2.77C3.62556 3.09959 3.09959 3.62556 2.77 4.2725C2.61625 4.575 2.51125 4.9725 2.455 5.66625C2.39625 6.3725 2.39625 7.28125 2.39625 8.58375V21.4162C2.39625 22.7187 2.39625 23.6262 2.455 24.3337C2.51125 25.0275 2.6175 25.425 2.77 25.7275C3.09959 26.3744 3.62556 26.9004 4.2725 27.23C4.575 27.3837 4.9725 27.4887 5.66625 27.545C6.3725 27.6037 7.28125 27.6037 8.58375 27.6037H21.4162C22.7187 27.6037 23.6262 27.6037 24.3337 27.545C25.0275 27.4887 25.425 27.3825 25.7275 27.23C26.3744 26.9004 26.9004 26.3744 27.23 25.7275C27.3837 25.425 27.4887 25.0275 27.545 24.3337C27.6037 23.6262 27.6037 22.7187 27.6037 21.4162V8.58375C27.6037 7.28125 27.6037 6.3725 27.545 5.66625C27.4887 4.9725 27.3825 4.575 27.23 4.2725C26.9004 3.62556 26.3744 3.09959 25.7275 2.77C25.425 2.61625 25.0275 2.51125 24.3337 2.455C23.6262 2.39625 22.7187 2.39625 21.4162 2.39625ZM1.75 3.7525C1.25 4.7325 1.25 6.01625 1.25 8.58375V21.4162C1.25 23.9837 1.25 25.2662 1.75 26.2475C2.18875 27.11 2.89 27.81 3.7525 28.25C4.7325 28.75 6.01625 28.75 8.58375 28.75H21.4162C23.9837 28.75 25.2662 28.75 26.2475 28.25C27.1096 27.8105 27.8105 27.1096 28.25 26.2475C28.75 25.2675 28.75 23.9837 28.75 21.4162V8.58375C28.75 6.01625 28.75 4.73375 28.25 3.7525C27.8106 2.89036 27.1096 2.1894 26.2475 1.75C25.2675 1.25 23.9837 1.25 21.4162 1.25H8.58375C6.01625 1.25 4.73375 1.25 3.7525 1.75C2.89 2.18875 2.19 2.89 1.75 3.7525Z">
                                     </path>
                                 </svg>
-                                <div class="content"><span>Loại hình</span><strong>Du lịch</strong></div>
+                                <div class="content"><span><?= esc($t('tour.overview.type')) ?></span><strong><?= esc($t('tour.overview.typeValue')) ?></strong></div>
                             </li>
                         </ul>
                     </div>
                     <?php if ($gallery !== []): ?>
                     <div class="location-slider-wrap mb-60">
-                        <h4>Địa điểm khám phá</h4>
+                        <h4><?= esc($t('tour.gallery.title')) ?></h4>
                         <div class="location-slider-area">
                             <div class="swiper package-dt-location-slider">
                                 <div class="swiper-wrapper">
@@ -530,7 +568,7 @@ $reviewMetrics = [
 
                     <div class="tour-itinerary-area mb-60">
                         <div class="itinerary-title">
-                            <h4>Tour Itinerary</h4><a href="#" class="expand-btn">Expand All +</a>
+                            <h4><?= esc($t('tour.itinerary.title')) ?></h4><a href="#" class="expand-btn"><?= esc($t('tour.itinerary.expand')) ?></a>
                         </div>
                         <ul class="itinerary-list">
                             <li class="single-itinerary">
@@ -550,7 +588,7 @@ $reviewMetrics = [
                                                                     d="M7 14C7 14 12.25 9.02475 12.25 5.25C12.25 3.85761 11.6969 2.52226 10.7123 1.53769C9.72774 0.553123 8.39239 0 7 0C5.60761 0 4.27226 0.553123 3.28769 1.53769C2.30312 2.52226 1.75 3.85761 1.75 5.25C1.75 9.02475 7 14 7 14ZM7 7.875C6.30381 7.875 5.63613 7.59844 5.14384 7.10616C4.65156 6.61387 4.375 5.94619 4.375 5.25C4.375 4.55381 4.65156 3.88613 5.14384 3.39384C5.63613 2.90156 6.30381 2.625 7 2.625C7.69619 2.625 8.36387 2.90156 8.85616 3.39384C9.34844 3.88613 9.625 4.55381 9.625 5.25C9.625 5.94619 9.34844 6.61387 8.85616 7.10616C8.36387 7.59844 7.69619 7.875 7 7.875Z">
                                                                 </path>
                                                             </svg>
-                                                            Ngày <?= esc($day['day_number']) ?>:</span><?= esc($day['title'] ?? '') ?>
+                                                            <?= esc(lang('Frontend.tour.itinerary.day', [(string) ($day['day_number'] ?? '')], $locale)) ?></span><?= esc($day['title'] ?? '') ?>
                                                         </h6>
                                                     </div>
                                                 </div>
@@ -567,16 +605,16 @@ $reviewMetrics = [
                         </ul>
                     </div>
                     <?php endif; ?>
-                    <div class="map-area mb-60">
-                        <h4>Điểm đến nổi bật</h4>
+                    <!-- <div class="map-area mb-60">
+                        <h4><?= esc($t('tour.highlights.title')) ?></h4>
                         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3257.313598043175!2d2.291906376866813!3d48.858373600707175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca9ee380ef7e0!2sTh%C3%A1p%20Eiffel!5e1!3m2!1svi!2s!4v1775463086452!5m2!1svi!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
+                    </div> -->
                     <div class="feature-list-area mb-60">
-                        <h4>Chi tiết</h4>
+                        <h4><?= esc($t('tour.details.title')) ?></h4>
                         <div class="row gy-md-5 gy-4 justify-content-between">
                             <div class="col-lg-5 col-md-6">
                                 <div class="single-feature-list">
-                                    <h5>Giá tour bao gồm</h5>
+                                    <h5><?= esc($t('tour.details.includes')) ?></h5>
                                     <ul class="items-list two">
                                         <li><svg width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
@@ -586,7 +624,7 @@ $reviewMetrics = [
                                                 <path
                                                     d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                                 </path>
-                                            </svg>Vé máy bay khứ hồi - Thuế sân bay</li>
+                                            </svg><?= esc($t('tour.details.includeItem1')) ?></li>
                                         <li><svg width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -595,7 +633,7 @@ $reviewMetrics = [
                                                 <path
                                                     d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                                 </path>
-                                            </svg>Xe vận chuyển như chương trình</li>
+                                            </svg><?= esc($t('tour.details.includeItem2')) ?></li>
                                         <li><svg width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -604,7 +642,7 @@ $reviewMetrics = [
                                                 <path
                                                     d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                                 </path>
-                                            </svg>Khách sạn 3 sao và 4 sao (phòng nghỉ tiêu chuẩn 2-3 người / phòng).</li>
+                                            </svg><?= esc($t('tour.details.includeItem3')) ?></li>
                                         <li><svg width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -613,7 +651,7 @@ $reviewMetrics = [
                                                 <path
                                                     d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                                 </path>
-                                            </svg>Thuế thành phố (city tax phải trả tại khách sạn)</li>
+                                            </svg><?= esc($t('tour.details.includeItem4')) ?></li>
                                         <li><svg width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -622,7 +660,7 @@ $reviewMetrics = [
                                                 <path
                                                     d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                                 </path>
-                                            </svg>Chi phí visa châu Âu</li>
+                                            </svg><?= esc($t('tour.details.includeItem5')) ?></li>
                                         <li><svg width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -631,7 +669,7 @@ $reviewMetrics = [
                                                 <path
                                                     d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                                 </path>
-                                            </svg>Ăn uống như trong chương trình</li>
+                                            </svg><?= esc($t('tour.details.includeItem6')) ?></li>
                                         <li><svg width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -640,7 +678,7 @@ $reviewMetrics = [
                                                 <path
                                                     d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                                 </path>
-                                            </svg>Hướng dẫn viên tiếng Việt suốt tuyến</li>
+                                            </svg><?= esc($t('tour.details.includeItem7')) ?></li>
                                         <li><svg width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -649,13 +687,13 @@ $reviewMetrics = [
                                                 <path
                                                     d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                                 </path>
-                                            </svg>Bảo hiểm du lịch theo chương trình</li>
+                                            </svg><?= esc($t('tour.details.includeItem8')) ?></li>
                                     </ul>
                                 </div>
                             </div>
                             <div class="col-lg-5 col-md-6">
                                 <div class="single-feature-list">
-                                    <h5>Giá tour không bao gồm</h5>
+                                    <h5><?= esc($t('tour.details.excludes')) ?></h5>
                                     <ul class="items-list two">
                                         <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
@@ -667,7 +705,7 @@ $reviewMetrics = [
                                                         d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
                                                     </path>
                                                 </g>
-                                            </svg>Phụ thu phòng đơn</li>
+                                            </svg><?= esc($t('tour.details.excludeItem1')) ?></li>
                                         <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <g>
@@ -678,7 +716,7 @@ $reviewMetrics = [
                                                         d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
                                                     </path>
                                                 </g>
-                                            </svg>Chi phí cá nhân (điện thoại, giặt ủi, hành lý quá cước theo quy định của hãng hàng không…)</li>
+                                            </svg><?= esc($t('tour.details.excludeItem2')) ?></li>
                                         <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <g>
@@ -689,7 +727,7 @@ $reviewMetrics = [
                                                         d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
                                                     </path>
                                                 </g>
-                                            </svg>Nước uống trong các bữa ăn</li>
+                                            </svg><?= esc($t('tour.details.excludeItem3')) ?></li>
                                         <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <g>
@@ -700,7 +738,7 @@ $reviewMetrics = [
                                                         d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
                                                     </path>
                                                 </g>
-                                            </svg>Tiền bồi dưỡng cho hướng dẫn viên và tài xế</li>
+                                            </svg><?= esc($t('tour.details.excludeItem4')) ?></li>
                                         <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <g>
@@ -711,17 +749,19 @@ $reviewMetrics = [
                                                         d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
                                                     </path>
                                                 </g>
-                                            </svg>Và những chi phí không kể ra trong phần bao gồm</li>
+                                            </svg><?= esc($t('tour.details.excludeItem5')) ?></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
-                    </div><a href="../assets/company-desk.pdf/" download="company-desk.pdf"
+                    </div>
+                    <!-- <a href="../assets/company-desk.pdf/" download="company-desk.pdf"
                         class="download-area mb-60"><img alt="" loading="lazy" width="1111" height="220"
                             decoding="async" data-nimg="1" style="color:transparent"
-                            src="assets/images/downloadtour.webp"></a>
+                            src="assets/images/downloadtour.webp">
+                        </a> -->
                     <div class="additional-info mb-60">
-                        <h4>Một số lưu ý</h4>
+                        <h4><?= esc($t('tour.details.notes')) ?></h4>
                         <ul class="items-list two">
                             <li><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -731,7 +771,7 @@ $reviewMetrics = [
                                         d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                     </path>
                                 </svg>
-                                <div class="content"><span>Giá tour</span> – (áp dụng cho quý khách 12-69 tuổi) có thể thay đổi vào thời điểm đặt tour hoặc vào ngày khởi hành chính xác và phụ thuộc vào giá vé máy bay / vé tàu.</div>
+                                <div class="content"><span><?= esc($t('tour.details.noteLabel1')) ?></span> <?= esc($t('tour.details.noteText1')) ?></div>
                             </li>
                             <li><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -741,7 +781,7 @@ $reviewMetrics = [
                                         d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                     </path>
                                 </svg>
-                                <div class="content"><span>Giá vé máy bay / vé tàu</span> – có thể thay đổi mà không báo trước và sẽ được xác nhận lại vào thời điểm có danh sách khách chính xác và khi xuất vé.</div>
+                                <div class="content"><span><?= esc($t('tour.details.noteLabel2')) ?></span> <?= esc($t('tour.details.noteText2')) ?></div>
                             </li>
                             <li><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -751,7 +791,7 @@ $reviewMetrics = [
                                         d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                     </path>
                                 </svg>
-                                <div class="content">Điểm tham quan có thể sắp xếp lại nhưng vẫn đảm bảo đầy đủ nội dung của chương trình tour.</div>
+                                <div class="content"><?= esc($t('tour.details.noteText3')) ?></div>
                             </li>
                             <li><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -761,13 +801,13 @@ $reviewMetrics = [
                                         d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
                                     </path>
                                 </svg>
-                                <div class="content">Vì lý do bất khả kháng nào mà đoàn không đủ số lượng khách để khởi hành, quý khách vui lòng chuyển sang ngày khởi hành khác hoặc Travel Plus sẽ hoàn lại tiền đặt cọc mà quý khách đã thanh toán cho công ty sau khi trừ chi phí đã thanh toán như visa, đặt cọc vé máy bay…</div>
+                                <div class="content"><?= esc($t('tour.details.noteText4')) ?></div>
                             </li>
                         </ul>
                     </div>
                     <?php if (! empty($tour['faqs'])): ?>
                     <div class="faq-area mb-60">
-                        <h4>Câu hỏi thường gặp</h4>
+                        <h4><?= esc($t('tour.faq.title')) ?></h4>
                         <div class="faq-wrap">
                             <div class="accordion accordion-flush" id="accordionFlushExample">
                                 <?php foreach ($tour['faqs'] as $index => $faq): ?>
@@ -788,13 +828,13 @@ $reviewMetrics = [
                     </div>
                     <?php endif; ?>
                     <div class="customer-rating-area">
-                        <h4>Danh gia khach hang</h4>
+                        <h4><?= esc($t('tour.reviews.title')) ?></h4>
                         <div class="rating-wrapper">
                             <div class="rating-area">
                                 <span><?= esc($reviewLabel) ?></span>
                                 <ul><?= render_review_stars((float) $reviewSummary['overall']) ?></ul>
-                                <p><strong><?= esc(number_format((float) $reviewAverage, 1)) ?></strong> based on <?= esc((string) $reviewSummary['count']) ?> reviews</p>
-                                <button class="primary-btn1 two" data-bs-toggle="modal" data-bs-target="#ratingModal"><span>Write a Review</span><span>Write a Review</span></button>
+                                <p><?= lang('Frontend.tour.review.summary', [esc(number_format((float) $reviewAverage, 1)), esc((string) $reviewSummary['count'])], $locale) ?></p>
+                                <button class="primary-btn1 two" data-bs-toggle="modal" data-bs-target="#ratingModal"><span><?= esc($t('tour.review.write')) ?></span><span><?= esc($t('tour.review.write')) ?></span></button>
                             </div>
                             <ul class="progress-list">
                                 <?php foreach ($reviewMetrics as $metricKey => $metricLabel): ?>
@@ -816,17 +856,17 @@ $reviewMetrics = [
                                         <?php foreach ($reviewPage as $review): ?>
                                             <li>
                                                 <div class="single-comment-area">
-                                                    <div class="author-img"><img alt="" loading="lazy" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="https://ui-avatars.com/api/?name=<?= esc(urlencode($review['reviewer_name'])) ?>"></div>
+                                                    <div class="author-img"><img alt="<?= esc(lang('Frontend.tour.review.avatarAlt', [$review['reviewer_name']], $locale)) ?>" loading="lazy" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="https://ui-avatars.com/api/?name=<?= esc(urlencode($review['reviewer_name'])) ?>"></div>
                                                     <div class="comment-content">
                                                         <div class="author-name-deg">
                                                             <h6><?= esc($review['reviewer_name']) ?>,</h6><span><?= esc($review['created_label']) ?></span>
                                                         </div>
                                                         <p><?= esc($review['content']) ?></p>
                                                         <ul class="review-item-list">
-                                                            <li><span>Overall</span><ul class="star-list"><?= render_review_stars((float) $review['rating_overall']) ?></ul></li>
-                                                            <li><span>Destination</span><ul class="star-list"><?= render_review_stars((float) $review['rating_destination']) ?></ul></li>
-                                                            <li><span>Transport</span><ul class="star-list"><?= render_review_stars((float) $review['rating_transport']) ?></ul></li>
-                                                            <li><span>Value</span><ul class="star-list"><?= render_review_stars((float) $review['rating_value']) ?></ul></li>
+                                                            <li><span><?= esc($t('tour.reviewMetric.overall')) ?></span><ul class="star-list"><?= render_review_stars((float) $review['rating_overall']) ?></ul></li>
+                                                            <li><span><?= esc($t('tour.reviewMetric.destination')) ?></span><ul class="star-list"><?= render_review_stars((float) $review['rating_destination']) ?></ul></li>
+                                                            <li><span><?= esc($t('tour.reviewMetric.transport')) ?></span><ul class="star-list"><?= render_review_stars((float) $review['rating_transport']) ?></ul></li>
+                                                            <li><span><?= esc($t('tour.reviewMetric.value')) ?></span><ul class="star-list"><?= render_review_stars((float) $review['rating_value']) ?></ul></li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -846,160 +886,8 @@ $reviewMetrics = [
                                     </div>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <p>Chua co review nao duoc duyet cho tour nay.</p>
+                                <p><?= esc($t('tour.review.empty')) ?></p>
                             <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="customer-rating-area d-none">
-                        <h4>Đánh giá khách hàng</h4>
-                        <div class="rating-wrapper">
-                            <div class="rating-area"><span>Excellent!</span>
-                                <ul>
-                                    <li><i class="bi bi-star-fill"></i></li>
-                                    <li><i class="bi bi-star-fill"></i></li>
-                                    <li><i class="bi bi-star-fill"></i></li>
-                                    <li><i class="bi bi-star-fill"></i></li>
-                                    <li><i class="bi bi-star-half"></i></li>
-                                </ul>
-                                <p><strong>4.5</strong> based on 3,545 reviews</p><button class="primary-btn1 two"
-                                    data-bs-toggle="modal" data-bs-target="#ratingModal"><span>Write a
-                                        Review</span><span>Write a Review</span></button>
-                            </div>
-                            <ul class="progress-list">
-                                <li class="single-progress"><span>Overall</span>
-                                    <div class="rating-progress-bar-wrap">
-                                        <div class="rating-progress-bar">
-                                            <div class="rating-progress-bar-per" data-per="90"></div>
-                                        </div><span class="data-per">0%</span>
-                                    </div>
-                                </li>
-                                <li class="single-progress"><span>Transport</span>
-                                    <div class="rating-progress-bar-wrap">
-                                        <div class="rating-progress-bar">
-                                            <div class="rating-progress-bar-per" data-per="95"></div>
-                                        </div><span class="data-per">0%</span>
-                                    </div>
-                                </li>
-                                <li class="single-progress"><span>Food</span>
-                                    <div class="rating-progress-bar-wrap">
-                                        <div class="rating-progress-bar">
-                                            <div class="rating-progress-bar-per" data-per="80"></div>
-                                        </div><span class="data-per">0%</span>
-                                    </div>
-                                </li>
-                                <li class="single-progress"><span>Accomodation</span>
-                                    <div class="rating-progress-bar-wrap">
-                                        <div class="rating-progress-bar">
-                                            <div class="rating-progress-bar-per" data-per="98"></div>
-                                        </div><span class="data-per">0%</span>
-                                    </div>
-                                </li>
-                                <li class="single-progress"><span>Tour Guide</span>
-                                    <div class="rating-progress-bar-wrap">
-                                        <div class="rating-progress-bar">
-                                            <div class="rating-progress-bar-per" data-per="80"></div>
-                                        </div><span class="data-per">0%</span>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="comment-area">
-                            <ul class="comment">
-                                <li>
-                                    <div class="single-comment-area">
-                                        <div class="author-img"><img alt="" loading="lazy" width="550" height="220"
-                                                decoding="async" data-nimg="1" style="color:transparent"
-                                                src="https://ui-avatars.com/api/?name=Bohn+Hoe">
-                                        </div>
-                                        <div class="comment-content">
-                                            <div class="author-name-deg">
-                                                <h6>Mr. Bowmik Haldar,</h6><span>30 March, 2026</span>
-                                            </div>
-                                            <p>Organization decides to seek consulting services to address a
-                                                particular issue or to achieve specific objectives.</p>
-                                            <ul class="review-item-list">
-                                                <li><span>Overall</span>
-                                                    <ul class="star-list">
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-half"></i></li>
-                                                    </ul>
-                                                </li>
-                                                <li><span>Transport</span>
-                                                    <ul class="star-list">
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-half"></i></li>
-                                                    </ul>
-                                                </li>
-                                                <li><span>Food</span>
-                                                    <ul class="star-list">
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-half"></i></li>
-                                                    </ul>
-                                                </li>
-                                                <li><span>Destination</span>
-                                                    <ul class="star-list">
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-half"></i></li>
-                                                    </ul>
-                                                </li>
-                                                <li><span>Hospitality</span>
-                                                    <ul class="star-list">
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-fill"></i></li>
-                                                        <li><i class="bi bi-star-half"></i></li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                            <div class="replay-btn"><svg xmlns="http://www.w3.org/2000/svg" width="14"
-                                                    height="11" viewBox="0 0 14 11">
-                                                    <path
-                                                        d="M8.55126 1.11188C8.52766 1.10118 8.50182 1.09676 8.47612 1.09903C8.45042 1.1013 8.42569 1.11018 8.40419 1.12486C8.3827 1.13954 8.36513 1.15954 8.35311 1.18304C8.34109 1.20653 8.335 1.23276 8.33539 1.25932V2.52797C8.33539 2.67388 8.2791 2.81381 8.17889 2.91698C8.07868 3.02016 7.94277 3.07812 7.80106 3.07812C7.08826 3.07812 5.64984 3.08362 4.27447 3.98257C3.2229 4.66916 2.14783 5.9191 1.50129 8.24735C2.59132 7.16575 3.83632 6.57929 4.92635 6.2679C5.59636 6.07737 6.28492 5.96444 6.97926 5.93121C7.26347 5.91835 7.54815 5.92129 7.83205 5.94001H7.84594L7.85129 5.94111L7.80106 6.48906L7.85449 5.94111C7.98638 5.95476 8.10864 6.01839 8.19751 6.11966C8.28638 6.22092 8.33553 6.35258 8.33539 6.48906V7.75771C8.33539 7.87654 8.45294 7.95136 8.55126 7.90515L12.8088 4.67796C12.8233 4.66692 12.8383 4.65664 12.8537 4.64715C12.8769 4.63278 12.8962 4.61245 12.9095 4.58816C12.9229 4.56386 12.9299 4.53643 12.9299 4.50851C12.9299 4.4806 12.9229 4.45316 12.9095 4.42887C12.8962 4.40458 12.8769 4.38425 12.8537 4.36988C12.8382 4.36039 12.8233 4.35011 12.8088 4.33907L8.55126 1.11188ZM7.26673 7.02381C7.19406 7.02381 7.11391 7.02711 7.02842 7.03041C6.56462 7.05242 5.92342 7.12504 5.21169 7.32859C3.79464 7.7335 2.11684 8.65116 1.00115 10.7175C0.940817 10.8291 0.844683 10.9155 0.729224 10.9621C0.613765 11.0087 0.486168 11.0124 0.368304 10.9728C0.250441 10.9331 0.149648 10.8525 0.0831985 10.7447C0.0167484 10.6369 -0.011219 10.5086 0.0040884 10.3819C0.499949 6.29981 2.01959 4.15202 3.70167 3.05391C5.03215 2.18467 6.40218 2.01743 7.26673 1.98552V1.25932C7.26663 1.03273 7.32593 0.810317 7.43839 0.615545C7.55084 0.420773 7.71227 0.260866 7.90565 0.152696C8.09902 0.0445258 8.31717 -0.00789584 8.53707 0.000962485C8.75698 0.00982081 8.97048 0.0796305 9.15506 0.203025L13.4233 3.43792C13.5998 3.55133 13.7453 3.7091 13.8462 3.8964C13.9471 4.08369 14 4.29434 14 4.50851C14 4.72269 13.9471 4.93333 13.8462 5.12063C13.7453 5.30792 13.5998 5.4657 13.4233 5.57911L9.15506 8.814C8.97048 8.9374 8.75698 9.00721 8.53707 9.01607C8.31717 9.02492 8.09902 8.9725 7.90565 8.86433C7.71227 8.75616 7.55084 8.59626 7.43839 8.40148C7.32593 8.20671 7.26663 7.9843 7.26673 7.75771V7.02381Z">
-                                                    </path>
-                                                </svg>Reply (01)</div>
-                                        </div>
-                                    </div>
-                                    <ul class="comment-replay">
-                                        <li>
-                                            <div class="single-comment-area">
-                                                <div class="author-img"><img alt="" loading="lazy" width="550"
-                                                        height="220" decoding="async" data-nimg="1"
-                                                        style="color:transparent"
-                                                        src="https://ui-avatars.com/api/?name=John+Joe">
-                                                </div>
-                                                <div class="comment-content">
-                                                    <div class="author-name-deg">
-                                                        <h6>Jacoline Juie,</h6><span>30 March, 2026</span>
-                                                    </div>
-                                                    <p>However, here are some well-regarded car dealerships known
-                                                        for their customer service, inventory, and overall
-                                                        reputation. It's always a good idea to research and read
-                                                        reviews specific...</p>
-                                                    <div class="replay-btn"><svg xmlns="http://www.w3.org/2000/svg"
-                                                            width="14" height="11" viewBox="0 0 14 11">
-                                                            <path
-                                                                d="M8.55126 1.11188C8.52766 1.10118 8.50182 1.09676 8.47612 1.09903C8.45042 1.1013 8.42569 1.11018 8.40419 1.12486C8.3827 1.13954 8.36513 1.15954 8.35311 1.18304C8.34109 1.20653 8.335 1.23276 8.33539 1.25932V2.52797C8.33539 2.67388 8.2791 2.81381 8.17889 2.91698C8.07868 3.02016 7.94277 3.07812 7.80106 3.07812C7.08826 3.07812 5.64984 3.08362 4.27447 3.98257C3.2229 4.66916 2.14783 5.9191 1.50129 8.24735C2.59132 7.16575 3.83632 6.57929 4.92635 6.2679C5.59636 6.07737 6.28492 5.96444 6.97926 5.93121C7.26347 5.91835 7.54815 5.92129 7.83205 5.94001H7.84594L7.85129 5.94111L7.80106 6.48906L7.85449 5.94111C7.98638 5.95476 8.10864 6.01839 8.19751 6.11966C8.28638 6.22092 8.33553 6.35258 8.33539 6.48906V7.75771C8.33539 7.87654 8.45294 7.95136 8.55126 7.90515L12.8088 4.67796C12.8233 4.66692 12.8383 4.65664 12.8537 4.64715C12.8769 4.63278 12.8962 4.61245 12.9095 4.58816C12.9229 4.56386 12.9299 4.53643 12.9299 4.50851C12.9299 4.4806 12.9229 4.45316 12.9095 4.42887C12.8962 4.40458 12.8769 4.38425 12.8537 4.36988C12.8382 4.36039 12.8233 4.35011 12.8088 4.33907L8.55126 1.11188ZM7.26673 7.02381C7.19406 7.02381 7.11391 7.02711 7.02842 7.03041C6.56462 7.05242 5.92342 7.12504 5.21169 7.32859C3.79464 7.7335 2.11684 8.65116 1.00115 10.7175C0.940817 10.8291 0.844683 10.9155 0.729224 10.9621C0.613765 11.0087 0.486168 11.0124 0.368304 10.9728C0.250441 10.9331 0.149648 10.8525 0.0831985 10.7447C0.0167484 10.6369 -0.011219 10.5086 0.0040884 10.3819C0.499949 6.29981 2.01959 4.15202 3.70167 3.05391C5.03215 2.18467 6.40218 2.01743 7.26673 1.98552V1.25932C7.26663 1.03273 7.32593 0.810317 7.43839 0.615545C7.55084 0.420773 7.71227 0.260866 7.90565 0.152696C8.09902 0.0445258 8.31717 -0.00789584 8.53707 0.000962485C8.75698 0.00982081 8.97048 0.0796305 9.15506 0.203025L13.4233 3.43792C13.5998 3.55133 13.7453 3.7091 13.8462 3.8964C13.9471 4.08369 14 4.29434 14 4.50851C14 4.72269 13.9471 4.93333 13.8462 5.12063C13.7453 5.30792 13.5998 5.4657 13.4233 5.57911L9.15506 8.814C8.97048 8.9374 8.75698 9.00721 8.53707 9.01607C8.31717 9.02492 8.09902 8.9725 7.90565 8.86433C7.71227 8.75616 7.55084 8.59626 7.43839 8.40148C7.32593 8.20671 7.26663 7.9843 7.26673 7.75771V7.02381Z">
-                                                            </path>
-                                                        </svg>Reply</div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
                         </div>
                     </div>
                 </div>
@@ -1008,8 +896,8 @@ $reviewMetrics = [
                 <div class="package-details-sidebar">
                     <div class="pricing-and-booking-area mb-40">
                         <div class="price-area">
-                            <h6>Giá tour</h6>
-                            <span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub>/người</sub>
+                            <h6><?= esc($t('tour.sidebar.price')) ?></h6>
+                            <span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub><?= esc($t('tour.booking.perPerson')) ?></sub>
                             </span> 
                         <!-- <br><del>125,900,000 đ</del><sub>/người</sub> -->
                         </div>
@@ -1019,31 +907,31 @@ $reviewMetrics = [
                                     <path
                                         d="M11.0419 5.31317L6.17665 10.1811C6.09912 10.256 6.00086 10.2948 5.90268 10.2948C5.85176 10.2949 5.80132 10.2849 5.75428 10.2654C5.70724 10.2458 5.66454 10.2172 5.62863 10.1811L2.95813 7.51056C2.80562 7.36059 2.80562 7.11506 2.95813 6.96255L3.90173 6.01632C4.04655 5.8716 4.30502 5.8716 4.44983 6.01632L5.90268 7.46917L9.5503 3.81894C9.58623 3.78292 9.6289 3.75434 9.67587 3.73483C9.72285 3.71531 9.77321 3.70524 9.82408 3.70519C9.92742 3.70519 10.0257 3.74657 10.098 3.81894L11.0416 4.76525C11.1944 4.91776 11.1944 5.16329 11.0419 5.31317Z">
                                     </path>
-                                </svg>Hoàn tiền nếu không đạt dịch vụ</li>
+                                </svg><?= esc($t('tour.sidebar.refund')) ?></li>
                             <li><svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                                     <rect x="0.5" y="0.5" width="13" height="13" rx="6.5"></rect>
                                     <path
                                         d="M11.0419 5.31317L6.17665 10.1811C6.09912 10.256 6.00086 10.2948 5.90268 10.2948C5.85176 10.2949 5.80132 10.2849 5.75428 10.2654C5.70724 10.2458 5.66454 10.2172 5.62863 10.1811L2.95813 7.51056C2.80562 7.36059 2.80562 7.11506 2.95813 6.96255L3.90173 6.01632C4.04655 5.8716 4.30502 5.8716 4.44983 6.01632L5.90268 7.46917L9.5503 3.81894C9.58623 3.78292 9.6289 3.75434 9.67587 3.73483C9.72285 3.71531 9.77321 3.70524 9.82408 3.70519C9.92742 3.70519 10.0257 3.74657 10.098 3.81894L11.0416 4.76525C11.1944 4.91776 11.1944 5.16329 11.0419 5.31317Z">
                                     </path>
-                                </svg>An toàn & hỗ trợ suốt hành trình</li>
-                        </ul><button class="primary-btn1 mb-20" data-bs-toggle="modal"
-                            data-bs-target="#bookingModal"><span>Kiểm tra chỗ ngay<svg width="10" height="10"
+                                </svg><?= esc($t('tour.sidebar.support')) ?></li>
+                        </ul><button class="primary-btn1 mb-10" data-bs-toggle="modal"
+                            data-bs-target="#bookingModal"><span><?= esc($t('tour.sidebar.checkAvailability')) ?><svg width="10" height="10"
                                     viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
                                     </path>
-                                </svg></span><span>Kiểm tra chỗ ngay<svg width="10" height="10" viewBox="0 0 10 10"
+                                </svg></span><span><?= esc($t('tour.sidebar.checkAvailability')) ?><svg width="10" height="10" viewBox="0 0 10 10"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
                                     </path>
                                 </svg></span></button><button class="primary-btn1 transparent" data-bs-toggle="modal"
-                            data-bs-target="#enquiryModal"><span>Gửi yêu cầu tư vấn<svg width="10" height="10"
+                            data-bs-target="#enquiryModal"><span><?= esc($t('tour.sidebar.consult')) ?><svg width="10" height="10"
                                     viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
                                     </path>
-                                </svg></span><span>Gửi yêu cầu tư vấn<svg width="10" height="10" viewBox="0 0 10 10"
+                                </svg></span><span><?= esc($t('tour.sidebar.consult')) ?><svg width="10" height="10" viewBox="0 0 10 10"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
@@ -1053,30 +941,30 @@ $reviewMetrics = [
                                 <path
                                     d="M7 0C3.13423 0 0 3.13423 0 7C0 10.8662 3.13423 14 7 14C10.8662 14 14 10.8666 14 7C14 3.13423 10.8662 0 7 0ZM7 12.6875C3.85877 12.6875 1.31252 10.1412 1.31252 7C1.31252 3.85877 3.85877 1.31252 7 1.31252C10.1412 1.31252 12.6875 3.85877 12.6875 7C12.6875 10.1412 10.1412 12.6875 7 12.6875ZM7.00044 3.06992C6.49908 3.06992 6.11973 3.33157 6.11973 3.75418V7.63042C6.11973 8.05347 6.49903 8.31423 7.00044 8.31423C7.48956 8.31423 7.88115 8.04256 7.88115 7.63042V3.75418C7.8811 3.3416 7.48956 3.06992 7.00044 3.06992ZM7.00044 9.1875C6.51875 9.1875 6.12673 9.57952 6.12673 10.0616C6.12673 10.5428 6.51875 10.9349 7.00044 10.9349C7.48212 10.9349 7.87371 10.5428 7.87371 10.0616C7.87366 9.57948 7.48212 9.1875 7.00044 9.1875Z">
                                 </path>
-                            </svg>Ưu đãi đặc biệt – Số lượng có hạn</span>
+                            </svg><?= esc($t('tour.sidebar.limitedOffer')) ?></span>
                     </div>
                     <div class="customize-package-banner-wrap">
-                        <h2><span>Tạo chuyến đi</span> cho riêng bạn</h2>
+                        <h2><span><?= esc($t('tour.sidebar.customHeading1')) ?></span> <?= esc($t('tour.sidebar.customHeading2')) ?></h2>
                         <ul>
                             <li><svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="9" cy="9" r="8.5"></circle>
                                     <path
                                         d="M13.6193 7.0722L8.05903 12.6355C7.97043 12.7211 7.85813 12.7655 7.74593 12.7655C7.68772 12.7656 7.63008 12.7541 7.57632 12.7318C7.52256 12.7095 7.47376 12.6768 7.43272 12.6355L4.38073 9.5835C4.20642 9.4121 4.20642 9.1315 4.38073 8.9572L5.45912 7.8758C5.62462 7.7104 5.92002 7.7104 6.08552 7.8758L7.74593 9.5362L11.9146 5.3645C11.9557 5.32334 12.0045 5.29068 12.0581 5.26837C12.1118 5.24606 12.1694 5.23455 12.2275 5.2345C12.3456 5.2345 12.4579 5.2818 12.5406 5.3645L13.619 6.446C13.7936 6.6203 13.7936 6.9009 13.6193 7.0722Z">
                                     </path>
-                                </svg>Tự do chọn hành trình bạn thích</li>
+                                </svg><?= esc($t('tour.sidebar.customItem1')) ?></li>
                             <li><svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="9" cy="9" r="8.5"></circle>
                                     <path
                                         d="M13.6193 7.0722L8.05903 12.6355C7.97043 12.7211 7.85813 12.7655 7.74593 12.7655C7.68772 12.7656 7.63008 12.7541 7.57632 12.7318C7.52256 12.7095 7.47376 12.6768 7.43272 12.6355L4.38073 9.5835C4.20642 9.4121 4.20642 9.1315 4.38073 8.9572L5.45912 7.8758C5.62462 7.7104 5.92002 7.7104 6.08552 7.8758L7.74593 9.5362L11.9146 5.3645C11.9557 5.32334 12.0045 5.29068 12.0581 5.26837C12.1118 5.24606 12.1694 5.23455 12.2275 5.2345C12.3456 5.2345 12.4579 5.2818 12.5406 5.3645L13.619 6.446C13.7936 6.6203 13.7936 6.9009 13.6193 7.0722Z">
                                     </path>
-                                </svg>Tự tận hưởng theo cách riêng</li>
+                                </svg><?= esc($t('tour.sidebar.customItem2')) ?></li>
                         </ul>
-                        <a class="primary-btn1 two black-bg" href="../../contact/"><span>Thiết kế hành trình<svg
+                        <a class="primary-btn1 two black-bg" href="<?= esc(\App\Data\LocalizedPathCatalog::url('contact', $locale)) ?>"><span><?= esc($t('tour.sidebar.customCta')) ?><svg
                                     width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
                                     </path>
-                                </svg></span><span>Thiết kế hành trình<svg width="10" height="10" viewBox="0 0 10 10"
+                                </svg></span><span><?= esc($t('tour.sidebar.customCta')) ?><svg width="10" height="10" viewBox="0 0 10 10"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
@@ -1094,8 +982,8 @@ $reviewMetrics = [
         <div class="row justify-content-center mb-50">
             <div class="col-xl-6 col-lg-8">
                 <div class="section-title text-center">
-                    <h2><?= esc($locale === 'en' ? 'Related Tours' : 'Tour Liên Quan') ?></h2>
-                    <p><?= esc($locale === 'en' ? 'Discover more tours in the same destination group.' : 'Khám phá thêm các tour cùng khu vực với hành trình này.') ?></p>
+                    <h2><?= esc($t('tour.related.title')) ?></h2>
+                    <p><?= esc($t('tour.related.desc')) ?></p>
                 </div>
             </div>
         </div>
@@ -1124,5 +1012,21 @@ $reviewMetrics = [
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+<script>
+window.TOUR_DETAIL_I18N = <?= json_encode([
+    'bookingProceedFailed' => lang('Frontend.checkout.paypalCreateFailed', [], $locale),
+    'bookingProceedFailedNow' => lang('Frontend.checkout.paypalConnectFailed', [], $locale),
+    'loginFailed' => lang('Frontend.tour.review.sendFailed', [], $locale),
+    'loginFailedNow' => lang('Frontend.tour.review.sendFailedNow', [], $locale),
+    'reviewFailed' => lang('Frontend.tour.review.sendFailed', [], $locale),
+    'reviewSent' => lang('Frontend.tour.review.sentClient', [], $locale),
+    'reviewFailedNow' => lang('Frontend.tour.review.sendFailedNow', [], $locale),
+    'enquiryFailed' => lang('Frontend.tour.enquiry.sendFailed', [], $locale),
+    'enquirySent' => lang('Frontend.tour.enquiry.success', [], $locale),
+    'currencySuffix' => 'đ',
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+</script>
 <script src="<?= base_url('assets/js/tour-detail.js') ?>"></script>
 <?= $this->endSection() ?>
+
+

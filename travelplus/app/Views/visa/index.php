@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <?= view('layouts/breadcrumb') ?>
-<?= $this->include('visa/visa-content') ?>
+<?= view('visa/visa-content', ['content' => $pageContent ?? []]) ?>
 
 
 <?= $this->endSection() ?>

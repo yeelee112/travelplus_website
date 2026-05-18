@@ -11,7 +11,7 @@ class Destination extends Controller
     public function search()
     {
         $keyword = trim((string) $this->request->getGet('q'));
-        $keyword = mb_strtolower($keyword);
+        $keyword = $this->normalizeSearchText($keyword);
 
         if ($keyword === '' || mb_strlen($keyword) < 2) {
             return $this->response->setJSON([]);
@@ -36,7 +36,7 @@ class Destination extends Controller
     private function getDestinationIndex(string $locale): array
     {
         $cache = Services::cache();
-        $cacheKey = 'destination_search_index_v5_' . $locale;
+        $cacheKey = 'destination_search_index_v6_' . $locale . '_' . $this->getCacheSignature();
         $cached = $cache->get($cacheKey);
 
         if (is_array($cached)) {
@@ -97,7 +97,7 @@ class Destination extends Controller
                 : trim($payload['name'] . ' ' . ($payload['country'] ?? ''));
 
             $index[] = [
-                'search_text' => mb_strtolower($text),
+                'search_text' => $this->normalizeSearchText($text),
                 'payload' => $payload,
             ];
         }
@@ -129,7 +129,7 @@ class Destination extends Controller
                 }
 
                 $index[] = [
-                    'search_text' => mb_strtolower(trim($name . ' ' . $altText . ' ' . $fileName . ' ' . $tourName)),
+                    'search_text' => $this->normalizeSearchText(trim($name . ' ' . $altText . ' ' . $fileName . ' ' . $tourName)),
                     'payload' => [
                         'type' => 'gallery',
                         'name' => $name,
@@ -156,11 +156,62 @@ class Destination extends Controller
                 : trim((string) ($item['name'] ?? '') . ' ' . (string) ($item['country'] ?? ''));
 
             $index[] = [
-                'search_text' => mb_strtolower($text),
+                'search_text' => $this->normalizeSearchText($text),
                 'payload' => $item,
             ];
         }
 
         return $index;
+    }
+
+    private function getCacheSignature(): string
+    {
+        $db = Database::connect();
+        $tables = [
+            'locations',
+            'location_translations',
+            'tours',
+            'tour_translations',
+            'tour_media',
+        ];
+        $parts = [];
+
+        foreach ($tables as $table) {
+            if (! $db->tableExists($table)) {
+                $parts[] = $table . ':0:0';
+                continue;
+            }
+
+            $row = $db->table($table)
+                ->select('COUNT(*) AS total, COALESCE(MAX(id), 0) AS max_id', false)
+                ->get()
+                ->getRowArray();
+
+            $parts[] = $table . ':' . (int) ($row['total'] ?? 0) . ':' . (int) ($row['max_id'] ?? 0);
+        }
+
+        return md5(implode('|', $parts));
+    }
+
+    private function normalizeSearchText(string $value): string
+    {
+        $value = mb_strtolower(trim($value));
+        $map = [
+            'à' => 'a', 'á' => 'a', 'ạ' => 'a', 'ả' => 'a', 'ã' => 'a',
+            'â' => 'a', 'ầ' => 'a', 'ấ' => 'a', 'ậ' => 'a', 'ẩ' => 'a', 'ẫ' => 'a',
+            'ă' => 'a', 'ằ' => 'a', 'ắ' => 'a', 'ặ' => 'a', 'ẳ' => 'a', 'ẵ' => 'a',
+            'è' => 'e', 'é' => 'e', 'ẹ' => 'e', 'ẻ' => 'e', 'ẽ' => 'e',
+            'ê' => 'e', 'ề' => 'e', 'ế' => 'e', 'ệ' => 'e', 'ể' => 'e', 'ễ' => 'e',
+            'ì' => 'i', 'í' => 'i', 'ị' => 'i', 'ỉ' => 'i', 'ĩ' => 'i',
+            'ò' => 'o', 'ó' => 'o', 'ọ' => 'o', 'ỏ' => 'o', 'õ' => 'o',
+            'ô' => 'o', 'ồ' => 'o', 'ố' => 'o', 'ộ' => 'o', 'ổ' => 'o', 'ỗ' => 'o',
+            'ơ' => 'o', 'ờ' => 'o', 'ớ' => 'o', 'ợ' => 'o', 'ở' => 'o', 'ỡ' => 'o',
+            'ù' => 'u', 'ú' => 'u', 'ụ' => 'u', 'ủ' => 'u', 'ũ' => 'u',
+            'ư' => 'u', 'ừ' => 'u', 'ứ' => 'u', 'ự' => 'u', 'ử' => 'u', 'ữ' => 'u',
+            'ỳ' => 'y', 'ý' => 'y', 'ỵ' => 'y', 'ỷ' => 'y', 'ỹ' => 'y',
+            'đ' => 'd',
+        ];
+
+        return strtr($value, $map);
     }
 }

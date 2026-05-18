@@ -1,10 +1,48 @@
+<?php
+$currentLocale = $currentLocale ?? service('request')->getLocale() ?? 'vi';
+$siteName = 'Travel Plus';
+$metaTitle = trim((string) ($meta_title ?? '')) ?: $siteName;
+$metaDesc = trim((string) ($meta_desc ?? '')) ?: 'Travel Plus travel services and tour packages.';
+$canonicalUrl = (string) ($canonical_url ?? current_url());
+$metaRobots = (string) ($meta_robots ?? 'index,follow,max-image-preview:large');
+$metaType = (string) ($meta_type ?? 'website');
+$metaImage = (string) ($meta_image ?? base_url('assets/images/TravelPlus_CompanyProfile.png'));
+$alternateLinks = is_array($alternate_links ?? null) ? $alternate_links : [];
+$schemaGraph = is_array($schema_graph ?? null) ? array_values(array_filter($schema_graph)) : [];
+$ogLocale = $currentLocale === 'en' ? 'en_US' : 'vi_VN';
+?>
 <!doctype html>
-<html lang="en">
+<html lang="<?= esc($currentLocale) ?>">
 <head>
 <meta charset="utf-8">
-<title><?= esc($meta_title ?? 'Travel Plus') ?></title>
-<meta name="description" content="<?= esc($meta_desc ?? '') ?>">
+<title><?= esc($metaTitle) ?></title>
+<meta name="description" content="<?= esc($metaDesc) ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="googlebot" content="<?= esc($metaRobots) ?>">
+<link rel="canonical" href="<?= esc($canonicalUrl) ?>">
+
+<meta property="og:site_name" content="<?= esc($siteName) ?>">
+<meta property="og:type" content="<?= esc($metaType) ?>">
+<meta property="og:title" content="<?= esc($metaTitle) ?>">
+<meta property="og:description" content="<?= esc($metaDesc) ?>">
+<meta property="og:url" content="<?= esc($canonicalUrl) ?>">
+<meta property="og:image" content="<?= esc($metaImage) ?>">
+<meta property="og:locale" content="<?= esc($ogLocale) ?>">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?= esc($metaTitle) ?>">
+<meta name="twitter:description" content="<?= esc($metaDesc) ?>">
+<meta name="twitter:image" content="<?= esc($metaImage) ?>">
+
+<?php foreach ($alternateLinks as $alternateLink): ?>
+<?php if (!empty($alternateLink['href']) && !empty($alternateLink['hreflang'])): ?>
+<link rel="alternate" hreflang="<?= esc((string) $alternateLink['hreflang']) ?>" href="<?= esc((string) $alternateLink['href']) ?>">
+<?php endif; ?>
+<?php endforeach; ?>
+
+<?php if ($schemaGraph !== []): ?>
+<script type="application/ld+json"><?= json_encode(['@context' => 'https://schema.org', '@graph' => $schemaGraph], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
+<?php endif; ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css">

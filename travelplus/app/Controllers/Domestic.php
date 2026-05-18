@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
+use App\Data\LocalizedPathCatalog;
 use App\Services\DomesticRegionService;
+use App\Services\SeoService;
 use App\Services\TourCatalogService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
@@ -10,20 +12,35 @@ class Domestic extends BaseController
 {
     public function index()
     {
-        $locale = $this->request->getLocale();
+        $locale = $this->request->getLocale() ?: 'vi';
+        $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
+        $seo = new SeoService();
         $tourService = new TourCatalogService();
         $page = (int) ($this->request->getGet('page') ?? 1);
         $result = $tourService->getPagedTours($locale, 9, $page, 'inbound');
 
         $data['breadcrumbs'] = [
-            ['label' => 'Trang chu', 'url' => localized_url('/')],
-            ['label' => $locale === 'en' ? 'Domestic Tours' : 'Tour trong nuoc'],
+            ['label' => $t('common.home'), 'url' => localized_url('/')],
+            ['label' => $t('common.domesticTours')],
         ];
         $data['tours'] = $result['tours'];
         $data['pagination'] = [
             'total' => $result['total'],
             'page' => $result['page'],
             'lastPage' => $result['lastPage'],
+        ];
+        $data['meta_title'] = $t('domestic.metaTitle');
+        $data['meta_desc'] = $t('domestic.metaDesc');
+        $data['canonical_url'] = LocalizedPathCatalog::url('domestic', $locale);
+        $data['alternate_links'] = [
+            ['hreflang' => 'vi', 'href' => base_url('tour-trong-nuoc')],
+            ['hreflang' => 'en', 'href' => base_url('en/tour-trong-nuoc')],
+            ['hreflang' => 'x-default', 'href' => base_url('tour-trong-nuoc')],
+        ];
+        $data['schema_graph'] = [
+            $seo->organizationSchema(),
+            $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
+            $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url']),
         ];
 
         return view('tour-trong-nuoc/index', $data);
@@ -62,7 +79,9 @@ class Domestic extends BaseController
 
     private function renderDomesticLocationList(string $locale, array $locations, array $filter): string
     {
+        $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $tourService = new TourCatalogService();
+        $seo = new SeoService();
         $page = (int) ($this->request->getGet('page') ?? 1);
         $result = $tourService->getPagedTours($locale, 9, $page, 'inbound', $filter);
 
@@ -73,15 +92,32 @@ class Domestic extends BaseController
             'page' => $result['page'],
             'lastPage' => $result['lastPage'],
         ];
+        $activeLocation = $locations[array_key_last($locations)] ?? ['name' => ''];
+        $data['meta_title'] = $locale === 'en'
+            ? ((string) ($activeLocation['name'] ?? '') . ' Tours | Travel Plus')
+            : ('Tour ' . (string) ($activeLocation['name'] ?? '') . ' | Travel Plus');
+        $data['meta_desc'] = $t('domestic.locationMetaDesc', [(string) ($activeLocation['name'] ?? '')]);
+        $data['canonical_url'] = current_url();
+        $data['alternate_links'] = [
+            ['hreflang' => 'vi', 'href' => switch_locale_url('vi')],
+            ['hreflang' => 'en', 'href' => switch_locale_url('en')],
+            ['hreflang' => 'x-default', 'href' => switch_locale_url('vi')],
+        ];
+        $data['schema_graph'] = [
+            $seo->organizationSchema(),
+            $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
+            $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url']),
+        ];
 
         return view('tour-trong-nuoc/index', $data);
     }
 
     private function buildBreadcrumbs(string $locale, array $locations): array
     {
+        $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $breadcrumbs = [
-            ['label' => 'Trang chu', 'url' => localized_url('/')],
-            ['label' => $locale === 'en' ? 'Domestic Tours' : 'Tour trong nuoc', 'url' => localized_url('tour-trong-nuoc')],
+            ['label' => $t('common.home'), 'url' => localized_url('/')],
+            ['label' => $t('common.domesticTours'), 'url' => LocalizedPathCatalog::url('domestic', $locale)],
         ];
 
         $path = 'tour-trong-nuoc';
@@ -91,7 +127,7 @@ class Domestic extends BaseController
             $isLast = $index === array_key_last($locations);
             $crumb = ['label' => (string) $location['name']];
 
-            if (!$isLast) {
+            if (! $isLast) {
                 $crumb['url'] = localized_url($path);
             }
 

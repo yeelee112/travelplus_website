@@ -1,5 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
-
+    const i18n = window.TOUR_DETAIL_I18N || {};
+    const messages = {
+        bookingProceedFailed: i18n.bookingProceedFailed || 'Could not continue booking.',
+        bookingProceedFailedNow: i18n.bookingProceedFailedNow || 'Could not continue booking right now.',
+        loginFailed: i18n.loginFailed || 'Login failed.',
+        loginFailedNow: i18n.loginFailedNow || 'Could not sign in right now.',
+        reviewFailed: i18n.reviewFailed || 'Could not submit your review.',
+        reviewSent: i18n.reviewSent || 'Your review has been submitted.',
+        reviewFailedNow: i18n.reviewFailedNow || 'Could not send the review right now.',
+        enquiryFailed: i18n.enquiryFailed || 'Could not send enquiry right now.',
+        enquirySent: i18n.enquirySent || 'Enquiry sent successfully.',
+        currencySuffix: i18n.currencySuffix || 'đ',
+    };
 
     if (document.querySelector('.package-dt-location-slider') && typeof Swiper !== 'undefined') {
         new Swiper('.package-dt-location-slider', {
@@ -52,21 +64,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // const bookingDateInput = document.querySelector('#bookingModal .tour-booking-date-input');
-    // if (bookingDateInput && typeof flatpickr !== 'undefined') {
-    //     flatpickr(bookingDateInput, {
-    //         mode: 'range',
-    //         dateFormat: 'd/m/Y',
-    //         minDate: 'today',
-    //         disableMobile: true,
-    //         locale: 'vn',
-    //     });
-    // }
-
     document.querySelectorAll('.modal').forEach((modal) => {
         modal.addEventListener('hide.bs.modal', () => {
             const activeElement = document.activeElement;
-
             if (activeElement instanceof HTMLElement && modal.contains(activeElement)) {
                 activeElement.blur();
             }
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    const formatVnd = (value) => `${new Intl.NumberFormat('vi-VN').format(value)}₫`;
+    const formatVnd = (value) => `${new Intl.NumberFormat('vi-VN').format(value)}${messages.currencySuffix}`;
 
     document.querySelectorAll('.additional-service-area').forEach((serviceArea) => {
         const serviceItems = Array.from(serviceArea.querySelectorAll('.booking-service-item'));
@@ -176,7 +176,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const bookingProceedForm = document.querySelector('[data-booking-proceed-form]');
-
     if (bookingProceedForm) {
         const errorBox = bookingProceedForm.querySelector('[data-booking-proceed-error]');
 
@@ -194,9 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const response = await fetch(bookingProceedForm.action, {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 });
 
                 const payload = await response.json();
@@ -204,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!response.ok || !payload.ok) {
                     if (errorBox) {
                         errorBox.className = 'alert alert-danger mt-3';
-                        errorBox.textContent = payload.message || 'Could not continue booking.';
+                        errorBox.textContent = payload.message || messages.bookingProceedFailed;
                     }
                     return;
                 }
@@ -216,7 +213,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const bookingModal = document.getElementById('bookingModal');
                 const proceedModal = document.getElementById('proceedBookingModal');
-
                 if (bookingModal && proceedModal && typeof bootstrap !== 'undefined') {
                     bootstrap.Modal.getOrCreateInstance(bookingModal).hide();
                     bootstrap.Modal.getOrCreateInstance(proceedModal).show();
@@ -224,14 +220,13 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (error) {
                 if (errorBox) {
                     errorBox.className = 'alert alert-danger mt-3';
-                    errorBox.textContent = 'Could not continue booking right now.';
+                    errorBox.textContent = messages.bookingProceedFailedNow;
                 }
             }
         });
     }
 
     const bookingLoginForm = document.querySelector('[data-booking-login-form]');
-
     if (bookingLoginForm) {
         const loginErrorBox = bookingLoginForm.querySelector('[data-booking-login-error]');
 
@@ -249,9 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const response = await fetch(bookingLoginForm.action, {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 });
 
                 const payload = await response.json();
@@ -259,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!response.ok || !payload.ok) {
                     if (loginErrorBox) {
                         loginErrorBox.className = 'alert alert-danger';
-                        loginErrorBox.textContent = payload.message || 'Login failed.';
+                        loginErrorBox.textContent = payload.message || messages.loginFailed;
                     }
                     return;
                 }
@@ -268,14 +261,13 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (error) {
                 if (loginErrorBox) {
                     loginErrorBox.className = 'alert alert-danger';
-                    loginErrorBox.textContent = 'Could not sign in right now.';
+                    loginErrorBox.textContent = messages.loginFailedNow;
                 }
             }
         });
     }
 
     const reviewForm = document.querySelector('[data-tour-review-form]');
-
     if (reviewForm) {
         const messageBox = reviewForm.querySelector('[data-review-message]');
         const errorBox = reviewForm.querySelector('[data-review-errors]');
@@ -286,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function () {
             stars.forEach((button, index) => {
                 const icon = button.querySelector('.star-icon');
                 const active = index < value;
-
                 button.classList.toggle('is-active', active);
                 if (icon) {
                     icon.classList.toggle('bi-star-fill', active);
@@ -331,9 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const response = await fetch(reviewForm.action, {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 });
 
                 const payload = await response.json();
@@ -344,14 +333,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         errorBox.className = 'col-md-12 alert alert-danger';
                         errorBox.innerHTML = errors.length > 0
                             ? errors.map((error) => `<div>${error}</div>`).join('')
-                            : `<div>${payload.message || 'Review submit failed.'}</div>`;
+                            : `<div>${payload.message || messages.reviewFailed}</div>`;
                     }
                     return;
                 }
 
                 if (messageBox) {
                     messageBox.className = 'col-md-12 alert alert-success';
-                    messageBox.textContent = payload.message || 'Review submitted.';
+                    messageBox.textContent = payload.message || messages.reviewSent;
                 }
 
                 reviewForm.reset();
@@ -366,14 +355,75 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (error) {
                 if (errorBox) {
                     errorBox.className = 'col-md-12 alert alert-danger';
-                    errorBox.innerHTML = '<div>Could not submit review right now.</div>';
+                    errorBox.innerHTML = `<div>${messages.reviewFailedNow}</div>`;
+                }
+            }
+        });
+    }
+
+    const enquiryForm = document.querySelector('[data-tour-enquiry-form]');
+    if (enquiryForm) {
+        const messageBox = enquiryForm.querySelector('[data-enquiry-message]');
+        const errorBox = enquiryForm.querySelector('[data-enquiry-errors]');
+
+        enquiryForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (messageBox) {
+                messageBox.className = 'col-md-12 d-none';
+                messageBox.textContent = '';
+            }
+
+            if (errorBox) {
+                errorBox.className = 'col-md-12 d-none';
+                errorBox.innerHTML = '';
+            }
+
+            const formData = new FormData(enquiryForm);
+
+            try {
+                const response = await fetch(enquiryForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                });
+
+                const payload = await response.json();
+
+                if (!response.ok || !payload.ok) {
+                    const errors = Object.values(payload.errors || {});
+                    if (errorBox) {
+                        errorBox.className = 'col-md-12 alert alert-danger';
+                        errorBox.innerHTML = errors.length > 0
+                            ? errors.map((error) => `<div>${error}</div>`).join('')
+                            : `<div>${payload.message || messages.enquiryFailed}</div>`;
+                    }
+                    return;
+                }
+
+                if (messageBox) {
+                    messageBox.className = 'col-md-12 alert alert-success';
+                    messageBox.textContent = payload.message || messages.enquirySent;
+                }
+
+                enquiryForm.reset();
+
+                setTimeout(() => {
+                    const modalElement = document.getElementById('enquiryModal');
+                    if (modalElement && typeof bootstrap !== 'undefined') {
+                        bootstrap.Modal.getOrCreateInstance(modalElement).hide();
+                    }
+                }, 1600);
+            } catch (error) {
+                if (errorBox) {
+                    errorBox.className = 'col-md-12 alert alert-danger';
+                    errorBox.innerHTML = `<div>${messages.enquiryFailed}</div>`;
                 }
             }
         });
     }
 
     const reviewPagination = document.querySelector('[data-review-pagination]');
-
     if (reviewPagination) {
         const reviewPages = Array.from(document.querySelectorAll('[data-review-page]'));
         const pageItems = Array.from(reviewPagination.querySelectorAll('.page-item'));
@@ -398,37 +448,33 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    document.querySelectorAll('.rating-container').forEach((container) => {
+        const stars = container.querySelectorAll('.rating-star-btn');
+        const input = container.querySelector('input');
 
-    document.querySelectorAll('.rating-container').forEach(container => {
-    const stars = container.querySelectorAll('.rating-star-btn');
-    const input = container.querySelector('input');
+        stars.forEach((star, index) => {
+            star.addEventListener('mouseenter', () => {
+                stars.forEach((item, itemIndex) => {
+                    item.classList.toggle('active', itemIndex <= index);
+                });
+            });
 
-    stars.forEach((star, index) => {
+            star.addEventListener('click', () => {
+                if (input) {
+                    input.value = star.dataset.value;
+                }
 
-        // hover
-        star.addEventListener('mouseenter', () => {
-            stars.forEach((s, i) => {
-                s.classList.toggle('active', i <= index);
+                stars.forEach((item, itemIndex) => {
+                    item.classList.toggle('active', itemIndex <= index);
+                });
             });
         });
 
-        // click (chọn)
-        star.addEventListener('click', () => {
-            input.value = star.dataset.value;
-
-            stars.forEach((s, i) => {
-                s.classList.toggle('active', i <= index);
+        container.addEventListener('mouseleave', () => {
+            const value = Number.parseInt(input?.value || '0', 10) || 0;
+            stars.forEach((item, index) => {
+                item.classList.toggle('active', index < value);
             });
         });
     });
-
-    // rời chuột → trả về trạng thái đã chọn
-    container.addEventListener('mouseleave', () => {
-        const value = parseInt(input.value) || 0;
-
-        stars.forEach((s, i) => {
-            s.classList.toggle('active', i < value);
-        });
-    });
-});
 });

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Data\FeaturedDestinationCatalog;
+use App\Data\FeaturedDestinationImageMap;
 use App\Data\TourCard;
 use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\BaseConnection;
@@ -23,6 +25,37 @@ class TourCatalogService
     public function getFeaturedTours(string $locale = 'vi', int $limit = 6, ?string $tourType = null): array
     {
         return $this->fetchTours($locale, $limit, 0, $tourType, [], true);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getFeaturedDestinations(string $locale = 'vi', int $itemsPerTab = 6): array
+    {
+        if (! $this->hasSchemaForTourCatalog()) {
+            return [];
+        }
+
+        $tabs = [];
+        $domesticItems = $this->getDomesticFeaturedDestinations($locale, $itemsPerTab);
+
+        if ($domesticItems !== []) {
+            $tabs[] = [
+                'key' => 'vietnam',
+                'label' => $locale === 'en' ? 'Vietnam' : 'Việt Nam',
+                'items' => $domesticItems,
+            ];
+        }
+
+        foreach ($this->getOutboundFeaturedDestinations($locale, $itemsPerTab) as $tab) {
+            if (($tab['items'] ?? []) === []) {
+                continue;
+            }
+
+            $tabs[] = $tab;
+        }
+
+        return $tabs;
     }
 
     public function findTourBySlug(string $locale, string $slug, ?string $tourType = null): ?array
@@ -306,6 +339,126 @@ class TourCatalogService
         return $builder;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getDomesticFeaturedDestinations(string $locale, int $limit): array
+    {
+        $rows = $this->db->table('tours t')
+            ->select('
+                dl.id AS province_id,
+                dl.code AS province_code,
+                dltn.name AS province_name,
+                dltn.slug AS province_slug,
+                COUNT(DISTINCT t.id) AS tour_count,
+                MIN(t.id) AS sample_tour_id
+            ')
+            ->join('tour_destinations tdst', 'tdst.tour_id = t.id', 'inner')
+            ->join('locations dl', 'dl.id = tdst.location_id AND dl.type = "province"', 'inner')
+            ->join('location_translations dltn', 'dltn.location_id = dl.id AND dltn.locale = ' . $this->db->escape($locale), 'inner')
+            ->where('t.status', 'published')
+            ->where('t.tour_type', 'inbound')
+            ->groupBy('dl.id, dl.code, dltn.name, dltn.slug')
+            ->orderBy('tour_count', 'DESC')
+            ->orderBy('dltn.name', 'ASC')
+            ->limit(max(1, $limit))
+            ->get()
+            ->getResultArray();
+
+        $regionService = new DomesticRegionService();
+        $items = [];
+
+        foreach ($rows as $row) {
+            $provinceId = (int) ($row['province_id'] ?? 0);
+            $region = $regionService->getRegionByProvinceId($locale, $provinceId);
+
+            if ($region === null) {
+                continue;
+            }
+
+            $items[] = [
+                'title' => (string) ($row['province_name'] ?? ''),
+                'subtitle' => (string) ($region['name'] ?? ''),
+                'image' => $this->resolveFeaturedDestinationImage(
+                    (string) ($row['province_slug'] ?? ''),
+                    $this->getTourCoverPath((int) ($row['sample_tour_id'] ?? 0))
+                ),
+                'link' => localized_url('tour-trong-nuoc/' . $region['slug'] . '/' . (string) ($row['province_slug'] ?? '')),
+                'count_label' => ((int) ($row['tour_count'] ?? 0)) . ' tours',
+                'col' => $this->featuredDestinationColClass(count($items)),
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getOutboundFeaturedDestinations(string $locale, int $limit): array
+    {
+        $rows = $this->db->table('tours t')
+            ->select('
+                continent.id AS continent_id,
+                continent_tr.name AS continent_name,
+                continent_tr.slug AS continent_slug,
+                country.id AS country_id,
+                country_tr.name AS country_name,
+                country_tr.slug AS country_slug,
+                COUNT(DISTINCT t.id) AS tour_count,
+                MIN(t.id) AS sample_tour_id
+            ')
+            ->join('tour_destinations tdst', 'tdst.tour_id = t.id', 'inner')
+            ->join('locations dl', 'dl.id = tdst.location_id', 'inner')
+            ->join('locations country', 'country.id = CASE WHEN dl.type = "country" THEN dl.id WHEN dl.type = "province" THEN dl.parent_id ELSE 0 END', 'inner', false)
+            ->join('locations continent', 'continent.id = CASE WHEN dl.type = "country" THEN dl.parent_id WHEN dl.type = "province" THEN country.parent_id ELSE 0 END', 'inner', false)
+            ->join('location_translations country_tr', 'country_tr.location_id = country.id AND country_tr.locale = ' . $this->db->escape($locale), 'inner')
+            ->join('location_translations continent_tr', 'continent_tr.location_id = continent.id AND continent_tr.locale = ' . $this->db->escape($locale), 'inner')
+            ->where('t.status', 'published')
+            ->where('t.tour_type', 'outbound')
+            ->groupBy('continent.id, continent_tr.name, continent_tr.slug, country.id, country_tr.name, country_tr.slug')
+            ->orderBy('continent_tr.name', 'ASC')
+            ->orderBy('tour_count', 'DESC')
+            ->orderBy('country_tr.name', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $grouped = [];
+
+        foreach ($rows as $row) {
+            $continentId = (int) ($row['continent_id'] ?? 0);
+            if ($continentId <= 0) {
+                continue;
+            }
+
+            if (! isset($grouped[$continentId])) {
+                $grouped[$continentId] = [
+                    'key' => (string) ($row['continent_slug'] ?? ('continent-' . $continentId)),
+                    'label' => (string) ($row['continent_name'] ?? ''),
+                    'items' => [],
+                ];
+            }
+
+            if (count($grouped[$continentId]['items']) >= $limit) {
+                continue;
+            }
+
+            $grouped[$continentId]['items'][] = [
+                'title' => (string) ($row['country_name'] ?? ''),
+                'subtitle' => (string) ($row['continent_name'] ?? ''),
+                'image' => $this->resolveFeaturedDestinationImage(
+                    (string) ($row['country_slug'] ?? ''),
+                    $this->getTourCoverPath((int) ($row['sample_tour_id'] ?? 0))
+                ),
+                'link' => localized_url((string) ($row['continent_slug'] ?? '') . '/' . (string) ($row['country_slug'] ?? '')),
+                'count_label' => ((int) ($row['tour_count'] ?? 0)) . ' tours',
+                'col' => $this->featuredDestinationColClass(count($grouped[$continentId]['items'])),
+            ];
+        }
+
+        return array_values($grouped);
+    }
+
     private function applyLocationFilter(BaseBuilder $builder, array $locationFilter): void
     {
         $type = (string) ($locationFilter['type'] ?? '');
@@ -410,6 +563,7 @@ class TourCatalogService
     {
         $cards = [];
         $domesticRegionService = new DomesticRegionService();
+        $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
 
         foreach ($rows as $row) {
             $id = (int) ($row['id'] ?? 0);
@@ -453,12 +607,14 @@ class TourCatalogService
                 'duration'  => [
                     'days'   => $days,
                     'nights' => $nights,
-                    'label'  => sprintf('%02d Days / %02d Nights', max(0, $days), max(0, $nights)),
+                    'label'  => $locale === 'en'
+                        ? sprintf('%02d Days / %02d Nights', max(0, $days), max(0, $nights))
+                        : sprintf('%02d Ngày / %02d Đêm', max(0, $days), max(0, $nights)),
                 ],
                 'price'     => [
                     'amount'   => $price,
                     'currency' => 'VND',
-                    'label'    => number_format($price, 0, ',', '.') . ' VND',
+                    'label'    => number_format($price, 0, ',', '.') . 'đ',
                 ],
             ];
         }
@@ -546,6 +702,18 @@ class TourCatalogService
         return base_url('assets/images/' . ltrim($thumbnail, '/'));
     }
 
+    private function resolveFeaturedDestinationImage(string $slug, string $fallback = ''): string
+    {
+        $map = FeaturedDestinationImageMap::getAll();
+        $custom = trim((string) ($map[$slug] ?? ''));
+
+        if ($custom !== '') {
+            return $this->resolveImage($custom);
+        }
+
+        return $this->resolveImage($fallback);
+    }
+
     private function getTourCoverPath(int $tourId, string $fallback = ''): string
     {
         if ($tourId <= 0 || !$this->db->tableExists('tour_media')) {
@@ -585,6 +753,8 @@ class TourCatalogService
         }
 
         $detail = $tour;
+        $detail['meta_title'] = (string) ($translation['meta_title'] ?? $fallbackTranslation['meta_title'] ?? '');
+        $detail['meta_description'] = (string) ($translation['meta_description'] ?? $fallbackTranslation['meta_description'] ?? '');
         $detail['short_description'] = (string) ($translation['short_description'] ?? $fallbackTranslation['short_description'] ?? '');
         $detail['overview'] = (string) ($translation['overview'] ?? $fallbackTranslation['overview'] ?? '');
         $detail['description'] = (string) ($translation['description'] ?? $fallbackTranslation['description'] ?? '');
@@ -807,4 +977,20 @@ class TourCatalogService
 
         return date('d/m/Y', $timestamp);
     }
+
+    private function featuredDestinationColClass(int $index): string
+    {
+        $patterns = [
+            'col-lg-5 col-md-7',
+            'col-lg-3 col-md-5',
+            'col-lg-4 col-md-6',
+            'col-lg-4 col-md-6',
+            'col-lg-3 col-md-5',
+            'col-lg-5 col-md-7',
+        ];
+
+        return $patterns[$index % count($patterns)];
+    }
 }
+
+

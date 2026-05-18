@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
 use App\Services\BookingNotificationService;
 use App\Services\PayPalSandboxService;
@@ -72,7 +73,7 @@ class BookingController extends BaseController
             return $this->response->setJSON([
                 'ok' => true,
                 'message' => 'Booking saved.',
-                'redirect' => localized_url('booking/checkout'),
+                'redirect' => LocalizedPathCatalog::url('booking.checkout'),
             ]);
         }
 
@@ -90,7 +91,7 @@ class BookingController extends BaseController
 
         session()->set('checkout_mode', 'guest');
 
-        return redirect()->to(localized_url('booking/checkout'));
+        return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
     }
 
     public function checkout()
@@ -176,9 +177,9 @@ class BookingController extends BaseController
                 'pending_payment'
             );
 
-            $localePrefix = $this->request->getLocale() === 'en' ? 'en/' : '';
-            $returnUrl = base_url($localePrefix . 'booking/paypal/return');
-            $cancelUrl = base_url($localePrefix . 'booking/paypal/cancel');
+            $requestLocale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
+            $returnUrl = LocalizedPathCatalog::url('booking.paypalReturn', $requestLocale);
+            $cancelUrl = LocalizedPathCatalog::url('booking.paypalCancel', $requestLocale);
             $order = $paypal->createOrder($pendingBooking, $amountUsd, $returnUrl, $cancelUrl);
             $approveLink = $this->extractApproveLink($order);
 
@@ -352,7 +353,7 @@ class BookingController extends BaseController
 
         return $this->response->setJSON([
             'ok' => true,
-            'redirect' => localized_url('booking/success/' . $bookingCode),
+            'redirect' => LocalizedPathCatalog::url('booking.successPrefix', $this->request->getLocale() === 'en' ? 'en' : 'vi') . '/' . $bookingCode,
         ]);
     }
 
@@ -363,7 +364,7 @@ class BookingController extends BaseController
 
         if ($orderId === '' || ! is_array($paypalCheckout)) {
             session()->setFlashdata('checkout_error', 'Khong tim thay giao dich PayPal de xac nhan.');
-            return redirect()->to(localized_url('booking/checkout'));
+            return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
         }
 
         $bookingCode = (string) ($paypalCheckout['booking_code'] ?? '');
@@ -372,7 +373,7 @@ class BookingController extends BaseController
 
         if (! is_array($booking)) {
             session()->setFlashdata('checkout_error', 'Khong tim thay booking de cap nhat thanh toan.');
-            return redirect()->to(localized_url('booking/checkout'));
+            return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
         }
 
         $paypal = new PayPalSandboxService();
@@ -418,7 +419,7 @@ class BookingController extends BaseController
             session()->remove('pending_booking');
             session()->remove('current_booking_code');
 
-            return redirect()->to(localized_url('booking/success/' . $bookingCode));
+            return redirect()->to(LocalizedPathCatalog::url('booking.successPrefix', $this->request->getLocale() === 'en' ? 'en' : 'vi') . '/' . $bookingCode);
         } catch (\Throwable $exception) {
             $bookingModel->update((int) $booking['id'], [
                 'payment_status' => 'failed',
@@ -428,7 +429,7 @@ class BookingController extends BaseController
             session()->setFlashdata('checkout_error', $exception->getMessage());
         }
 
-        return redirect()->to(localized_url('booking/checkout'));
+        return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
     }
 
     public function paypalCancel()
@@ -449,7 +450,7 @@ class BookingController extends BaseController
         session()->remove('current_booking_code');
         session()->setFlashdata('checkout_error', 'Ban da huy giao dich PayPal.');
 
-        return redirect()->to(localized_url('booking/checkout'));
+        return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
     }
 
     private function getPendingBooking(): ?array
@@ -464,6 +465,7 @@ class BookingController extends BaseController
      */
     private function extractCustomerPayload(): array
     {
+        $locale = $this->request->getLocale();
         $fullName = trim((string) $this->request->getPost('full_name'));
         $email = strtolower(trim((string) $this->request->getPost('email')));
         $phone = trim((string) $this->request->getPost('phone'));
@@ -472,14 +474,14 @@ class BookingController extends BaseController
         if ($fullName === '' || $email === '' || $phone === '') {
             return [
                 'data' => [],
-                'error' => 'Vui long nhap day du thong tin khach hang truoc khi thanh toan.',
+                'error' => lang('Frontend.checkout.customerInfoRequired', [], $locale),
             ];
         }
 
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return [
                 'data' => [],
-                'error' => 'Email khong hop le.',
+                'error' => lang('Frontend.checkout.invalidEmail', [], $locale),
             ];
         }
 

@@ -16,21 +16,22 @@ $depositAmount = $grandTotal * $depositRate;
 $checkoutNotice = trim((string) ($checkoutNotice ?? ''));
 $checkoutError = trim((string) ($checkoutError ?? ''));
 $formatCurrency = static fn(float $amount): string => number_format($amount, 0, ',', '.') . ' VND';
+$t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
 $travelerParts = [];
 
 if ($adultQuantity > 0) {
-    $travelerParts[] = $adultQuantity . ' người lớn';
+    $travelerParts[] = $adultQuantity . ' ' . $t('tour.booking.adult');
 }
 
 if ($childQuantity > 0) {
-    $travelerParts[] = $childQuantity . ' trẻ em';
+    $travelerParts[] = $childQuantity . ' ' . $t('tour.booking.child');
 }
 
 if ($infantQuantity > 0) {
-    $travelerParts[] = $infantQuantity . ' em bé';
+    $travelerParts[] = $infantQuantity . ' ' . $t('tour.booking.infant');
 }
 
-$travelerSummary = $travelerCount . ' người';
+$travelerSummary = $travelerCount . ' ' . $t('checkout.travelers');
 
 if ($travelerParts !== []) {
     $travelerSummary .= ' (' . implode(', ', $travelerParts) . ')';
@@ -41,7 +42,7 @@ if ($travelerParts !== []) {
         <div class="col-lg-12">
             <div class="package-details-warpper">
                 <div class="section-title mb-30">
-                    <h2>Checkout</h2>
+                    <h2><?= esc($t('checkout.title')) ?></h2>
                 </div>
 
                 <?php if ($checkoutNotice !== ''): ?>
@@ -54,29 +55,29 @@ if ($travelerParts !== []) {
 
                 <?php if ($authUser !== null): ?>
                     <div class="alert alert-success">
-                        Signed in as <strong><?= esc($authUser['full_name'] ?: $authUser['email']) ?></strong>
-                        (<a href="<?= localized_url('auth/logout') ?>">Logout</a>)
+                        <?= esc($t('checkout.signedInAs')) ?> <strong><?= esc($authUser['full_name'] ?: $authUser['email']) ?></strong>
+                        (<a href="<?= \App\Data\LocalizedPathCatalog::url('auth.logout', $locale) ?>"><?= esc($t('auth.logout')) ?></a>)
                     </div>
                 <?php else: ?>
                     <div class="alert alert-secondary">
-                        Checkout mode: <strong><?= esc($checkoutMode === 'member' ? 'Member' : 'Guest') ?></strong>.
+                        <?= esc($t('checkout.checkoutMode')) ?>: <strong><?= esc($checkoutMode === 'member' ? $t('checkout.member') : $t('checkout.guest')) ?></strong>.
                     </div>
                 <?php endif; ?>
 
                 <div class="checkout-stepper-header mb-40">
                     <button type="button" class="checkout-stepper-tab is-active" data-step-target="1">
                         <span class="step-number">1</span>
-                        <span class="step-label">Nhập thông tin</span>
+                        <span class="step-label"><?= esc($t('checkout.step1')) ?></span>
                     </button>
                     <span class="step-line"></span>
                     <button type="button" class="checkout-stepper-tab" data-step-target="2">
                         <span class="step-number">2</span>
-                        <span class="step-label">Thanh toán</span>
+                        <span class="step-label"><?= esc($t('checkout.step2')) ?></span>
                     </button>
                     <span class="step-line"></span>
                     <button type="button" class="checkout-stepper-tab" data-step-target="3">
                         <span class="step-number">3</span>
-                        <span class="step-label">Hoàn tất</span>
+                        <span class="step-label"><?= esc($t('checkout.step3')) ?></span>
                     </button>
                 </div>
 
@@ -86,50 +87,50 @@ if ($travelerParts !== []) {
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <div class="form-inner">
-                                        <label for="checkout-full-name">Họ và tên</label>
+                                        <label for="checkout-full-name"><?= esc($t('checkout.fullName')) ?></label>
                                         <input
                                             type="text"
                                             id="checkout-full-name"
                                             name="full_name"
                                             value="<?= esc((string) ($authUser['full_name'] ?? '')) ?>"
-                                            placeholder="Tên khách hàng"
+                                            placeholder="<?= esc($t('checkout.customerNamePlaceholder')) ?>"
                                             required
                                             data-summary-field="full_name">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-inner">
-                                        <label for="checkout-email">Email</label>
+                                        <label for="checkout-email"><?= esc($t('checkout.email')) ?></label>
                                         <input
                                             type="email"
                                             id="checkout-email"
                                             name="email"
                                             value="<?= esc((string) ($authUser['email'] ?? '')) ?>"
-                                            placeholder="Email"
+                                            placeholder="<?= esc($t('checkout.emailPlaceholder')) ?>"
                                             required
                                             data-summary-field="email">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-inner">
-                                        <label for="checkout-phone">Số điện thoại</label>
+                                        <label for="checkout-phone"><?= esc($t('checkout.phone')) ?></label>
                                         <input
                                             type="text"
                                             id="checkout-phone"
                                             name="phone"
-                                            placeholder="Số điện thoại"
+                                            placeholder="<?= esc($t('checkout.phonePlaceholder')) ?>"
                                             required
                                             data-summary-field="phone">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-inner">
-                                        <label for="checkout-note">Ghi chú</label>
+                                        <label for="checkout-note"><?= esc($t('checkout.note')) ?></label>
                                         <input
                                             type="text"
                                             id="checkout-note"
                                             name="note"
-                                            placeholder="Yêu cầu thêm nếu có"
+                                            placeholder="<?= esc($t('checkout.notePlaceholder')) ?>"
                                             data-summary-field="note">
                                     </div>
                                 </div>
@@ -137,7 +138,7 @@ if ($travelerParts !== []) {
                         </div>
 
                         <div class="checkout-stepper-actions">
-                            <button type="button" class="primary-btn1" data-step-next="2">Tiếp tục thanh toán</button>
+                            <button type="button" class="primary-btn1" data-step-next="2"><?= esc($t('checkout.continuePayment')) ?></button>
                         </div>
                     </div>
 
@@ -145,22 +146,22 @@ if ($travelerParts !== []) {
                         <div class="row g-4">
                             <div class="col-xl-7">
                                 <div class="checkout-stepper-card">
-                                    <h5 class="checkout-card-title">Thông tin khách hàng</h5>
+                                    <h5 class="checkout-card-title"><?= esc($t('checkout.customerInfo')) ?></h5>
                                     <div class="checkout-info-grid">
                                         <div class="checkout-info-item">
-                                            <span>Họ và tên</span>
+                                            <span><?= esc($t('checkout.fullName')) ?></span>
                                             <strong data-summary-output="full_name">-</strong>
                                         </div>
                                         <div class="checkout-info-item">
-                                            <span>Email</span>
+                                            <span><?= esc($t('checkout.email')) ?></span>
                                             <strong data-summary-output="email">-</strong>
                                         </div>
                                         <div class="checkout-info-item">
-                                            <span>Số điện thoại</span>
+                                            <span><?= esc($t('checkout.phone')) ?></span>
                                             <strong data-summary-output="phone">-</strong>
                                         </div>
                                         <div class="checkout-info-item">
-                                            <span>Ghi chú</span>
+                                            <span><?= esc($t('checkout.note')) ?></span>
                                             <strong data-summary-output="note">-</strong>
                                         </div>
                                     </div>
@@ -168,56 +169,56 @@ if ($travelerParts !== []) {
 
                                 <div class="checkout-stepper-card">
                                     <div class="checkout-card-head">
-                                        <h5 class="checkout-card-title">Tùy chọn thanh toán</h5>
-                                        <button type="button" class="checkout-text-btn" data-price-breakdown-toggle>View Price Breakdown</button>
+                                        <h5 class="checkout-card-title"><?= esc($t('checkout.paymentOptions')) ?></h5>
+                                        <button type="button" class="checkout-text-btn" data-price-breakdown-toggle><?= esc($t('checkout.viewPriceBreakdown')) ?></button>
                                     </div>
 
                                     <div class="checkout-price-breakdown" data-price-breakdown hidden>
                                         <div class="price-breakdown-row">
-                                            <span>Người lớn x <?= esc((string) $adultQuantity) ?></span>
+                                            <span><?= esc($t('checkout.priceAdult', [$adultQuantity])) ?></span>
                                             <strong><?= esc($formatCurrency((float) ($booking['adult_price'] ?? 0) * $adultQuantity)) ?></strong>
                                         </div>
                                         <div class="price-breakdown-row">
-                                            <span>Trẻ em x <?= esc((string) $childQuantity) ?></span>
+                                            <span><?= esc($t('checkout.priceChild', [$childQuantity])) ?></span>
                                             <strong><?= esc($formatCurrency((float) ($booking['child_price'] ?? 0) * $childQuantity)) ?></strong>
                                         </div>
                                         <div class="price-breakdown-row">
-                                            <span>Em bé x <?= esc((string) $infantQuantity) ?></span>
+                                            <span><?= esc($t('checkout.priceInfant', [$infantQuantity])) ?></span>
                                             <strong><?= esc($formatCurrency((float) ($booking['infant_price'] ?? 0) * $infantQuantity)) ?></strong>
                                         </div>
                                     </div>
 
                                     <div class="checkout-coupon-row">
-                                        <label for="checkout-coupon">Coupon Code</label>
+                                        <label for="checkout-coupon"><?= esc($t('checkout.couponCode')) ?></label>
                                         <div class="checkout-coupon-input">
-                                            <button type="button" class="checkout-text-btn" data-coupon-placeholder>Apply</button>
-                                            <input type="text" id="checkout-coupon" placeholder="Coming soon">
+                                            <button type="button" class="checkout-text-btn" data-coupon-placeholder><?= esc($t('checkout.apply')) ?></button>
+                                            <input type="text" id="checkout-coupon" placeholder="<?= esc($t('checkout.comingSoon')) ?>">
                                         </div>
                                     </div>
 
                                     <div class="checkout-price-row">
-                                        <span>Tổng tiền</span>
+                                        <span><?= esc($t('checkout.total')) ?></span>
                                         <strong><?= esc($formatCurrency($grandTotal)) ?></strong>
                                     </div>
                                     <div class="checkout-price-row">
-                                        <span data-payment-plan-label>Trả trước 10%</span>
+                                        <span data-payment-plan-label><?= esc($t('checkout.depositLine')) ?></span>
                                         <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
                                     </div>
 
                                     <div class="checkout-plan-options">
                                         <label class="checkout-plan-option">
                                             <input type="radio" name="payment_plan" value="full" data-payment-plan="full">
-                                            <span>Thanh toán toàn bộ</span>
+                                            <span><?= esc($t('checkout.payFull')) ?></span>
                                         </label>
                                         <label class="checkout-plan-option">
                                             <input type="radio" name="payment_plan" value="deposit" data-payment-plan="deposit" checked>
-                                            <span>Đặt cọc 10%</span>
+                                            <span><?= esc($t('checkout.payDeposit')) ?></span>
                                         </label>
                                     </div>
                                 </div>
 
                                 <div class="checkout-stepper-card">
-                                    <h5 class="checkout-card-title">Phương thức thanh toán</h5>
+                                    <h5 class="checkout-card-title"><?= esc($t('checkout.paymentMethods')) ?></h5>
                                     <div class="checkout-payment-options">
                                         <label class="checkout-payment-option is-selected">
                                             <input type="radio" name="payment_method" value="paypal" checked>
@@ -244,19 +245,19 @@ if ($travelerParts !== []) {
                                             </span>
                                         </label>
                                     </div>
-                                    <div class="checkout-vietqr-box" data-vietqr-box data-vietqr-create-url="<?= esc(localized_url('booking/vietqr/generate')) ?>" data-vietqr-complete-url="<?= esc(localized_url('booking/vietqr/complete')) ?>" hidden>
+                                    <div class="checkout-vietqr-box" data-vietqr-box data-vietqr-create-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.vietqrGenerate', $locale)) ?>" data-vietqr-complete-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.vietqrComplete', $locale)) ?>" hidden>
                                         <div class="checkout-vietqr-qr">
                                             <img src="" alt="VietQR" data-vietqr-image hidden>
                                             <span data-vietqr-placeholder>QR</span>
                                         </div>
                                         <div>
-                                            <h6>VietQR</h6>
-                                            <p data-vietqr-message>Quét mã để chuyển khoản theo đúng số tiền và nội dung.</p>
+                                            <h6><?= esc($t('checkout.vietqrTitle')) ?></h6>
+                                            <p data-vietqr-message><?= esc($t('checkout.vietqrHint')) ?></p>
                                             <div class="checkout-vietqr-meta">
-                                                <div><strong>Số tiền:</strong> <span data-vietqr-amount>-</span></div>
-                                                <div><strong>Nội dung:</strong> <span data-vietqr-add-info>-</span></div>
-                                                <div><strong>Tài khoản:</strong> <span data-vietqr-account-name>-</span></div>
-                                                <div><strong>Số tài khoản:</strong> <span data-vietqr-account-no>-</span></div>
+                                                <div><strong><?= esc($t('checkout.vietqrAmount')) ?></strong> <span data-vietqr-amount>-</span></div>
+                                                <div><strong><?= esc($t('checkout.vietqrContent')) ?></strong> <span data-vietqr-add-info>-</span></div>
+                                                <div><strong><?= esc($t('checkout.vietqrAccountName')) ?></strong> <span data-vietqr-account-name>-</span></div>
+                                                <div><strong><?= esc($t('checkout.vietqrAccountNo')) ?></strong> <span data-vietqr-account-no>-</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -266,10 +267,10 @@ if ($travelerParts !== []) {
                                     <label class="checkout-terms-check">
                                         <input type="checkbox" name="agree_terms" data-agree-terms>
                                         <span>
-                                            Tôi đồng ý với
-                                            <a href="<?= esc(localized_url($locale === 'en' ? 'terms-of-service' : 'dieu-khoan-su-dung')) ?>" target="_blank" rel="noopener noreferrer">Điều khoản sử dụng</a>
-                                            &
-                                            <a href="<?= esc(localized_url($locale === 'en' ? 'privacy-statement' : 'chinh-sach-bao-mat')) ?>" target="_blank" rel="noopener noreferrer">Chính sách bảo mật</a>
+                                            <?= esc($t('checkout.termsAgreePrefix')) ?>
+                                            <a href="<?= esc(\App\Data\LocalizedPathCatalog::url('legal.terms', $locale)) ?>" target="_blank" rel="noopener noreferrer"><?= esc($t('checkout.termsOfService')) ?></a>
+                                            <?= esc($t('checkout.and')) ?>
+                                            <a href="<?= esc(\App\Data\LocalizedPathCatalog::url('legal.privacy', $locale)) ?>" target="_blank" rel="noopener noreferrer"><?= esc($t('checkout.privacyStatement')) ?></a>
                                         </span>
                                     </label>
                                     <p class="checkout-inline-error" data-step-error hidden></p>
@@ -279,22 +280,22 @@ if ($travelerParts !== []) {
                             <div class="col-xl-5">
                                 <div class="checkout-stepper-card checkout-booking-summary">
                                     <img class="checkout-booking-image pb-10" src="<?= esc($booking['tour_image']) ?>" alt="Tour Image" >
-                                    <h5 class="checkout-card-title"><?= esc((string) ($booking['tour_title'] ?? 'Tour booking')) ?></h5>
+                                    <h5 class="checkout-card-title"><?= esc((string) ($booking['tour_title'] ?? $t('checkout.bookingTitleFallback'))) ?></h5>
                                     <div class="checkout-summary-list">
                                         <div class="checkout-summary-item">
-                                            <span>Travel Date</span>
+                                            <span><?= esc($t('checkout.travelDate')) ?></span>
                                             <strong><?= esc((string) ($booking['departure_label'] ?? '-')) ?></strong>
                                         </div>
                                         <div class="checkout-summary-item">
-                                            <span>Period</span>
+                                            <span><?= esc($t('checkout.period')) ?></span>
                                             <strong><?= esc((string) ($booking['duration_label'] ?? '-')) ?></strong>
                                         </div>
                                         <div class="checkout-summary-item">
-                                            <span>Travelers</span>
+                                            <span><?= esc($t('checkout.travelers')) ?></span>
                                             <strong><?= esc($travelerSummary) ?></strong>
                                         </div>
                                         <div class="checkout-summary-item total">
-                                            <span>Số tiền cần thanh toán</span>
+                                            <span><?= esc($t('checkout.total')) ?></span>
                                             <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
                                         </div>
                                     </div>
@@ -303,57 +304,57 @@ if ($travelerParts !== []) {
                         </div>
 
                         <div class="checkout-stepper-actions">
-                            <button type="button" class="primary-btn1 transparent" data-step-prev="1">Quay lại</button>
-                            <button type="button" class="primary-btn1" data-step-next="3" data-paypal-submit data-paypal-create-url="<?= esc(localized_url('booking/paypal/create-order')) ?>">Hoàn tất</button>
+                            <button type="button" class="primary-btn1 transparent" data-step-prev="1"><?= esc($t('checkout.back')) ?></button>
+                            <button type="button" class="primary-btn1" data-step-next="3" data-paypal-submit data-paypal-create-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.paypalCreateOrder', $locale)) ?>"><?= esc($t('checkout.step3')) ?></button>
                         </div>
                     </div>
 
                     <div class="checkout-stepper-pane" data-step-pane="3">
                         <div class="checkout-stepper-card">
-                            <h5 class="checkout-card-title">Xác nhận thanh toán</h5>
+                            <h5 class="checkout-card-title"><?= esc($t('checkout.step3')) ?></h5>
                             <div class="checkout-finish-grid">
                                 <div class="checkout-finish-item">
-                                    <span>Khách hàng</span>
+                                    <span><?= esc($t('checkout.fullName')) ?></span>
                                     <strong data-summary-output="full_name">-</strong>
                                 </div>
                                 <div class="checkout-finish-item">
-                                    <span>Email</span>
+                                    <span><?= esc($t('checkout.email')) ?></span>
                                     <strong data-summary-output="email">-</strong>
                                 </div>
                                 <div class="checkout-finish-item">
-                                    <span>Số điện thoại</span>
+                                    <span><?= esc($t('checkout.phone')) ?></span>
                                     <strong data-summary-output="phone">-</strong>
                                 </div>
                                 <div class="checkout-finish-item">
-                                    <span>Tour</span>
+                                    <span><?= esc($t('checkout.tourLabel')) ?></span>
                                     <strong><?= esc((string) ($booking['tour_title'] ?? '-')) ?></strong>
                                 </div>
                                 <div class="checkout-finish-item">
-                                    <span>Phương thức</span>
+                                    <span><?= esc($t('checkout.paymentMethods')) ?></span>
                                     <strong data-payment-method-output>PayPal</strong>
                                 </div>
                                 <div class="checkout-finish-item">
-                                    <span>Gói thanh toán</span>
-                                    <strong data-payment-plan-output>Đặt cọc 10%</strong>
+                                    <span><?= esc($t('checkout.paymentOptions')) ?></span>
+                                    <strong data-payment-plan-output><?= esc($t('checkout.payDeposit')) ?></strong>
                                 </div>
                                 <div class="checkout-finish-item">
-                                    <span>Số tiền</span>
+                                    <span><?= esc($t('checkout.total')) ?></span>
                                     <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
                                 </div>
                                 <div class="checkout-finish-item">
-                                    <span>Ghi chú</span>
+                                    <span><?= esc($t('checkout.noteLabel')) ?></span>
                                     <strong data-summary-output="note">-</strong>
                                 </div>
                             </div>
                             <div class="checkout-finish-note" data-step-three-note>
-                                Với VietQR, sau khi chuyển khoản xong hãy bấm xác nhận để hệ thống ghi nhận booking và chuyển sang trang hoàn tất.
+                                <?= esc($t('checkout.vietqrTransferNote')) ?>
                             </div>
                         </div>
 
                         <div class="checkout-stepper-actions">
-                            <button type="button" class="primary-btn1 transparent" data-step-prev="2">Quay lại</button>
-                            <button type="button" class="primary-btn1" data-vietqr-complete>Xác nhận đã chuyển khoản</button>
-                            <a href="<?= esc((string) ($booking['tour_link'] ?? localized_url(''))) ?>" class="primary-btn1 d-none" data-step-three-tour-link>Về trang tour</a>
+                            <button type="button" class="primary-btn1 transparent" data-step-prev="2"><?= esc($t('checkout.back')) ?></button>
+                            <button type="button" class="primary-btn1" data-vietqr-complete><?= esc($t('checkout.completeTransfer')) ?></button>
+                            <a href="<?= esc((string) ($booking['tour_link'] ?? localized_url(''))) ?>" class="primary-btn1 d-none" data-step-three-tour-link><?= esc($t('checkout.backToTour')) ?></a>
                         </div>
                     </div>
                 </form>
@@ -404,19 +405,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const stepThreePane = root.querySelector('[data-step-pane="3"]');
     const stepLines = Array.from(root.querySelectorAll('.checkout-stepper-header .step-line'));
     const stepThreeLine = stepLines.length > 1 ? stepLines[1] : null;
-    const defaultStepTwoLabel = paypalSubmitButton ? paypalSubmitButton.textContent.trim() : 'Tiếp tục';
+    const defaultStepTwoLabel = paypalSubmitButton ? paypalSubmitButton.textContent.trim() : <?= json_encode($t('checkout.continuePayment')) ?>;
     const currency = new Intl.NumberFormat('vi-VN');
     const totals = {
         full: <?= json_encode($grandTotal) ?>,
         deposit: <?= json_encode($depositAmount) ?>
     };
     const planLabels = {
-        full: 'Thanh toán toàn bộ',
-        deposit: 'Đặt cọc 10%'
+        full: <?= json_encode($t('checkout.payFull')) ?>,
+        deposit: <?= json_encode($t('checkout.payDeposit')) ?>
     };
     const planLineLabels = {
-        full: 'Full Amount',
-        deposit: '10% Deposit'
+        full: <?= json_encode($t('checkout.payFull')) ?>,
+        deposit: <?= json_encode($t('checkout.depositLine')) ?>
     };
     const paymentLabels = {
         paypal: 'PayPal',
@@ -637,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (paypalSubmitButton) {
-            paypalSubmitButton.textContent = isPaypal ? 'Thanh toán với PayPal' : defaultStepTwoLabel;
+            paypalSubmitButton.textContent = isPaypal ? <?= json_encode($t('checkout.payWithPaypal')) ?> : defaultStepTwoLabel;
         }
 
         if (stepThreeTab) {
@@ -662,8 +663,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (stepThreeNote) {
             stepThreeNote.textContent = isVietQr
-                ? 'Với VietQR, sau khi chuyển khoản xong hãy bấm xác nhận để hệ thống ghi nhận booking và chuyển sang trang hoàn tất.'
-                : 'Phương thức này chưa được nối thanh toán tự động. Có thể quay lại chọn PayPal hoặc VietQR để test flow hoàn tất.';
+                ? <?= json_encode($t('checkout.vietqrTransferNote')) ?>
+                : <?= json_encode($t('checkout.otherMethodNote')) ?>;
         }
 
         if (method === 'vietqr') {
@@ -699,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return true;
         }
 
-        setError('Bạn cần đồng ý Terms of Service và Privacy Statement trước khi hoàn tất.');
+        setError(<?= json_encode($t('checkout.invalidTerms')) ?>);
         return false;
     };
 
@@ -722,17 +723,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (!selectedMethod || selectedMethod.value !== 'paypal') {
-            setError('Hiện tại mới nối PayPal sandbox. Hãy chọn PayPal để test.');
+            setError(<?= json_encode($t('checkout.paypalOnly')) ?>);
             return;
         }
 
         if (!paypalSubmitButton) {
-            setError('Không tìm thấy nút thanh toán PayPal.');
+            setError(<?= json_encode($t('checkout.paypalButtonMissing')) ?>);
             return;
         }
 
         paypalSubmitButton.setAttribute('disabled', 'disabled');
-        paypalSubmitButton.textContent = 'Đang chuyển sang PayPal...';
+        paypalSubmitButton.textContent = <?= json_encode($t('checkout.processingPaypal')) ?>;
 
         try {
             const formData = new FormData();
@@ -753,12 +754,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const payload = await response.json();
 
             if (!response.ok || !payload.ok || !payload.redirect) {
-                throw new Error(payload.message || 'Không thể tạo giao dịch PayPal.');
+                throw new Error(payload.message || <?= json_encode($t('checkout.paypalCreateFailed')) ?>);
             }
 
             window.location.href = payload.redirect;
         } catch (error) {
-            setError(error.message || 'Không thể kết nối PayPal sandbox.');
+            setError(error.message || <?= json_encode($t('checkout.paypalConnectFailed')) ?>);
             paypalSubmitButton.removeAttribute('disabled');
             updatePaymentMethod();
         }
@@ -772,13 +773,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (vietQrCompleteUrl === '') {
-            setError('Không tìm thấy cấu hình hoàn tất VietQR.');
+            setError(<?= json_encode($t('checkout.vietqrConfigMissing')) ?>);
             return;
         }
 
         if (vietQrCompleteButton) {
             vietQrCompleteButton.setAttribute('disabled', 'disabled');
-            vietQrCompleteButton.textContent = 'Đang ghi nhận...';
+            vietQrCompleteButton.textContent = <?= json_encode($t('contact.submitting')) ?>;
         }
 
         try {
@@ -792,16 +793,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const payload = await response.json();
 
             if (!response.ok || !payload.ok || !payload.redirect) {
-                throw new Error(payload.message || 'Không thể hoàn tất booking VietQR.');
+                throw new Error(payload.message || <?= json_encode($t('checkout.vietqrCompleteFailed')) ?>);
             }
 
             window.location.href = payload.redirect;
         } catch (error) {
-            setError(error.message || 'Không thể hoàn tất booking VietQR.');
+            setError(error.message || <?= json_encode($t('checkout.vietqrCompleteFailed')) ?>);
 
             if (vietQrCompleteButton) {
                 vietQrCompleteButton.removeAttribute('disabled');
-                vietQrCompleteButton.textContent = 'Xác nhận đã chuyển khoản';
+                vietQrCompleteButton.textContent = <?= json_encode($t('checkout.completeTransfer')) ?>;
             }
         }
     };
@@ -909,7 +910,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (couponPlaceholder) {
         couponPlaceholder.addEventListener('click', function () {
-            window.alert('Coupon code chưa được nối backend. Nên làm sau khi chốt pricing và rule giảm giá.');
+            window.alert(<?= json_encode($t('checkout.couponAlert')) ?>);
         });
     }
 

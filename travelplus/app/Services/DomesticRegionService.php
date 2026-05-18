@@ -24,10 +24,10 @@ class DomesticRegionService
     ];
 
     private array $provinceCodeMap = [
-        'north' => ['HN', 'HP', 'QN', 'NB', 'LC', 'SP', 'BG', 'BN', 'TB', 'ND', 'HD', 'HY', 'VP', 'PT', 'TN', 'BC', 'CB', 'DB', 'HG', 'LS', 'YT', 'TBH'],
+        'north' => ['HN', 'HP', 'QN', 'QNH', 'NB', 'LC', 'SP', 'BG', 'BN', 'TB', 'ND', 'HD', 'HY', 'VP', 'PT', 'TN', 'BC', 'CB', 'DB', 'HG', 'LS', 'YT', 'TBH'],
         'central' => ['TH', 'NA', 'HT', 'QB', 'QT', 'HUE', 'DN', 'QN', 'QNG', 'BD', 'PY', 'KH', 'NT', 'GL', 'KT', 'DL', 'DNO'],
         'south' => ['HCM', 'SG', 'BDG', 'DNA', 'VT', 'TNH', 'BPH', 'LDG', 'AGI'],
-        'mekong' => ['CT', 'AG', 'DT', 'VL', 'TV', 'BTR', 'ST', 'BL', 'CM', 'KG', 'HG', 'TG', 'LA'],
+        'mekong' => ['CT', 'AG', 'DT', 'VL', 'VLG', 'TV', 'BTR', 'ST', 'BL', 'CM', 'KG', 'HG', 'TG', 'LA'],
         'vietnam' => ['AVN']
     ];
 

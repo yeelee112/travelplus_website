@@ -2,11 +2,14 @@
 
 <?= $this->section('content') ?>
 <?php
+helper('display');
+
 $page = is_array($page ?? null) ? $page : [];
 $sections = $page['sections'] ?? [];
 $title = (string) ($page['title'] ?? 'Legal');
 $subtitle = (string) ($page['subtitle'] ?? '');
 $updatedAt = (string) ($page['updated_at'] ?? '');
+$updatedLabel = (string) ($page['updated_label'] ?? 'Last updated');
 ?>
 
 <div class="container pt-100 pb-100">
@@ -18,7 +21,7 @@ $updatedAt = (string) ($page['updated_at'] ?? '');
                     <p><?= esc($subtitle) ?></p>
                 <?php endif; ?>
                 <?php if ($updatedAt !== ''): ?>
-                    <p><strong>Ngày cập nhật:</strong> <?= esc($updatedAt) ?></p>
+                    <p><strong><?= esc($updatedLabel) ?>:</strong> <?= esc(app_datetime($updatedAt, 'd/m/Y')) ?></p>
                 <?php endif; ?>
             </div>
 

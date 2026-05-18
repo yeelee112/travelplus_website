@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Data\LocalizedPathCatalog;
+use App\Services\SeoService;
 use App\Services\TourCatalogService;
 
 class SearchController extends BaseController
@@ -9,6 +11,8 @@ class SearchController extends BaseController
     public function tours()
     {
         $locale = $this->request->getLocale() ?: 'vi';
+        $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
+        $seo = new SeoService();
         $query = trim((string) $this->request->getGet('q'));
         $departureDate = trim((string) $this->request->getGet('departure_date'));
         $page = (int) ($this->request->getGet('page') ?? 1);
@@ -22,15 +26,28 @@ class SearchController extends BaseController
             $fallbackTours = $fallback['tours'];
         }
 
+        $alternateParams = array_filter([
+            'q' => $query,
+            'departure_date' => $departureDate,
+        ], static fn($value): bool => $value !== '');
+        $viSearchUrl = LocalizedPathCatalog::url('search', 'vi') . ($alternateParams !== [] ? '?' . http_build_query($alternateParams) : '');
+        $enSearchUrl = LocalizedPathCatalog::url('search', 'en') . ($alternateParams !== [] ? '?' . http_build_query($alternateParams) : '');
+        $canonicalUrl = LocalizedPathCatalog::url('search', $locale);
+        $metaTitle = $query !== ''
+            ? ($t('search.resultsFor', [$query]) . ' | Travel Plus')
+            : $t('search.metaTitle');
+        $metaDesc = $t('search.metaDesc');
+        $breadcrumbs = [
+            ['label' => $t('common.home'), 'url' => localized_url('/')],
+            ['label' => $t('search.title')],
+        ];
+
         return view('tour-search/index', [
-            'breadcrumbs' => [
-                ['label' => $locale === 'en' ? 'Home' : 'Trang chủ', 'url' => localized_url('/')],
-                ['label' => $locale === 'en' ? 'Tour Search' : 'Tìm tour'],
-            ],
-            'pageTitle' => $locale === 'en' ? 'Tour Search Results' : 'Kết quả tìm tour',
+            'breadcrumbs' => $breadcrumbs,
+            'pageTitle' => $t('search.resultsTitle'),
             'pageSubtitle' => $query !== ''
-                ? ($locale === 'en' ? 'Results for: ' : 'Kết quả cho: ') . $query
-                : ($locale === 'en' ? 'All matching tours' : 'Các tour phù hợp'),
+                ? $t('search.resultsFor', [$query])
+                : $t('search.resultsAll'),
             'tours' => $result['tours'],
             'pagination' => [
                 'total' => $result['total'],
@@ -38,6 +55,20 @@ class SearchController extends BaseController
                 'lastPage' => $result['lastPage'],
             ],
             'fallbackTours' => $fallbackTours,
+            'meta_title' => $metaTitle,
+            'meta_desc' => $metaDesc,
+            'meta_robots' => 'noindex,follow,max-image-preview:large',
+            'canonical_url' => $canonicalUrl,
+            'alternate_links' => [
+                ['hreflang' => 'vi', 'href' => $viSearchUrl],
+                ['hreflang' => 'en', 'href' => $enSearchUrl],
+                ['hreflang' => 'x-default', 'href' => $viSearchUrl],
+            ],
+            'schema_graph' => [
+                $seo->organizationSchema(),
+                $seo->breadcrumbSchema($breadcrumbs, $canonicalUrl),
+                $seo->webpageSchema($metaTitle, $metaDesc, $canonicalUrl),
+            ],
         ]);
     }
 }

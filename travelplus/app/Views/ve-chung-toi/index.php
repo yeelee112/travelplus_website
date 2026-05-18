@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <?= view('layouts/breadcrumb') ?>
-<?= $this->include('sections/about-info') ?>
+<?= view('sections/about-info', ['content' => $pageContent ?? []]) ?>
 
 
 
