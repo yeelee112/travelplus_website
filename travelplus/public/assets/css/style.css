@@ -41888,8 +41888,11 @@ header.style-3.two .main-menu>ul>li.active>a i {
 .mice-solution-panel {
     height: 100%;
     padding: 38px;
-    background: linear-gradient(135deg, #0f3050 0%, #164a73 100%);
-    color: rgba(255, 255, 255, 0.92);
+    background-color: rgba(81, 81 ,81);
+    background-image: url(../images/mice-corporate-travel.jpg);
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: multiply;
 }
 
 .mice-solution-panel h2,

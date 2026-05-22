@@ -10,6 +10,8 @@ $metaImage = (string) ($meta_image ?? base_url('assets/images/TravelPlus_Company
 $alternateLinks = is_array($alternate_links ?? null) ? $alternate_links : [];
 $schemaGraph = is_array($schema_graph ?? null) ? array_values(array_filter($schema_graph)) : [];
 $ogLocale = $currentLocale === 'en' ? 'en_US' : 'vi_VN';
+$firstSegment = service('request')->getUri()->getSegment(1);
+$showAiChatbox = ! in_array($firstSegment, ['admin', 'api'], true);
 ?>
 <!doctype html>
 <html lang="<?= esc($currentLocale) ?>">
@@ -59,6 +61,9 @@ $ogLocale = $currentLocale === 'en' ? 'en_US' : 'vi_VN';
 <?= $this->include('partials/header') ?>
 <?= $this->renderSection('content') ?>
 <?= $this->include('partials/footer') ?>
+<?php if ($showAiChatbox): ?>
+<?= $this->include('partials/ai-chatbox') ?>
+<?php endif; ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

@@ -312,11 +312,6 @@ $enquiryLabels = [
                                         <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.forgotPassword', $locale) ?>"><?= esc($t('tour.account.forgotPassword')) ?></a>
 
                                     </div>
-                                    <?php if ($googleEnabled): ?>
-                                        <div class="col-12">
-                                            <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.google', $locale) . '?return_to=' . rawurlencode(current_url()) ?>" class="primary-btn1 transparent w-100"><span><?= esc(lang('Frontend.common.signInWithGoogle', [], $locale)) ?></span><span><?= esc(lang('Frontend.common.signInWithGoogle', [], $locale)) ?></span></a>
-                                        </div>
-                                    <?php endif; ?>
                                 </div>
                             </form>
                         </div>
@@ -329,7 +324,15 @@ $enquiryLabels = [
                                 <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.register', $locale) . '?return_to=' . rawurlencode(current_url()) ?>" class="primary-btn1 two w-100"><span><?= esc($t('tour.account.register')) ?></span><span><?= esc($t('tour.account.register')) ?></span></a>
                                 <div class="proceed-booking-divider"><?= esc($t('tour.account.or')) ?></div>
                                 <a href="<?= \App\Data\LocalizedPathCatalog::url('booking.guest', $locale) ?>" class="primary-btn1 two w-100"><span><?= esc($t('tour.account.continueGuest')) ?></span><span><?= esc($t('tour.account.continueGuest')) ?></span></a>
+                            <?php if ($googleEnabled): ?>
+                                            <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.google', $locale) . '?return_to=' . rawurlencode(current_url()) ?>" class="primary-btn transparent w-100">
+                                                <span>
+                                                    <img src="<?= esc(base_url('assets/images/google-2025.png')) ?>" alt="Google Icon" style="width: 20px; height: 20px; vertical-align: middle;"><?= esc(lang('Frontend.common.signInWithGoogle', [], $locale)) ?>
+                                                </span>
+                                            </a>
+                                    <?php endif; ?>
                             </div>
+                                                                
                         </div>
                     </div>
                 </div>

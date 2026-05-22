@@ -19,6 +19,7 @@ $routes->GET('sitemap.xml', 'Sitemap::index');
 
 $routes->GET('/', 'Home::index');
 $routes->GET('api/destinations', 'Api\Destination::search');
+$routes->POST('api/ai-chat', 'Api\ChatController::message');
 $routes->GET('ve-chung-toi', 'AboutUs::index');
 $routes->GET('cam-hung-du-lich', 'Blog::index');
 $routes->GET('cam-hung-du-lich/(:segment)', 'Blog::show/$1');
