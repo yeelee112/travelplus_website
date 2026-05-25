@@ -4,8 +4,10 @@ namespace App\Controllers;
 
 use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
+use App\Models\UserModel;
 use App\Services\BookingNotificationService;
 use App\Services\PayPalSandboxService;
+use App\Services\VnpayGatewayService;
 use App\Services\VietQrService;
 
 class BookingController extends BaseController
@@ -108,6 +110,7 @@ class BookingController extends BaseController
             'checkoutMode' => session()->get('checkout_mode') ?: (session()->has('auth_user') ? 'member' : 'guest'),
             'checkoutNotice' => session()->getFlashdata('checkout_notice'),
             'checkoutError' => session()->getFlashdata('checkout_error'),
+            'checkoutRetry' => (bool) session()->getFlashdata('checkout_retry'),
         ]);
     }
 
@@ -153,6 +156,8 @@ class BookingController extends BaseController
                 'message' => $customer['error'],
             ]);
         }
+
+        $this->syncAuthenticatedCustomerProfile($customer['data']);
 
         $grandTotal = (float) ($pendingBooking['grand_total'] ?? 0);
         $amountVnd = $paymentPlan === 'full' ? $grandTotal : ($grandTotal * 0.10);
@@ -248,6 +253,8 @@ class BookingController extends BaseController
             ]);
         }
 
+        $this->syncAuthenticatedCustomerProfile($customer['data']);
+
         $grandTotal = (float) ($pendingBooking['grand_total'] ?? 0);
         $amountVnd = (int) round($paymentPlan === 'full' ? $grandTotal : ($grandTotal * 0.10));
 
@@ -302,6 +309,102 @@ class BookingController extends BaseController
                     'add_info' => $reference,
                     'booking_code' => (string) $booking['booking_code'],
                 ],
+            ]);
+        } catch (\Throwable $exception) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'ok' => false,
+                'message' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    public function createVnpayPayment()
+    {
+        $pendingBooking = $this->getPendingBooking();
+
+        if ($pendingBooking === null) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok' => false,
+                'message' => 'Khong tim thay thong tin booking de thanh toan.',
+            ]);
+        }
+
+        $paymentPlan = (string) $this->request->getPost('payment_plan');
+        $paymentMethod = (string) $this->request->getPost('payment_method');
+
+        if ($paymentMethod !== 'vnpay') {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok' => false,
+                'message' => 'Phuong thuc thanh toan khong hop le.',
+            ]);
+        }
+
+        $customer = $this->extractCustomerPayload();
+
+        if ($customer['error'] !== null) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok' => false,
+                'message' => $customer['error'],
+            ]);
+        }
+
+        $this->syncAuthenticatedCustomerProfile($customer['data']);
+
+        $grandTotal = (float) ($pendingBooking['grand_total'] ?? 0);
+        $amountVnd = (int) round($paymentPlan === 'full' ? $grandTotal : ($grandTotal * 0.10));
+        $vnpay = new VnpayGatewayService();
+
+        if (! $vnpay->isConfigured()) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'ok' => false,
+                'message' => 'VNPAY chua duoc cau hinh day du.',
+            ]);
+        }
+
+        try {
+            $booking = $this->createOrUpdateBooking(
+                $pendingBooking,
+                $customer['data'],
+                $paymentMethod,
+                $paymentPlan,
+                $amountVnd,
+                'pending_payment'
+            );
+
+            $requestLocale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
+            $returnUrl = LocalizedPathCatalog::url('booking.vnpayReturn', $requestLocale);
+            $paymentUrl = $vnpay->createCardPaymentUrl(
+                $pendingBooking,
+                $amountVnd,
+                $returnUrl,
+                (string) $this->request->getIPAddress(),
+                $requestLocale,
+                (string) $booking['booking_code']
+            );
+
+            $bookingModel = new BookingModel();
+            $bookingModel->update((int) $booking['id'], [
+                'provider_reference' => (string) $booking['booking_code'],
+                'provider_payload' => json_encode([
+                    'gateway' => 'vnpay',
+                    'payment_url' => $paymentUrl,
+                    'amount_vnd' => $amountVnd,
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            ]);
+
+            session()->set('vnpay_checkout', [
+                'booking_code' => (string) $booking['booking_code'],
+                'payment_plan' => $paymentPlan,
+                'payment_method' => $paymentMethod,
+                'amount_vnd' => $amountVnd,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            session()->set('current_booking_code', (string) $booking['booking_code']);
+
+            return $this->response->setJSON([
+                'ok' => true,
+                'redirect' => $paymentUrl,
             ]);
         } catch (\Throwable $exception) {
             return $this->response->setStatusCode(500)->setJSON([
@@ -453,6 +556,141 @@ class BookingController extends BaseController
         return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
     }
 
+    public function vnpayReturn()
+    {
+        $vnpay = new VnpayGatewayService();
+        $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
+        $result = $vnpay->validateReturnData($this->request->getGet(), $locale);
+
+        if (! $result['is_valid']) {
+            session()->setFlashdata('checkout_error', 'Chu ky xac thuc VNPAY khong hop le.');
+            return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
+        }
+
+        $bookingModel = new BookingModel();
+        $booking = $bookingModel->where('booking_code', $result['txn_ref'])->first();
+
+        if (! is_array($booking)) {
+            session()->setFlashdata('checkout_error', 'Khong tim thay booking de cap nhat thanh toan.');
+            return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
+        }
+
+        if ((string) ($booking['payment_status'] ?? '') === 'paid') {
+            session()->remove('vnpay_checkout');
+            session()->remove('pending_booking');
+            session()->remove('current_booking_code');
+
+            return redirect()->to(
+                LocalizedPathCatalog::url('booking.successPrefix', $locale)
+                . '/' . (string) $booking['booking_code']
+            );
+        }
+
+        if ((float) ($booking['amount_due_vnd'] ?? 0) !== (float) $result['amount_vnd']) {
+            session()->setFlashdata('checkout_error', 'So tien giao dich VNPAY khong khop voi booking.');
+            return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
+        }
+
+        if (! $result['is_success']) {
+            $bookingModel->update((int) $booking['id'], [
+                'payment_status' => $result['response_code'] === '24' ? 'cancelled' : 'failed',
+                'provider_payload' => json_encode($result['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'cancelled_at' => $result['response_code'] === '24' ? date('Y-m-d H:i:s') : null,
+            ]);
+
+            if ($result['response_code'] === '11') {
+                session()->setFlashdata('checkout_error', lang('Frontend.checkout.vnpayExpired', [], $locale));
+                session()->setFlashdata('checkout_retry', true);
+                return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
+            }
+
+            if ($result['response_code'] === '24') {
+                session()->setFlashdata('checkout_error', lang('Frontend.checkout.vnpayCancelled', [], $locale));
+                session()->setFlashdata('checkout_retry', true);
+                return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
+            }
+
+            session()->setFlashdata('checkout_error', $result['message']);
+            return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
+        }
+
+        $bookingModel->update((int) $booking['id'], [
+            'payment_method' => 'vnpay',
+            'payment_status' => 'paid',
+            'amount_paid_vnd' => (float) ($booking['amount_due_vnd'] ?? $result['amount_vnd']),
+            'provider_reference' => $result['transaction_no'] !== '' ? $result['transaction_no'] : $result['txn_ref'],
+            'provider_payload' => json_encode($result['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'paid_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $updatedBooking = $bookingModel->find((int) $booking['id']);
+
+        if (is_array($updatedBooking)) {
+            (new BookingNotificationService())->sendBookingEmails($updatedBooking);
+        }
+
+        session()->remove('vnpay_checkout');
+        session()->remove('pending_booking');
+        session()->remove('current_booking_code');
+
+        return redirect()->to(
+            LocalizedPathCatalog::url('booking.successPrefix', $locale)
+            . '/' . (string) $booking['booking_code']
+        );
+    }
+
+    public function vnpayIpn()
+    {
+        $vnpay = new VnpayGatewayService();
+        $result = $vnpay->validateReturnData($this->request->getGet(), 'vi');
+
+        if (! $result['is_valid']) {
+            return $this->response->setJSON(['RspCode' => '97', 'Message' => 'Invalid checksum']);
+        }
+
+        $bookingModel = new BookingModel();
+        $booking = $bookingModel->where('booking_code', $result['txn_ref'])->first();
+
+        if (! is_array($booking)) {
+            return $this->response->setJSON(['RspCode' => '01', 'Message' => 'Order not found']);
+        }
+
+        if ((float) ($booking['amount_due_vnd'] ?? 0) !== (float) $result['amount_vnd']) {
+            return $this->response->setJSON(['RspCode' => '04', 'Message' => 'Invalid amount']);
+        }
+
+        if ((string) ($booking['payment_status'] ?? '') === 'paid') {
+            return $this->response->setJSON(['RspCode' => '02', 'Message' => 'Order already confirmed']);
+        }
+
+        if (! $result['is_success']) {
+            $bookingModel->update((int) $booking['id'], [
+                'payment_status' => $result['response_code'] === '24' ? 'cancelled' : 'failed',
+                'provider_payload' => json_encode($result['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'cancelled_at' => $result['response_code'] === '24' ? date('Y-m-d H:i:s') : null,
+            ]);
+
+            return $this->response->setJSON(['RspCode' => '00', 'Message' => 'Confirm failed']);
+        }
+
+        $bookingModel->update((int) $booking['id'], [
+            'payment_method' => 'vnpay',
+            'payment_status' => 'paid',
+            'amount_paid_vnd' => (float) ($booking['amount_due_vnd'] ?? $result['amount_vnd']),
+            'provider_reference' => $result['transaction_no'] !== '' ? $result['transaction_no'] : $result['txn_ref'],
+            'provider_payload' => json_encode($result['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'paid_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $updatedBooking = $bookingModel->find((int) $booking['id']);
+
+        if (is_array($updatedBooking)) {
+            (new BookingNotificationService())->sendBookingEmails($updatedBooking);
+        }
+
+        return $this->response->setJSON(['RspCode' => '00', 'Message' => 'Confirm success']);
+    }
+
     private function getPendingBooking(): ?array
     {
         $booking = session()->get('pending_booking');
@@ -555,6 +793,50 @@ class BookingController extends BaseController
         session()->set('current_booking_code', (string) $booking['booking_code']);
 
         return $booking;
+    }
+
+    /**
+     * @param array<string, string> $customer
+     */
+    private function syncAuthenticatedCustomerProfile(array $customer): void
+    {
+        $authUser = session()->get('auth_user');
+
+        if (! is_array($authUser) || empty($authUser['id'])) {
+            return;
+        }
+
+        $userId = (int) $authUser['id'];
+        $userModel = new UserModel();
+        $user = $userModel->find($userId);
+
+        if (! is_array($user)) {
+            return;
+        }
+
+        $payload = [];
+        $newFullName = trim((string) ($customer['customer_name'] ?? ''));
+        $newPhone = trim((string) ($customer['customer_phone'] ?? ''));
+
+        if ($newFullName !== '' && $newFullName !== (string) ($user['full_name'] ?? '')) {
+            $payload['full_name'] = $newFullName;
+        }
+
+        if ($newPhone !== '' && $newPhone !== (string) ($user['phone'] ?? '')) {
+            $payload['phone'] = $newPhone;
+        }
+
+        if ($payload === []) {
+            return;
+        }
+
+        $payload['updated_at'] = date('Y-m-d H:i:s');
+        $userModel->update($userId, $payload);
+
+        $freshUser = $userModel->find($userId);
+        if (is_array($freshUser)) {
+            session()->set('auth_user', $this->buildAuthSessionUser($freshUser));
+        }
     }
 
     private function generateBookingCode(): string

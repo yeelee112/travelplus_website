@@ -288,7 +288,7 @@ $enquiryLabels = [
                     <div class="col-lg-6 proceed-booking-col">
                         <div class="modal-login-form-wrapper h-100">
                             <h6><?= esc($t('tour.account.hasAccount')) ?></h6>
-                            <form action="<?= localized_url('auth/login') ?>" method="post" data-booking-login-form>
+                            <form action="<?= \App\Data\LocalizedPathCatalog::url('auth.login', $locale) ?>" method="post" data-booking-login-form>
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="return_to" value="<?= esc(current_url()) ?>">
                                 <div class="row g-2">
@@ -1031,5 +1031,4 @@ window.TOUR_DETAIL_I18N = <?= json_encode([
 </script>
 <script src="<?= base_url('assets/js/tour-detail.js') ?>"></script>
 <?= $this->endSection() ?>
-
 

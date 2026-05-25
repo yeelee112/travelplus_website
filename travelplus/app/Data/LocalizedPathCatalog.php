@@ -148,6 +148,10 @@ final class LocalizedPathCatalog
             'vi' => 'booking/paypal/create-order',
             'en' => 'booking/paypal/create-order',
         ],
+        'booking.vnpayCreatePayment' => [
+            'vi' => 'booking/vnpay/create-payment',
+            'en' => 'booking/vnpay/create-payment',
+        ],
         'booking.vietqrGenerate' => [
             'vi' => 'booking/vietqr/generate',
             'en' => 'booking/vietqr/generate',
@@ -163,6 +167,14 @@ final class LocalizedPathCatalog
         'booking.paypalCancel' => [
             'vi' => 'booking/paypal/cancel',
             'en' => 'booking/paypal/cancel',
+        ],
+        'booking.vnpayReturn' => [
+            'vi' => 'booking/vnpay/return',
+            'en' => 'booking/vnpay/return',
+        ],
+        'booking.vnpayIpn' => [
+            'vi' => 'booking/vnpay/ipn',
+            'en' => 'booking/vnpay/ipn',
         ],
     ];
 

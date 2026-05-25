@@ -78,10 +78,13 @@ $routes->match(['GET', 'POST'], 'booking/guest', 'BookingController::continueGue
 $routes->GET('booking/checkout', 'BookingController::checkout');
 $routes->GET('booking/success/(:segment)', 'BookingController::success/$1');
 $routes->POST('booking/paypal/create-order', 'BookingController::createPayPalOrder');
+$routes->POST('booking/vnpay/create-payment', 'BookingController::createVnpayPayment');
 $routes->POST('booking/vietqr/generate', 'BookingController::generateVietQr');
 $routes->POST('booking/vietqr/complete', 'BookingController::completeVietQr');
 $routes->GET('booking/paypal/return', 'BookingController::paypalReturn');
 $routes->GET('booking/paypal/cancel', 'BookingController::paypalCancel');
+$routes->GET('booking/vnpay/return', 'BookingController::vnpayReturn');
+$routes->GET('booking/vnpay/ipn', 'BookingController::vnpayIpn');
 
 $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
 $routes->GET('tour-trong-nuoc', 'Domestic::index');
@@ -136,10 +139,13 @@ $routes->group('en', function ($routes) {
     $routes->GET('booking/checkout', 'BookingController::checkout');
     $routes->GET('booking/success/(:segment)', 'BookingController::success/$1');
     $routes->POST('booking/paypal/create-order', 'BookingController::createPayPalOrder');
+    $routes->POST('booking/vnpay/create-payment', 'BookingController::createVnpayPayment');
     $routes->POST('booking/vietqr/generate', 'BookingController::generateVietQr');
     $routes->POST('booking/vietqr/complete', 'BookingController::completeVietQr');
     $routes->GET('booking/paypal/return', 'BookingController::paypalReturn');
     $routes->GET('booking/paypal/cancel', 'BookingController::paypalCancel');
+    $routes->GET('booking/vnpay/return', 'BookingController::vnpayReturn');
+    $routes->GET('booking/vnpay/ipn', 'BookingController::vnpayIpn');
 
     
     $routes->GET('tour-nuoc-ngoai', 'Outbound::index');

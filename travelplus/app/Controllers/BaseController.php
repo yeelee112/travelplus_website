@@ -87,6 +87,7 @@ abstract class BaseController extends Controller
             'full_name' => (string) ($user['full_name'] ?? ''),
             'email' => (string) ($user['email'] ?? ''),
             'username' => (string) ($user['username'] ?? ''),
+            'phone' => (string) ($user['phone'] ?? ''),
             'is_admin' => $isAdmin,
             'auth_session_version' => (new AuthSessionControlService())->buildSessionVersion($user),
         ];

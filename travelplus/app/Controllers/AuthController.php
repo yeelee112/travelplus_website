@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Data\LocalizedPathCatalog;
+use App\Models\BookingModel;
 use App\Models\UserModel;
 use App\Services\AuthSessionControlService;
 use App\Services\RememberLoginService;
@@ -168,8 +169,20 @@ class AuthController extends BaseController
                 ->with('auth_success', $locale === 'en' ? 'Account updated successfully.' : 'Đã cập nhật tài khoản thành công.');
         }
 
+        $bookings = (new BookingModel())
+            ->groupStart()
+                ->where('user_id', (int) $authUser['id'])
+                ->orGroupStart()
+                    ->where('user_id', null)
+                    ->where('customer_email', (string) ($user['email'] ?? ''))
+                ->groupEnd()
+            ->groupEnd()
+            ->orderBy('created_at', 'DESC')
+            ->findAll(10);
+
         return view('auth/profile', [
             'user' => $user,
+            'bookings' => $bookings,
         ]);
     }
 

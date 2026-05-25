@@ -6,11 +6,33 @@ $booking = is_array($booking ?? null) ? $booking : [];
 $locale = service('request')->getLocale();
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
 $formatCurrency = static fn(float $amount): string => number_format($amount, 0, ',', '.') . ' VND';
-$travelerCount = (int) ($booking['adult_quantity'] ?? 0) + (int) ($booking['child_quantity'] ?? 0) + (int) ($booking['infant_quantity'] ?? 0);
+$adultQuantity = max(0, (int) ($booking['adult_quantity'] ?? 0));
+$childQuantity = max(0, (int) ($booking['child_quantity'] ?? 0));
+$infantQuantity = max(0, (int) ($booking['infant_quantity'] ?? 0));
+$travelerCount = $adultQuantity + $childQuantity + $infantQuantity;
+$travelerParts = [];
+
+if ($adultQuantity > 0) {
+    $travelerParts[] = $adultQuantity . ' ' . $t('tour.booking.adult');
+}
+
+if ($childQuantity > 0) {
+    $travelerParts[] = $childQuantity . ' ' . $t('tour.booking.child');
+}
+
+if ($infantQuantity > 0) {
+    $travelerParts[] = $infantQuantity . ' ' . $t('tour.booking.infant');
+}
+
+$travelerSummary = $travelerCount > 0
+    ? implode(', ', $travelerParts)
+    : '-';
 $paymentStatus = strtolower((string) ($booking['payment_status'] ?? ''));
 $paymentMethod = strtolower((string) ($booking['payment_method'] ?? ''));
 $paymentMethodLabel = match ($paymentMethod) {
     'paypal' => 'PayPal',
+    'vnpay' => 'VNPAY',
+    'vnpay_card' => 'Credit / debit card (VNPAY)',
     'vietqr' => 'VietQR',
     'momo' => 'MoMo',
     'zalopay' => 'ZaloPay',
@@ -61,7 +83,7 @@ $amountLabel = $paymentStatus === 'pending_transfer' ? $t('bookingSuccess.amount
                     </div>
                     <div class="checkout-finish-item">
                         <span><?= esc($t('bookingSuccess.travelers')) ?></span>
-                        <strong><?= esc((string) $travelerCount) ?> <?= esc($t('checkout.travelers')) ?></strong>
+                        <strong><?= esc($travelerSummary) ?></strong>
                     </div>
                     <div class="checkout-finish-item">
                         <span><?= esc($t('bookingSuccess.paymentMethod')) ?></span>

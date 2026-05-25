@@ -6,6 +6,7 @@ helper('display');
 
 $locale = service('request')->getLocale() ?: 'vi';
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
+$bookings = is_array($bookings ?? null) ? $bookings : [];
 $authSuccess = session()->getFlashdata('auth_success');
 $authError = session()->getFlashdata('auth_error');
 $statusValue = strtolower(trim((string) ($user['status'] ?? 'active')));
@@ -26,10 +27,33 @@ $lastLoginLabel = app_datetime(
     'd/m/Y H:i',
     $locale === 'en' ? 'Not available' : 'Chưa có dữ liệu'
 );
+$bookingStatusLabels = [
+    'draft' => $locale === 'en' ? 'Draft' : 'Nháp',
+    'pending_payment' => $locale === 'en' ? 'Pending payment' : 'Chờ thanh toán',
+    'pending_transfer' => $locale === 'en' ? 'Pending transfer' : 'Chờ chuyển khoản',
+    'paid' => $locale === 'en' ? 'Paid' : 'Đã thanh toán',
+    'cancelled' => $locale === 'en' ? 'Cancelled' : 'Đã hủy',
+    'failed' => $locale === 'en' ? 'Failed' : 'Thất bại',
+];
+$bookingStatusClasses = [
+    'draft' => 'secondary',
+    'pending_payment' => 'warning',
+    'pending_transfer' => 'warning',
+    'paid' => 'success',
+    'cancelled' => 'dark',
+    'failed' => 'danger',
+];
+$paymentLabels = [
+    'paypal' => 'PayPal',
+    'vnpay' => 'VNPAY',
+    'vietqr' => 'VietQR',
+    'momo' => 'MoMo',
+    'zalopay' => 'ZaloPay',
+];
 ?>
 <div class="container pt-100 pb-100">
     <div class="row justify-content-center">
-        <div class="col-xl-8 col-lg-10">
+        <div class="col-xl-9 col-lg-10">
             <?php if (! empty($authSuccess)): ?>
                 <div class="alert alert-success mb-4"><?= esc($authSuccess) ?></div>
             <?php endif; ?>
@@ -106,12 +130,9 @@ $lastLoginLabel = app_datetime(
                         </div>
                         <div class="col-12">
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-2">
-                                <form method="post" action="<?= \App\Data\LocalizedPathCatalog::url('auth.logoutAll', $locale) ?>" onsubmit="return confirm('<?= esc($locale === 'en' ? 'This will sign you out on all remembered devices. Continue?' : 'Thao tác này sẽ đăng xuất bạn trên tất cả thiết bị đã ghi nhớ. Tiếp tục?') ?>');">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-outline-danger">
-                                        <?= esc($locale === 'en' ? 'Log out all devices' : 'Đăng xuất mọi thiết bị') ?>
-                                    </button>
-                                </form>
+                                <button type="submit" class="btn btn-outline-danger" form="logout-all-devices-form">
+                                    <?= esc($locale === 'en' ? 'Log out all devices' : 'Đăng xuất mọi thiết bị') ?>
+                                </button>
                                 <button type="submit" class="primary-btn1 two">
                                     <span><?= esc($locale === 'en' ? 'Save changes' : 'Lưu thay đổi') ?></span>
                                     <span><?= esc($locale === 'en' ? 'Save changes' : 'Lưu thay đổi') ?></span>
@@ -120,6 +141,86 @@ $lastLoginLabel = app_datetime(
                         </div>
                     </div>
                 </form>
+            </div>
+
+            <form
+                id="logout-all-devices-form"
+                method="post"
+                action="<?= \App\Data\LocalizedPathCatalog::url('auth.logoutAll', $locale) ?>"
+                onsubmit="return confirm('<?= esc($locale === 'en' ? 'This will sign you out on all remembered devices. Continue?' : 'Thao tác này sẽ đăng xuất bạn trên tất cả thiết bị đã ghi nhớ. Tiếp tục?') ?>');">
+                <?= csrf_field() ?>
+            </form>
+
+            <div class="checkout-stepper-card mt-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                    <div>
+                        <h4 class="mb-1"><?= esc($locale === 'en' ? 'My bookings' : 'Booking đã đặt') ?></h4>
+                        <p class="mb-0 text-muted"><?= esc($locale === 'en' ? 'Recent bookings linked to your account or email.' : 'Các booking gần đây gắn với tài khoản hoặc email của bạn.') ?></p>
+                    </div>
+                </div>
+
+                <?php if ($bookings === []): ?>
+                    <div class="border rounded-3 px-3 py-3 bg-light text-muted">
+                        <?= esc($locale === 'en' ? 'No bookings have been recorded yet.' : 'Chưa có booking nào được ghi nhận.') ?>
+                    </div>
+                <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th><?= esc($locale === 'en' ? 'Code' : 'Mã') ?></th>
+                                    <th><?= esc($locale === 'en' ? 'Tour' : 'Tour') ?></th>
+                                    <th><?= esc($locale === 'en' ? 'Departure' : 'Khởi hành') ?></th>
+                                    <th><?= esc($locale === 'en' ? 'Travelers' : 'Số khách') ?></th>
+                                    <th><?= esc($locale === 'en' ? 'Payment' : 'Thanh toán') ?></th>
+                                    <th><?= esc($locale === 'en' ? 'Status' : 'Trạng thái') ?></th>
+                                    <th><?= esc($locale === 'en' ? 'Created' : 'Ngày tạo') ?></th>
+                                    <th class="text-end"><?= esc($locale === 'en' ? 'Action' : 'Thao tác') ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($bookings as $booking): ?>
+                                    <?php
+                                    $bookingStatus = strtolower((string) ($booking['payment_status'] ?? 'draft'));
+                                    $bookingStatusLabel = $bookingStatusLabels[$bookingStatus] ?? ($booking['payment_status'] ?? '-');
+                                    $bookingStatusClass = $bookingStatusClasses[$bookingStatus] ?? 'secondary';
+                                    $bookingPaymentMethod = strtolower((string) ($booking['payment_method'] ?? ''));
+                                    $bookingPaymentLabel = $paymentLabels[$bookingPaymentMethod] ?? strtoupper((string) ($booking['payment_method'] ?? '-'));
+                                    $bookingTravelerParts = [];
+                                    $bookingAdult = max(0, (int) ($booking['adult_quantity'] ?? 0));
+                                    $bookingChild = max(0, (int) ($booking['child_quantity'] ?? 0));
+                                    $bookingInfant = max(0, (int) ($booking['infant_quantity'] ?? 0));
+                                    if ($bookingAdult > 0) { $bookingTravelerParts[] = $bookingAdult . ' ' . $t('tour.booking.adult'); }
+                                    if ($bookingChild > 0) { $bookingTravelerParts[] = $bookingChild . ' ' . $t('tour.booking.child'); }
+                                    if ($bookingInfant > 0) { $bookingTravelerParts[] = $bookingInfant . ' ' . $t('tour.booking.infant'); }
+                                    $bookingTravelerSummary = $bookingTravelerParts !== [] ? implode(', ', $bookingTravelerParts) : '-';
+                                    $bookingAmount = (float) (($bookingStatus === 'paid'
+                                        ? ($booking['amount_paid_vnd'] ?? 0)
+                                        : ($booking['amount_due_vnd'] ?? 0)) ?: 0);
+                                    $bookingLink = \App\Data\LocalizedPathCatalog::url('booking.successPrefix', $locale) . '/' . rawurlencode((string) ($booking['booking_code'] ?? ''));
+                                    ?>
+                                    <tr>
+                                        <td><strong><?= esc((string) ($booking['booking_code'] ?? '-')) ?></strong></td>
+                                        <td>
+                                            <div class="fw-semibold"><?= esc((string) ($booking['tour_title'] ?? '-')) ?></div>
+                                            <div class="text-muted small"><?= esc($bookingPaymentLabel) ?> • <?= esc(number_format($bookingAmount, 0, ',', '.')) ?> VND</div>
+                                        </td>
+                                        <td><?= esc((string) ($booking['departure_label'] ?? '-')) ?></td>
+                                        <td><?= esc($bookingTravelerSummary) ?></td>
+                                        <td><?= esc($bookingPaymentLabel) ?></td>
+                                        <td><span class="badge text-bg-<?= esc($bookingStatusClass) ?>"><?= esc((string) $bookingStatusLabel) ?></span></td>
+                                        <td><?= esc(app_datetime((string) ($booking['created_at'] ?? ''), 'd/m/Y H:i', '-')) ?></td>
+                                        <td class="text-end">
+                                            <a href="<?= esc($bookingLink) ?>" class="btn btn-sm btn-outline-primary">
+                                                <?= esc($locale === 'en' ? 'View' : 'Xem') ?>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

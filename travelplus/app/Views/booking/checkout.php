@@ -15,6 +15,7 @@ $depositRate = 0.10;
 $depositAmount = $grandTotal * $depositRate;
 $checkoutNotice = trim((string) ($checkoutNotice ?? ''));
 $checkoutError = trim((string) ($checkoutError ?? ''));
+$checkoutRetry = !empty($checkoutRetry);
 $formatCurrency = static fn(float $amount): string => number_format($amount, 0, ',', '.') . ' VND';
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
 $travelerParts = [];
@@ -31,12 +32,16 @@ if ($infantQuantity > 0) {
     $travelerParts[] = $infantQuantity . ' ' . $t('tour.booking.infant');
 }
 
-$travelerSummary = $travelerCount . ' ' . $t('checkout.travelers');
-
-if ($travelerParts !== []) {
-    $travelerSummary .= ' (' . implode(', ', $travelerParts) . ')';
-}
+$travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
 ?>
+<style>
+.checkout-payment-options.is-highlighted {
+    outline: 2px solid #22c1f1;
+    outline-offset: 10px;
+    border-radius: 18px;
+    transition: outline-color 0.25s ease;
+}
+</style>
 <div class="container pt-100 pb-100 checkout-stepper-page" data-checkout-stepper>
     <div class="row g-4">
         <div class="col-lg-12">
@@ -51,6 +56,15 @@ if ($travelerParts !== []) {
 
                 <?php if ($checkoutError !== ''): ?>
                     <div class="alert alert-danger"><?= esc($checkoutError) ?></div>
+                <?php endif; ?>
+                <?php if ($checkoutError !== '' && $booking !== []): ?>
+                    <div class="mb-4">
+                        <p class="mb-2 text-muted"><?= esc($t('checkout.retryHelp')) ?></p>
+                        <button type="button" class="primary-btn1 transparent" data-checkout-retry>
+                            <span><?= esc($t('checkout.backToPaymentStep')) ?></span>
+                            <span><?= esc($t('checkout.backToPaymentStep')) ?></span>
+                        </button>
+                    </div>
                 <?php endif; ?>
 
                 <?php if ($authUser !== null): ?>
@@ -118,6 +132,7 @@ if ($travelerParts !== []) {
                                             type="text"
                                             id="checkout-phone"
                                             name="phone"
+                                            value="<?= esc((string) ($authUser['phone'] ?? '')) ?>"
                                             placeholder="<?= esc($t('checkout.phonePlaceholder')) ?>"
                                             required
                                             data-summary-field="phone">
@@ -227,15 +242,9 @@ if ($travelerParts !== []) {
                                             </span>
                                         </label>
                                         <label class="checkout-payment-option">
-                                            <input type="radio" name="payment_method" value="momo">
+                                            <input type="radio" name="payment_method" value="vnpay">
                                             <span class="checkout-payment-logo-wrap" aria-hidden="true">
-                                                <img src="<?= esc(base_url('assets/images/payments/MOMO-Logo-App.png')) ?>" alt="" class="checkout-payment-logo">
-                                            </span>
-                                        </label>
-                                        <label class="checkout-payment-option">
-                                            <input type="radio" name="payment_method" value="zalopay">
-                                            <span class="checkout-payment-logo-wrap" aria-hidden="true">
-                                                <img src="<?= esc(base_url('assets/images/payments/ZaloPay-Logo.png')) ?>" alt="" class="checkout-payment-logo">
+                                                <img src="<?= esc(base_url('assets/images/payments/VNPay-Logo.png')) ?>" alt="" class="checkout-payment-logo">
                                             </span>
                                         </label>
                                         <label class="checkout-payment-option">
@@ -252,13 +261,19 @@ if ($travelerParts !== []) {
                                         </div>
                                         <div>
                                             <h6><?= esc($t('checkout.vietqrTitle')) ?></h6>
-                                            <p data-vietqr-message><?= esc($t('checkout.vietqrHint')) ?></p>
+                                            <p data-vietqr-message style="font-size:14px;"><?= esc($t('checkout.vietqrHint')) ?></p>
                                             <div class="checkout-vietqr-meta">
                                                 <div><strong><?= esc($t('checkout.vietqrAmount')) ?></strong> <span data-vietqr-amount>-</span></div>
                                                 <div><strong><?= esc($t('checkout.vietqrContent')) ?></strong> <span data-vietqr-add-info>-</span></div>
                                                 <div><strong><?= esc($t('checkout.vietqrAccountName')) ?></strong> <span data-vietqr-account-name>-</span></div>
                                                 <div><strong><?= esc($t('checkout.vietqrAccountNo')) ?></strong> <span data-vietqr-account-no>-</span></div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkout-vnpay-box" data-vnpay-box hidden>
+                                        <div>
+                                            <h6><?= esc($t('checkout.vnpayTitle')) ?></h6>
+                                            <p><?= esc($t('checkout.vnpayHint')) ?></p>
                                         </div>
                                     </div>
                                 </div>
@@ -299,13 +314,23 @@ if ($travelerParts !== []) {
                                             <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
                                         </div>
                                     </div>
+                                    <div class="checkout-summary-cta mt-4">
+                                        <button
+                                            type="button"
+                                            class="primary-btn1 w-100"
+                                            data-pay-submit
+                                            data-paypal-create-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.paypalCreateOrder', $locale)) ?>"
+                                            data-vnpay-create-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.vnpayCreatePayment', $locale)) ?>">
+                                            <span><?= esc($t('checkout.step3')) ?></span>
+                                            <span><?= esc($t('checkout.step3')) ?></span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="checkout-stepper-actions">
                             <button type="button" class="primary-btn1 transparent" data-step-prev="1"><?= esc($t('checkout.back')) ?></button>
-                            <button type="button" class="primary-btn1" data-step-next="3" data-paypal-submit data-paypal-create-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.paypalCreateOrder', $locale)) ?>"><?= esc($t('checkout.step3')) ?></button>
                         </div>
                     </div>
 
@@ -356,6 +381,9 @@ if ($travelerParts !== []) {
                             <button type="button" class="primary-btn1" data-vietqr-complete><?= esc($t('checkout.completeTransfer')) ?></button>
                             <a href="<?= esc((string) ($booking['tour_link'] ?? localized_url(''))) ?>" class="primary-btn1 d-none" data-step-three-tour-link><?= esc($t('checkout.backToTour')) ?></a>
                         </div>
+                        <p class="mt-3 mb-0 text-muted d-none" data-vietqr-complete-note>
+                            <?= esc($t('checkout.vietqrCompleteHint')) ?>
+                        </p>
                     </div>
                 </form>
             </div>
@@ -388,12 +416,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const priceBreakdown = root.querySelector('[data-price-breakdown]');
     const breakdownToggle = root.querySelector('[data-price-breakdown-toggle]');
     const couponPlaceholder = root.querySelector('[data-coupon-placeholder]');
-    const paypalSubmitButton = root.querySelector('[data-step-pane="2"] [data-paypal-submit]');
+    const paySubmitButtons = Array.from(root.querySelectorAll('[data-pay-submit]'));
     const vietQrCreateUrl = vietQrBox ? vietQrBox.dataset.vietqrCreateUrl : '';
     const vietQrCompleteUrl = vietQrBox ? vietQrBox.dataset.vietqrCompleteUrl : '';
+    const vnpayBox = root.querySelector('[data-vnpay-box]');
+    const paymentMethodsCard = root.querySelector('.checkout-payment-options');
+    const vnpayCreateUrl = paySubmitButtons[0] ? (paySubmitButtons[0].dataset.vnpayCreateUrl || '') : '';
     const vietQrCompleteButton = root.querySelector('[data-vietqr-complete]');
     const stepThreeNote = root.querySelector('[data-step-three-note]');
     const stepThreeTourLink = root.querySelector('[data-step-three-tour-link]');
+    const vietQrCompleteNote = root.querySelector('[data-vietqr-complete-note]');
     const vietQrImage = root.querySelector('[data-vietqr-image]');
     const vietQrPlaceholder = root.querySelector('[data-vietqr-placeholder]');
     const vietQrMessage = root.querySelector('[data-vietqr-message]');
@@ -405,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const stepThreePane = root.querySelector('[data-step-pane="3"]');
     const stepLines = Array.from(root.querySelectorAll('.checkout-stepper-header .step-line'));
     const stepThreeLine = stepLines.length > 1 ? stepLines[1] : null;
-    const defaultStepTwoLabel = paypalSubmitButton ? paypalSubmitButton.textContent.trim() : <?= json_encode($t('checkout.continuePayment')) ?>;
+    const defaultStepTwoLabel = <?= json_encode($t('checkout.step3')) ?>;
     const currency = new Intl.NumberFormat('vi-VN');
     const totals = {
         full: <?= json_encode($grandTotal) ?>,
@@ -421,8 +453,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     const paymentLabels = {
         paypal: 'PayPal',
-        momo: 'MoMo',
-        zalopay: 'ZaloPay',
+        vnpay: <?= json_encode($t('checkout.vnpayLabel')) ?>,
         vietqr: 'VietQR'
     };
     let lastVietQrKey = '';
@@ -438,6 +469,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
         errorBox.hidden = true;
         errorBox.textContent = '';
+    };
+
+    const setPayButtonsState = function (disabled, label) {
+        paySubmitButtons.forEach(function (button) {
+            if (disabled) {
+                button.setAttribute('disabled', 'disabled');
+            } else {
+                button.removeAttribute('disabled');
+            }
+
+            const spans = button.querySelectorAll('span');
+            if (spans.length >= 2) {
+                spans[0].textContent = label;
+                spans[1].textContent = label;
+                return;
+            }
+
+            button.textContent = label;
+        });
+    };
+
+    const focusPaymentStep = function () {
+        setStep(2);
+
+        window.setTimeout(function () {
+            if (paymentMethodsCard) {
+                paymentMethodsCard.classList.add('is-highlighted');
+                paymentMethodsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                window.setTimeout(function () {
+                    paymentMethodsCard.classList.remove('is-highlighted');
+                }, 1800);
+
+                return;
+            }
+
+            root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
     };
 
     const setError = function (message) {
@@ -617,7 +686,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const method = selectedMethod ? selectedMethod.value : 'paypal';
         const label = paymentLabels[method] || method;
         const isPaypal = method === 'paypal';
+        const isVnpay = method === 'vnpay';
         const isVietQr = method === 'vietqr';
+        const isRedirectGateway = isPaypal || isVnpay;
 
         paymentMethodOutputs.forEach(function (output) {
             output.textContent = label;
@@ -637,24 +708,35 @@ document.addEventListener('DOMContentLoaded', function () {
             vietQrBox.hidden = method !== 'vietqr';
         }
 
-        if (paypalSubmitButton) {
-            paypalSubmitButton.textContent = isPaypal ? <?= json_encode($t('checkout.payWithPaypal')) ?> : defaultStepTwoLabel;
+        if (vnpayBox) {
+            vnpayBox.hidden = !isVnpay;
         }
 
+        setPayButtonsState(
+            false,
+            isPaypal
+                ? <?= json_encode($t('checkout.payWithPaypal')) ?>
+                : (isVnpay ? <?= json_encode($t('checkout.payWithVnpay')) ?> : defaultStepTwoLabel)
+        );
+
         if (stepThreeTab) {
-            stepThreeTab.classList.toggle('d-none', isPaypal);
+            stepThreeTab.classList.toggle('d-none', isRedirectGateway);
         }
 
         if (stepThreePane) {
-            stepThreePane.classList.toggle('d-none', isPaypal);
+            stepThreePane.classList.toggle('d-none', isRedirectGateway);
         }
 
         if (stepThreeLine) {
-            stepThreeLine.classList.toggle('d-none', isPaypal);
+            stepThreeLine.classList.toggle('d-none', isRedirectGateway);
         }
 
         if (vietQrCompleteButton) {
             vietQrCompleteButton.classList.toggle('d-none', !isVietQr);
+        }
+
+        if (vietQrCompleteNote) {
+            vietQrCompleteNote.classList.toggle('d-none', !isVietQr);
         }
 
         if (stepThreeTourLink) {
@@ -664,7 +746,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (stepThreeNote) {
             stepThreeNote.textContent = isVietQr
                 ? <?= json_encode($t('checkout.vietqrTransferNote')) ?>
-                : <?= json_encode($t('checkout.otherMethodNote')) ?>;
+                : (isVnpay ? <?= json_encode($t('checkout.vnpayRedirectNote')) ?> : <?= json_encode($t('checkout.otherMethodNote')) ?>);
         }
 
         if (method === 'vietqr') {
@@ -727,13 +809,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        if (!paypalSubmitButton) {
+        if (paySubmitButtons.length === 0) {
             setError(<?= json_encode($t('checkout.paypalButtonMissing')) ?>);
             return;
         }
 
-        paypalSubmitButton.setAttribute('disabled', 'disabled');
-        paypalSubmitButton.textContent = <?= json_encode($t('checkout.processingPaypal')) ?>;
+        setPayButtonsState(true, <?= json_encode($t('checkout.processingPaypal')) ?>);
 
         try {
             const formData = new FormData();
@@ -743,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.append(field.name, field.value.trim());
             });
 
-            const response = await fetch(paypalSubmitButton.dataset.paypalCreateUrl, {
+            const response = await fetch(paySubmitButtons[0].dataset.paypalCreateUrl, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -760,7 +841,70 @@ document.addEventListener('DOMContentLoaded', function () {
             window.location.href = payload.redirect;
         } catch (error) {
             setError(error.message || <?= json_encode($t('checkout.paypalConnectFailed')) ?>);
-            paypalSubmitButton.removeAttribute('disabled');
+            updatePaymentMethod();
+        }
+    };
+
+    const startVnpayCheckout = async function () {
+        clearError();
+
+        if (!validateStepOne() || !validateStepTwo()) {
+            return;
+        }
+
+        updateSummary();
+        updatePaymentPlan();
+        updatePaymentMethod();
+
+        const selectedMethod = paymentMethodInputs.find(function (input) {
+            return input.checked;
+        });
+        const selectedPlan = paymentPlanInputs.find(function (input) {
+            return input.checked;
+        });
+
+        if (!selectedMethod || selectedMethod.value !== 'vnpay') {
+            setError(<?= json_encode($t('checkout.vnpaySelectionInvalid')) ?>);
+            return;
+        }
+
+        if (vnpayCreateUrl === '') {
+            setError(<?= json_encode($t('checkout.vnpayConfigMissing')) ?>);
+            return;
+        }
+
+        if (paySubmitButtons.length === 0) {
+            setError(<?= json_encode($t('checkout.vnpayCreateFailed')) ?>);
+            return;
+        }
+
+        setPayButtonsState(true, <?= json_encode($t('checkout.processingVnpay')) ?>);
+
+        try {
+            const formData = new FormData();
+            formData.append('payment_method', selectedMethod.value);
+            formData.append('payment_plan', selectedPlan ? selectedPlan.value : 'deposit');
+            summaryFields.forEach(function (field) {
+                formData.append(field.name, field.value.trim());
+            });
+
+            const response = await fetch(vnpayCreateUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok || !payload.ok || !payload.redirect) {
+                throw new Error(payload.message || <?= json_encode($t('checkout.vnpayCreateFailed')) ?>);
+            }
+
+            window.location.href = payload.redirect;
+        } catch (error) {
+            setError(error.message || <?= json_encode($t('checkout.vnpayCreateFailed')) ?>);
             updatePaymentMethod();
         }
     };
@@ -820,7 +964,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (targetStep === 3) {
-                if (method === 'paypal') {
+                if (method === 'paypal' || method === 'vnpay') {
                     return;
                 }
 
@@ -857,12 +1001,45 @@ document.addEventListener('DOMContentLoaded', function () {
                     await startPayPalCheckout();
                     return;
                 }
+
+                if (method === 'vnpay') {
+                    await startVnpayCheckout();
+                    return;
+                }
             }
 
             updateSummary();
             updatePaymentPlan();
             updatePaymentMethod();
             setStep(nextStep);
+        });
+    });
+
+    paySubmitButtons.forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const selectedMethod = paymentMethodInputs.find(function (input) {
+                return input.checked;
+            });
+            const method = selectedMethod ? selectedMethod.value : 'paypal';
+
+            if (!validateStepOne() || !validateStepTwo()) {
+                return;
+            }
+
+            if (method === 'paypal') {
+                await startPayPalCheckout();
+                return;
+            }
+
+            if (method === 'vnpay') {
+                await startVnpayCheckout();
+                return;
+            }
+
+            updateSummary();
+            updatePaymentPlan();
+            updatePaymentMethod();
+            setStep(3);
         });
     });
 
@@ -914,10 +1091,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    const retryButton = root.querySelector('[data-checkout-retry]');
+    if (retryButton) {
+        retryButton.addEventListener('click', function () {
+            clearError();
+            updateSummary();
+            updatePaymentPlan();
+            updatePaymentMethod();
+            focusPaymentStep();
+        });
+    }
+
     updateSummary();
     updatePaymentPlan();
     updatePaymentMethod();
-    setStep(1);
+    setStep(<?= $checkoutRetry ? '2' : '1' ?>);
+
+    if (<?= $checkoutRetry ? 'true' : 'false' ?>) {
+        window.setTimeout(function () {
+            focusPaymentStep();
+        }, 120);
+    }
 });
 </script>
 <?= $this->endSection() ?>
