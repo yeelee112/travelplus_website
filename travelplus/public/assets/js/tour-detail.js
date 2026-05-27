@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', function () {
         reviewFailedNow: i18n.reviewFailedNow || 'Could not send the review right now.',
         enquiryFailed: i18n.enquiryFailed || 'Could not send enquiry right now.',
         enquirySent: i18n.enquirySent || 'Enquiry sent successfully.',
+        selectDeparture: i18n.selectDeparture || 'Please choose a departure date.',
+        travelersMax: i18n.travelersMax || 'Maximum {0} travelers',
+        departureSlots: i18n.departureSlots || '{0} seats available for this departure.',
         currencySuffix: i18n.currencySuffix || 'đ',
     };
 
@@ -84,6 +87,126 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const formatVnd = (value) => `${new Intl.NumberFormat('vi-VN').format(value)}${messages.currencySuffix}`;
+    const formatTemplate = (template, value) => String(template || '').replace('{0}', String(value));
+
+    const parseDepartureOptions = (selector) => {
+        try {
+            const parsed = JSON.parse(selector.dataset.departures || '[]');
+            return Array.isArray(parsed) ? parsed.filter((item) => item && item.date) : [];
+        } catch (error) {
+            return [];
+        }
+    };
+
+    const findDepartureByDate = (departures, date) =>
+        departures.find((departure) => String(departure.date) === String(date)) || null;
+
+    const applyDepartureToForm = (form, departure) => {
+        if (!form || !departure) {
+            return;
+        }
+
+        const setHidden = (selector, value) => {
+            const input = form.querySelector(selector);
+            if (input instanceof HTMLInputElement) {
+                input.value = String(value ?? '');
+            }
+        };
+
+        const adultPrice = Number.parseInt(departure.adult_price || '0', 10) || 0;
+        const childPrice = Number.parseInt(departure.child_price || '0', 10) || 0;
+        const infantPrice = Number.parseInt(departure.infant_price || '0', 10) || 0;
+        const maxTravelers = Number.parseInt(departure.max_travelers || '0', 10) || 1;
+
+        setHidden('[data-booking-departure-date-hidden]', departure.date);
+        setHidden('[data-booking-departure-label-hidden]', departure.label);
+        setHidden('[data-booking-price-hidden="adult"]', adultPrice);
+        setHidden('[data-booking-price-hidden="child"]', childPrice);
+        setHidden('[data-booking-price-hidden="infant"]', infantPrice);
+        setHidden('[data-booking-max-travelers-hidden]', maxTravelers);
+
+        const serviceArea = form.querySelector('.additional-service-area');
+        if (serviceArea) {
+            serviceArea.dispatchEvent(new CustomEvent('travelplus:departure-change', {
+                detail: {
+                    departure,
+                    prices: { adult: adultPrice, child: childPrice, infant: infantPrice },
+                    maxTravelers,
+                },
+            }));
+        }
+    };
+
+    document.querySelectorAll('[data-departure-selector]').forEach((selector) => {
+        const form = selector.closest('[data-booking-proceed-form]');
+        const departures = parseDepartureOptions(selector);
+        const toggle = selector.querySelector('[data-departure-toggle]');
+        const menu = selector.querySelector('[data-departure-menu]');
+        const meta = selector.querySelector('[data-departure-meta]');
+        const currentLabel = selector.querySelector('[data-departure-current-label]');
+        const currentPrice = selector.querySelector('[data-departure-current-price]');
+        const buttons = Array.from(selector.querySelectorAll('[data-departure-option]'));
+
+        if (!form || departures.length === 0 || !(toggle instanceof HTMLButtonElement) || !menu) {
+            return;
+        }
+
+        const setMenuOpen = (isOpen) => {
+            selector.classList.toggle('is-open', isOpen);
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        };
+
+        const setActiveDeparture = (date) => {
+            const departure = findDepartureByDate(departures, date);
+            if (!departure) {
+                return;
+            }
+
+            buttons.forEach((button) => {
+                button.classList.toggle('is-active', button.dataset.departureDate === departure.date);
+            });
+
+            if (currentLabel) {
+                currentLabel.textContent = departure.label || departure.date;
+            }
+
+            if (currentPrice) {
+                currentPrice.textContent = formatVnd(Number.parseInt(departure.adult_price || '0', 10) || 0);
+            }
+
+            if (meta) {
+                meta.textContent = formatTemplate(messages.departureSlots, departure.max_travelers || 1);
+            }
+
+            applyDepartureToForm(form, departure);
+        };
+
+        toggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setMenuOpen(!selector.classList.contains('is-open'));
+        });
+
+        selector.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                setActiveDeparture(button.dataset.departureDate || '');
+                setMenuOpen(false);
+            });
+        });
+
+        document.addEventListener('click', () => setMenuOpen(false));
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                setMenuOpen(false);
+            }
+        });
+
+        setActiveDeparture(departures[0].date);
+    });
 
     document.querySelectorAll('.additional-service-area').forEach((serviceArea) => {
         const serviceItems = Array.from(serviceArea.querySelectorAll('.booking-service-item'));
@@ -92,8 +215,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const bookingForm = serviceArea.closest('[data-booking-proceed-form]');
-        const maxTravelers = Number.parseInt(serviceArea.dataset.maxTravelers || '15', 10);
+        let maxTravelers = Number.parseInt(serviceArea.dataset.maxTravelers || '15', 10);
         const totalElement = serviceArea.querySelector('.booking-grand-total');
+        const maxTravelersLabel = serviceArea.querySelector('[data-booking-travelers-max-label]');
 
         const getTotalTravelers = () =>
             serviceItems.reduce((sum, item) => {
@@ -134,6 +258,43 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         };
 
+        const updatePriceLabels = (prices) => {
+            Object.entries(prices).forEach(([serviceType, price]) => {
+                const item = serviceItems.find((serviceItem) => serviceItem.dataset.serviceType === serviceType);
+                if (item) {
+                    item.dataset.unitPrice = String(price);
+                }
+
+                const label = serviceArea.querySelector(`[data-booking-price-label="${serviceType}"]`);
+                if (label) {
+                    label.textContent = formatVnd(Number.parseInt(price || '0', 10) || 0);
+                }
+            });
+
+            const unitPriceLabel = bookingForm?.querySelector('[data-booking-unit-price-label]');
+            if (unitPriceLabel && prices.adult) {
+                unitPriceLabel.textContent = formatVnd(Number.parseInt(prices.adult, 10) || 0);
+            }
+        };
+
+        const clampQuantitiesToMax = () => {
+            serviceItems.forEach((item) => {
+                const input = item.querySelector('.quantity__input');
+                if (!(input instanceof HTMLInputElement)) {
+                    return;
+                }
+
+                const currentValue = Number.parseInt(input.value || '0', 10) || 0;
+                setInputValue(input, currentValue);
+            });
+        };
+
+        const updateMaxTravelersLabel = () => {
+            if (maxTravelersLabel) {
+                maxTravelersLabel.textContent = `(${formatTemplate(messages.travelersMax, maxTravelers)})`;
+            }
+        };
+
         const setInputValue = (input, nextValue) => {
             const minValue = Number.parseInt(input.dataset.min || '0', 10) || 0;
             const currentValue = Number.parseInt(input.value || '0', 10) || 0;
@@ -144,6 +305,28 @@ document.addEventListener('DOMContentLoaded', function () {
             input.value = String(normalizedValue);
             updateTotals();
         };
+
+        serviceArea.addEventListener('travelplus:departure-change', (event) => {
+            const detail = event.detail || {};
+            const departure = detail.departure || {};
+            const prices = detail.prices || {};
+            maxTravelers = Number.parseInt(detail.maxTravelers || serviceArea.dataset.baseMaxTravelers || '15', 10) || 1;
+            serviceArea.dataset.maxTravelers = String(maxTravelers);
+
+            updatePriceLabels(prices);
+            updateMaxTravelersLabel();
+
+            const tourInfo = bookingForm?.querySelector('[data-booking-tour-info]');
+            if (tourInfo) {
+                const durationLabel = serviceArea.dataset.durationLabel || '';
+                const prefix = serviceArea.dataset.departurePrefix || '';
+                const departureLabel = departure.label || '';
+                tourInfo.textContent = `${durationLabel}${departureLabel ? ` | ${prefix} ${departureLabel}` : ''}`;
+            }
+
+            clampQuantitiesToMax();
+            updateTotals();
+        });
 
         serviceItems.forEach((item) => {
             const input = item.querySelector('.quantity__input');
@@ -173,6 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         updateTotals();
+        updateMaxTravelersLabel();
     });
 
     const bookingProceedForm = document.querySelector('[data-booking-proceed-form]');
@@ -185,6 +369,15 @@ document.addEventListener('DOMContentLoaded', function () {
             if (errorBox) {
                 errorBox.className = 'alert alert-danger d-none mt-3';
                 errorBox.textContent = '';
+            }
+
+            const departureInput = bookingProceedForm.querySelector('[name="departure_date"]');
+            if (departureInput instanceof HTMLInputElement && departureInput.value.trim() === '') {
+                if (errorBox) {
+                    errorBox.className = 'alert alert-danger mt-3';
+                    errorBox.textContent = messages.selectDeparture;
+                }
+                return;
             }
 
             const formData = new FormData(bookingProceedForm);

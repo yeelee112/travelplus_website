@@ -33,7 +33,7 @@ class Exceptions extends BaseConfig
      *
      * @var list<int>
      */
-    public array $ignoreCodes = [404];
+    public array $ignoreCodes = [403, 404];
 
     /**
      * --------------------------------------------------------------------------
@@ -56,7 +56,16 @@ class Exceptions extends BaseConfig
      *
      * @var list<string>
      */
-    public array $sensitiveDataInTrace = [];
+    public array $sensitiveDataInTrace = [
+        'server',
+        'globals',
+        'request',
+        'headers',
+        'cookie',
+        'post',
+        'get',
+        'files',
+    ];
 
     /**
      * --------------------------------------------------------------------------

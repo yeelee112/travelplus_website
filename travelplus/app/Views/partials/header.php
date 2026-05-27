@@ -5,6 +5,20 @@ $isEnglish = $locale === 'en';
 $viUrl = switch_locale_url('vi');
 $enUrl = switch_locale_url('en');
 $searchAction = \App\Data\LocalizedPathCatalog::url('search', $locale);
+$currentPath = trim((string) service('request')->getUri()->getPath(), '/');
+$normalizeHeaderPath = static function (string $url): string {
+    $path = (string) (parse_url($url, PHP_URL_PATH) ?? '');
+    return trim($path, '/');
+};
+$isActiveHeaderUrl = static function (string $url) use ($currentPath, $normalizeHeaderPath): bool {
+    $path = $normalizeHeaderPath($url);
+
+    if ($path === '') {
+        return $currentPath === '';
+    }
+
+    return $currentPath === $path || str_starts_with($currentPath . '/', $path . '/');
+};
 $loginLabel = lang('Frontend.auth.login');
 $logoutLabel = lang('Frontend.auth.logout');
 $headerQuickSearches = [
@@ -38,6 +52,16 @@ $languageOptions = [
 $currentLanguage = $languageOptions[$locale] ?? $languageOptions['vi'];
 $blogUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
 $aboutUrl = \App\Data\LocalizedPathCatalog::url('about', $locale);
+$outboundUrl = \App\Data\LocalizedPathCatalog::url('outbound', $locale);
+$domesticUrl = \App\Data\LocalizedPathCatalog::url('domestic', $locale);
+$visaUrl = \App\Data\LocalizedPathCatalog::url('service.visa', $locale);
+$miceUrl = \App\Data\LocalizedPathCatalog::url('service.mice', $locale);
+$contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $locale);
+$serviceMenuActive = array_reduce(
+    $serviceMenuItems,
+    static fn (bool $active, array $item): bool => $active || $isActiveHeaderUrl((string) ($item['url'] ?? '')),
+    false
+);
 $profileUrl = \App\Data\LocalizedPathCatalog::url('auth.profile', $locale);
 $loginUrl = \App\Data\LocalizedPathCatalog::url('auth.login', $locale) . '?return_to=' . rawurlencode($currentAbsoluteUrl);
 $authPrimaryUrl = $authUser ? $profileUrl : $loginUrl;
@@ -71,7 +95,7 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
             </ul>
 
             <a class="header-logo" href="<?= localized_url('/') ?>">
-                <img alt="Travel Plus" loading="lazy" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="<?= base_url('assets/images/logo.svg') ?>">
+                <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="<?= base_url('assets/images/logo.svg') ?>">
             </a>
 
             <div class="topbar-right">
@@ -155,7 +179,12 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                                     <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.mediaAudit', $locale) ?>">Media audit</a></li>
                                 <?php endif; ?>
                                 <li><a href="<?= $profileUrl ?>"><?= esc($authPrimaryLabel) ?></a></li>
-                                <li><a href="<?= $logoutUrl ?>"><?= esc($logoutLabel) ?></a></li>
+                                <li>
+                                    <form action="<?= esc($logoutUrl) ?>" method="post" class="header-logout-form">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="header-logout-button"><?= esc($logoutLabel) ?></button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     <?php else: ?>
@@ -182,10 +211,11 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
     </div>
 </div>
 
-<header class="style-1 two">
-    <div class="container d-flex flex-nowrap align-items-center justify-content-lg-center justify-content-between">
+<header class="style-1 two site-header-modern">
+    <div class="container site-header-container">
+        <div class="site-header-shell">
         <a class="header-logo d-lg-none d-block" href="<?= localized_url('/') ?>">
-            <img alt="Travel Plus" loading="lazy" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="<?= base_url('assets/images/logo-white.svg') ?>">
+            <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="<?= base_url('assets/images/logo.svg') ?>">
         </a>
 
         <div class="main-menu">
@@ -197,8 +227,8 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
             </div>
 
             <ul class="menu-list">
-                <li class="menu-item-has-children position-inherit">
-                    <a class="drop-down" href="<?= \App\Data\LocalizedPathCatalog::url('outbound', $locale) ?>"><?= esc(lang('Frontend.header.menu.outbound')) ?><i class="bi bi-caret-down-fill"></i></a>
+                <li class="menu-item-has-children position-inherit <?= $isActiveHeaderUrl($outboundUrl) ? 'current-menu-item' : '' ?>">
+                    <a class="drop-down" href="<?= $outboundUrl ?>"><?= esc(lang('Frontend.header.menu.outbound')) ?><i class="bi bi-caret-down-fill"></i></a>
                     <i class="bi bi-plus dropdown-icon"></i>
                     <div class="mega-menu none">
                         <div class="container">
@@ -215,7 +245,7 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                                             <?php foreach ($continent['countries'] as $country): ?>
                                                 <li>
                                                     <a href="<?= localized_url($continent['slug'] . '/' . $country['slug']) ?>">
-                                                        <img src="https://flagcdn.com/w20/<?= strtolower($country['code']) ?>.png" alt="<?= esc($country['name']) ?>">
+                                                        <img src="https://flagcdn.com/w20/<?= strtolower($country['code']) ?>.png" alt="<?= esc($country['name']) ?>" loading="lazy" decoding="async" width="20" height="15">
                                                         <?= esc($country['name']) ?>
                                                     </a>
                                                 </li>
@@ -225,13 +255,11 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                                 <?php endforeach; ?>
                             </div>
                         </div>
-                        <img alt="Mega menu decoration" loading="lazy" width="275" height="365" decoding="async" data-nimg="1" class="vector1" style="color:transparent" src="../assets/img/home1/mega-menu-vector1.svg">
-                        <img alt="Mega menu decoration" loading="lazy" width="275" height="365" decoding="async" data-nimg="1" class="vector2" style="color:transparent" src="../assets/img/home1/mega-menu-vector2.svg">
                     </div>
                 </li>
 
-                <li class="menu-item-has-children position-inherit">
-                    <a class="drop-down" href="<?= \App\Data\LocalizedPathCatalog::url('domestic', $locale) ?>"><?= esc(lang('Frontend.header.menu.domestic')) ?><i class="bi bi-caret-down-fill"></i></a>
+                <li class="menu-item-has-children position-inherit <?= $isActiveHeaderUrl($domesticUrl) ? 'current-menu-item' : '' ?>">
+                    <a class="drop-down" href="<?= $domesticUrl ?>"><?= esc(lang('Frontend.header.menu.domestic')) ?><i class="bi bi-caret-down-fill"></i></a>
                     <i class="bi bi-plus dropdown-icon"></i>
                     <div class="mega-menu none">
                         <div class="container">
@@ -248,7 +276,7 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                                             <?php foreach ($region['provinces'] as $province): ?>
                                                 <li>
                                                     <a href="<?= $province['link'] ?>">
-                                                        <img src="https://flagcdn.com/w20/vn.png" alt="<?= esc($province['name']) ?>">
+                                                        <img src="https://flagcdn.com/w20/vn.png" alt="<?= esc($province['name']) ?>" loading="lazy" decoding="async" width="20" height="15">
                                                         <?= esc($province['name']) ?>
                                                     </a>
                                                 </li>
@@ -258,15 +286,13 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                                 <?php endforeach; ?>
                             </div>
                         </div>
-                        <img alt="Mega menu decoration" loading="lazy" width="275" height="365" decoding="async" data-nimg="1" class="vector1" style="color:transparent" src="../assets/img/home1/mega-menu-vector1.svg">
-                        <img alt="Mega menu decoration" loading="lazy" width="275" height="365" decoding="async" data-nimg="1" class="vector2" style="color:transparent" src="../assets/img/home1/mega-menu-vector2.svg">
                     </div>
                 </li>
 
-                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('service.visa', $locale) ?>"><?= esc(lang('Frontend.header.menu.visa')) ?></a></li>
-                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('service.mice', $locale) ?>"><?= esc(lang('Frontend.header.menu.mice')) ?></a></li>
+                <li class="<?= $isActiveHeaderUrl($visaUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $visaUrl ?>"><?= esc(lang('Frontend.header.menu.visa')) ?></a></li>
+                <li class="<?= $isActiveHeaderUrl($miceUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $miceUrl ?>"><?= esc(lang('Frontend.header.menu.mice')) ?></a></li>
 
-                <li class="menu-item-has-children">
+                <li class="menu-item-has-children <?= $serviceMenuActive ? 'current-menu-item' : '' ?>">
                     <a href="<?= esc($serviceMenuItems[0]['url'] ?? \App\Data\LocalizedPathCatalog::url('service.airlineTickets', $locale)) ?>" class="drop-down"><?= esc(lang('Frontend.header.menu.services')) ?><i class="bi bi-caret-down-fill"></i></a>
                     <i class="bi bi-plus dropdown-icon"></i>
                     <ul class="sub-menu none">
@@ -276,8 +302,8 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                     </ul>
                 </li>
 
-                <li><a href="<?= $blogUrl ?>"><?= esc(lang('Frontend.header.menu.blog')) ?></a></li>
-                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('contact', $locale) ?>"><?= esc(lang('Frontend.header.menu.contact')) ?></a></li>
+                <li class="<?= $isActiveHeaderUrl($blogUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $blogUrl ?>"><?= esc(lang('Frontend.header.menu.blog')) ?></a></li>
+                <li class="<?= $isActiveHeaderUrl($contactUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $contactUrl ?>"><?= esc(lang('Frontend.header.menu.contact')) ?></a></li>
             </ul>
 
             <div class="language-and-login-area d-lg-none d-block">
@@ -329,7 +355,12 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                                 <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.reviews', $locale) ?>">Reviews</a></li>
                             <?php endif; ?>
                             <li><a href="<?= $profileUrl ?>"><?= esc($authPrimaryLabel) ?></a></li>
-                            <li><a href="<?= $logoutUrl ?>"><?= esc($logoutLabel) ?></a></li>
+                            <li>
+                                <form action="<?= esc($logoutUrl) ?>" method="post" class="header-logout-form">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="header-logout-button"><?= esc($logoutLabel) ?></button>
+                                </form>
+                            </li>
                         </ul>
                     </div>
                 <?php else: ?>
@@ -382,6 +413,7 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                     <path d="M18.8052 15.1579H10.2858C9.62563 15.1579 9.09094 15.7938 9.09094 16.5789C9.09094 17.3641 9.62563 18 10.2858 18H18.8052C19.4653 18 20 17.3641 20 16.5789C20 15.7938 19.4653 15.1579 18.8052 15.1579Z"></path>
                 </svg>
             </div>
+        </div>
         </div>
     </div>
 </header>

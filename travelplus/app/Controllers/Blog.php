@@ -22,6 +22,7 @@ class Blog extends BaseController
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $seo = new SeoService();
         $listPath = LocalizedPathCatalog::path('blog', $locale);
+        $listUrl = localized_url($listPath);
         $blogs = $this->blogService->getPublishedBlogs($locale, 12);
 
         $breadcrumbs = [
@@ -44,7 +45,7 @@ class Blog extends BaseController
             'breadcrumbs' => $breadcrumbs,
             'meta_title' => $metaTitle,
             'meta_desc' => $metaDesc,
-            'canonical_url' => localized_url($listPath),
+            'canonical_url' => $listUrl,
             'alternate_links' => [
                 ['hreflang' => 'vi', 'href' => LocalizedPathCatalog::url('blog', 'vi')],
                 ['hreflang' => 'en', 'href' => LocalizedPathCatalog::url('blog', 'en')],
@@ -52,8 +53,9 @@ class Blog extends BaseController
             ],
             'schema_graph' => [
                 $seo->organizationSchema(),
-                $seo->breadcrumbSchema($breadcrumbs, (string) localized_url($listPath)),
-                $seo->webpageSchema($metaTitle, $metaDesc, (string) localized_url($listPath)),
+                $seo->breadcrumbSchema($breadcrumbs, (string) $listUrl),
+                $seo->webpageSchema($metaTitle, $metaDesc, (string) $listUrl, 'CollectionPage'),
+                $seo->itemListSchema($metaTitle, (string) $listUrl, $blogs, 'BlogPosting'),
             ],
         ]);
     }
@@ -98,6 +100,8 @@ class Blog extends BaseController
 
         $metaTitle = (string) ($blog['meta_title'] ?: ($blog['title'] . ' | Travel Plus'));
         $metaDesc = (string) ($blog['meta_description'] ?: $blog['excerpt']);
+        $publishedAt = (string) ($blog['published_at'] ?? '');
+        $updatedAt = (string) ($blog['updated_at'] ?? $publishedAt);
 
         return view('blog/show', [
             'blog' => $blog,
@@ -105,7 +109,12 @@ class Blog extends BaseController
             'breadcrumbs' => $breadcrumbs,
             'meta_title' => $metaTitle,
             'meta_desc' => $metaDesc,
+            'meta_type' => 'article',
             'meta_image' => base_url((string) $blog['image']),
+            'meta_image_alt' => (string) $blog['title'],
+            'meta_published_time' => $publishedAt,
+            'meta_updated_time' => $updatedAt,
+            'meta_author' => (string) ($blog['author'] ?? 'Travel Plus'),
             'canonical_url' => (string) $blog['link'],
             'alternate_links' => [
                 ['hreflang' => 'vi', 'href' => switch_locale_url('vi')],
@@ -116,6 +125,7 @@ class Blog extends BaseController
                 $seo->organizationSchema(),
                 $seo->breadcrumbSchema($breadcrumbs, (string) $blog['link']),
                 $seo->webpageSchema($metaTitle, $metaDesc, (string) $blog['link']),
+                $seo->articleSchema($blog, (string) $blog['link']),
             ],
         ]);
     }

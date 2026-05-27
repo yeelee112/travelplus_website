@@ -70,7 +70,7 @@ $routes->match(['GET', 'POST'], 'account/login', 'AuthController::login');
   $routes->match(['GET', 'POST'], 'account/reset-password/(:segment)', 'AuthController::resetPassword/$1');
   $routes->match(['GET', 'POST'], 'account/profile', 'AuthController::profile');
   $routes->POST('account/logout-all', 'AuthController::logoutAllDevices');
-  $routes->GET('auth/logout', 'AuthController::logout');
+$routes->POST('auth/logout', 'AuthController::logout');
 $routes->GET('auth/google', 'AuthController::google');
 $routes->GET('auth/google/callback', 'AuthController::googleCallback');
 $routes->POST('booking/proceed', 'BookingController::proceed');
@@ -131,7 +131,7 @@ $routes->group('en', function ($routes) {
     $routes->match(['GET', 'POST'], 'account/reset-password/(:segment)', 'AuthController::resetPassword/$1');
     $routes->match(['GET', 'POST'], 'account/profile', 'AuthController::profile');
     $routes->POST('account/logout-all', 'AuthController::logoutAllDevices');
-    $routes->GET('auth/logout', 'AuthController::logout');
+    $routes->POST('auth/logout', 'AuthController::logout');
     $routes->GET('auth/google', 'AuthController::google');
     $routes->GET('auth/google/callback', 'AuthController::googleCallback');
     $routes->POST('booking/proceed', 'BookingController::proceed');

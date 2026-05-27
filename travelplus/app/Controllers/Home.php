@@ -20,12 +20,16 @@ class Home extends BaseController
         $canonicalUrl = localized_url('/');
         $searchUrl = LocalizedPathCatalog::url('search', $locale) . '?q={search_term_string}';
         $metaDesc = $t('home.metaDesc');
+        $featuredTours = $tourService->getFeaturedTours($locale, 6);
+        $featuredDestinations = $this->getCuratedFeaturedDestinations($locale);
+        $homeTours = $tourService->getHomeTours($locale, 6);
+        $homeBlogs = $blogService->getHomeBlogs($locale, 3);
 
         return view('home/index', [
-            'featuredTours' => $tourService->getFeaturedTours($locale, 6),
-            'featuredDestinations' => $this->getCuratedFeaturedDestinations($locale),
-            'homeTours' => $tourService->getHomeTours($locale, 6),
-            'homeBlogs' => $blogService->getHomeBlogs($locale, 3),
+            'featuredTours' => $featuredTours,
+            'featuredDestinations' => $featuredDestinations,
+            'homeTours' => $homeTours,
+            'homeBlogs' => $homeBlogs,
             'meta_title' => $t('home.metaTitle'),
             'meta_desc' => $metaDesc,
             'canonical_url' => $canonicalUrl,
@@ -43,6 +47,8 @@ class Home extends BaseController
                     $metaDesc,
                     $canonicalUrl
                 ),
+                $seo->itemListSchema($t('home.homeTour.title'), $canonicalUrl, $homeTours, 'Product'),
+                $seo->itemListSchema($t('blog.listTitle'), $canonicalUrl, $homeBlogs, 'BlogPosting'),
             ],
         ]);
     }

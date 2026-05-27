@@ -75,14 +75,19 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // 'honeypot',
-            // 'csrf',
+            'csrf' => [
+                'except' => [
+                    'booking/vnpay/ipn',
+                    'en/booking/vnpay/ipn',
+                ],
+            ],
             // 'invalidchars',
             // Locale detection must run early to set the request locale
             'setlocale',
         ],
         'after' => [
             // 'honeypot',
-            // 'secureheaders',
+            'secureheaders',
         ],
     ];
 

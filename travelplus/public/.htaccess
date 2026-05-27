@@ -1,6 +1,16 @@
 # Disable directory browsing
 Options -Indexes
 
+# Block accidental exposure of source maps, backups, local configs and VCS files.
+<FilesMatch "(^\.|\.map$|\.log$|\.sql$|\.bak$|\.old$|\.orig$|\.save$|\.swp$|\.tmp$|\.env$|\.ini$|\.ya?ml$|\.lock$|composer\.(json|lock)$|package(-lock)?\.json$)">
+	Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+	Header always set X-Content-Type-Options "nosniff"
+	Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
 # ----------------------------------------------------------------------
 # Rewrite engine
 # ----------------------------------------------------------------------

@@ -28,6 +28,8 @@ class Mice extends BaseController
         $data['meta_desc'] = $t('mice.metaDesc');
         $data['canonical_url'] = LocalizedPathCatalog::url('service.mice', $locale);
         $data['pageContent'] = MicePageContent::get($locale);
+        $data['meta_image'] = base_url('assets/images/mice-1.jpeg');
+        $data['meta_image_alt'] = $t('common.miceService');
         $data['alternate_links'] = [
             ['hreflang' => 'vi', 'href' => base_url('dich-vu-mice')],
             ['hreflang' => 'en', 'href' => base_url('en/dich-vu-mice')],
@@ -37,6 +39,13 @@ class Mice extends BaseController
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
             $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url']),
+            $seo->serviceSchema(
+                $t('common.miceService'),
+                (string) $data['meta_desc'],
+                (string) $data['canonical_url'],
+                'assets/images/mice-1.jpeg',
+                ['MICE', 'Corporate travel', 'Event planning']
+            ),
         ];
 
         return view('mice/index', $data);

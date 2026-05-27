@@ -23,13 +23,13 @@
                     <div class="tab-content" id="featured-destination-contents">
                         <?php foreach ($featuredDestinations as $index => $tab): ?>
                             <div class="tab-pane fade <?= $index === 0 ? 'show active' : '' ?>" id="featured-destination-<?= esc((string) $tab['key']) ?>">
-                                <div class="row g-xl-4 g-lg-3 gy-4">
+                                <div class="row g-xl-4 g-lg-3 gy-4 featured-destination-grid">
                                     <?php foreach (($tab['items'] ?? []) as $item): ?>
                                         <div class="<?= esc((string) ($item['col'] ?? 'col-lg-4 col-md-6')) ?>">
                                             <a href="<?= esc((string) ($item['link'] ?? '#')) ?>">
                                                 <div class="destination-card2 four">
                                                     <div class="destination-img">
-                                                        <img src="<?= esc((string) ($item['image'] ?? base_url('assets/images/avt-tour-01.jpg'))) ?>" alt="<?= esc((string) ($item['title'] ?? '')) ?>">
+                                                        <img src="<?= esc((string) ($item['image'] ?? base_url('assets/images/avt-tour-01.jpg'))) ?>" alt="<?= esc((string) ($item['title'] ?? '')) ?>" loading="lazy" decoding="async" width="640" height="420">
                                                     </div>
                                                     <div class="destination-content-wrap">
                                                         <div class="destination-content">

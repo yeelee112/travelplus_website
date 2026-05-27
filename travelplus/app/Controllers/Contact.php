@@ -110,13 +110,22 @@ class Contact extends BaseController
 
     private function verifyRecaptcha(string $token): bool
     {
-        $secretKey = '6LfgBncsAAAAAKI2vlFIqagVly-ckVVTFcGSe8lG';
+        $secretKey = trim((string) env('recaptcha.secretKey', ''), " \t\n\r\0\x0B\"'");
+
+        if ($secretKey === '') {
+            log_message('error', 'Contact form reCAPTCHA secret key is missing.');
+            return false;
+        }
 
         try {
-            $client = \Config\Services::curlrequest([
-                'timeout' => 10,
-                'verify' => false,
-            ]);
+            $options = ['timeout' => 10];
+            $caBundle = trim((string) env('recaptcha.caBundle', ''), " \t\n\r\0\x0B\"'");
+
+            if ($caBundle !== '' && is_file($caBundle)) {
+                $options['verify'] = $caBundle;
+            }
+
+            $client = \Config\Services::curlrequest($options);
 
             $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
                 'form_params' => [
@@ -129,7 +138,7 @@ class Contact extends BaseController
 
             return is_array($result)
                 && ! empty($result['success'])
-                && (($result['score'] ?? 0) >= 0.5);
+                && (($result['score'] ?? 0) >= (float) env('recaptcha.minimumScore', 0.5));
         } catch (\Throwable $exception) {
             log_message('error', 'Contact form reCAPTCHA failed: {message}', ['message' => $exception->getMessage()]);
 
@@ -193,7 +202,7 @@ class Contact extends BaseController
             'schema_graph' => [
                 $seo->organizationSchema(),
                 $seo->breadcrumbSchema($breadcrumbs, LocalizedPathCatalog::url('contact', $locale)),
-                $seo->webpageSchema($metaTitle, $metaDesc, LocalizedPathCatalog::url('contact', $locale)),
+                $seo->webpageSchema($metaTitle, $metaDesc, LocalizedPathCatalog::url('contact', $locale), 'ContactPage'),
             ],
             'contact_form_token' => $formToken,
         ];

@@ -54,7 +54,7 @@ class Cookie extends BaseConfig
      *
      * Cookie will only be set if a secure HTTPS connection exists.
      */
-    public bool $secure = false;
+    public bool $secure = true;
 
     /**
      * --------------------------------------------------------------------------
@@ -88,6 +88,15 @@ class Cookie extends BaseConfig
      * @var ''|'Lax'|'None'|'Strict'
      */
     public string $samesite = 'Lax';
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->secure = filter_var(env('cookie.secure', $this->secure), FILTER_VALIDATE_BOOL);
+        $this->httponly = filter_var(env('cookie.httponly', $this->httponly), FILTER_VALIDATE_BOOL);
+        $this->samesite = (string) env('cookie.samesite', $this->samesite);
+    }
 
     /**
      * --------------------------------------------------------------------------

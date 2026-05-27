@@ -57,6 +57,7 @@
             </div>
             <?php if (! empty($report['orphans'])): ?>
                 <form method="post" action="<?= site_url('admin/media-audit/delete-orphans') ?>" onsubmit="return confirm('Xóa toàn bộ file mồ côi đang hiển thị?');">
+                    <?= csrf_field() ?>
                     <?php foreach ($report['orphans'] as $orphan): ?>
                         <input type="hidden" name="files[]" value="<?= esc((string) $orphan['path']) ?>">
                     <?php endforeach; ?>

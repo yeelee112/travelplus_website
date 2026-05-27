@@ -26,7 +26,7 @@ $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
             <div class="col-xl-8 col-lg-8">
                 <div class="inspiration-details">
                     <div class="inspiration-image mb-40">
-                        <img alt="<?= esc((string) ($blog['title'] ?? '')) ?>" loading="lazy" src="<?= esc($blogImage) ?>">
+                        <img alt="<?= esc((string) ($blog['title'] ?? '')) ?>" loading="lazy" decoding="async" width="860" height="520" src="<?= esc($blogImage) ?>">
                     </div>
 
                     <div class="tag-and-social-area mb-30">
@@ -57,7 +57,7 @@ $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
                             <div class="recent-post-widget mb-30">
                                 <div class="recent-post-img">
                                     <a href="<?= esc((string) $relatedBlog['link']) ?>">
-                                        <img alt="<?= esc((string) $relatedBlog['title']) ?>" loading="lazy" src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg'))) ?>">
+                                        <img alt="<?= esc((string) $relatedBlog['title']) ?>" loading="lazy" decoding="async" width="160" height="110" src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg'))) ?>">
                                     </a>
                                 </div>
                                 <div class="recent-post-content">
@@ -86,7 +86,7 @@ $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
                             <div class="blog-card2 two">
                                 <div class="blog-img-wrap">
                                     <a class="blog-img" href="<?= esc((string) $relatedBlog['link']) ?>">
-                                        <img alt="<?= esc((string) $relatedBlog['title']) ?>" loading="lazy" src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg'))) ?>">
+                                        <img alt="<?= esc((string) $relatedBlog['title']) ?>" loading="lazy" decoding="async" width="420" height="280" src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg'))) ?>">
                                     </a>
                                     <a class="blog-category" href="<?= esc((string) $relatedBlog['link']) ?>"><?= esc((string) $relatedBlog['published_label']) ?></a>
                                 </div>

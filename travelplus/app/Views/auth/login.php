@@ -62,7 +62,7 @@ $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args,
                         <?php if ($googleEnabled): ?>
                             <div class="col-12">
                                 <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.google', $locale) ?><?= $returnTo !== '' ? '?return_to=' . rawurlencode($returnTo) : '' ?>" class="primary-btn w-100">
-                                    <span><img src="<?= esc(base_url('assets/images/google-2025.png')) ?>" alt="Google Icon" style="width: 20px; height: 20px; vertical-align: middle;"><?= esc($t('auth.loginPage.google')) ?></span>
+                                    <span><img src="<?= esc(base_url('assets/images/google-2025.png')) ?>" alt="Google Icon" loading="lazy" decoding="async" width="20" height="20" style="width: 20px; height: 20px; vertical-align: middle;"><?= esc($t('auth.loginPage.google')) ?></span>
                                 </a>
                             </div>
                         <?php endif; ?>

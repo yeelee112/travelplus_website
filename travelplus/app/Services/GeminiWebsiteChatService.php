@@ -6,6 +6,9 @@ use RuntimeException;
 
 class GeminiWebsiteChatService
 {
+    private const GEMINI_MAX_OUTPUT_TOKENS = 1200;
+    private const GEMINI_TIMEOUT_SECONDS = 60;
+
     private string $apiKey;
     private string $model;
     private WebsiteKnowledgeService $knowledgeService;
@@ -30,7 +33,7 @@ class GeminiWebsiteChatService
     public function answer(string $locale, string $message, array $history = [], array $chatState = []): array
     {
         if (! $this->isConfigured()) {
-            throw new RuntimeException('Gemini API key is missing.');
+            throw new RuntimeException('AI provider credentials are missing.');
         }
 
         $referenceFacts = $this->knowledgeService->getReferenceFacts($locale, $message, $chatState);
@@ -40,7 +43,7 @@ class GeminiWebsiteChatService
             try {
                 $response = $this->normalizeChatMessage($this->requestGemini($prompt));
             } catch (RuntimeException $exception) {
-                if (! $this->isQuotaError($exception)) {
+                if (! $this->isRecoverableProviderError($exception)) {
                     throw $exception;
                 }
 
@@ -72,13 +75,13 @@ class GeminiWebsiteChatService
             try {
                 $response = $this->normalizeChatMessage($this->requestGemini($prompt));
             } catch (RuntimeException $exception) {
-                if (! $this->isQuotaError($exception)) {
+                if (! $this->isRecoverableProviderError($exception)) {
                     throw $exception;
                 }
 
                 $response = $this->buildFactsFallbackMessage($locale, $structuredFacts);
                 $usedFactsFallback = true;
-                $usedQuotaFallback = true;
+                $usedQuotaFallback = $this->isQuotaError($exception);
             }
 
             if ($this->looksIncompleteStructuredResponse($response, $structuredFacts)) {
@@ -108,14 +111,17 @@ class GeminiWebsiteChatService
         try {
             $response = $this->normalizeChatMessage($this->requestGemini($prompt));
         } catch (RuntimeException $exception) {
-            if (! $this->isQuotaError($exception)) {
+            if ($this->isTruncationError($exception)) {
+                $response = $this->buildContextFallbackMessage($locale, $context['summary']);
+                $usedContextFallback = true;
+            } elseif (! $this->isRecoverableProviderError($exception)) {
                 throw $exception;
+            } else {
+                $response = $locale === 'en'
+                    ? 'The AI assistant is temporarily unavailable. Please try again later.'
+                    : 'AI Travel Plus đang tạm thời không khả dụng. Vui lòng thử lại sau.';
+                $usedQuotaFallback = true;
             }
-
-            $response = $locale === 'en'
-                ? 'The AI assistant is temporarily over its Gemini quota. Please try again later.'
-                : 'AI Travel Plus đang tạm thời vượt hạn mức Gemini. Vui lòng thử lại sau.';
-            $usedQuotaFallback = true;
         }
 
         if ($this->looksIncompleteGenericResponse($response)) {
@@ -236,6 +242,7 @@ class GeminiWebsiteChatService
                 : 'Thông tin tham khảo ngoài dữ liệu website:',
             'If website facts are provided, keep them separate from general reference knowledge and do not present them as the same thing.',
             'Do not invent specific Travel Plus policies, prices, processing commitments, or promises that are not explicitly in website facts.',
+            'Keep the answer under 180 words and finish with a complete sentence.',
             'Write in plain text. Do not use markdown bold, markdown bullet markers, raw URLs, or citation markers like [1].',
             'Conversation history:',
             $historyLines !== [] ? implode("\n", $historyLines) : '(none)',
@@ -323,7 +330,11 @@ class GeminiWebsiteChatService
         }
 
         $lastChar = mb_substr($text, -1);
-        if (! in_array($lastChar, ['.', '!', '?', '…'], true) && mb_strlen($text) < 220) {
+        if (! in_array($lastChar, ['.', '!', '?', '…'], true)) {
+            return true;
+        }
+
+        if (preg_match('/(?:[,;:]|\b(?:và|hoặc|từ|là|của|với|and|or|from|to))\s*$/iu', $text) === 1) {
             return true;
         }
 
@@ -389,6 +400,22 @@ class GeminiWebsiteChatService
         $message = $exception->getMessage();
 
         return str_contains($message, 'HTTP 429') || str_contains($message, 'RESOURCE_EXHAUSTED') || str_contains($message, 'quota');
+    }
+
+    private function isTruncationError(RuntimeException $exception): bool
+    {
+        return str_contains($exception->getMessage(), 'MAX_TOKENS');
+    }
+
+    private function isRecoverableProviderError(RuntimeException $exception): bool
+    {
+        $message = $exception->getMessage();
+
+        return $this->isQuotaError($exception)
+            || $this->isTruncationError($exception)
+            || str_contains($message, 'HTTP 503')
+            || str_contains($message, 'UNAVAILABLE')
+            || str_contains($message, 'temporarily');
     }
 
     /**
@@ -642,6 +669,10 @@ class GeminiWebsiteChatService
                     : 'Với ' . $matchedDestination . ', thời gian xử lý thường nên được xác nhận sát ngày nộp vì có thể thay đổi theo từng thời điểm.';
             }
 
+            $lines[] = $locale === 'en'
+                ? 'For cost, Travel Plus has not published a fixed service fee on the website; the final amount depends on visa type, consular fees, service scope, and the applicant profile.'
+                : 'Về chi phí, Travel Plus chưa công bố mức phí cố định trên website; số tiền cuối cùng phụ thuộc vào loại visa, phí lãnh sự, phạm vi dịch vụ và hồ sơ của từng khách.';
+
             $lines[] = '';
             $lines[] = $locale === 'en'
                 ? 'Website data: Travel Plus currently supports visa consultation and document preparation for this type of request [1].'
@@ -672,7 +703,7 @@ class GeminiWebsiteChatService
             'generationConfig' => [
                 'temperature' => 0.2,
                 'topP' => 0.9,
-                'maxOutputTokens' => 600,
+                'maxOutputTokens' => self::GEMINI_MAX_OUTPUT_TOKENS,
             ],
         ];
 
@@ -686,7 +717,7 @@ class GeminiWebsiteChatService
                 'x-goog-api-key: ' . $this->apiKey,
             ],
             CURLOPT_CONNECTTIMEOUT => 20,
-            CURLOPT_TIMEOUT => 45,
+            CURLOPT_TIMEOUT => self::GEMINI_TIMEOUT_SECONDS,
         ]);
 
         $response = curl_exec($ch);
@@ -696,20 +727,35 @@ class GeminiWebsiteChatService
         curl_close($ch);
 
         if ($response === false || $error !== '') {
-            throw new RuntimeException('Gemini request failed. cURL #' . $errorNo . ': ' . $error);
+            throw new RuntimeException('AI provider request failed. cURL #' . $errorNo . ': ' . $error);
         }
 
         $data = json_decode($response, true);
 
         if ($httpCode < 200 || $httpCode >= 300 || ! is_array($data)) {
             $detail = is_array($data) ? json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : (string) $response;
-            throw new RuntimeException('Gemini returned an invalid response. HTTP ' . $httpCode . ': ' . $detail);
+            throw new RuntimeException('AI provider returned an invalid response. HTTP ' . $httpCode . ': ' . $detail);
         }
 
-        $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        $candidate = is_array($data['candidates'][0] ?? null) ? $data['candidates'][0] : [];
+        $parts = is_array($candidate['content']['parts'] ?? null) ? $candidate['content']['parts'] : [];
+        $textParts = [];
+
+        foreach ($parts as $part) {
+            if (is_array($part) && isset($part['text']) && is_string($part['text'])) {
+                $textParts[] = $part['text'];
+            }
+        }
+
+        $text = trim(implode("\n", $textParts));
+        $finishReason = (string) ($candidate['finishReason'] ?? '');
 
         if (! is_string($text) || trim($text) === '') {
-            throw new RuntimeException('Gemini returned an empty response.');
+            throw new RuntimeException('AI provider returned an empty response.');
+        }
+
+        if ($finishReason === 'MAX_TOKENS') {
+            throw new RuntimeException('AI provider response stopped early with finishReason=MAX_TOKENS.');
         }
 
         return trim($text);

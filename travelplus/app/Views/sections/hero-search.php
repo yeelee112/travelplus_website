@@ -10,7 +10,8 @@ $allToursUrl = \App\Data\LocalizedPathCatalog::url('search', $locale);
                     <div class="banner-img-area">
                         <img
                             alt="<?= esc(lang('Frontend.hero.banner1.title')) ?>"
-                            loading="lazy"
+                            loading="eager"
+                            fetchpriority="high"
                             width="1920"
                             height="680"
                             decoding="async"

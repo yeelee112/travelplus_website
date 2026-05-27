@@ -159,7 +159,7 @@ $flagMap = [
                                 <?php $flag = $flagMap[$item] ?? null; ?>
                                 <li>
                                     <?php if ($flag): ?>
-                                        <img alt="<?= esc($item) ?>" loading="lazy" width="35" height="20" src="https://flagcdn.com/h20/<?= esc($flag) ?>.png">
+                                        <img alt="<?= esc($item) ?>" loading="lazy" decoding="async" width="35" height="20" src="https://flagcdn.com/h20/<?= esc($flag) ?>.png">
                                     <?php endif; ?>
                                     <?= esc($item) ?>
                                 </li>
@@ -213,7 +213,7 @@ $flagMap = [
         </div>
     </div>
     <div class="vector">
-        <img alt="<?= esc(lang('Frontend.common.alt.visaService', [], $locale)) ?>" loading="lazy" width="400" height="220" src="<?= esc(base_url('assets/images/visa-progress.webp')) ?>">
+        <img alt="<?= esc(lang('Frontend.common.alt.visaService', [], $locale)) ?>" loading="lazy" decoding="async" width="400" height="220" src="<?= esc(base_url('assets/images/visa-progress.webp')) ?>">
     </div>
 </div>
 

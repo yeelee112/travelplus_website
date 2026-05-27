@@ -30,7 +30,7 @@ $t = static fn(string $key) => lang('Frontend.' . $key, [], $locale);
                     </div>
                 </div>
                 <div class="service-hero-visual">
-                    <img src="<?= base_url($hero['image']) ?>" alt="<?= esc($pageTitle) ?>">
+                    <img src="<?= base_url($hero['image']) ?>" alt="<?= esc($pageTitle) ?>" loading="eager" fetchpriority="high" decoding="async" width="720" height="520">
                 </div>
             </div>
 

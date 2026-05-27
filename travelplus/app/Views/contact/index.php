@@ -16,7 +16,10 @@
         referrerpolicy="no-referrer-when-downgrade"></iframe>
 </div>
 
-<?php $locale = service('request')->getLocale() ?: 'vi'; ?>
+<?php
+$locale = service('request')->getLocale() ?: 'vi';
+$recaptchaSiteKey = trim((string) env('recaptcha.siteKey', ''), " \t\n\r\0\x0B\"'");
+?>
 <script>
 (() => {
     const form = document.getElementById('contactForm');
@@ -30,6 +33,7 @@
     const defaultText = submitButton.dataset.defaultText || <?= json_encode(lang('Frontend.contact.submit', [], $locale)) ?>;
     const loadingText = submitButton.dataset.loadingText || <?= json_encode(lang('Frontend.contact.submitting', [], $locale)) ?>;
     const recaptchaError = <?= json_encode(lang('Frontend.contact.recaptchaFailed', [], $locale)) ?>;
+    const recaptchaSiteKey = <?= json_encode($recaptchaSiteKey, JSON_UNESCAPED_SLASHES) ?>;
 
     const setSubmittingState = (submitting) => {
         isSubmitting = submitting;
@@ -57,8 +61,14 @@
         event.preventDefault();
         setSubmittingState(true);
 
+        if (!recaptchaSiteKey || typeof grecaptcha === 'undefined') {
+            setSubmittingState(false);
+            window.alert(recaptchaError);
+            return;
+        }
+
         grecaptcha.ready(() => {
-            grecaptcha.execute('6LfgBncsAAAAAEmWNoT1xtCidf_t3tQEK7YkhWvw', { action: 'contact' }).then((token) => {
+            grecaptcha.execute(recaptchaSiteKey, { action: 'contact' }).then((token) => {
                 document.getElementById('recaptcha_token').value = token;
                 form.submit();
             }).catch(() => {

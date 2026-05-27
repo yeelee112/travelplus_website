@@ -35,7 +35,7 @@ class AboutUs extends BaseController
         $data['schema_graph'] = [
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
-            $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url']),
+            $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url'], 'AboutPage'),
         ];
 
         return view('ve-chung-toi/index', $data);

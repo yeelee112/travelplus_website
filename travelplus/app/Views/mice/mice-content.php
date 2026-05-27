@@ -37,14 +37,14 @@ $c = is_array($content ?? null) ? $content : [];
 
                 <div class="mice-hero-visual">
                     <div class="mice-hero-main-image">
-                        <img src="<?= base_url('assets/images/mice-1.jpeg') ?>" alt="<?= esc(lang('Frontend.common.alt.travelPlusMice', [], $locale)) ?>">
+                        <img src="<?= base_url('assets/images/mice-1.jpeg') ?>" alt="<?= esc(lang('Frontend.common.alt.travelPlusMice', [], $locale)) ?>" loading="eager" fetchpriority="high" decoding="async" width="680" height="520">
                     </div>
                     <div class="mice-hero-side-grid">
                         <div class="mice-hero-side-card">
-                            <img src="<?= base_url('assets/images/mice-2.jpg') ?>" alt="<?= esc(lang('Frontend.common.alt.corporateConference', [], $locale)) ?>">
+                            <img src="<?= base_url('assets/images/mice-2.jpg') ?>" alt="<?= esc(lang('Frontend.common.alt.corporateConference', [], $locale)) ?>" loading="eager" decoding="async" width="320" height="240">
                         </div>
                         <div class="mice-hero-side-card">
-                            <img src="<?= base_url('assets/images/mice-3.jpg') ?>" alt="<?= esc(lang('Frontend.common.alt.teamBuildingProgram', [], $locale)) ?>">
+                            <img src="<?= base_url('assets/images/mice-3.jpg') ?>" alt="<?= esc(lang('Frontend.common.alt.teamBuildingProgram', [], $locale)) ?>" loading="eager" decoding="async" width="320" height="240">
                         </div>
                     </div>
                 </div>

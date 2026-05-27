@@ -314,9 +314,10 @@ class TourCatalogService
 
     private function baseToursBuilder(string $locale, ?string $tourType = null, array $locationFilter = [], bool $featuredOnly = false): BaseBuilder
     {
+        $today = $this->db->escape(date('Y-m-d'));
         $builder = $this->db->table('tours t')
             ->join('tour_translations tt', 'tt.tour_id = t.id AND tt.locale = ' . $this->db->escape($locale), 'inner')
-            ->join('tour_departures td', 'td.tour_id = t.id AND td.status = "open"', 'left')
+            ->join('tour_departures td', 'td.tour_id = t.id AND td.status = "open" AND td.departure_date >= ' . $today, 'left')
             ->join('tour_destinations tdst', 'tdst.tour_id = t.id', 'left')
             ->join('locations dl', 'dl.id = tdst.location_id', 'left')
             ->join('locations dlp', 'dlp.id = dl.parent_id', 'left')
@@ -759,6 +760,8 @@ class TourCatalogService
         $detail['overview'] = (string) ($translation['overview'] ?? $fallbackTranslation['overview'] ?? '');
         $detail['description'] = (string) ($translation['description'] ?? $fallbackTranslation['description'] ?? '');
         $detail['max_travelers'] = (int) ($tourRow['max_travelers'] ?? 15);
+        $detail['created_at'] = (string) ($tourRow['created_at'] ?? '');
+        $detail['updated_at'] = (string) ($tourRow['updated_at'] ?? $tourRow['created_at'] ?? '');
 
         $basePrice = (float) ($tourRow['sale_price'] ?? 0) ?: (float) ($tourRow['base_price'] ?? 0);
         if ((float) ($detail['price']['amount'] ?? 0) <= 0 && $basePrice > 0) {
@@ -793,6 +796,7 @@ class TourCatalogService
         $rows = $this->db->table('tour_departures')
             ->where('tour_id', $tourId)
             ->where('status', 'open')
+            ->where('departure_date >=', date('Y-m-d'))
             ->orderBy('departure_date', 'ASC')
             ->get()
             ->getResultArray();
@@ -801,6 +805,7 @@ class TourCatalogService
             $price = (float) ($row['price'] ?? 0);
 
             return [
+                'id' => (int) ($row['id'] ?? 0),
                 'date' => (string) ($row['departure_date'] ?? ''),
                 'date_label' => $this->formatDate((string) ($row['departure_date'] ?? '')),
                 'available_slots' => (int) ($row['available_slots'] ?? 0),

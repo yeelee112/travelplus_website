@@ -13,6 +13,11 @@ class Sitemap extends Controller
         $locales = ['vi', 'en'];
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
         $urls = [];
+        $staticLastmod = $this->lastModifiedFromFiles([
+            APPPATH . 'Config/Routes.php',
+            APPPATH . 'Views/layouts/main.php',
+            APPPATH . 'Controllers/Home.php',
+        ]);
 
         $staticPaths = [
             'vi' => [
@@ -53,6 +58,7 @@ class Sitemap extends Controller
             foreach ($staticPaths[$locale] as $path) {
                 $urls[] = [
                     'loc' => base_url($path),
+                    'lastmod' => $staticLastmod,
                     'changefreq' => $path === '' || $path === 'en' ? 'daily' : 'weekly',
                     'priority' => $path === '' || $path === 'en' ? '1.0' : '0.8',
                 ];
@@ -86,6 +92,7 @@ class Sitemap extends Controller
 
                     $urls[] = [
                         'loc' => (string) $blog['link'],
+                        'lastmod' => $this->sitemapDate((string) ($blog['updated_at'] ?? $blog['published_at'] ?? '')),
                         'changefreq' => 'weekly',
                         'priority' => '0.6',
                     ];
@@ -104,10 +111,49 @@ class Sitemap extends Controller
             $seen[$loc] = true;
             $url = $xml->addChild('url');
             $url->addChild('loc', htmlspecialchars($loc, ENT_XML1));
+            $lastmod = $this->sitemapDate((string) ($entry['lastmod'] ?? ''));
+            if ($lastmod !== '') {
+                $url->addChild('lastmod', $lastmod);
+            }
             $url->addChild('changefreq', (string) ($entry['changefreq'] ?? 'weekly'));
             $url->addChild('priority', (string) ($entry['priority'] ?? '0.7'));
         }
 
         return $this->response->setContentType('application/xml')->setBody($xml->asXML());
+    }
+
+    /**
+     * @param list<string> $paths
+     */
+    private function lastModifiedFromFiles(array $paths): string
+    {
+        $timestamps = [];
+
+        foreach ($paths as $path) {
+            if (is_file($path)) {
+                $modified = filemtime($path);
+                if ($modified !== false) {
+                    $timestamps[] = $modified;
+                }
+            }
+        }
+
+        if ($timestamps === []) {
+            return '';
+        }
+
+        return gmdate('Y-m-d', max($timestamps));
+    }
+
+    private function sitemapDate(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        $timestamp = strtotime($value);
+
+        return $timestamp === false ? '' : gmdate('Y-m-d', $timestamp);
     }
 }

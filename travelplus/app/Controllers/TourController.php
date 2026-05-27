@@ -72,6 +72,8 @@ class TourController extends BaseController
             'meta_desc' => $metaDesc,
             'canonical_url' => $canonicalUrl,
             'meta_image' => (string) ($tour['image'] ?? base_url('assets/images/TravelPlus_CompanyProfile.png')),
+            'meta_image_alt' => (string) ($tour['title'] ?? 'Travel Plus tour'),
+            'meta_updated_time' => (string) ($tour['updated_at'] ?? $tour['created_at'] ?? ''),
             'alternate_links' => [
                 ['hreflang' => 'vi', 'href' => switch_locale_url('vi')],
                 ['hreflang' => 'en', 'href' => switch_locale_url('en')],
@@ -80,7 +82,9 @@ class TourController extends BaseController
             'schema_graph' => [
                 $seo->organizationSchema(),
                 $seo->breadcrumbSchema($breadcrumbs, $canonicalUrl),
+                $seo->webpageSchema($metaTitle, $metaDesc, $canonicalUrl),
                 $seo->tourSchema($tour, $canonicalUrl),
+                $seo->faqSchema((array) ($tour['faqs'] ?? [])),
             ],
         ]);
     }

@@ -46,6 +46,11 @@
         .metric-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px; }
         .metric-box .num { display:block; font-size:22px; font-weight:700; line-height:1.1; color:#0f172a; }
         .metric-box .lbl { color:#64748b; font-size:12px; margin-top:4px; }
+        .departure-generator { border:1px dashed #cbd5e1; border-radius:14px; background:#f8fafc; padding:16px; margin-bottom:16px; }
+        .departure-generator .weekday-list { display:flex; flex-wrap:wrap; gap:8px; }
+        .departure-generator .weekday-list label { display:inline-flex; align-items:center; gap:6px; margin:0; padding:7px 10px; border:1px solid #d9e2ec; border-radius:999px; background:#fff; font-size:13px; }
+        .departure-row { padding-right:102px; }
+        .departure-row .form-control, .departure-row .form-select { min-height:42px; }
         .section-title-row { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
         .section-count { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#f8fafc; border:1px solid #e2e8f0; color:#334155; font-size:13px; font-weight:600; }
         .media-preview { display:flex; align-items:center; gap:12px; padding:10px 12px; border:1px dashed #d9e2ec; border-radius:12px; background:#fff; min-height:92px; }
@@ -79,6 +84,16 @@ $formData = $formData ?? [];
 $tourType = old('tour_type', $formData['tour_type'] ?? 'outbound');
 $fv = static fn(string $key, $default = '') => old($key, $formData[$key] ?? $default);
 $destinationsRows = old('destinations') ?: ($formData['destinations'] ?? []);
+$departureRows = old('departures') ?: ($formData['departures'] ?? []);
+if ($departureRows === []) {
+    $departureRows = [[
+        'departure_date' => $fv('departure_date'),
+        'available_slots' => $fv('available_slots'),
+        'price' => $fv('departure_price', $fv('base_price')),
+        'price_up' => $fv('price_up'),
+        'status' => $fv('departure_status', 'open'),
+    ]];
+}
 $itineraryRows = old('itinerary_days') ?: ($formData['itinerary_days'] ?? []);
 $mediaRows = old('media') ?: ($formData['media'] ?? []);
 $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
@@ -163,6 +178,7 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
                 <div class="live-summary-label">Structure</div>
                 <div class="metric-list">
                     <div class="metric-box"><span class="num" id="metricDestinations"><?= esc((string) count($destinationsRows)) ?></span><span class="lbl">Destinations</span></div>
+                    <div class="metric-box"><span class="num" id="metricDepartures"><?= esc((string) count($departureRows)) ?></span><span class="lbl">Departures</span></div>
                     <div class="metric-box"><span class="num" id="metricItinerary"><?= esc((string) count($itineraryRows)) ?></span><span class="lbl">Itinerary days</span></div>
                     <div class="metric-box"><span class="num" id="metricMedia"><?= esc((string) count($mediaRows)) ?></span><span class="lbl">Media items</span></div>
                     <div class="metric-box"><span class="num" id="metricFaq"><?= esc((string) count($faqRows)) ?></span><span class="lbl">FAQs</span></div>
@@ -171,6 +187,7 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
         </div>
 
         <form method="post" action="<?= esc($formAction) ?>" enctype="multipart/form-data" id="tourForm">
+            <?= csrf_field() ?>
             <section id="section-main" class="form-section">
             <h2 class="section-title">Main Info</h2>
             <div class="section-meta">Thông tin nền của tour, giá cơ bản, trạng thái hiển thị và giới hạn khách.</div>
@@ -370,13 +387,65 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
             </section>
 
             <section id="section-departure" class="form-section">
-            <h2 class="section-title">Departure</h2>
-            <div class="section-meta">Ngày khởi hành đầu tiên, số chỗ còn lại và trạng thái nhận booking.</div>
-            <div class="row g-3">
-                <div class="col-md-4"><label>Date</label><input type="date" name="departure_date" class="form-control" value="<?= esc($fv('departure_date')) ?>"></div>
-                <div class="col-md-4"><label>Slots</label><input type="number" min="0" name="available_slots" class="form-control" value="<?= esc($fv('available_slots')) ?>"></div>
-                <div class="col-md-4"><label>Status</label><select name="departure_status" class="form-select"><option value="open" <?= $fv('departure_status','open') === 'open' ? 'selected' : '' ?>>Open</option><option value="closed" <?= $fv('departure_status') === 'closed' ? 'selected' : '' ?>>Closed</option></select></div>
+            <div class="section-title-row">
+                <div>
+                    <h2 class="section-title">Departure dates</h2>
+                    <div class="section-meta mb-0">Each bookable date is saved as one row. Use the generator for daily, weekly or monthly schedules, then adjust rows manually.</div>
+                </div>
+                <div class="section-count">Dates: <span id="departureCountBadge"><?= esc((string) count($departureRows)) ?></span></div>
             </div>
+            <div class="departure-generator">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label>Repeat type</label>
+                        <select class="form-select" id="departureRepeatType">
+                            <option value="once">Date range every day</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3"><label>Start date</label><input type="date" class="form-control" id="departureRepeatStart"></div>
+                    <div class="col-md-3"><label>End date</label><input type="date" class="form-control" id="departureRepeatEnd"></div>
+                    <div class="col-md-3"><label>Slots</label><input type="number" min="0" class="form-control" id="departureRepeatSlots" value="<?= esc((string) $fv('max_travelers', '15')) ?>"></div>
+                    <div class="col-md-12" id="departureWeeklyOptions">
+                        <label>Weekly weekdays</label>
+                        <div class="weekday-list">
+                            <label><input type="checkbox" value="1"> Mon</label>
+                            <label><input type="checkbox" value="2"> Tue</label>
+                            <label><input type="checkbox" value="3"> Wed</label>
+                            <label><input type="checkbox" value="4"> Thu</label>
+                            <label><input type="checkbox" value="5"> Fri</label>
+                            <label><input type="checkbox" value="6" checked> Sat</label>
+                            <label><input type="checkbox" value="0"> Sun</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-none" id="departureMonthlyOptions">
+                        <label>Day of month</label>
+                        <input type="number" min="1" max="31" class="form-control" id="departureRepeatMonthDay" value="1">
+                    </div>
+                    <div class="col-md-3"><label>Price</label><input type="number" min="0" class="form-control" id="departureRepeatPrice" value="<?= esc((string) $fv('sale_price', $fv('base_price'))) ?>"></div>
+                    <div class="col-md-3"><label>Price up</label><input type="number" min="0" class="form-control" id="departureRepeatPriceUp"></div>
+                    <div class="col-md-3"><label>Status</label><select class="form-select" id="departureRepeatStatus"><option value="open">Open</option><option value="closed">Closed</option></select></div>
+                    <div class="col-md-3"><button type="button" class="btn btn-outline-primary w-100" id="generateDepartures">Generate dates</button></div>
+                </div>
+                <div class="help mt-2">Generating dates will add missing rows only. Existing rows with the same date stay unchanged.</div>
+            </div>
+            <div id="departureRows">
+                <?php foreach (array_values($departureRows) as $index => $row): ?>
+                    <?php $row = is_array($row) ? $row : []; ?>
+                    <div class="repeat-item departure-row">
+                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                        <div class="row g-3">
+                            <div class="col-md-3"><label>Date</label><input type="date" name="departures[<?= $index ?>][departure_date]" class="form-control js-departure-date" value="<?= esc((string) ($row['departure_date'] ?? '')) ?>"></div>
+                            <div class="col-md-2"><label>Slots</label><input type="number" min="0" name="departures[<?= $index ?>][available_slots]" class="form-control" value="<?= esc((string) ($row['available_slots'] ?? '')) ?>"></div>
+                            <div class="col-md-3"><label>Price</label><input type="number" min="0" name="departures[<?= $index ?>][price]" class="form-control" value="<?= esc((string) ($row['price'] ?? '')) ?>"></div>
+                            <div class="col-md-2"><label>Price up</label><input type="number" min="0" name="departures[<?= $index ?>][price_up]" class="form-control" value="<?= esc((string) ($row['price_up'] ?? '')) ?>"></div>
+                            <div class="col-md-2"><label>Status</label><select name="departures[<?= $index ?>][status]" class="form-select"><option value="open" <?= ($row['status'] ?? 'open') === 'open' ? 'selected' : '' ?>>Open</option><option value="closed" <?= ($row['status'] ?? '') === 'closed' ? 'selected' : '' ?>>Closed</option></select></div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" class="btn btn-outline-success" id="addDeparture">Add departure date</button>
             </section>
 
             <section id="section-itinerary" class="form-section">
@@ -546,6 +615,7 @@ const provincesByRegion = <?= json_encode($domesticProvincesByRegion, JSON_UNESC
 const continents = <?= json_encode($continents, JSON_UNESCAPED_UNICODE) ?>;
 const regions = <?= json_encode($domesticRegions, JSON_UNESCAPED_UNICODE) ?>;
 let destinationIndex = <?= count($destinationsRows) ?>;
+let departureIndex = <?= count($departureRows) ?>;
 let itineraryIndex = <?= count($itineraryRows) ?>;
 let mediaIndex = <?= count($mediaRows) ?>;
 let faqIndex = <?= count($faqRows) ?>;
@@ -619,6 +689,127 @@ function bindRemoveButtons(scope=document) {
       scheduleDraftSave();
     });
   });
+}
+
+function departureRowTemplate(index, values = {}) {
+  const date = values.departure_date || '';
+  const slots = values.available_slots || '';
+  const price = values.price || '';
+  const priceUp = values.price_up || '';
+  const status = values.status || 'open';
+
+  return `<button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+    <div class="row g-3">
+      <div class="col-md-3"><label>Date</label><input type="date" name="departures[${index}][departure_date]" class="form-control js-departure-date" value="${date}"></div>
+      <div class="col-md-2"><label>Slots</label><input type="number" min="0" name="departures[${index}][available_slots]" class="form-control" value="${slots}"></div>
+      <div class="col-md-3"><label>Price</label><input type="number" min="0" name="departures[${index}][price]" class="form-control" value="${price}"></div>
+      <div class="col-md-2"><label>Price up</label><input type="number" min="0" name="departures[${index}][price_up]" class="form-control" value="${priceUp}"></div>
+      <div class="col-md-2"><label>Status</label><select name="departures[${index}][status]" class="form-select"><option value="open" ${status === 'open' ? 'selected' : ''}>Open</option><option value="closed" ${status === 'closed' ? 'selected' : ''}>Closed</option></select></div>
+    </div>`;
+}
+
+function appendDepartureRow(values = {}) {
+  const container = document.getElementById('departureRows');
+  if (!container) return null;
+
+  const row = document.createElement('div');
+  row.className = 'repeat-item departure-row';
+  row.innerHTML = departureRowTemplate(departureIndex, values);
+  container.appendChild(row);
+  bindRemoveButtons(row);
+  departureIndex++;
+  refreshSummaryMetrics();
+  scheduleDraftSave();
+
+  return row;
+}
+
+function getExistingDepartureDates() {
+  return new Set(Array.from(document.querySelectorAll('#departureRows .js-departure-date'))
+    .map(input => input.value)
+    .filter(Boolean));
+}
+
+function formatYmd(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function parseLocalDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+
+  return formatYmd(date) === value ? date : null;
+}
+
+function getDepartureGeneratorValues() {
+  return {
+    available_slots: document.getElementById('departureRepeatSlots')?.value || '',
+    price: document.getElementById('departureRepeatPrice')?.value || '',
+    price_up: document.getElementById('departureRepeatPriceUp')?.value || '',
+    status: document.getElementById('departureRepeatStatus')?.value || 'open',
+  };
+}
+
+function generateDepartureDates() {
+  const type = document.getElementById('departureRepeatType')?.value || 'once';
+  const start = parseLocalDate(document.getElementById('departureRepeatStart')?.value || '');
+  const end = parseLocalDate(document.getElementById('departureRepeatEnd')?.value || '');
+
+  if (!start || !end || start > end) {
+    window.alert('Please choose a valid start and end date.');
+    return;
+  }
+
+  const existingDates = getExistingDepartureDates();
+  const baseValues = getDepartureGeneratorValues();
+  const weeklyDays = new Set(Array.from(document.querySelectorAll('#departureWeeklyOptions input:checked')).map(input => Number(input.value)));
+  const monthlyDay = Number.parseInt(document.getElementById('departureRepeatMonthDay')?.value || '1', 10);
+  const cursor = new Date(start);
+  let added = 0;
+
+  while (cursor <= end) {
+    const ymd = formatYmd(cursor);
+    const matchesType = type === 'once'
+      || (type === 'weekly' && weeklyDays.has(cursor.getDay()))
+      || (type === 'monthly' && cursor.getDate() === monthlyDay);
+
+    if (matchesType && !existingDates.has(ymd)) {
+      appendDepartureRow({ ...baseValues, departure_date: ymd });
+      existingDates.add(ymd);
+      added++;
+    }
+
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  if (added === 0) {
+    window.alert('No new departure dates were added.');
+  }
+}
+
+function bindDepartureGenerator() {
+  const repeatType = document.getElementById('departureRepeatType');
+  const weeklyOptions = document.getElementById('departureWeeklyOptions');
+  const monthlyOptions = document.getElementById('departureMonthlyOptions');
+
+  repeatType?.addEventListener('change', () => {
+    const type = repeatType.value;
+    weeklyOptions?.classList.toggle('d-none', type !== 'weekly');
+    monthlyOptions?.classList.toggle('d-none', type !== 'monthly');
+  });
+
+  repeatType?.dispatchEvent(new Event('change'));
+  document.getElementById('generateDepartures')?.addEventListener('click', generateDepartureDates);
+  document.getElementById('addDeparture')?.addEventListener('click', () => appendDepartureRow({
+    price: document.getElementById('departureRepeatPrice')?.value || document.querySelector('[name="base_price"]')?.value || '',
+    available_slots: document.getElementById('departureRepeatSlots')?.value || document.querySelector('[name="max_travelers"]')?.value || '',
+    status: 'open',
+  }));
 }
 
 function updatePrimaryDestinationOptions() {
@@ -865,6 +1056,7 @@ function refreshSummaryMetrics() {
   const priceValue = document.querySelector('[name="base_price"]')?.value || '';
 
   const destinationCount = countRows('#destinationRows .destination-row');
+  const departureCount = countRows('#departureRows .departure-row');
   const itineraryCount = countRows('#itineraryRows .repeat-item');
   const mediaCount = countRows('#mediaRows .repeat-item');
   const faqCount = countRows('#faqRows .repeat-item');
@@ -875,11 +1067,13 @@ function refreshSummaryMetrics() {
   document.getElementById('summaryStatus').textContent = `${statusLabel.charAt(0).toUpperCase()}${statusLabel.slice(1)} · ${tourTypeLabel}`;
 
   document.getElementById('metricDestinations').textContent = destinationCount;
+  document.getElementById('metricDepartures').textContent = departureCount;
   document.getElementById('metricItinerary').textContent = itineraryCount;
   document.getElementById('metricMedia').textContent = mediaCount;
   document.getElementById('metricFaq').textContent = faqCount;
 
   document.getElementById('destinationCountBadge').textContent = destinationCount;
+  document.getElementById('departureCountBadge').textContent = departureCount;
   document.getElementById('itineraryCountBadge').textContent = itineraryCount;
   document.getElementById('mediaCountBadge').textContent = mediaCount;
   document.getElementById('faqCountBadge').textContent = faqCount;
@@ -895,6 +1089,7 @@ bindRichEditor();
 bindRemoveButtons();
 bindDuplicateButtons();
 bindMediaPreview();
+bindDepartureGenerator();
 bindSortableList('#itineraryRows', '.itinerary-row');
 bindSortableList('#mediaRows', '.media-row');
 ['name_vi','code','duration_days','duration_nights','base_price'].forEach(idOrName => {

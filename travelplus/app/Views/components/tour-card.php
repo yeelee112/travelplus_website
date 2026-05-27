@@ -15,7 +15,7 @@ $priceLabel = (string) ($tour['price']['label'] ?? '');
 <div class="package-card">
     <div class="package-img-wrap">
         <a class="package-img" href="<?= esc($link) ?>" aria-label="<?= esc($t('tourCard.viewDetails', [$title])) ?>">
-            <img src="<?= esc($image) ?>" alt="<?= esc($title) ?>">
+            <img src="<?= esc($image) ?>" alt="<?= esc($title) ?>" loading="lazy" decoding="async" width="420" height="280">
         </a>
 
         <?php if (! empty($badge)): ?>

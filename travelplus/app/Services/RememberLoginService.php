@@ -38,12 +38,11 @@ class RememberLoginService
             self::COOKIE_NAME,
             $selector . ':' . $validator,
             self::LIFETIME_SECONDS,
+            '',
             '/',
             '',
-            '',
-            false,
-            true,
             null,
+            true,
             'Lax'
         );
     }
@@ -119,12 +118,11 @@ class RememberLoginService
             self::COOKIE_NAME,
             $selector . ':' . $newValidator,
             self::LIFETIME_SECONDS,
+            '',
             '/',
             '',
-            '',
-            false,
-            true,
             null,
+            true,
             'Lax'
         );
 

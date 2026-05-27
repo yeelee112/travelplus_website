@@ -23,7 +23,7 @@ $blogListUrl = \App\Data\LocalizedPathCatalog::url('blog', service('request')->g
                         <div class="blog-card2 two">
                             <div class="blog-img-wrap">
                                 <a class="blog-img" href="<?= esc((string) $blog['link']) ?>" aria-label="<?= esc('Xem bài viết ' . (string) $blog['title']) ?>">
-                                    <img alt="<?= esc((string) $blog['title']) ?>" loading="lazy" src="<?= esc(base_url((string) ($blog['image'] ?? 'assets/images/home/banner02.jpg'))) ?>">
+                                    <img alt="<?= esc((string) $blog['title']) ?>" loading="lazy" decoding="async" width="420" height="280" src="<?= esc(base_url((string) ($blog['image'] ?? 'assets/images/home/banner02.jpg'))) ?>">
                                 </a>
                                 <a class="location" href="<?= esc($blogListUrl) ?>">
                                     <?= esc((string) $blog['category']) ?>

@@ -105,7 +105,8 @@ class LocationController extends BaseController
         $data['schema_graph'] = [
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
-            $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url']),
+            $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url'], 'CollectionPage'),
+            $seo->itemListSchema((string) $data['meta_title'], (string) $data['canonical_url'], $data['tours'], 'Product'),
         ];
 
         return view('tour-nuoc-ngoai/index', $data);

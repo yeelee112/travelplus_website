@@ -235,16 +235,36 @@ class Tours extends BaseAdminController
     {
         $relativePath = trim(str_replace('\\', '/', $relativePath));
         $allowedPrefix = trim(str_replace('\\', '/', $allowedPrefix));
+        $absolutePath = $this->resolveManagedFilePath($relativePath, $allowedPrefix);
 
-        if ($relativePath === '' || ! str_starts_with($relativePath, $allowedPrefix)) {
-            return;
+        if ($absolutePath !== null && is_file($absolutePath)) {
+            @unlink($absolutePath);
+        }
+    }
+
+    private function resolveManagedFilePath(string $relativePath, string $allowedPrefix): ?string
+    {
+        if ($relativePath === '' || str_contains($relativePath, "\0")) {
+            return null;
+        }
+
+        $allowedPrefix = rtrim($allowedPrefix, '/') . '/';
+        if (! str_starts_with($relativePath, $allowedPrefix)) {
+            return null;
         }
 
         $absolutePath = rtrim(FCPATH, '\\/') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
+        $candidate = realpath($absolutePath);
+        $root = realpath(rtrim(FCPATH, '\\/') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, trim($allowedPrefix, '/')));
 
-        if (is_file($absolutePath)) {
-            @unlink($absolutePath);
+        if ($candidate === false || $root === false) {
+            return null;
         }
+
+        $candidate = str_replace('\\', '/', $candidate);
+        $root = rtrim(str_replace('\\', '/', $root), '/') . '/';
+
+        return str_starts_with($candidate, $root) ? $candidate : null;
     }
 
     private function saveTour(?int $tourId = null)
@@ -259,11 +279,16 @@ class Tours extends BaseAdminController
             'name_vi' => 'required|min_length[3]',
             'slug_vi' => 'permit_empty|min_length[3]',
             'name_en' => 'permit_empty|min_length[3]',
-            'departure_date' => 'permit_empty|valid_date[Y-m-d]',
         ];
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $post = $this->request->getPost();
+        $departureErrors = $this->validateDepartureRows($post);
+        if ($departureErrors !== []) {
+            return redirect()->back()->withInput()->with('errors', $departureErrors);
         }
 
         $db = db_connect();
@@ -278,14 +303,13 @@ class Tours extends BaseAdminController
             $oldMediaPaths = array_values(array_filter($oldMediaPaths));
         }
         $now = date('Y-m-d H:i:s');
-        $post = $this->request->getPost();
 
         $db->transStart();
 
         $tourId = $this->persistTour($db, $tourId, $post, $now);
         $this->replaceTourTranslations($db, $tourId, $post);
         $this->replaceTourDestinations($db, $tourId, $post);
-        $this->replaceTourDeparture($db, $tourId, $post, $now);
+        $this->replaceTourDepartures($db, $tourId, $post, $now);
         $this->replaceTourMedia($db, $tourId, $post, $now);
         $this->replaceTourItinerary($db, $tourId, $post, $now);
         $this->replaceTourFaqs($db, $tourId, $post, $now);
@@ -605,30 +629,36 @@ class Tours extends BaseAdminController
         }
     }
 
-    private function replaceTourDeparture($db, int $tourId, array $post, string $now): void
+    private function replaceTourDepartures($db, int $tourId, array $post, string $now): void
     {
-        $db->table('tour_departures')->where('tour_id', $tourId)->delete();
-        $this->insertTourDeparture($db, $tourId, $post, $now);
-    }
-
-    private function insertTourDeparture($db, int $tourId, array $post, string $now): void
-    {
-        if (empty($post['departure_date'])) {
+        if (! $db->tableExists('tour_departures')) {
             return;
         }
 
-        $fields = $db->getFieldNames('tour_departures');
-        $data = [
-            'tour_id' => $tourId,
-            'departure_date' => $post['departure_date'],
-            'available_slots' => $this->nullableInt($post['available_slots'] ?? null),
-            'price' => (int) ($post['base_price'] ?? 0),
-            'price_up' => $this->nullableInt($post['price_up'] ?? null),
-            'status' => $post['departure_status'] ?? 'open',
-            'created_at' => $now,
-        ];
+        $db->table('tour_departures')->where('tour_id', $tourId)->delete();
+        $this->insertTourDepartures($db, $tourId, $post, $now);
+    }
 
-        $db->table('tour_departures')->insert(array_intersect_key($data, array_flip($fields)));
+    private function insertTourDepartures($db, int $tourId, array $post, string $now): void
+    {
+        $fields = $db->getFieldNames('tour_departures');
+        $defaultPrice = $this->nullableInt($post['sale_price'] ?? null)
+            ?? $this->nullableInt($post['base_price'] ?? null)
+            ?? 0;
+
+        foreach ($this->normalizeDepartureRows($post) as $row) {
+            $data = [
+                'tour_id' => $tourId,
+                'departure_date' => $row['departure_date'],
+                'available_slots' => $this->nullableInt($row['available_slots'] ?? null),
+                'price' => $this->nullableInt($row['price'] ?? null) ?? $defaultPrice,
+                'price_up' => $this->nullableInt($row['price_up'] ?? null),
+                'status' => in_array(($row['status'] ?? 'open'), ['open', 'closed'], true) ? $row['status'] : 'open',
+                'created_at' => $now,
+            ];
+
+            $db->table('tour_departures')->insert(array_intersect_key($data, array_flip($fields)));
+        }
     }
 
     private function loadTourFormData(int $tourId): ?array
@@ -679,7 +709,12 @@ class Tours extends BaseAdminController
             }
         }
 
-        $departure = $db->table('tour_departures')->where('tour_id', $tourId)->orderBy('departure_date', 'ASC')->get()->getRowArray() ?: [];
+        $departures = $db->table('tour_departures')
+            ->where('tour_id', $tourId)
+            ->orderBy('departure_date', 'ASC')
+            ->get()
+            ->getResultArray();
+        $departure = $departures[0] ?? [];
         $media = $db->table('tour_media')->where('tour_id', $tourId)->orderBy('sort_order', 'ASC')->get()->getResultArray();
 
         $itinerary = $db->table('tour_itinerary_days d')
@@ -729,6 +764,13 @@ class Tours extends BaseAdminController
             'departure_date' => $departure['departure_date'] ?? '',
             'available_slots' => $departure['available_slots'] ?? '',
             'departure_status' => $departure['status'] ?? 'open',
+            'departures' => $departures !== [] ? array_map(static fn(array $row): array => [
+                'departure_date' => $row['departure_date'] ?? '',
+                'available_slots' => $row['available_slots'] ?? '',
+                'price' => $row['price'] ?? '',
+                'price_up' => $row['price_up'] ?? '',
+                'status' => $row['status'] ?? 'open',
+            ], $departures) : [$this->defaultDepartureRow()],
             'meta_title_vi' => $translationMap['vi']['meta_title'] ?? '',
             'meta_title_en' => $translationMap['en']['meta_title'] ?? '',
             'meta_description_vi' => $translationMap['vi']['meta_description'] ?? '',
@@ -749,11 +791,126 @@ class Tours extends BaseAdminController
             'max_travelers' => 15,
             'status' => 'draft',
             'departure_status' => 'open',
+            'departures' => [$this->defaultDepartureRow()],
             'destinations' => [$this->defaultDestinationRow('outbound')],
             'itinerary_days' => [$this->defaultItineraryRow()],
             'media' => [$this->defaultMediaRow()],
             'faqs' => [$this->defaultFaqRow()],
         ];
+    }
+
+    private function defaultDepartureRow(): array
+    {
+        return [
+            'departure_date' => '',
+            'available_slots' => '',
+            'price' => '',
+            'price_up' => '',
+            'status' => 'open',
+        ];
+    }
+
+    private function validateDepartureRows(array $post): array
+    {
+        $errors = [];
+        $seenDates = [];
+        $validRows = 0;
+
+        foreach ($this->extractDepartureRows($post) as $index => $row) {
+            $rowNumber = $index + 1;
+            $date = trim((string) ($row['departure_date'] ?? $row['date'] ?? ''));
+            $hasData = $date !== ''
+                || trim((string) ($row['available_slots'] ?? '')) !== ''
+                || trim((string) ($row['price'] ?? '')) !== ''
+                || trim((string) ($row['price_up'] ?? '')) !== '';
+
+            if (! $hasData) {
+                continue;
+            }
+
+            if (! $this->isValidYmdDate($date)) {
+                $errors['departures.' . $index . '.departure_date'] = 'Departure row #' . $rowNumber . ' needs a valid date.';
+                continue;
+            }
+
+            $validRows++;
+
+            if (isset($seenDates[$date])) {
+                $errors['departures.' . $index . '.duplicate'] = 'Departure date ' . $date . ' is duplicated.';
+            }
+
+            $seenDates[$date] = true;
+
+            foreach (['available_slots' => 'Slots', 'price' => 'Price', 'price_up' => 'Price up'] as $field => $label) {
+                $value = trim((string) ($row[$field] ?? ''));
+                if ($value !== '' && ! preg_match('/^\d+$/', $value)) {
+                    $errors['departures.' . $index . '.' . $field] = $label . ' in departure row #' . $rowNumber . ' must be a non-negative number.';
+                }
+            }
+
+            $status = (string) ($row['status'] ?? 'open');
+            if (! in_array($status, ['open', 'closed'], true)) {
+                $errors['departures.' . $index . '.status'] = 'Departure row #' . $rowNumber . ' has an invalid status.';
+            }
+        }
+
+        if (($post['status'] ?? 'draft') === 'published' && $validRows === 0) {
+            $errors['departures.required'] = 'Published tours need at least one departure date.';
+        }
+
+        return $errors;
+    }
+
+    private function normalizeDepartureRows(array $post): array
+    {
+        $rowsByDate = [];
+
+        foreach ($this->extractDepartureRows($post) as $row) {
+            $date = trim((string) ($row['departure_date'] ?? $row['date'] ?? ''));
+            if (! $this->isValidYmdDate($date)) {
+                continue;
+            }
+
+            $rowsByDate[$date] = [
+                'departure_date' => $date,
+                'available_slots' => trim((string) ($row['available_slots'] ?? '')),
+                'price' => trim((string) ($row['price'] ?? '')),
+                'price_up' => trim((string) ($row['price_up'] ?? '')),
+                'status' => in_array(($row['status'] ?? 'open'), ['open', 'closed'], true) ? $row['status'] : 'open',
+            ];
+        }
+
+        ksort($rowsByDate);
+
+        return array_values($rowsByDate);
+    }
+
+    private function extractDepartureRows(array $post): array
+    {
+        $rows = array_values(array_filter((array) ($post['departures'] ?? []), static fn($row): bool => is_array($row)));
+
+        if ($rows === [] && ! empty($post['departure_date'])) {
+            $rows[] = [
+                'departure_date' => $post['departure_date'],
+                'available_slots' => $post['available_slots'] ?? '',
+                'price' => $post['departure_price'] ?? $post['base_price'] ?? '',
+                'price_up' => $post['price_up'] ?? '',
+                'status' => $post['departure_status'] ?? 'open',
+            ];
+        }
+
+        return $rows;
+    }
+
+    private function isValidYmdDate(string $date): bool
+    {
+        if ($date === '') {
+            return false;
+        }
+
+        $parsed = \DateTime::createFromFormat('!Y-m-d', $date);
+
+        return $parsed instanceof \DateTime && $parsed->format('Y-m-d') === $date;
     }
 
     private function defaultDestinationRow(string $tourType): array

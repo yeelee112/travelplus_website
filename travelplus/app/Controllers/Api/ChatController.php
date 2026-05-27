@@ -8,6 +8,10 @@ use RuntimeException;
 
 class ChatController extends BaseController
 {
+    private const MAX_MESSAGE_LENGTH = 1000;
+    private const RATE_LIMIT_WINDOW_SECONDS = 60;
+    private const RATE_LIMIT_MAX_MESSAGES = 12;
+
     private bool $chatDebugEnabled;
 
     public function __construct()
@@ -26,12 +30,20 @@ class ChatController extends BaseController
         }
 
         $locale = in_array(($payload['locale'] ?? 'vi'), ['vi', 'en'], true) ? (string) $payload['locale'] : 'vi';
-        $message = trim((string) ($payload['message'] ?? ''));
+        $message = mb_substr(trim((string) ($payload['message'] ?? '')), 0, self::MAX_MESSAGE_LENGTH);
         $history = is_array($payload['history'] ?? null) ? $payload['history'] : [];
 
         if ($message === '') {
             return $this->response->setStatusCode(422)->setJSON([
                 'message' => $locale === 'en' ? 'Please enter a message.' : 'Vui lòng nhập nội dung.',
+            ]);
+        }
+
+        if (! $this->passesRateLimit()) {
+            return $this->response->setStatusCode(429)->setJSON([
+                'message' => $locale === 'en'
+                    ? 'You are sending messages too quickly. Please try again in a moment.'
+                    : 'Ban dang gui tin nhan qua nhanh. Vui long thu lai sau it phut.',
             ]);
         }
 
@@ -66,8 +78,8 @@ class ChatController extends BaseController
 
             if (! $service->isConfigured()) {
                 throw new RuntimeException($locale === 'en'
-                    ? 'AI chat is not configured yet.'
-                    : 'Chat AI chưa được cấu hình.');
+                    ? 'The AI assistant is temporarily unavailable. Please try again later.'
+                    : 'AI Travel Plus đang tạm thời không khả dụng. Vui lòng thử lại sau.');
             }
 
             $result = $service->answer($locale, $message, $normalizedHistory, $chatState);
@@ -87,9 +99,40 @@ class ChatController extends BaseController
 
             return $this->response->setJSON($response);
         } catch (RuntimeException $exception) {
+            log_message('error', 'AI chat request failed: ' . $exception->getMessage());
+
             return $this->response->setStatusCode(500)->setJSON([
-                'message' => $exception->getMessage(),
+                'message' => $locale === 'en'
+                    ? 'The AI assistant is temporarily unavailable. Please try again later.'
+                    : 'AI Travel Plus đang tạm thời không khả dụng. Vui lòng thử lại sau.',
             ]);
         }
+    }
+
+    private function passesRateLimit(): bool
+    {
+        $session = session();
+        $now = time();
+        $hits = $session->get('ai_chat_rate_hits');
+
+        if (! is_array($hits)) {
+            $hits = [];
+        }
+
+        $hits = array_values(array_filter(
+            $hits,
+            static fn ($timestamp): bool => is_int($timestamp) && $timestamp >= $now - self::RATE_LIMIT_WINDOW_SECONDS
+        ));
+
+        if (count($hits) >= self::RATE_LIMIT_MAX_MESSAGES) {
+            $session->set('ai_chat_rate_hits', $hits);
+
+            return false;
+        }
+
+        $hits[] = $now;
+        $session->set('ai_chat_rate_hits', $hits);
+
+        return true;
     }
 }

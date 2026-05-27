@@ -124,46 +124,85 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* =====================================================
+     DESKTOP MENU CLICK OPEN
+  ===================================================== */
+  const desktopHeaderItems = qsa(
+    "header.site-header-modern .main-menu > .menu-list > li.menu-item-has-children",
+  );
+  const desktopMenuBreakpoint = 1200;
+
+  const closeDesktopMenus = () => {
+    desktopHeaderItems.forEach((item) => {
+      item.classList.remove("menu-open");
+    });
+  };
+
+  desktopHeaderItems.forEach((item) => {
+    const trigger = qs(":scope > a.drop-down", item);
+    const panel = qs(":scope > .sub-menu, :scope > .mega-menu", item);
+
+    if (!trigger || !panel) return;
+
+    trigger.addEventListener("click", (event) => {
+      if (window.innerWidth < desktopMenuBreakpoint) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const isOpen = item.classList.contains("menu-open");
+      closeDesktopMenus();
+
+      if (!isOpen) {
+        item.classList.add("menu-open");
+      }
+    });
+
+    panel.addEventListener("click", (event) => {
+      if (window.innerWidth < desktopMenuBreakpoint) return;
+      event.stopPropagation();
+    });
+  });
+
+  document.addEventListener("click", () => {
+    if (window.innerWidth >= desktopMenuBreakpoint) {
+      closeDesktopMenus();
+    }
+  });
+
+  /* =====================================================
      MOBILE SUB MENU
   ===================================================== */
-  qsa("header .menu-item-has-children").forEach((item) => {
-    const dropdownIcon = qs(".dropdown-icon", item);
-    const submenu = qs(".sub-menu, .mega-menu", item);
+  qsa("header.site-header-modern .main-menu > .menu-list > .menu-item-has-children").forEach((item) => {
+    const dropdownIcon = qs(":scope > .dropdown-icon", item);
+    const submenu = qs(":scope > .sub-menu, :scope > .mega-menu", item);
 
     if (!dropdownIcon || !submenu) return;
 
     dropdownIcon.addEventListener("click", (e) => {
-      if (window.innerWidth >= 992) return;
+      if (window.innerWidth >= desktopMenuBreakpoint) return;
 
       e.preventDefault();
       e.stopPropagation();
 
       item.classList.toggle("active");
       dropdownIcon.classList.toggle("active");
-
-      const isOpen = submenu.style.display === "block";
-      submenu.classList.toggle("none", isOpen);
-      submenu.style.display = isOpen ? "none" : "block";
     });
   });
 
-  qsa("header .mega-menu .menu-single-item").forEach((item) => {
-    const dropdownIcon = qs(".dropdown-icon", item);
-    const submenu = qs("ul", item);
+  qsa("header.site-header-modern .mega-menu .menu-single-item").forEach((item) => {
+    const dropdownIcon = qs(":scope > .dropdown-icon", item);
+    const submenu = qs(":scope > ul", item);
 
     if (!dropdownIcon || !submenu) return;
 
     dropdownIcon.addEventListener("click", (e) => {
-      if (window.innerWidth >= 992) return;
+      if (window.innerWidth >= desktopMenuBreakpoint) return;
 
       e.preventDefault();
       e.stopPropagation();
 
+      item.classList.toggle("active");
       dropdownIcon.classList.toggle("active");
-
-      const isOpen = submenu.style.display === "block";
-      submenu.classList.toggle("none", isOpen);
-      submenu.style.display = isOpen ? "none" : "block";
     });
   });
 
@@ -421,7 +460,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       wrap.classList.add("active");
-      list.innerHTML = `<li class="single-item"><h6>Loading...</h6></li>`;
+        list.innerHTML = `
+          <li class="single-item destination-loading-item" aria-hidden="true">
+            <span class="tp-skeleton tp-skeleton-line tp-skeleton-line--wide"></span>
+            <span class="tp-skeleton tp-skeleton-line tp-skeleton-line--short"></span>
+          </li>`;
 
       timer = setTimeout(() => {
         fetch(`${BASE_URL}api/destinations?q=${encodeURIComponent(keyword)}`)
@@ -647,7 +690,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div class="destination-card2 four">
           <div class="destination-img">
-              <img src="${item.image}" alt="${item.title}">
+              <img src="${item.image}" alt="${item.title}" loading="lazy" decoding="async" width="640" height="420">
           </div>
           <div class="destination-content-wrap">
             <div class="destination-content">

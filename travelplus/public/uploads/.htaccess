@@ -1,6 +1,6 @@
 Options -Indexes
 
-<FilesMatch "\.(php|php3|php4|php5|phtml|phar)$">
+<FilesMatch "\.(php|php3|php4|php5|phtml|phar|cgi|pl|py|asp|aspx|jsp|sh|bat|cmd|exe|dll|html?|js|mjs|svg|xml)$">
     Require all denied
 </FilesMatch>
 

@@ -68,10 +68,13 @@ $paymentLabels = [
                         <p><?= esc($t('auth.profile.desc')) ?></p>
                     </div>
                     <div class="d-flex flex-column align-items-end gap-2">
-                        <a href="<?= \App\Data\LocalizedPathCatalog::url('auth.logout', $locale) ?>" class="primary-btn1 transparent">
-                            <span><?= esc($t('auth.logout')) ?></span>
-                            <span><?= esc($t('auth.logout')) ?></span>
-                        </a>
+                        <form method="post" action="<?= \App\Data\LocalizedPathCatalog::url('auth.logout', $locale) ?>" class="d-inline">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="primary-btn1 transparent">
+                                <span><?= esc($t('auth.logout')) ?></span>
+                                <span><?= esc($t('auth.logout')) ?></span>
+                            </button>
+                        </form>
                     </div>
                 </div>
 

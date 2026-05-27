@@ -69,7 +69,7 @@ class PayPalSandboxService
     private function fetchAccessToken(): string
     {
         if (! $this->isConfigured()) {
-            throw new RuntimeException('PayPal sandbox credentials are missing.');
+            throw new RuntimeException('PayPal credentials are missing.');
         }
 
         if (! function_exists('curl_init')) {
@@ -102,14 +102,14 @@ class PayPalSandboxService
         curl_close($ch);
 
         if ($response === false || $error !== '') {
-            throw new RuntimeException('Could not connect to PayPal sandbox. cURL #' . $errorNo . ': ' . $error);
+            throw new RuntimeException('Could not connect to PayPal gateway. cURL #' . $errorNo . ': ' . $error);
         }
 
         $data = json_decode($response, true);
 
         if ($httpCode < 200 || $httpCode >= 300 || ! is_array($data) || empty($data['access_token'])) {
             $detail = is_array($data) ? json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : (string) $response;
-            throw new RuntimeException('PayPal sandbox authentication failed. HTTP ' . $httpCode . ': ' . $detail);
+            throw new RuntimeException('PayPal authentication failed. HTTP ' . $httpCode . ': ' . $detail);
         }
 
         return (string) $data['access_token'];
@@ -154,14 +154,14 @@ class PayPalSandboxService
         curl_close($ch);
 
         if ($response === false || $error !== '') {
-            throw new RuntimeException('PayPal sandbox request failed. cURL #' . $errorNo . ': ' . $error);
+            throw new RuntimeException('PayPal request failed. cURL #' . $errorNo . ': ' . $error);
         }
 
         $data = json_decode($response, true);
 
         if ($httpCode < 200 || $httpCode >= 300 || ! is_array($data)) {
             $detail = is_array($data) ? json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : (string) $response;
-            throw new RuntimeException('PayPal sandbox returned an invalid response. HTTP ' . $httpCode . ': ' . $detail);
+            throw new RuntimeException('PayPal returned an invalid response. HTTP ' . $httpCode . ': ' . $detail);
         }
 
         return $data;

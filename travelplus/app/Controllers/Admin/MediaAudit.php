@@ -152,20 +152,48 @@ class MediaAudit extends BaseAdminController
     private function deleteRelativeFile(string $relativePath): bool
     {
         $relativePath = $this->normalizeRelativePath($relativePath);
-
-        if (
-            ! str_starts_with($relativePath, 'uploads/blogs/')
-            && ! str_starts_with($relativePath, 'uploads/tours/')
-        ) {
-            return false;
-        }
-
-        $absolutePath = $this->absolutePath($relativePath);
-        if (! is_file($absolutePath)) {
+        $absolutePath = $this->resolveManagedFilePath($relativePath, ['uploads/blogs/', 'uploads/tours/']);
+        if ($absolutePath === null || ! is_file($absolutePath)) {
             return false;
         }
 
         return @unlink($absolutePath);
+    }
+
+    /**
+     * @param list<string> $allowedPrefixes
+     */
+    private function resolveManagedFilePath(string $relativePath, array $allowedPrefixes): ?string
+    {
+        if ($relativePath === '' || str_contains($relativePath, "\0")) {
+            return null;
+        }
+
+        $candidate = realpath($this->absolutePath($relativePath));
+        if ($candidate === false || ! is_file($candidate)) {
+            return null;
+        }
+
+        $candidate = str_replace('\\', '/', $candidate);
+
+        foreach ($allowedPrefixes as $allowedPrefix) {
+            $allowedPrefix = $this->normalizeRelativePath($allowedPrefix);
+            if (! str_starts_with($relativePath, rtrim($allowedPrefix, '/') . '/')) {
+                continue;
+            }
+
+            $root = realpath($this->absolutePath($allowedPrefix));
+            if ($root === false) {
+                continue;
+            }
+
+            $root = rtrim(str_replace('\\', '/', $root), '/') . '/';
+            if (str_starts_with($candidate, $root)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     private function absolutePath(string $relativePath): string

@@ -70,7 +70,10 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
                 <?php if ($authUser !== null): ?>
                     <div class="alert alert-success">
                         <?= esc($t('checkout.signedInAs')) ?> <strong><?= esc($authUser['full_name'] ?: $authUser['email']) ?></strong>
-                        (<a href="<?= \App\Data\LocalizedPathCatalog::url('auth.logout', $locale) ?>"><?= esc($t('auth.logout')) ?></a>)
+                        <form method="post" action="<?= \App\Data\LocalizedPathCatalog::url('auth.logout', $locale) ?>" class="checkout-inline-logout">
+                            <?= csrf_field() ?>
+                            <button type="submit"><?= esc($t('auth.logout')) ?></button>
+                        </form>
                     </div>
                 <?php else: ?>
                     <div class="alert alert-secondary">
@@ -96,6 +99,7 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
                 </div>
 
                 <form class="checkout-stepper-form" data-checkout-form novalidate>
+                    <?= csrf_field() ?>
                     <div class="checkout-stepper-pane is-active" data-step-pane="1">
                         <div class="contact-form-wrap">
                             <div class="row g-4">
@@ -238,25 +242,25 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
                                         <label class="checkout-payment-option is-selected">
                                             <input type="radio" name="payment_method" value="paypal" checked>
                                             <span class="checkout-payment-logo-wrap" aria-hidden="true">
-                                                <img src="<?= esc(base_url('assets/images/payments/Paypal-Logo.png')) ?>" alt="" class="checkout-payment-logo">
+                                                <img src="<?= esc(base_url('assets/images/payments/Paypal-Logo.png')) ?>" alt="" class="checkout-payment-logo" loading="lazy" decoding="async" width="96" height="40">
                                             </span>
                                         </label>
                                         <label class="checkout-payment-option">
                                             <input type="radio" name="payment_method" value="vnpay">
                                             <span class="checkout-payment-logo-wrap" aria-hidden="true">
-                                                <img src="<?= esc(base_url('assets/images/payments/VNPay-Logo.png')) ?>" alt="" class="checkout-payment-logo">
+                                                <img src="<?= esc(base_url('assets/images/payments/VNPay-Logo.png')) ?>" alt="" class="checkout-payment-logo" loading="lazy" decoding="async" width="96" height="40">
                                             </span>
                                         </label>
                                         <label class="checkout-payment-option">
                                             <input type="radio" name="payment_method" value="vietqr">
                                             <span class="checkout-payment-logo-wrap" aria-hidden="true">
-                                                <img src="<?= esc(base_url('assets/images/payments/VietQR-Logo.png')) ?>" alt="" class="checkout-payment-logo">
+                                                <img src="<?= esc(base_url('assets/images/payments/VietQR-Logo.png')) ?>" alt="" class="checkout-payment-logo" loading="lazy" decoding="async" width="96" height="40">
                                             </span>
                                         </label>
                                     </div>
                                     <div class="checkout-vietqr-box" data-vietqr-box data-vietqr-create-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.vietqrGenerate', $locale)) ?>" data-vietqr-complete-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.vietqrComplete', $locale)) ?>" hidden>
                                         <div class="checkout-vietqr-qr">
-                                            <img src="" alt="VietQR" data-vietqr-image hidden>
+                                            <img src="" alt="VietQR" data-vietqr-image hidden loading="lazy" decoding="async" width="180" height="180">
                                             <span data-vietqr-placeholder>QR</span>
                                         </div>
                                         <div>
@@ -294,7 +298,7 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
 
                             <div class="col-xl-5">
                                 <div class="checkout-stepper-card checkout-booking-summary">
-                                    <img class="checkout-booking-image pb-10" src="<?= esc($booking['tour_image']) ?>" alt="Tour Image" >
+                                    <img class="checkout-booking-image pb-10" src="<?= esc($booking['tour_image']) ?>" alt="<?= esc((string) ($booking['tour_title'] ?? 'Travel Plus tour')) ?>" loading="lazy" decoding="async" width="560" height="360">
                                     <h5 class="checkout-card-title"><?= esc((string) ($booking['tour_title'] ?? $t('checkout.bookingTitleFallback'))) ?></h5>
                                     <div class="checkout-summary-list">
                                         <div class="checkout-summary-item">
@@ -439,6 +443,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const stepThreeLine = stepLines.length > 1 ? stepLines[1] : null;
     const defaultStepTwoLabel = <?= json_encode($t('checkout.step3')) ?>;
     const currency = new Intl.NumberFormat('vi-VN');
+    const csrfTokenName = window.CSRF_TOKEN_NAME || document.querySelector('meta[name="csrf-token-name"]')?.content || '';
+    const csrfToken = window.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content || '';
     const totals = {
         full: <?= json_encode($grandTotal) ?>,
         deposit: <?= json_encode($depositAmount) ?>
@@ -469,6 +475,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         errorBox.hidden = true;
         errorBox.textContent = '';
+    };
+
+    const appendCsrf = function (formData) {
+        if (csrfTokenName && csrfToken) {
+            formData.append(csrfTokenName, csrfToken);
+        }
     };
 
     const setPayButtonsState = function (disabled, label) {
@@ -635,6 +647,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const formData = new FormData();
+            appendCsrf(formData);
             formData.append('payment_method', 'vietqr');
             formData.append('payment_plan', plan);
             summaryFields.forEach(function (field) {
@@ -818,6 +831,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const formData = new FormData();
+            appendCsrf(formData);
             formData.append('payment_method', selectedMethod.value);
             formData.append('payment_plan', selectedPlan ? selectedPlan.value : 'deposit');
             summaryFields.forEach(function (field) {
@@ -882,6 +896,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const formData = new FormData();
+            appendCsrf(formData);
             formData.append('payment_method', selectedMethod.value);
             formData.append('payment_plan', selectedPlan ? selectedPlan.value : 'deposit');
             summaryFields.forEach(function (field) {
@@ -927,8 +942,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
+            const formData = new FormData();
+            appendCsrf(formData);
+
             const response = await fetch(vietQrCompleteUrl, {
                 method: 'POST',
+                body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }

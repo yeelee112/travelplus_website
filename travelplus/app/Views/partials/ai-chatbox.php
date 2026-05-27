@@ -8,7 +8,7 @@ $chatUi = $currentLocale === 'en'
         'placeholder' => 'Ask about tours, visa, hotels, booking policy...',
         'send' => 'Send',
         'thinking' => 'Checking website data...',
-        'error' => 'The assistant is temporarily unavailable.',
+        'error' => 'AI Travel Plus is temporarily unavailable.',
         'welcome' => 'Ask about tours, visa support, hotels, transport, or Travel Plus policies.',
         'online' => 'Online',
         'assistantName' => 'Travel Plus AI',
@@ -26,7 +26,7 @@ $chatUi = $currentLocale === 'en'
         'placeholder' => 'Hỏi về tour, visa, khách sạn, chính sách đặt chỗ...',
         'send' => 'Gửi',
         'thinking' => 'Đang kiểm tra dữ liệu website...',
-        'error' => 'Chat AI đang tạm thời không khả dụng.',
+        'error' => 'AI Travel Plus đang tạm thời không khả dụng.',
         'welcome' => 'Bạn có thể hỏi về tour, visa, khách sạn, vận chuyển hoặc chính sách của Travel Plus.',
         'online' => 'Đang hoạt động',
         'assistantName' => 'AI Travel Plus',
@@ -94,7 +94,8 @@ $chatUi = $currentLocale === 'en'
 </div>
 
 <style>
-    .tp-ai-chatbox{position:fixed;left:20px;bottom:20px;z-index:1100;font-family:inherit}
+    .tp-ai-chatbox{position:fixed;left:20px;bottom:20px;z-index:1100;font-family:inherit;transition:opacity .18s ease,visibility .18s ease,transform .18s ease}
+    body.modal-open .tp-ai-chatbox{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px)}
     .tp-ai-chatbox__toggle{display:flex;align-items:center;gap:12px;min-width:0;border:1px solid #d8e6f4;padding:14px 18px;border-radius:999px;background:linear-gradient(180deg,#ffffff 0%,#eef7ff 100%);color:#12324a;box-shadow:0 18px 40px rgba(15,23,42,.14)}
     .tp-ai-chatbox__toggle-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#18a0dc,#246bff);font-size:18px;flex:0 0 40px}
     .tp-ai-chatbox__toggle-copy{display:flex;align-items:center;text-align:left;line-height:1.15}
@@ -158,6 +159,7 @@ $chatUi = $currentLocale === 'en'
 
     const endpoint = root.dataset.endpoint;
     const locale = root.dataset.locale || 'vi';
+    const csrfToken = window.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content || '';
     const ui = {
         thinking: <?= json_encode($chatUi['thinking'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         error: <?= json_encode($chatUi['error'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -265,7 +267,7 @@ $chatUi = $currentLocale === 'en'
             <div class="tp-ai-chatbox__message-avatar"><i class="bi bi-stars"></i></div>
             <div class="tp-ai-chatbox__message-main">
                 <div class="tp-ai-chatbox__message-author">${ui.assistantName}</div>
-                <div class="tp-ai-chatbox__bubble"><span class="tp-ai-chatbox__typing"><span></span><span></span><span></span></span></div>
+                <div class="tp-ai-chatbox__bubble" aria-hidden="true"><span class="tp-ai-chatbox__typing"><span></span><span></span><span></span></span></div>
             </div>
         `;
         messages.appendChild(typingNode);
@@ -298,6 +300,7 @@ $chatUi = $currentLocale === 'en'
         status.textContent = ui.thinking;
         submitButton.disabled = true;
         textarea.disabled = true;
+        messages.setAttribute('aria-busy', 'true');
         showTyping();
 
         try {
@@ -305,7 +308,8 @@ $chatUi = $currentLocale === 'en'
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: JSON.stringify({
                     locale,
@@ -337,6 +341,7 @@ $chatUi = $currentLocale === 'en'
         } finally {
             submitButton.disabled = false;
             textarea.disabled = false;
+            messages.removeAttribute('aria-busy');
             textarea.focus();
             autosizeTextarea();
         }

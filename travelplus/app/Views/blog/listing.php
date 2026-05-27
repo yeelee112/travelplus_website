@@ -23,7 +23,11 @@ $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
                                         <a class="blog-img" href="<?= esc((string) $featuredBlog['link']) ?>">
                                             <img
                                                 alt="<?= esc((string) $featuredBlog['title']) ?>"
-                                                loading="lazy"
+                                                loading="eager"
+                                                fetchpriority="high"
+                                                decoding="async"
+                                                width="860"
+                                                height="520"
                                                 src="<?= esc(base_url((string) ($featuredBlog['image'] ?: $fallbackImage))) ?>">
                                         </a>
                                         <a class="location" href="<?= esc($listUrl) ?>">
@@ -51,6 +55,9 @@ $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
                                             <img
                                                 alt="<?= esc((string) $blog['title']) ?>"
                                                 loading="lazy"
+                                                decoding="async"
+                                                width="420"
+                                                height="280"
                                                 src="<?= esc(base_url((string) ($blog['image'] ?: $fallbackImage))) ?>">
                                         </a>
                                         <a class="location" href="<?= esc($listUrl) ?>">
@@ -81,6 +88,9 @@ $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
                                             <img
                                                 alt="<?= esc((string) $recentBlog['title']) ?>"
                                                 loading="lazy"
+                                                decoding="async"
+                                                width="160"
+                                                height="110"
                                                 src="<?= esc(base_url((string) ($recentBlog['image'] ?: $fallbackImage))) ?>">
                                         </a>
                                     </div>

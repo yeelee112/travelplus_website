@@ -12,19 +12,18 @@ use App\Services\VietQrService;
 
 class BookingController extends BaseController
 {
+    private const CHILD_PRICE_RATE = 0.85;
+    private const INFANT_PRICE_RATE = 0.25;
+    private const DEFAULT_MAX_TRAVELERS = 15;
+
     public function proceed()
     {
         $rules = [
             'tour_id' => 'required|is_natural_no_zero',
-            'tour_title' => 'required|max_length[255]',
             'adult_quantity' => 'required|is_natural_no_zero',
             'child_quantity' => 'required|is_natural',
             'infant_quantity' => 'required|is_natural',
-            'adult_price' => 'required|decimal',
-            'child_price' => 'required|decimal',
-            'infant_price' => 'required|decimal',
-            'grand_total' => 'required|decimal',
-            'max_travelers' => 'required|is_natural_no_zero',
+            'departure_date' => 'required|valid_date[Y-m-d]',
         ];
 
         if (! $this->validate($rules)) {
@@ -38,34 +37,25 @@ class BookingController extends BaseController
         $adultQty = (int) $this->request->getPost('adult_quantity');
         $childQty = (int) $this->request->getPost('child_quantity');
         $infantQty = (int) $this->request->getPost('infant_quantity');
-        $maxTravelers = (int) $this->request->getPost('max_travelers');
-        $totalTravelers = $adultQty + $childQty + $infantQty;
+        $departureDate = trim((string) $this->request->getPost('departure_date'));
 
-        if ($totalTravelers <= 0 || $totalTravelers > $maxTravelers) {
+        try {
+            $pendingBooking = $this->buildPendingBookingSnapshot(
+                (int) $this->request->getPost('tour_id'),
+                $departureDate,
+                $adultQty,
+                $childQty,
+                $infantQty,
+                trim((string) $this->request->getPost('tour_link'))
+            );
+        } catch (\RuntimeException $exception) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'So luong khach khong hop le.',
+                'message' => $exception->getMessage(),
             ]);
         }
 
-        session()->set('pending_booking', [
-            'tour_id' => (int) $this->request->getPost('tour_id'),
-            'tour_title' => trim((string) $this->request->getPost('tour_title')),
-            'tour_image' => trim((string) $this->request->getPost('tour_image')),
-            'tour_link' => trim((string) $this->request->getPost('tour_link')),
-            'departure_label' => trim((string) $this->request->getPost('departure_label')),
-            'duration_label' => trim((string) $this->request->getPost('duration_label')),
-            'adult_quantity' => $adultQty,
-            'child_quantity' => $childQty,
-            'infant_quantity' => $infantQty,
-            'adult_price' => (float) $this->request->getPost('adult_price'),
-            'child_price' => (float) $this->request->getPost('child_price'),
-            'infant_price' => (float) $this->request->getPost('infant_price'),
-            'grand_total' => (float) $this->request->getPost('grand_total'),
-            'currency' => 'VND',
-            'max_travelers' => $maxTravelers,
-            'saved_at' => date('Y-m-d H:i:s'),
-        ]);
+        session()->set('pending_booking', $pendingBooking);
 
         session()->remove('current_booking_code');
 
@@ -138,13 +128,13 @@ class BookingController extends BaseController
             ]);
         }
 
-        $paymentPlan = (string) $this->request->getPost('payment_plan');
+        $paymentPlan = $this->normalizePaymentPlan((string) $this->request->getPost('payment_plan'));
         $paymentMethod = (string) $this->request->getPost('payment_method');
 
-        if ($paymentMethod !== 'paypal') {
+        if ($paymentPlan === null || $paymentMethod !== 'paypal') {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Cong thanh toan nay chua duoc cau hinh that.',
+                'message' => 'Thong tin thanh toan khong hop le.',
             ]);
         }
 
@@ -168,7 +158,7 @@ class BookingController extends BaseController
         if (! $paypal->isConfigured()) {
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => 'PayPal sandbox credentials are missing.',
+                'message' => 'PayPal credentials are missing.',
             ]);
         }
 
@@ -234,10 +224,10 @@ class BookingController extends BaseController
             ]);
         }
 
-        $paymentPlan = (string) $this->request->getPost('payment_plan');
+        $paymentPlan = $this->normalizePaymentPlan((string) $this->request->getPost('payment_plan'));
         $paymentMethod = (string) $this->request->getPost('payment_method');
 
-        if ($paymentMethod !== 'vietqr') {
+        if ($paymentPlan === null || $paymentMethod !== 'vietqr') {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
                 'message' => 'Phuong thuc thanh toan khong hop le.',
@@ -329,10 +319,10 @@ class BookingController extends BaseController
             ]);
         }
 
-        $paymentPlan = (string) $this->request->getPost('payment_plan');
+        $paymentPlan = $this->normalizePaymentPlan((string) $this->request->getPost('payment_plan'));
         $paymentMethod = (string) $this->request->getPost('payment_method');
 
-        if ($paymentMethod !== 'vnpay') {
+        if ($paymentPlan === null || $paymentMethod !== 'vnpay') {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
                 'message' => 'Phuong thuc thanh toan khong hop le.',
@@ -696,6 +686,237 @@ class BookingController extends BaseController
         $booking = session()->get('pending_booking');
 
         return is_array($booking) && $booking !== [] ? $booking : null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPendingBookingSnapshot(
+        int $tourId,
+        string $departureDate,
+        int $adultQty,
+        int $childQty,
+        int $infantQty,
+        string $postedTourLink = ''
+    ): array {
+        $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
+        $db = db_connect();
+
+        foreach (['tours', 'tour_translations'] as $table) {
+            if (! $db->tableExists($table)) {
+                throw new \RuntimeException('Du lieu tour chua san sang de dat cho.');
+            }
+        }
+
+        $totalTravelers = $adultQty + $childQty + $infantQty;
+        if ($totalTravelers <= 0) {
+            throw new \RuntimeException('So luong khach khong hop le.');
+        }
+
+        $tourFields = $db->getFieldNames('tours');
+        $has = static fn(string $field): bool => in_array($field, $tourFields, true);
+        $select = [
+            't.id',
+            't.tour_type',
+            't.duration_days',
+            't.duration_nights',
+            't.thumbnail',
+            'COALESCE(tt.name, tt_vi.name, CONCAT("Tour #", t.id)) AS tour_title',
+            'COALESCE(tt.slug, tt_vi.slug, CONCAT("tour-", t.id)) AS tour_slug',
+        ];
+
+        foreach (['max_travelers', 'base_price', 'sale_price', 'currency'] as $field) {
+            if ($has($field)) {
+                $select[] = 't.' . $field;
+            }
+        }
+
+        $tour = $db->table('tours t')
+            ->select(implode(', ', $select), false)
+            ->join('tour_translations tt', 'tt.tour_id = t.id AND tt.locale = ' . $db->escape($locale), 'left')
+            ->join('tour_translations tt_vi', 'tt_vi.tour_id = t.id AND tt_vi.locale = "vi"', 'left')
+            ->where('t.id', $tourId)
+            ->where('t.status', 'published')
+            ->limit(1)
+            ->get()
+            ->getRowArray();
+
+        if (! is_array($tour)) {
+            throw new \RuntimeException('Tour khong ton tai hoac chua duoc cong bo.');
+        }
+
+        $departure = $this->resolveDepartureRow($db, $tourId, $departureDate);
+        $basePrice = (float) ($tour['sale_price'] ?? 0);
+        if ($basePrice <= 0) {
+            $basePrice = (float) ($tour['base_price'] ?? 0);
+        }
+
+        $adultPrice = (float) ($departure['price'] ?? 0);
+        if ($adultPrice <= 0) {
+            $adultPrice = $basePrice;
+        }
+
+        if ($adultPrice <= 0) {
+            throw new \RuntimeException('Tour chua co gia hop le de dat cho.');
+        }
+
+        $maxTravelers = (int) ($tour['max_travelers'] ?? self::DEFAULT_MAX_TRAVELERS);
+        $maxTravelers = $maxTravelers > 0 ? $maxTravelers : self::DEFAULT_MAX_TRAVELERS;
+        $availableSlots = (int) ($departure['available_slots'] ?? 0);
+
+        if ($availableSlots > 0) {
+            $maxTravelers = min($maxTravelers, $availableSlots);
+        }
+
+        if ($totalTravelers > $maxTravelers) {
+            throw new \RuntimeException('So luong khach vuot qua so cho con nhan.');
+        }
+
+        $childPrice = round($adultPrice * self::CHILD_PRICE_RATE, 0);
+        $infantPrice = round($adultPrice * self::INFANT_PRICE_RATE, 0);
+        $grandTotal = ($adultQty * $adultPrice) + ($childQty * $childPrice) + ($infantQty * $infantPrice);
+        $departureValue = (string) ($departure['departure_date'] ?? '');
+
+        return [
+            'tour_id' => $tourId,
+            'tour_title' => trim((string) ($tour['tour_title'] ?? ('Tour #' . $tourId))),
+            'tour_image' => $this->resolveTourImage($tourId, (string) ($tour['thumbnail'] ?? '')),
+            'tour_link' => $this->sanitizeInternalUrl($postedTourLink) ?? '',
+            'departure_date' => $departureValue,
+            'departure_label' => $this->formatDisplayDate($departureValue),
+            'duration_label' => $this->formatDurationLabel(
+                (int) ($tour['duration_days'] ?? 0),
+                (int) ($tour['duration_nights'] ?? 0),
+                $locale
+            ),
+            'adult_quantity' => $adultQty,
+            'child_quantity' => $childQty,
+            'infant_quantity' => $infantQty,
+            'adult_price' => $adultPrice,
+            'child_price' => $childPrice,
+            'infant_price' => $infantPrice,
+            'grand_total' => $grandTotal,
+            'currency' => (string) ($tour['currency'] ?? 'VND'),
+            'max_travelers' => $maxTravelers,
+            'saved_at' => date('Y-m-d H:i:s'),
+        ];
+    }
+
+    private function resolveDepartureRow($db, int $tourId, string $departureDate): array
+    {
+        if (! $db->tableExists('tour_departures')) {
+            return [];
+        }
+
+        if ($departureDate === '') {
+            throw new \RuntimeException('Vui long chon ngay khoi hanh.');
+        }
+
+        $builder = $db->table('tour_departures')
+            ->where('tour_id', $tourId)
+            ->where('status', 'open')
+            ->where('departure_date >=', date('Y-m-d'))
+            ->where('DATE(departure_date)', $departureDate);
+
+        $row = $builder
+            ->orderBy('departure_date', 'ASC')
+            ->limit(1)
+            ->get()
+            ->getRowArray();
+
+        if (! is_array($row)) {
+            throw new \RuntimeException('Ngay khoi hanh khong hop le hoac da het cho.');
+        }
+
+        return $row;
+    }
+
+    private function resolveTourImage(int $tourId, string $fallback): string
+    {
+        $path = trim($fallback);
+        $db = db_connect();
+
+        if ($tourId > 0 && $db->tableExists('tour_media')) {
+            $row = $db->table('tour_media')
+                ->select('file_path')
+                ->where('tour_id', $tourId)
+                ->whereIn('type', ['banner', 'cover'])
+                ->orderBy('FIELD(type, "banner", "cover")', '', false)
+                ->orderBy('sort_order', 'ASC')
+                ->orderBy('id', 'ASC')
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+
+            if (is_array($row) && trim((string) ($row['file_path'] ?? '')) !== '') {
+                $path = trim((string) $row['file_path']);
+            }
+        }
+
+        if ($path === '') {
+            return base_url('assets/images/avt-tour-01.jpg');
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        if (str_starts_with($path, 'assets/') || str_starts_with($path, 'uploads/')) {
+            return base_url($path);
+        }
+
+        return base_url('assets/images/' . ltrim($path, '/'));
+    }
+
+    private function sanitizeInternalUrl(string $url): ?string
+    {
+        $url = trim($url);
+
+        if ($url === '') {
+            return null;
+        }
+
+        $baseUrl = rtrim((string) base_url('/'), '/');
+
+        if (str_starts_with($url, '/')) {
+            $candidate = base_url(ltrim($url, '/'));
+            return str_starts_with($candidate, $baseUrl) ? $candidate : null;
+        }
+
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        return str_starts_with($url, $baseUrl) ? $url : null;
+    }
+
+    private function formatDisplayDate(string $date): string
+    {
+        if ($date === '') {
+            return '';
+        }
+
+        $timestamp = strtotime($date);
+
+        return $timestamp ? date('d/m/Y', $timestamp) : $date;
+    }
+
+    private function formatDurationLabel(int $days, int $nights, string $locale): string
+    {
+        if ($days <= 0 && $nights <= 0) {
+            return '';
+        }
+
+        return $locale === 'en'
+            ? sprintf('%02d Days / %02d Nights', max(0, $days), max(0, $nights))
+            : sprintf('%02d Ngay / %02d Dem', max(0, $days), max(0, $nights));
+    }
+
+    private function normalizePaymentPlan(string $paymentPlan): ?string
+    {
+        $paymentPlan = trim($paymentPlan);
+
+        return in_array($paymentPlan, ['full', 'deposit'], true) ? $paymentPlan : null;
     }
 
     /**

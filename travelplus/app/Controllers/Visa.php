@@ -27,10 +27,20 @@ class Visa extends BaseController
         $data['meta_desc'] = $t('visa.metaDesc');
         $data['canonical_url'] = LocalizedPathCatalog::url('service.visa', $locale);
         $data['pageContent'] = VisaPageContent::get($locale);
+        $data['meta_image'] = base_url('assets/images/visa-banner.png');
+        $data['meta_image_alt'] = $t('common.visaService');
         $data['schema_graph'] = [
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
             $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url']),
+            $seo->serviceSchema(
+                $t('common.visaService'),
+                (string) $data['meta_desc'],
+                (string) $data['canonical_url'],
+                'assets/images/visa-banner.png',
+                ['Visa support', 'Travel document support']
+            ),
+            $seo->faqSchema((array) ($data['pageContent']['faqs'] ?? [])),
         ];
 
         return view('visa/index', $data);

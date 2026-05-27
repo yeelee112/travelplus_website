@@ -17,7 +17,7 @@ class Blogs extends BaseAdminController
         $db = db_connect();
 
         if (! $this->hasBlogTables($db)) {
-            return redirect()->to(LocalizedPathCatalog::url('admin.bookings'))
+            return redirect()->to(LocalizedPathCatalog::url('admin.dashboard'))
                 ->with('error', 'Chưa có bảng blog. Hãy chạy file SQL tạo bảng blog trước.');
         }
 
@@ -706,16 +706,36 @@ class Blogs extends BaseAdminController
     {
         $relativePath = trim(str_replace('\\', '/', $relativePath));
         $allowedPrefix = trim(str_replace('\\', '/', $allowedPrefix));
+        $absolutePath = $this->resolveManagedFilePath($relativePath, $allowedPrefix);
 
-        if ($relativePath === '' || ! str_starts_with($relativePath, $allowedPrefix)) {
-            return;
+        if ($absolutePath !== null && is_file($absolutePath)) {
+            @unlink($absolutePath);
+        }
+    }
+
+    private function resolveManagedFilePath(string $relativePath, string $allowedPrefix): ?string
+    {
+        if ($relativePath === '' || str_contains($relativePath, "\0")) {
+            return null;
+        }
+
+        $allowedPrefix = rtrim($allowedPrefix, '/') . '/';
+        if (! str_starts_with($relativePath, $allowedPrefix)) {
+            return null;
         }
 
         $absolutePath = rtrim(FCPATH, '\\/') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
+        $candidate = realpath($absolutePath);
+        $root = realpath(rtrim(FCPATH, '\\/') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, trim($allowedPrefix, '/')));
 
-        if (is_file($absolutePath)) {
-            @unlink($absolutePath);
+        if ($candidate === false || $root === false) {
+            return null;
         }
+
+        $candidate = str_replace('\\', '/', $candidate);
+        $root = rtrim(str_replace('\\', '/', $root), '/') . '/';
+
+        return str_starts_with($candidate, $root) ? $candidate : null;
     }
 
     private function storeBlogImage(int $blogId, string $folder, string $fieldName): string

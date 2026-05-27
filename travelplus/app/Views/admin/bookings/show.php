@@ -61,6 +61,7 @@
                 <div class="meta-item h-100">
                     <small>Cập nhật trạng thái</small>
                     <form method="post" action="<?= site_url('admin/bookings/' . (int) $booking['id'] . '/status') ?>">
+                        <?= csrf_field() ?>
                         <div class="mb-3">
                             <select class="form-select" name="payment_status">
                                 <?php foreach (['pending_payment','pending_transfer','paid','cancelled','failed'] as $statusOption): ?>

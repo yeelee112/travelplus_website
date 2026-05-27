@@ -25,7 +25,7 @@ $c = is_array($content ?? null) ? $content : [];
                 </div>
                 <div class="col-lg-5 d-lg-block d-none wow animate fadeInRight" data-wow-delay="200ms" data-wow-duration="1500ms">
                     <div class="about-img">
-                        <img src="<?= base_url('assets/images/about.webp') ?>" alt="<?= esc(lang('Frontend.common.alt.aboutTravelPlus', [], $locale)) ?>">
+                        <img src="<?= base_url('assets/images/about.webp') ?>" alt="<?= esc(lang('Frontend.common.alt.aboutTravelPlus', [], $locale)) ?>" loading="lazy" decoding="async" width="640" height="520">
                     </div>
                 </div>
             </div>
@@ -81,7 +81,7 @@ $c = is_array($content ?? null) ? $content : [];
                                 <div class="swiper-slide">
                                     <div class="nav-item" role="presentation">
                                         <div class="nav-link <?= $active ? 'active' : '' ?>" id="<?= esc($tabId) ?>-tab" data-bs-toggle="pill" data-bs-target="#<?= esc($tabId) ?>" role="tab" aria-controls="<?= esc($tabId) ?>" aria-selected="<?= $active ? 'true' : 'false' ?>">
-                                            <img src="<?= base_url('assets/images/logo.svg') ?>" alt="Travel Plus logo">
+                                            <img src="<?= base_url('assets/images/logo.svg') ?>" alt="Travel Plus logo" loading="lazy" decoding="async" width="120" height="48">
                                             <h4><?= esc($item['year']) ?></h4>
                                         </div>
                                         <span class="dot"></span>

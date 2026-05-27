@@ -76,7 +76,7 @@ $legalLinks = [
                 <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="footer-logo-and-addition-info">
                         <a class="footer-logo" href="<?= localized_url('/') ?>" aria-label="Travel Plus homepage">
-                            <img src="<?= base_url('assets/images/logo.svg') ?>" alt="Travel Plus" loading="lazy" width="240">
+                            <img src="<?= base_url('assets/images/logo.svg') ?>" alt="Travel Plus" loading="lazy" decoding="async" width="240" height="96">
                         </a>
                         <p class="mt-3 mb-4"><?= esc(lang('Frontend.footer.aboutDesc')) ?></p>
                         <?php foreach ($offices as $office): ?>

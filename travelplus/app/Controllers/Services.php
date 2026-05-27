@@ -57,15 +57,28 @@ class Services extends BaseController
         $data['meta_title'] = $page['meta_title'][$locale] ?? $page['meta_title']['vi'];
         $data['meta_desc'] = $page['meta_desc'][$locale] ?? $page['meta_desc']['vi'];
         $data['canonical_url'] = localized_url($page['paths'][$locale] ?? $viPath);
+        $data['meta_image'] = base_url((string) ($page['hero']['image'] ?? 'assets/images/TravelPlus_CompanyProfile.png'));
+        $data['meta_image_alt'] = (string) ($page['nav_label'][$locale] ?? $page['nav_label']['vi']);
         $data['alternate_links'] = [
             ['hreflang' => 'vi', 'href' => base_url($viPath)],
             ['hreflang' => 'en', 'href' => base_url('en/' . $enPath)],
             ['hreflang' => 'x-default', 'href' => base_url($viPath)],
         ];
+        $serviceTypes = array_map(
+            static fn(array $item): string => (string) ($item['title'][$locale] ?? $item['title']['vi'] ?? ''),
+            (array) ($page['capabilities'] ?? [])
+        );
         $data['schema_graph'] = [
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
             $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url']),
+            $seo->serviceSchema(
+                (string) ($page['nav_label'][$locale] ?? $page['nav_label']['vi']),
+                (string) $data['meta_desc'],
+                (string) $data['canonical_url'],
+                (string) ($page['hero']['image'] ?? ''),
+                $serviceTypes
+            ),
         ];
 
         return view('services/page', $data);
