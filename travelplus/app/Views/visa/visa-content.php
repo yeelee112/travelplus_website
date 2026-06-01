@@ -8,11 +8,11 @@ $processSteps = $c['process'] ?? [];
 $faqs = $c['faqs'] ?? [];
 
 $sampleCountries = $locale === 'en'
-    ? ['France', 'Japan', 'United States', 'Australia']
-    : ['Pháp', 'Nhật Bản', 'Hoa Kỳ', 'Úc'];
+    ? ['United States', 'Canada', 'Australia', 'Schengen Europe']
+    : ['Hoa Kỳ', 'Canada', 'Úc', 'Schengen châu Âu'];
 $sampleVisaTypes = $locale === 'en'
-    ? ['Travel visa', 'Business visa', 'Family visit visa', 'Student visa']
-    : ['Visa du lịch', 'Visa công tác', 'Visa thăm thân', 'Visa du học'];
+    ? ['Tourist visa', 'Business visa', 'Family visit visa', 'Short-term study visa']
+    : ['Visa du lịch', 'Visa công tác', 'Visa thăm thân', 'Visa du học ngắn hạn'];
 $sampleCitizenships = $locale === 'en'
     ? ['Vietnam', 'Australia', 'Singapore', 'Canada']
     : ['Việt Nam', 'Úc', 'Singapore', 'Canada'];
@@ -27,9 +27,11 @@ $flagMap = [
     'Switzerland' => 'ch', 'Thụy Sĩ' => 'ch',
     'Netherlands' => 'nl', 'Hà Lan' => 'nl',
     'Spain' => 'es', 'Tây Ban Nha' => 'es',
+    'United Kingdom' => 'gb', 'Anh' => 'gb',
     'Japan' => 'jp', 'Nhật Bản' => 'jp',
     'South Korea' => 'kr', 'Hàn Quốc' => 'kr',
     'China' => 'cn', 'Trung Quốc' => 'cn',
+    'Taiwan' => 'tw', 'Đài Loan' => 'tw',
     'Singapore' => 'sg',
     'Thailand' => 'th', 'Thái Lan' => 'th',
     'Malaysia' => 'my',
@@ -48,7 +50,7 @@ $flagMap = [
             <div class="row gy-5 justify-content-between">
                 <div class="col-xl-6 col-lg-8">
                     <div class="banner-title-area">
-                        <span>#1 <?= esc($c['hero_eyebrow'] ?? '') ?></span>
+                        <span><?= esc($c['hero_eyebrow'] ?? '') ?></span>
                         <h1><?= esc($c['hero_title'] ?? '') ?></h1>
                         <p><?= esc($c['hero_desc'] ?? '') ?></p>
                     </div>

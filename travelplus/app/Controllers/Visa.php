@@ -13,6 +13,9 @@ class Visa extends BaseController
         $locale = $this->request->getLocale() ?: 'vi';
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $seo = new SeoService();
+        $serviceTypes = $locale === 'en'
+            ? ['Tourist visa consultation', 'Business visa support', 'Family visit visa support', 'Visa document checklist', 'Visa appointment guidance']
+            : ['Tư vấn visa du lịch', 'Dịch vụ visa công tác', 'Visa thăm thân', 'Checklist hồ sơ visa', 'Hướng dẫn đặt lịch nộp hồ sơ'];
 
         $data['breadcrumbs'] = [
             [
@@ -38,7 +41,7 @@ class Visa extends BaseController
                 (string) $data['meta_desc'],
                 (string) $data['canonical_url'],
                 'assets/images/visa-banner.png',
-                ['Visa support', 'Travel document support']
+                $serviceTypes
             ),
             $seo->faqSchema((array) ($data['pageContent']['faqs'] ?? [])),
         ];

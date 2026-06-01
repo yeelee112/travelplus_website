@@ -145,21 +145,52 @@ $c = is_array($content ?? null) ? $content : [];
 
     <section class="mice-process-section pb-100">
         <div class="container">
-            <div class="section-title text-center mb-60">
-                <span><?= esc($c['process_eyebrow'] ?? '') ?></span>
-                <h2><?= esc($c['process_title'] ?? '') ?></h2>
-            </div>
-            <div class="mice-process-grid">
-                <?php foreach (($c['process'] ?? []) as $index => $step): ?>
-                    <article class="mice-process-step">
-                        <span><?= esc(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span>
-                        <h3><?= esc($step['title']) ?></h3>
-                        <p><?= esc($step['text']) ?></p>
-                    </article>
-                <?php endforeach; ?>
+            <div class="mice-process-shell">
+                <div class="mice-process-overview">
+                    <span><?= esc($c['process_eyebrow'] ?? '') ?></span>
+                    <h2><?= esc($c['process_title'] ?? '') ?></h2>
+                    <p><?= esc($c['process_desc'] ?? '') ?></p>
+                    <?php if (! empty($c['process_tags'])): ?>
+                        <div class="mice-process-tags">
+                            <?php foreach (($c['process_tags'] ?? []) as $tag): ?>
+                                <small><?= esc($tag) ?></small>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="mice-process-flow">
+                    <?php foreach (($c['process'] ?? []) as $index => $step): ?>
+                        <article class="mice-process-step">
+                            <span class="mice-process-step-number"><?= esc(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span>
+                            <div class="mice-process-step-copy">
+                                <h3><?= esc($step['title']) ?></h3>
+                                <p><?= esc($step['text']) ?></p>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
     </section>
+
+    <?php if (! empty($c['seo_title']) || ! empty($c['seo_paragraphs'])): ?>
+    <section class="mice-seo-section pb-100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-9 col-lg-10">
+                    <div class="section-title text-center mb-40">
+                        <h2><?= esc($c['seo_title'] ?? '') ?></h2>
+                    </div>
+                    <div class="mice-copy-card">
+                        <?php foreach (($c['seo_paragraphs'] ?? []) as $paragraph): ?>
+                            <p><?= esc($paragraph) ?></p>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
 
     <section class="mice-brief-section mb-100" id="mice-brief">
         <div class="container">

@@ -292,8 +292,8 @@ class SeoService
         $items = [];
 
         foreach ($faqs as $faq) {
-            $question = trim((string) ($faq['question'] ?? ''));
-            $answer = $this->excerpt((string) ($faq['answer'] ?? ''), 600);
+            $question = trim((string) ($faq['question'] ?? $faq['q'] ?? ''));
+            $answer = $this->excerpt((string) ($faq['answer'] ?? $faq['a'] ?? ''), 600);
 
             if ($question === '' || $answer === '') {
                 continue;

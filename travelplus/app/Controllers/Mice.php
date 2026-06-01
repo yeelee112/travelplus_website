@@ -13,6 +13,9 @@ class Mice extends BaseController
         $locale = $this->request->getLocale() ?: 'vi';
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $seo = new SeoService();
+        $serviceTypes = $locale === 'en'
+            ? ['Corporate MICE', 'Meetings and conferences', 'Incentive travel', 'Team building', 'Gala dinner', 'Healthcare MICE', 'Pharmaceutical MICE']
+            : ['MICE doanh nghiệp', 'Tổ chức hội nghị hội thảo', 'Du lịch incentive', 'Team building', 'Gala dinner', 'MICE ngành y/dược'];
 
         $data['breadcrumbs'] = [
             [
@@ -44,7 +47,7 @@ class Mice extends BaseController
                 (string) $data['meta_desc'],
                 (string) $data['canonical_url'],
                 'assets/images/mice-1.jpeg',
-                ['MICE', 'Corporate travel', 'Event planning']
+                $serviceTypes
             ),
         ];
 

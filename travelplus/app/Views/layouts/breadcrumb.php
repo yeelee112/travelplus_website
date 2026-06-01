@@ -1,6 +1,6 @@
 <?php if (! empty($breadcrumbs)): ?>
     <?php $locale = service('request')->getLocale() ?: 'vi'; $homeLabel = lang('Frontend.common.home', [], $locale); ?>
-    <div class="container pt-3 pb-3">
+    <div class="container pt-3 pb-3 mt-3">
         <nav aria-label="breadcrumb" class="breadcrumb-wrapper">
             <ol class="breadcrumb">
                 <?php foreach ($breadcrumbs as $index => $crumb): ?>
