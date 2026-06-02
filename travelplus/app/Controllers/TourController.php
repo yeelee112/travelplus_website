@@ -60,9 +60,21 @@ class TourController extends BaseController
         $breadcrumbs = [
             ['label' => $t('common.home'), 'url' => localized_url('/')],
             ['label' => $listLabel, 'url' => localized_url($listPath)],
-            ['label' => (string) ($tour['continent'] ?? ''), 'url' => (string) ($tour['continent_link'] ?? '')],
-            ['label' => (string) $tour['title']],
         ];
+        $continentLabel = trim((string) ($tour['continent'] ?? ''));
+
+        if ($continentLabel !== '') {
+            $continentUrl = trim((string) ($tour['continent_link'] ?? ''));
+            $continentCrumb = ['label' => $continentLabel];
+
+            if ($continentUrl !== '') {
+                $continentCrumb['url'] = $continentUrl;
+            }
+
+            $breadcrumbs[] = $continentCrumb;
+        }
+
+        $breadcrumbs[] = ['label' => (string) $tour['title']];
 
         return view('tour/index', [
             'tour' => $tour,

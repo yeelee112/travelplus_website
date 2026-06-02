@@ -25,11 +25,17 @@ $requestPath = trim((string) $requestUri->getPath(), '/');
 $bodyClass = $requestPath === '' || ($currentLocale === 'en' && $requestPath === 'en')
     ? 'is-home-page'
     : 'is-inner-page';
+$isContactPage = $requestPath === 'contact' || str_ends_with($requestPath, '/contact');
 $showAiChatbox = ! in_array($firstSegment, ['admin', 'api'], true);
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
-$styleVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/css/style.css') ?: time();
+$requestHost = strtolower($requestUri->getHost());
+$isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
+$hasMinifiedStyle = is_file($publicPath . DIRECTORY_SEPARATOR . 'assets/css/style.min.css');
+$styleAsset = (! $isLocalRequest && $hasMinifiedStyle)
+    ? 'assets/css/style.min.css'
+    : 'assets/css/style.css';
+$styleVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . $styleAsset) ?: time();
 $mainJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/main.js') ?: time();
-$aboutJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/about-us.js') ?: time();
 ?>
 <!doctype html>
 <html lang="<?= esc($currentLocale) ?>">
@@ -83,20 +89,27 @@ $aboutJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/abou
 <script type="application/ld+json"><?= json_encode(['@context' => 'https://schema.org', '@graph' => $schemaGraph], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <?php endif; ?>
 
+<?php if ($bodyClass === 'is-home-page'): ?>
+<link rel="preload" as="image" href="<?= base_url('assets/images/home/banner01.jpg') ?>" fetchpriority="high">
+<?php endif; ?>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<?php if ($isContactPage): ?>
 <link rel="preconnect" href="https://www.google.com">
+<?php endif; ?>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="<?= base_url('assets/css/style.css?v=' . $styleVersion) ?>">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="<?= base_url($styleAsset . '?v=' . $styleVersion) ?>">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"/>
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
 </head>
-<body class="<?= esc($bodyClass) ?>">
+<body
+    class="<?= esc($bodyClass) ?>"
+    data-base-url="<?= esc(base_url(), 'attr') ?>"
+    data-localized-url="<?= esc(localized_url(), 'attr') ?>"
+    data-csrf-token-name="<?= esc(csrf_token(), 'attr') ?>"
+    data-csrf-token="<?= esc(csrf_hash(), 'attr') ?>">
 
 <?= $this->include('partials/header') ?>
 <?= $this->renderSection('content') ?>
@@ -104,22 +117,7 @@ $aboutJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/abou
 <?php if ($showAiChatbox): ?>
 <?= $this->include('partials/ai-chatbox') ?>
 <?php endif; ?>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js" integrity="sha512-Eak/29OTpb36LLo2r47IpVzPBLXnAMPAVypbSZiZ4Qkf8p/7S/XRG5xp7OKWPPYfJT6metI+IORkR5G8F900+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script>
-  const URL_API = "<?= localized_url() ?>";
-  window.BASE_URL = "<?= base_url() ?>";
-  window.CSRF_TOKEN_NAME = "<?= csrf_token() ?>";
-  window.CSRF_TOKEN = "<?= csrf_hash() ?>";
-</script>
-<?php $recaptchaSiteKey = trim((string) env('recaptcha.siteKey', '')); ?>
-<?php if ($recaptchaSiteKey !== ''): ?>
-<script src="https://www.google.com/recaptcha/api.js?render=<?= esc($recaptchaSiteKey) ?>"></script>
-<?php endif; ?>
-
-<script type="module" src="<?= base_url('assets/js/about-us.js?v=' . $aboutJsVersion) ?>"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script type="module" src="<?= base_url('assets/js/main.js?v=' . $mainJsVersion) ?>"></script>
 <?= $this->renderSection('scripts') ?>

@@ -188,11 +188,16 @@ class Contact extends BaseController
 
         $metaTitle = lang('Frontend.contact.metaTitle', [], $locale);
         $metaDesc = lang('Frontend.contact.metaDesc', [], $locale);
+        $serviceDescription = $locale === 'en'
+            ? 'Contact Travel Plus for outbound tours, domestic tours, visa consultation, corporate MICE programs, incentive travel and tailor-made itineraries.'
+            : 'Liên hệ Travel Plus để tư vấn tour nước ngoài, tour trong nước, visa, MICE doanh nghiệp, incentive travel và lịch trình thiết kế riêng.';
 
         return [
             'breadcrumbs' => $breadcrumbs,
             'meta_title' => $metaTitle,
             'meta_desc' => $metaDesc,
+            'meta_image' => base_url('assets/images/TravelPlus_CompanyProfile.png'),
+            'meta_image_alt' => $metaTitle,
             'canonical_url' => LocalizedPathCatalog::url('contact', $locale),
             'alternate_links' => [
                 ['hreflang' => 'vi', 'href' => base_url('contact')],
@@ -203,6 +208,13 @@ class Contact extends BaseController
                 $seo->organizationSchema(),
                 $seo->breadcrumbSchema($breadcrumbs, LocalizedPathCatalog::url('contact', $locale)),
                 $seo->webpageSchema($metaTitle, $metaDesc, LocalizedPathCatalog::url('contact', $locale), 'ContactPage'),
+                $seo->serviceSchema(
+                    'Travel Plus Consultation',
+                    $serviceDescription,
+                    LocalizedPathCatalog::url('contact', $locale),
+                    base_url('assets/images/TravelPlus_CompanyProfile.png'),
+                    ['Tours', 'Visa consultation', 'MICE', 'Incentive travel', 'Tailor-made travel']
+                ),
             ],
             'contact_form_token' => $formToken,
         ];

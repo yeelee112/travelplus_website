@@ -1,5 +1,5 @@
 <?php $featuredDestinations = $featuredDestinations ?? []; ?>
-<div class="home1-destination-section mb-100">
+<div class="home-page__featured-destinations mb-100">
     <div class="container">
         <div class="row justify-content-center mb-60 wow animate fadeInDown" data-wow-delay="200ms" data-wow-duration="1500ms">
             <div class="col-lg-10">
@@ -23,7 +23,7 @@
                     <div class="tab-content" id="featured-destination-contents">
                         <?php foreach ($featuredDestinations as $index => $tab): ?>
                             <div class="tab-pane fade <?= $index === 0 ? 'show active' : '' ?>" id="featured-destination-<?= esc((string) $tab['key']) ?>">
-                                <div class="row g-xl-4 g-lg-3 gy-4 featured-destination-grid">
+                                <div class="row g-xl-4 g-lg-3 gy-4 home-page__destination-grid">
                                     <?php foreach (($tab['items'] ?? []) as $item): ?>
                                         <div class="<?= esc((string) ($item['col'] ?? 'col-lg-4 col-md-6')) ?>">
                                             <a href="<?= esc((string) ($item['link'] ?? '#')) ?>">

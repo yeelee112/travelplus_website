@@ -38,6 +38,7 @@
         "sort-packages": true
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit",
+        "build:css": "php scripts/minify-css.php"
     }
 }

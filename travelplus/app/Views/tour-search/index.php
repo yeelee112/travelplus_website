@@ -39,6 +39,7 @@ $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args,
                 'page' => 1,
                 'lastPage' => 1,
             ],
+            'showTopArea' => false,
         ]) ?>
     <?php endif; ?>
 <?php endif; ?>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $locale = service('request')->getLocale() ?: 'vi';
 $contentLocale = $locale ?? (service('request')->getLocale() === 'en' ? 'en' : 'vi');
 $contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $contentLocale);
@@ -7,27 +7,27 @@ $domesticUrl = \App\Data\LocalizedPathCatalog::url('domestic', $contentLocale);
 $c = is_array($content ?? null) ? $content : [];
 ?>
 
-<div class="mice-service-page">
-    <section class="mice-hero-section">
+<div class="mice-page">
+    <section class="mice-page__hero">
         <div class="container">
-            <div class="mice-hero-grid">
-                <div class="mice-hero-content">
-                    <span class="mice-eyebrow"><?= esc($c['hero_eyebrow'] ?? '') ?></span>
+            <div class="mice-page__hero-layout">
+                <div class="mice-page__hero-content">
+                    <span class="mice-page__eyebrow"><?= esc($c['hero_eyebrow'] ?? '') ?></span>
                     <h1><?= esc($c['hero_title'] ?? '') ?></h1>
                     <p><?= esc($c['hero_desc'] ?? '') ?></p>
-                    <div class="mice-hero-actions">
+                    <div class="mice-page__hero-actions">
                         <a class="primary-btn1 two" href="<?= esc($contactUrl) ?>">
                             <span><?= esc($c['hero_cta_primary'] ?? '') ?></span>
                             <span><?= esc($c['hero_cta_primary'] ?? '') ?></span>
                         </a>
-                        <a class="primary-btn1 two transparent" href="#mice-brief">
+                        <a class="primary-btn1 two transparent" href="#mice-brief-request">
                             <span><?= esc($c['hero_cta_secondary'] ?? '') ?></span>
                             <span><?= esc($c['hero_cta_secondary'] ?? '') ?></span>
                         </a>
                     </div>
-                    <div class="mice-hero-metrics">
+                    <div class="mice-page__hero-metrics">
                         <?php foreach (($c['metrics'] ?? []) as $metric): ?>
-                            <div class="mice-metric-card">
+                            <div class="mice-page__metric-card">
                                 <strong><?= esc($metric['title']) ?></strong>
                                 <span><?= esc($metric['text']) ?></span>
                             </div>
@@ -35,15 +35,15 @@ $c = is_array($content ?? null) ? $content : [];
                     </div>
                 </div>
 
-                <div class="mice-hero-visual">
-                    <div class="mice-hero-main-image">
+                <div class="mice-page__hero-media">
+                    <div class="mice-page__hero-main-media">
                         <img src="<?= base_url('assets/images/mice-1.jpeg') ?>" alt="<?= esc(lang('Frontend.common.alt.travelPlusMice', [], $locale)) ?>" loading="eager" fetchpriority="high" decoding="async" width="680" height="520">
                     </div>
-                    <div class="mice-hero-side-grid">
-                        <div class="mice-hero-side-card">
+                    <div class="mice-page__hero-side-grid">
+                        <div class="mice-page__hero-side-card">
                             <img src="<?= base_url('assets/images/mice-2.jpg') ?>" alt="<?= esc(lang('Frontend.common.alt.corporateConference', [], $locale)) ?>" loading="eager" decoding="async" width="320" height="240">
                         </div>
-                        <div class="mice-hero-side-card">
+                        <div class="mice-page__hero-side-card">
                             <img src="<?= base_url('assets/images/mice-3.jpg') ?>" alt="<?= esc(lang('Frontend.common.alt.teamBuildingProgram', [], $locale)) ?>" loading="eager" decoding="async" width="320" height="240">
                         </div>
                     </div>
@@ -52,7 +52,7 @@ $c = is_array($content ?? null) ? $content : [];
         </div>
     </section>
 
-    <section class="mice-intro-section pt-100 pb-100">
+    <section class="mice-page__intro pt-100 pb-100">
         <div class="container">
             <div class="row g-4 align-items-center">
                 <div class="col-lg-5">
@@ -62,7 +62,7 @@ $c = is_array($content ?? null) ? $content : [];
                     </div>
                 </div>
                 <div class="col-lg-7">
-                    <div class="mice-copy-card">
+                    <div class="mice-page__copy-card">
                         <p><?= esc($c['intro_p1'] ?? '') ?></p>
                         <p><?= esc($c['intro_p2'] ?? '') ?></p>
                     </div>
@@ -71,7 +71,7 @@ $c = is_array($content ?? null) ? $content : [];
         </div>
     </section>
 
-    <section class="mice-services-section pb-100">
+    <section class="mice-page__services pb-100">
         <div class="container">
             <div class="section-title text-center mb-60">
                 <span><?= esc($c['services_eyebrow'] ?? '') ?></span>
@@ -81,7 +81,7 @@ $c = is_array($content ?? null) ? $content : [];
             <div class="row g-4">
                 <?php foreach (($c['service_cards'] ?? []) as $card): ?>
                     <div class="col-lg-3 col-md-6">
-                        <article class="mice-service-card">
+                        <article class="mice-page__service-card">
                             <h3><?= esc($card['title']) ?></h3>
                             <p><?= esc($card['text']) ?></p>
                             <ul>
@@ -96,24 +96,24 @@ $c = is_array($content ?? null) ? $content : [];
         </div>
     </section>
 
-    <section class="mice-solutions-section pb-100">
+    <section class="mice-page__solutions pb-100">
         <div class="container">
             <div class="row g-4 align-items-stretch">
                 <div class="col-lg-6">
-                    <div class="mice-solution-panel is-dark">
+                    <div class="mice-page__solution-panel is-dark">
                         <span><?= esc($c['solution_eyebrow'] ?? '') ?></span>
                         <h2><?= esc($c['solution_title'] ?? '') ?></h2>
                         <p><?= esc($c['solution_text'] ?? '') ?></p>
-                        <div class="mice-solution-links">
+                        <div class="mice-page__solution-links">
                             <a href="<?= esc($domesticUrl) ?>"><?= esc($c['solution_links']['domestic'] ?? '') ?></a>
                             <a href="<?= esc($outboundUrl) ?>"><?= esc($c['solution_links']['outbound'] ?? '') ?></a>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="mice-solution-list">
+                    <div class="mice-page__solution-list">
                         <?php foreach (($c['solution_items'] ?? []) as $item): ?>
-                            <article class="mice-solution-item">
+                            <article class="mice-page__solution-item">
                                 <h3><?= esc($item['title']) ?></h3>
                                 <p><?= esc($item['text']) ?></p>
                             </article>
@@ -124,7 +124,7 @@ $c = is_array($content ?? null) ? $content : [];
         </div>
     </section>
 
-    <section class="mice-why-section pb-100">
+    <section class="mice-page__why pb-100">
         <div class="container">
             <div class="section-title text-center mb-60">
                 <span><?= esc($c['why_eyebrow'] ?? '') ?></span>
@@ -133,7 +133,7 @@ $c = is_array($content ?? null) ? $content : [];
             <div class="row g-4">
                 <?php foreach (($c['why_items'] ?? []) as $item): ?>
                     <div class="col-lg-4 col-md-6">
-                        <div class="mice-why-card">
+                        <div class="mice-page__why-card">
                             <h3><?= esc($item['title']) ?></h3>
                             <p><?= esc($item['text']) ?></p>
                         </div>
@@ -143,26 +143,26 @@ $c = is_array($content ?? null) ? $content : [];
         </div>
     </section>
 
-    <section class="mice-process-section pb-100">
+    <section class="mice-page__process pb-100">
         <div class="container">
-            <div class="mice-process-shell">
-                <div class="mice-process-overview">
+            <div class="mice-page__process-layout">
+                <div class="mice-page__process-overview">
                     <span><?= esc($c['process_eyebrow'] ?? '') ?></span>
                     <h2><?= esc($c['process_title'] ?? '') ?></h2>
                     <p><?= esc($c['process_desc'] ?? '') ?></p>
                     <?php if (! empty($c['process_tags'])): ?>
-                        <div class="mice-process-tags">
+                        <div class="mice-page__process-tags">
                             <?php foreach (($c['process_tags'] ?? []) as $tag): ?>
                                 <small><?= esc($tag) ?></small>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
-                <div class="mice-process-flow">
+                <div class="mice-page__process-flow">
                     <?php foreach (($c['process'] ?? []) as $index => $step): ?>
-                        <article class="mice-process-step">
-                            <span class="mice-process-step-number"><?= esc(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span>
-                            <div class="mice-process-step-copy">
+                        <article class="mice-page__process-step">
+                            <span class="mice-page__process-number"><?= esc(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span>
+                            <div class="mice-page__process-copy">
                                 <h3><?= esc($step['title']) ?></h3>
                                 <p><?= esc($step['text']) ?></p>
                             </div>
@@ -174,14 +174,14 @@ $c = is_array($content ?? null) ? $content : [];
     </section>
 
     <?php if (! empty($c['seo_title']) || ! empty($c['seo_paragraphs'])): ?>
-    <section class="mice-seo-section pb-100">
+    <section class="mice-page__seo pb-100">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xl-9 col-lg-10">
                     <div class="section-title text-center mb-40">
                         <h2><?= esc($c['seo_title'] ?? '') ?></h2>
                     </div>
-                    <div class="mice-copy-card">
+                    <div class="mice-page__copy-card">
                         <?php foreach (($c['seo_paragraphs'] ?? []) as $paragraph): ?>
                             <p><?= esc($paragraph) ?></p>
                         <?php endforeach; ?>
@@ -192,20 +192,20 @@ $c = is_array($content ?? null) ? $content : [];
     </section>
     <?php endif; ?>
 
-    <section class="mice-brief-section mb-100" id="mice-brief">
+    <section class="mice-page__brief mb-100" id="mice-brief-request">
         <div class="container">
-            <div class="mice-brief-card">
-                <div class="mice-brief-copy">
+            <div class="mice-page__brief-card">
+                <div class="mice-page__brief-copy">
                     <span><?= esc($c['brief_eyebrow'] ?? '') ?></span>
                     <h2><?= esc($c['brief_title'] ?? '') ?></h2>
                     <p><?= esc($c['brief_text'] ?? '') ?></p>
                 </div>
-                <div class="mice-brief-contact">
-                    <div class="mice-brief-contact-item">
+                <div class="mice-page__brief-contact">
+                    <div class="mice-page__brief-contact-item">
                         <small><?= esc(lang('Frontend.footer.hotline', [], $locale)) ?></small>
                         <a href="tel:+84795681568">+84 79 568 1 568</a>
                     </div>
-                    <div class="mice-brief-contact-item">
+                    <div class="mice-page__brief-contact-item">
                         <small><?= esc(lang('Frontend.footer.email', [], $locale)) ?></small>
                         <a href="mailto:info@travelplusvn.com">info@travelplusvn.com</a>
                     </div>

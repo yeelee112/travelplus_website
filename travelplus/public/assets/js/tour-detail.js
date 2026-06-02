@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const appConfig = document.body?.dataset || {};
+    const baseUrl = appConfig.baseUrl || window.BASE_URL || '/';
     const i18n = window.TOUR_DETAIL_I18N || {};
     const messages = {
         bookingProceedFailed: i18n.bookingProceedFailed || 'Could not continue booking.',
@@ -450,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                window.location.href = payload.redirect || `${window.BASE_URL}/booking/checkout`;
+                window.location.href = payload.redirect || `${baseUrl.replace(/\/$/, '')}/booking/checkout`;
             } catch (error) {
                 if (loginErrorBox) {
                     loginErrorBox.className = 'alert alert-danger';

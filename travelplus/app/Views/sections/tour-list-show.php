@@ -12,15 +12,18 @@ $buildPageUrl = static function (int $pageNumber) use ($baseUrl, $queryParams): 
 $currentPage = (int) ($pagination['page'] ?? 1);
 $lastPage = (int) ($pagination['lastPage'] ?? 1);
 $total = (int) ($pagination['total'] ?? 0);
+$showTopArea = (bool) ($showTopArea ?? true);
 ?>
 
 <div class="package-grid-page mb-100">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
+                <?php if ($showTopArea && $total > 0): ?>
                 <div class="package-grid-top-area">
                     <span><?= lang('Frontend.listing.matchingExperiences', [esc((string) $total)], $locale) ?></span>
                 </div>
+                <?php endif; ?>
                 <div class="list-grid-product-wrap column-2-wrapper">
                     <div class="row g-4 mb-40">
                         <?php foreach ($tours as $tour): ?>

@@ -110,6 +110,7 @@ return [
     'hero.search.tours' => 'Tours',
     'hero.search.destinationPlaceholder' => 'Nhập quốc gia hoặc điểm đến',
     'hero.search.datePlaceholder' => 'Chọn ngày khởi hành',
+    'hero.search.dateEmpty' => 'Chọn ngày đi',
     'hero.search.submit' => 'Tìm kiếm',
 
     'home.featuredTour.title' => 'Điểm đến nổi bật',

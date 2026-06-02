@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
   ===================================================== */
   const qs = (s, p = document) => p.querySelector(s);
   const qsa = (s, p = document) => [...p.querySelectorAll(s)];
+  const appConfig = document.body?.dataset || {};
+  const BASE_URL = appConfig.baseUrl || window.BASE_URL || "/";
+  const URL_API = appConfig.localizedUrl || window.URL_API || BASE_URL;
+  const CSRF_TOKEN_NAME = appConfig.csrfTokenName || window.CSRF_TOKEN_NAME || "";
+  const CSRF_TOKEN = appConfig.csrfToken || window.CSRF_TOKEN || "";
 
   const closeActive = (selector) => {
     qsa(selector).forEach((el) => el.classList.remove("active"));
@@ -403,16 +408,33 @@ document.addEventListener("DOMContentLoaded", () => {
     const clearBtn = box.querySelector(".clear-destination");
     const form = box.closest("form");
 
-    input.addEventListener("input", () => {
-      const keyword = input.value.trim();
-
-      clearBtn.classList.toggle("hidden", keyword.length === 0);
-    });
-
     if (!input || !wrap || !list || !clearBtn) return;
 
     let timer = null;
     let currentItems = [];
+    const locale = document.documentElement.lang === "en" ? "en" : "vi";
+    const suggestionCopy = {
+      popular: locale === "en" ? "Popular destination" : "Điểm đến phổ biến",
+      country: locale === "en" ? "Country" : "Quốc gia",
+      landmark: locale === "en" ? "Landmark" : "Điểm tham quan",
+      noResults: locale === "en" ? "No results found" : "Không tìm thấy điểm đến",
+      error: locale === "en" ? "Error loading data" : "Không tải được dữ liệu",
+    };
+    const popularSuggestions = locale === "en"
+      ? [
+          { type: "popular", name: "Japan", subtitle: "Tokyo, Osaka, Kyoto" },
+          { type: "popular", name: "South Korea", subtitle: "Seoul, Nami, Busan" },
+          { type: "popular", name: "France", subtitle: "Paris and Europe routes" },
+          { type: "popular", name: "Thailand", subtitle: "Bangkok, Pattaya, Phuket" },
+          { type: "popular", name: "Da Nang", subtitle: "Central Vietnam" },
+        ]
+      : [
+          { type: "popular", name: "Nhật Bản", subtitle: "Tokyo, Osaka, Kyoto" },
+          { type: "popular", name: "Hàn Quốc", subtitle: "Seoul, Nami, Busan" },
+          { type: "popular", name: "Pháp", subtitle: "Paris và tuyến châu Âu" },
+          { type: "popular", name: "Thái Lan", subtitle: "Bangkok, Pattaya, Phuket" },
+          { type: "popular", name: "Đà Nẵng", subtitle: "Miền Trung Việt Nam" },
+        ];
 
     const truncateText = function (value, maxLength = 42) {
       const text = String(value || "").trim();
@@ -425,20 +447,31 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const getItemLabel = function (item) {
+      return truncateText(item.name || "", 54);
+    };
+
+    const getItemSubtitle = function (item) {
+      if (item.subtitle) {
+        return item.subtitle;
+      }
+
       if (item.type === "country") {
-        return item.name;
+        return suggestionCopy.country;
       }
 
       if (item.type === "gallery") {
-        const tourLabel = truncateText(item.tour || "", 34);
-        return tourLabel ? `${item.name} - ${tourLabel}` : item.name;
+        return suggestionCopy.landmark;
       }
 
-      if (!item.country || item.country === "undefined") {
-        return item.name;
+      if (item.country && item.country !== "undefined") {
+        return item.country;
       }
 
-      return `${item.name}, ${item.country}`;
+      if (item.type === "popular") {
+        return suggestionCopy.popular;
+      }
+
+      return "";
     };
 
     const selectItem = function (item) {
@@ -447,15 +480,77 @@ document.addEventListener("DOMContentLoaded", () => {
       list.innerHTML = "";
     };
 
+    const renderList = function (data) {
+      list.innerHTML = "";
+      currentItems = Array.isArray(data) ? data : [];
+
+      if (currentItems.length === 0) {
+        const emptyItem = document.createElement("li");
+        emptyItem.className = "single-item destination-empty-item";
+        const title = document.createElement("h6");
+        title.textContent = suggestionCopy.noResults;
+        emptyItem.appendChild(title);
+        list.appendChild(emptyItem);
+        return;
+      }
+
+      currentItems.forEach((item) => {
+        const li = document.createElement("li");
+        const destination = document.createElement("div");
+        const title = document.createElement("h6");
+        const subtitle = document.createElement("span");
+
+        li.className = "single-item";
+        destination.className = "destination";
+        title.textContent = getItemLabel(item);
+        subtitle.textContent = getItemSubtitle(item);
+
+        destination.appendChild(title);
+        if (subtitle.textContent !== "") {
+          destination.appendChild(subtitle);
+        }
+
+        li.appendChild(destination);
+        li.addEventListener("click", () => {
+          selectItem(item);
+        });
+
+        list.appendChild(li);
+      });
+    };
+
+    const showPopularSuggestions = function () {
+      clearTimeout(timer);
+      renderList(popularSuggestions);
+      wrap.classList.add("active");
+    };
+
+    input.addEventListener("focus", () => {
+      if (input.value.trim() === "") {
+        showPopularSuggestions();
+      }
+    });
+
+    input.addEventListener("click", () => {
+      if (input.value.trim() === "") {
+        showPopularSuggestions();
+      }
+    });
+
     input.addEventListener("input", () => {
       const keyword = input.value.trim();
 
+      clearBtn.classList.toggle("hidden", keyword.length === 0);
       clearTimeout(timer);
       currentItems = [];
 
       if (keyword.length < 2) {
-        wrap.classList.remove("active");
-        list.innerHTML = "";
+        if (keyword.length === 0) {
+          showPopularSuggestions();
+        } else {
+          wrap.classList.remove("active");
+          list.innerHTML = "";
+        }
         return;
       }
 
@@ -473,37 +568,11 @@ document.addEventListener("DOMContentLoaded", () => {
           .catch(() => {
             list.innerHTML = `
               <li class="single-item">
-                <h6>Error loading data</h6>
+                <h6>${suggestionCopy.error}</h6>
               </li>`;
           });
       }, 300);
     });
-
-    function renderList(data) {
-      list.innerHTML = "";
-      currentItems = Array.isArray(data) ? data : [];
-
-      if (currentItems.length === 0) {
-        list.innerHTML = `
-          <li class="single-item">
-            <h6>No results found</h6>
-          </li>`;
-        return;
-      }
-
-      currentItems.forEach((item) => {
-        const li = document.createElement("li");
-        li.className = "single-item";
-
-        li.innerHTML = `<h6>${getItemLabel(item)}</h6>`;
-
-        li.addEventListener("click", () => {
-          selectItem(item);
-        });
-
-        list.appendChild(li);
-      });
-    }
 
     // click ra ngoài → đóng dropdown
     input.addEventListener("keydown", (event) => {
@@ -557,6 +626,7 @@ document.addEventListener("DOMContentLoaded", () => {
       list.innerHTML = "";
 
       input.focus();
+      showPopularSuggestions();
     });
   });
 
@@ -564,35 +634,35 @@ document.addEventListener("DOMContentLoaded", () => {
   BANNER SLIDE
   ===================================================== */
 
-  const sliderEl = document.querySelector(".home6-banner-slider");
+  const sliderEl = document.querySelector(".home-page__hero-slider");
 
-  if (!sliderEl) return;
+  if (sliderEl) {
+    new Swiper(sliderEl, {
+      slidesPerView: "auto",
+      speed: 1500,
+      spaceBetween: 24,
 
-  new Swiper(sliderEl, {
-    slidesPerView: "auto",
-    speed: 1500,
-    spaceBetween: 24,
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+      },
 
-    autoplay: {
-      delay: 3000,
-      disableOnInteraction: false,
-    },
+      effect: "fade",
+      fadeEffect: {
+        crossFade: true,
+      },
 
-    effect: "fade",
-    fadeEffect: {
-      crossFade: true,
-    },
+      navigation: {
+        nextEl: ".banner-slider-next",
+        prevEl: ".banner-slider-prev",
+      },
 
-    navigation: {
-      nextEl: ".banner-slider-next",
-      prevEl: ".banner-slider-prev",
-    },
-
-    pagination: {
-      el: ".franctional-pagi1",
-      type: "fraction",
-    },
-  });
+      pagination: {
+        el: ".franctional-pagi1",
+        type: "fraction",
+      },
+    });
+  }
 
 
 
@@ -601,8 +671,10 @@ document.addEventListener("DOMContentLoaded", () => {
   TOUR SLIDE
   ===================================================== */
 
-  if (document.querySelector(".home-trip-slider")) {
-    new Swiper(".home-trip-slider", {
+  const featuredTourSlider = document.querySelector(".home-page__featured-tour-slider");
+
+  if (featuredTourSlider) {
+    new Swiper(featuredTourSlider, {
       slidesPerView: "auto",
       speed: 1500,
       spaceBetween: 24,
@@ -638,7 +710,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabContent = document.getElementById("continent-contents");
 
   if (tabList && tabContent && !tabList.dataset.serverRendered) {
-    fetch(`${window.BASE_URL}assets/js/data/destinations.json`)
+    fetch(`${BASE_URL}assets/js/data/destinations.json`)
       .then((res) => res.json())
       .then((data) => initContinents(data));
   }
@@ -667,7 +739,7 @@ document.addEventListener("DOMContentLoaded", () => {
       /* ---------- TAB CONTENT ---------- */
       tabContent.innerHTML += `
       <div class="tab-pane fade ${isFirst ? "show active" : ""}" id="${tabId}">
-        <div class="row g-xl-4 g-lg-3 gy-4" id="content-${key}"></div>
+        <div class="row g-xl-4 g-lg-3 gy-4 home-page__destination-grid" id="content-${key}"></div>
       </div>
     `;
 
@@ -675,7 +747,9 @@ document.addEventListener("DOMContentLoaded", () => {
       isFirst = false;
     });
 
-    new WOW().init();
+    if (typeof WOW !== "undefined") {
+      new WOW().init();
+    }
   }
 
   function renderCards(items, containerId) {
@@ -807,41 +881,186 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initCounter();
 
-  const testimonialSwiper = new Swiper(".home1-testimonial-slider", {
-    slidesPerView: "auto",
-    speed: 1500,
-    spaceBetween: 24,
+  const testimonialSlider = document.querySelector(".home-page__testimonial-slider");
 
-    autoplay: {
-      delay: 2500,
-      pauseOnMouseEnter: true,
-      disableOnInteraction: false,
-    },
+  if (testimonialSlider) {
+    new Swiper(testimonialSlider, {
+      slidesPerView: "auto",
+      speed: 1500,
+      spaceBetween: 24,
 
-    navigation: {
-      nextEl: ".testimonial-slider-next",
-      prevEl: ".testimonial-slider-prev",
-    },
+      autoplay: {
+        delay: 2500,
+        pauseOnMouseEnter: true,
+        disableOnInteraction: false,
+      },
 
-    breakpoints: {
-      280: { slidesPerView: 1 },
-      386: { slidesPerView: 1 },
-      576: { slidesPerView: 1 },
-      768: { slidesPerView: 2, spaceBetween: 15 },
-      992: { slidesPerView: 3, spaceBetween: 15 },
-      1200: { slidesPerView: 3, spaceBetween: 15 },
-      1400: { slidesPerView: 3 },
-    },
-  });
+      navigation: {
+        nextEl: ".testimonial-slider-next",
+        prevEl: ".testimonial-slider-prev",
+      },
 
-    flatpickr("#departure_date", {
-    dateFormat: "d/m/Y",
-    minDate: "today",
-    enableTime: false,
-    altInput: true,
-    altFormat: "D j F, Y",
-    locale: "vn",
-    disableMobile: true,
-  });
+      breakpoints: {
+        280: { slidesPerView: 1 },
+        386: { slidesPerView: 1 },
+        576: { slidesPerView: 1 },
+        768: { slidesPerView: 2, spaceBetween: 15 },
+        992: { slidesPerView: 3, spaceBetween: 15 },
+        1200: { slidesPerView: 3, spaceBetween: 15 },
+        1400: { slidesPerView: 3 },
+      },
+    });
+  }
+
+  const homeDateInput = qs("[data-home-date-input]");
+  const homeDateTrigger = qs("[data-home-date-trigger]");
+  const homeDateDisplay = qs("[data-home-date-display]");
+  const homeDatePicker = qs("[data-home-date-picker]");
+  const homeDatePanel = qs("[data-home-date-panel]");
+  const homeDateMonth = qs("[data-home-date-month]");
+  const homeDateWeekdays = qs("[data-home-date-weekdays]");
+  const homeDateDays = qs("[data-home-date-days]");
+  const homeDatePrev = qs("[data-home-date-prev]");
+  const homeDateNext = qs("[data-home-date-next]");
+
+  if (
+    homeDateInput &&
+    homeDateTrigger &&
+    homeDateDisplay &&
+    homeDatePicker &&
+    homeDatePanel &&
+    homeDateMonth &&
+    homeDateWeekdays &&
+    homeDateDays &&
+    homeDatePrev &&
+    homeDateNext
+  ) {
+    const emptyDateLabel = homeDateTrigger.dataset.emptyLabel || homeDateDisplay.textContent.trim();
+    const locale = homeDatePicker.dataset.locale === "en" ? "en" : "vi";
+    const monthFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
+      month: "long",
+      year: "numeric",
+    });
+    const weekdayFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
+      weekday: "long",
+    });
+    const weekdayNames = {
+      vi: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
+      en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    };
+    const padDatePart = (value) => String(value).padStart(2, "0");
+    const today = new Date();
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    let viewDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+    let selectedDate = null;
+
+    const isSameDate = (first, second) => (
+      first &&
+      second &&
+      first.getFullYear() === second.getFullYear() &&
+      first.getMonth() === second.getMonth() &&
+      first.getDate() === second.getDate()
+    );
+
+    const formatValue = (date) => (
+      `${date.getFullYear()}-${padDatePart(date.getMonth() + 1)}-${padDatePart(date.getDate())}`
+    );
+
+    const formatDisplayDate = (date) => (
+      `${weekdayFormatter.format(date).replace(/^./, (char) => char.toUpperCase())}, ${padDatePart(date.getDate())}/${padDatePart(date.getMonth() + 1)}/${date.getFullYear()}`
+    );
+
+    const closeHomeDatePicker = () => {
+      homeDatePanel.hidden = true;
+      homeDateTrigger.setAttribute("aria-expanded", "false");
+    };
+
+    const renderHomeDatePicker = () => {
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const monthStartOffset = (firstDay.getDay() + 6) % 7;
+      const lastDay = new Date(year, month + 1, 0).getDate();
+      const currentMonthStart = new Date(year, month, 1);
+      const todayMonthStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+
+      homeDateMonth.textContent = monthFormatter.format(new Date(year, month, 1));
+      homeDatePrev.disabled = currentMonthStart <= todayMonthStart;
+      homeDateDays.innerHTML = "";
+
+      for (let index = 0; index < monthStartOffset; index += 1) {
+        const blankDay = document.createElement("span");
+        blankDay.className = "home-search-date__day home-search-date__day--blank";
+        blankDay.setAttribute("aria-hidden", "true");
+        homeDateDays.appendChild(blankDay);
+      }
+
+      for (let day = 1; day <= lastDay; day += 1) {
+        const date = new Date(year, month, day);
+        const dateButton = document.createElement("button");
+        const isPastDate = date < todayDate;
+
+        dateButton.type = "button";
+        dateButton.className = "home-search-date__day";
+        dateButton.textContent = String(day);
+        dateButton.disabled = isPastDate;
+        dateButton.setAttribute("aria-label", formatDisplayDate(date));
+
+        if (isSameDate(date, selectedDate)) {
+          dateButton.classList.add("is-selected");
+          dateButton.setAttribute("aria-current", "date");
+        }
+
+        dateButton.addEventListener("click", () => {
+          selectedDate = date;
+          homeDateInput.value = formatValue(date);
+          homeDateDisplay.textContent = formatDisplayDate(date);
+          homeDateTrigger.classList.add("is-selected");
+          closeHomeDatePicker();
+        });
+
+        homeDateDays.appendChild(dateButton);
+      }
+    };
+
+    weekdayNames[locale].forEach((weekday) => {
+      const weekdayEl = document.createElement("span");
+      weekdayEl.textContent = weekday;
+      homeDateWeekdays.appendChild(weekdayEl);
+    });
+
+    homeDateTrigger.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (homeDatePanel.hidden) {
+        renderHomeDatePicker();
+        homeDatePanel.hidden = false;
+        homeDateTrigger.setAttribute("aria-expanded", "true");
+      } else {
+        closeHomeDatePicker();
+      }
+    });
+
+    homeDatePrev.addEventListener("click", () => {
+      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+      renderHomeDatePicker();
+    });
+
+    homeDateNext.addEventListener("click", () => {
+      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+      renderHomeDatePicker();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!homeDatePicker.contains(event.target)) {
+        closeHomeDatePicker();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeHomeDatePicker();
+      }
+    });
+  }
 
 });

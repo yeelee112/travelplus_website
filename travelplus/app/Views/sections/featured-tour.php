@@ -1,7 +1,7 @@
 <?php $featuredTours = $featuredTours ?? $tours ?? getFeaturedTours(6); ?>
 
 <?php if (! empty($featuredTours)): ?>
-<div class="home2-package-slider-section mb-100">
+<div class="home-page__featured-tours mb-100">
     <div class="container">
         <div class="row justify-content-center mb-50 wow animate fadeInDown" data-wow-delay="200ms" data-wow-duration="1500ms">
             <div class="col-xl-6 col-lg-8">
@@ -13,7 +13,7 @@
         </div>
         <div class="row mb-40">
             <div class="col-lg-12">
-                <div class="swiper home-trip-slider">
+                <div class="swiper home-page__featured-tour-slider">
                     <div class="swiper-wrapper">
                         <?php foreach ($featuredTours as $tour): ?>
                             <div class="swiper-slide">

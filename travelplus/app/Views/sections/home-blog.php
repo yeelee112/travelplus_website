@@ -3,7 +3,7 @@ $homeBlogs = $homeBlogs ?? [];
 $blogListUrl = \App\Data\LocalizedPathCatalog::url('blog', service('request')->getLocale() === 'en' ? 'en' : 'vi');
 ?>
 
-<div class="home4-blog-section mb-100">
+<div class="home-page__blog mb-100">
     <div class="container">
         <div class="row justify-content-center mb-50 wow animate fadeInDown" data-wow-delay="200ms" data-wow-duration="1500ms">
             <div class="col-xl-6 col-lg-8">

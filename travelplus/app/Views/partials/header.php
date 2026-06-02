@@ -95,7 +95,7 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
             </ul>
 
             <a class="header-logo" href="<?= localized_url('/') ?>">
-                <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="<?= base_url('assets/images/logo.svg') ?>">
+                <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo.svg') ?>">
             </a>
 
             <div class="topbar-right">
@@ -103,7 +103,7 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                     <a href="<?= $aboutUrl ?>"><?= esc(lang('Frontend.header.aboutTravelPlus')) ?></a>
                     <div class="language-area">
                         <div class="language-btn">
-                            <img alt="<?= esc($currentLanguage['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" data-nimg="1" style="color:transparent" src="<?= esc($currentLanguage['flag']) ?>">
+                            <img alt="<?= esc($currentLanguage['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" src="<?= esc($currentLanguage['flag']) ?>">
                             <span><?= esc($currentLanguage['code']) ?></span>
                             <i class="bi bi-caret-down-fill"></i>
                         </div>
@@ -111,7 +111,7 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                             <?php foreach ($languageOptions as $languageOption): ?>
                                 <li>
                                     <a href="<?= esc($languageOption['url']) ?>">
-                                        <img alt="<?= esc($languageOption['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" data-nimg="1" style="color:transparent" src="<?= esc($languageOption['flag']) ?>">
+                                        <img alt="<?= esc($languageOption['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" src="<?= esc($languageOption['flag']) ?>">
                                         <?= esc($languageOption['label']) ?>
                                     </a>
                                 </li>
@@ -215,13 +215,13 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
     <div class="container site-header-container">
         <div class="site-header-shell">
         <a class="header-logo d-lg-none d-block" href="<?= localized_url('/') ?>">
-            <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="<?= base_url('assets/images/logo.svg') ?>">
+            <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo.svg') ?>">
         </a>
 
         <div class="main-menu">
             <div class="mobile-logo-area d-lg-none d-flex align-items-center justify-content-between">
                 <a class="mobile-logo-wrap" href="<?= localized_url('/') ?>">
-                    <img alt="Travel Plus" loading="lazy" width="550" height="220" decoding="async" data-nimg="1" style="color:transparent" src="<?= base_url('assets/images/logo-white.svg') ?>">
+                    <img alt="Travel Plus" loading="lazy" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo-white.svg') ?>">
                 </a>
                 <div class="menu-close-btn"><i class="bi bi-x"></i></div>
             </div>
@@ -326,7 +326,7 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                         <?php foreach ($languageOptions as $languageOption): ?>
                             <li>
                                 <a href="<?= esc($languageOption['url']) ?>">
-                                    <img alt="<?= esc($languageOption['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" data-nimg="1" style="color:transparent" src="<?= esc($languageOption['flag']) ?>">
+                                    <img alt="<?= esc($languageOption['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" src="<?= esc($languageOption['flag']) ?>">
                                     <?= esc($languageOption['label']) ?>
                                 </a>
                             </li>

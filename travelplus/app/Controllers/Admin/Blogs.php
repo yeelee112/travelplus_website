@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Data\LocalizedPathCatalog;
+use App\Services\TextEncodingService;
 use DOMDocument;
 use DOMElement;
 
@@ -325,8 +326,8 @@ class Blogs extends BaseAdminController
         $db->transStart();
 
         $blogPayload = [
-            'category' => trim((string) $post['category']),
-            'author_name' => trim((string) $post['author_name']),
+            'category' => TextEncodingService::repairNullable($post['category'] ?? ''),
+            'author_name' => TextEncodingService::repairNullable($post['author_name'] ?? ''),
             'status' => (string) $post['status'],
             'is_featured' => isset($post['is_featured']) ? 1 : 0,
             'published_at' => $publishedAt,
@@ -366,20 +367,20 @@ class Blogs extends BaseAdminController
 
         $translations = [
             'vi' => [
-                'title' => trim((string) $post['title_vi']),
+                'title' => TextEncodingService::repairNullable($post['title_vi'] ?? ''),
                 'slug' => trim((string) $post['slug_vi']),
-                'excerpt' => trim((string) ($post['excerpt_vi'] ?? '')),
-                'meta_title' => trim((string) ($post['meta_title_vi'] ?? '')),
-                'meta_description' => trim((string) ($post['meta_description_vi'] ?? '')),
-                'content' => $this->sanitizeEditorHtml((string) ($post['content_vi'] ?? '')),
+                'excerpt' => TextEncodingService::repairNullable($post['excerpt_vi'] ?? ''),
+                'meta_title' => TextEncodingService::repairNullable($post['meta_title_vi'] ?? ''),
+                'meta_description' => TextEncodingService::repairNullable($post['meta_description_vi'] ?? ''),
+                'content' => $this->sanitizeEditorHtml(TextEncodingService::repairNullableHtml($post['content_vi'] ?? '')),
             ],
             'en' => [
-                'title' => trim((string) (($post['title_en'] ?? '') ?: $post['title_vi'])),
+                'title' => TextEncodingService::repairNullable(($post['title_en'] ?? '') ?: ($post['title_vi'] ?? '')),
                 'slug' => trim((string) (($post['slug_en'] ?? '') ?: $post['slug_vi'])),
-                'excerpt' => trim((string) (($post['excerpt_en'] ?? '') ?: ($post['excerpt_vi'] ?? ''))),
-                'meta_title' => trim((string) ($post['meta_title_en'] ?? '')),
-                'meta_description' => trim((string) ($post['meta_description_en'] ?? '')),
-                'content' => $this->sanitizeEditorHtml((string) (($post['content_en'] ?? '') ?: ($post['content_vi'] ?? ''))),
+                'excerpt' => TextEncodingService::repairNullable(($post['excerpt_en'] ?? '') ?: ($post['excerpt_vi'] ?? '')),
+                'meta_title' => TextEncodingService::repairNullable($post['meta_title_en'] ?? ''),
+                'meta_description' => TextEncodingService::repairNullable($post['meta_description_en'] ?? ''),
+                'content' => $this->sanitizeEditorHtml(TextEncodingService::repairNullableHtml(($post['content_en'] ?? '') ?: ($post['content_vi'] ?? ''))),
             ],
         ];
 
@@ -510,26 +511,26 @@ class Blogs extends BaseAdminController
         }
 
         return [
-            'category' => (string) ($row['category'] ?? ''),
-            'author_name' => (string) ($row['author_name'] ?? ''),
+            'category' => TextEncodingService::repairNullable($row['category'] ?? ''),
+            'author_name' => TextEncodingService::repairNullable($row['author_name'] ?? ''),
             'thumbnail' => (string) ($row['thumbnail'] ?? ''),
             'cover_image' => (string) ($row['cover_image'] ?? ''),
             'featured_image' => (string) ($row['featured_image'] ?? ''),
             'status' => (string) ($row['status'] ?? 'draft'),
             'is_featured' => (int) ($row['is_featured'] ?? 0),
             'published_at' => $this->toDateTimeLocal((string) ($row['published_at'] ?? '')),
-            'title_vi' => (string) ($row['title_vi'] ?? ''),
+            'title_vi' => TextEncodingService::repairNullable($row['title_vi'] ?? ''),
             'slug_vi' => (string) ($row['slug_vi'] ?? ''),
-            'excerpt_vi' => (string) ($row['excerpt_vi'] ?? ''),
-            'content_vi' => (string) ($row['content_vi'] ?? ''),
-            'meta_title_vi' => (string) ($row['meta_title_vi'] ?? ''),
-            'meta_description_vi' => (string) ($row['meta_description_vi'] ?? ''),
-            'title_en' => (string) ($row['title_en'] ?? ''),
+            'excerpt_vi' => TextEncodingService::repairNullable($row['excerpt_vi'] ?? ''),
+            'content_vi' => TextEncodingService::repairNullableHtml($row['content_vi'] ?? ''),
+            'meta_title_vi' => TextEncodingService::repairNullable($row['meta_title_vi'] ?? ''),
+            'meta_description_vi' => TextEncodingService::repairNullable($row['meta_description_vi'] ?? ''),
+            'title_en' => TextEncodingService::repairNullable($row['title_en'] ?? ''),
             'slug_en' => (string) ($row['slug_en'] ?? ''),
-            'excerpt_en' => (string) ($row['excerpt_en'] ?? ''),
-            'content_en' => (string) ($row['content_en'] ?? ''),
-            'meta_title_en' => (string) ($row['meta_title_en'] ?? ''),
-            'meta_description_en' => (string) ($row['meta_description_en'] ?? ''),
+            'excerpt_en' => TextEncodingService::repairNullable($row['excerpt_en'] ?? ''),
+            'content_en' => TextEncodingService::repairNullableHtml($row['content_en'] ?? ''),
+            'meta_title_en' => TextEncodingService::repairNullable($row['meta_title_en'] ?? ''),
+            'meta_description_en' => TextEncodingService::repairNullable($row['meta_description_en'] ?? ''),
         ];
     }
 

@@ -37,6 +37,9 @@ class Blog extends BaseController
 
         $metaTitle = $t('blog.metaTitle');
         $metaDesc = $t('blog.metaDesc');
+        $metaImage = ! empty($blogs[0]['image'])
+            ? base_url((string) $blogs[0]['image'])
+            : base_url('assets/images/TravelPlus_CompanyProfile.png');
 
         return view('blog/index', [
             'blogs' => $blogs,
@@ -45,6 +48,8 @@ class Blog extends BaseController
             'breadcrumbs' => $breadcrumbs,
             'meta_title' => $metaTitle,
             'meta_desc' => $metaDesc,
+            'meta_image' => $metaImage,
+            'meta_image_alt' => $metaTitle,
             'canonical_url' => $listUrl,
             'alternate_links' => [
                 ['hreflang' => 'vi', 'href' => LocalizedPathCatalog::url('blog', 'vi')],

@@ -159,13 +159,13 @@ class BlogService
     {
         $basePath = $locale === 'en' ? 'travel-inspiration' : 'cam-hung-du-lich';
         $image = (string) ($row['featured_image'] ?: $row['cover_image'] ?: $row['thumbnail'] ?: 'assets/images/home/banner02.jpg');
-        $rawCategory = trim((string) ($row['category'] ?? ''));
+        $rawCategory = TextEncodingService::repair(trim((string) ($row['category'] ?? '')));
 
         return [
             'id' => (int) $row['id'],
             'category_raw' => $rawCategory,
             'category' => $this->translateCategory($rawCategory, $locale),
-            'author' => (string) ($row['author_name'] ?? 'Travel Plus'),
+            'author' => TextEncodingService::repairNullable($row['author_name'] ?? 'Travel Plus'),
             'thumbnail' => (string) ($row['thumbnail'] ?? ''),
             'cover_image' => (string) ($row['cover_image'] ?? ''),
             'featured_image' => (string) ($row['featured_image'] ?? ''),
@@ -173,12 +173,12 @@ class BlogService
             'published_at' => (string) ($row['published_at'] ?? ''),
             'updated_at' => (string) ($row['updated_at'] ?? ''),
             'published_label' => $this->formatPublishedAt((string) ($row['published_at'] ?? '')),
-            'title' => (string) ($row['title'] ?? ''),
+            'title' => TextEncodingService::repairNullable($row['title'] ?? ''),
             'slug' => (string) ($row['slug'] ?? ''),
-            'excerpt' => (string) ($row['excerpt'] ?? ''),
-            'content' => (string) ($row['content'] ?? ''),
-            'meta_title' => (string) ($row['meta_title'] ?? ''),
-            'meta_description' => (string) ($row['meta_description'] ?? ''),
+            'excerpt' => TextEncodingService::repairNullable($row['excerpt'] ?? ''),
+            'content' => TextEncodingService::repairNullableHtml($row['content'] ?? ''),
+            'meta_title' => TextEncodingService::repairNullable($row['meta_title'] ?? ''),
+            'meta_description' => TextEncodingService::repairNullable($row['meta_description'] ?? ''),
             'link' => localized_url($basePath . '/' . (string) ($row['slug'] ?? '')),
         ];
     }
@@ -189,7 +189,9 @@ class BlogService
             return '';
         }
 
-        $normalized = mb_strtolower(trim($category));
+        $normalized = function_exists('mb_strtolower')
+            ? mb_strtolower(trim($category))
+            : strtolower(trim($category));
         $categoryMap = [
             'cam hung du lich' => ['vi' => 'Cảm hứng du lịch', 'en' => 'Travel Inspiration'],
             'cảm hứng du lịch' => ['vi' => 'Cảm hứng du lịch', 'en' => 'Travel Inspiration'],

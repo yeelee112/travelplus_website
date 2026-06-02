@@ -1,104 +1,150 @@
 <?php
 $blog = $blog ?? [];
 $relatedBlogs = $relatedBlogs ?? [];
-$blogImage = ! empty($blog['image']) ? base_url((string) $blog['image']) : base_url('assets/images/home/banner02.jpg');
 $locale = service('request')->getLocale() ?: 'vi';
 $t = static fn(string $key) => lang('Frontend.' . $key, [], $locale);
 $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
+$blogImage = ! empty($blog['image']) ? base_url((string) $blog['image']) : base_url('assets/images/home/banner02.jpg');
+$title = trim((string) ($blog['title'] ?? ''));
+$excerpt = trim((string) ($blog['excerpt'] ?? ''));
+$content = trim((string) ($blog['content'] ?? ''));
+$author = trim((string) ($blog['author'] ?? $t('blog.authorFallback'))) ?: 'Travel Plus';
+$category = trim((string) ($blog['category'] ?? ''));
+$publishedLabel = trim((string) ($blog['published_label'] ?? ''));
+$publishedAt = trim((string) ($blog['published_at'] ?? ''));
+$publishedIso = '';
+$publishedTimestamp = $publishedAt !== '' ? strtotime($publishedAt) : false;
+if ($publishedTimestamp !== false) {
+    $publishedIso = date(DATE_ATOM, $publishedTimestamp);
+}
+$plainContent = preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($content), ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?? '';
+$wordCount = count(preg_split('/\s+/u', trim($plainContent), -1, PREG_SPLIT_NO_EMPTY) ?: []);
+$readMinutes = max(1, (int) ceil($wordCount / 180));
+$labels = $locale === 'en'
+    ? [
+        'published' => 'Published',
+        'by' => 'By',
+        'read' => 'min read',
+        'toc' => 'In this article',
+        'ctaTitle' => 'Plan your next trip with Travel Plus',
+        'ctaDesc' => 'Talk to our team for tours, visa support, MICE programs or a tailor-made itinerary.',
+        'ctaPrimary' => 'Contact Travel Plus',
+        'ctaSecondary' => 'Find tours',
+    ]
+    : [
+        'published' => 'Ngày đăng',
+        'by' => 'Tác giả',
+        'read' => 'phút đọc',
+        'toc' => 'Trong bài viết này',
+        'ctaTitle' => 'Lên kế hoạch chuyến đi cùng Travel Plus',
+        'ctaDesc' => 'Gửi nhu cầu để đội ngũ Travel Plus tư vấn tour, visa, MICE hoặc lịch trình thiết kế riêng.',
+        'ctaPrimary' => 'Liên hệ tư vấn',
+        'ctaSecondary' => 'Tìm tour',
+    ];
 ?>
 
-<div class="breadcrumb-section" style="background-image:linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url('<?= esc($blogImage) ?>')">
+<section class="travelplus-blog-hero" aria-labelledby="blog-title">
     <div class="container">
-        <div class="banner-content">
-            <h1><?= esc((string) ($blog['title'] ?? '')) ?></h1>
-            <ul class="breadcrumb-list">
-                <li><a href="<?= esc(localized_url('/')) ?>"><?= esc($t('blog.home')) ?></a></li>
-                <li><a href="<?= esc($listUrl) ?>"><?= esc($t('blog.listTitle')) ?></a></li>
-                <li><?= esc((string) ($blog['title'] ?? '')) ?></li>
-            </ul>
+        <div class="travelplus-blog-hero-grid">
+            <div class="travelplus-blog-hero-copy">
+                <?php if ($category !== ''): ?>
+                    <a class="travelplus-blog-category" href="<?= esc($listUrl, 'attr') ?>"><?= esc($category) ?></a>
+                <?php endif; ?>
+                <h1 id="blog-title"><?= esc($title) ?></h1>
+                <?php if ($excerpt !== ''): ?>
+                    <p class="travelplus-blog-excerpt"><?= esc($excerpt) ?></p>
+                <?php endif; ?>
+                <ul class="travelplus-blog-meta" aria-label="Article information">
+                    <?php if ($publishedLabel !== ''): ?>
+                        <li>
+                            <i class="bi bi-calendar3"></i>
+                            <span><?= esc($labels['published']) ?>: <time datetime="<?= esc($publishedIso, 'attr') ?>"><?= esc($publishedLabel) ?></time></span>
+                        </li>
+                    <?php endif; ?>
+                    <li>
+                        <i class="bi bi-person-circle"></i>
+                        <span><?= esc($labels['by']) ?> <?= esc($author) ?></span>
+                    </li>
+                    <li>
+                        <i class="bi bi-clock"></i>
+                        <span><?= esc((string) $readMinutes) ?> <?= esc($labels['read']) ?></span>
+                    </li>
+                </ul>
+            </div>
+            <figure class="travelplus-blog-cover">
+                <img src="<?= esc($blogImage, 'attr') ?>" alt="<?= esc($title, 'attr') ?>" width="760" height="500" loading="eager" decoding="async" fetchpriority="high">
+            </figure>
         </div>
     </div>
-</div>
+</section>
 
-<div class="inspiration-details-page pt-100 mb-100">
+<section class="travelplus-blog-detail-wrap">
     <div class="container">
-        <div class="row g-lg-4 gy-5 justify-content-between">
-            <div class="col-xl-8 col-lg-8">
-                <div class="inspiration-details">
-                    <div class="inspiration-image mb-40">
-                        <img alt="<?= esc((string) ($blog['title'] ?? '')) ?>" loading="lazy" decoding="async" width="860" height="520" src="<?= esc($blogImage) ?>">
-                    </div>
+        <div class="travelplus-blog-layout">
+            <article class="travelplus-blog-article" itemscope itemtype="https://schema.org/BlogPosting">
+                <meta itemprop="headline" content="<?= esc($title, 'attr') ?>">
+                <meta itemprop="author" content="<?= esc($author, 'attr') ?>">
+                <?php if ($publishedIso !== ''): ?>
+                    <meta itemprop="datePublished" content="<?= esc($publishedIso, 'attr') ?>">
+                <?php endif; ?>
+                <div class="travelplus-blog-content" itemprop="articleBody">
+                    <?php if ($content !== ''): ?>
+                        <?= $content ?>
+                    <?php elseif ($excerpt !== ''): ?>
+                        <p><?= esc($excerpt) ?></p>
+                    <?php endif; ?>
+                </div>
+            </article>
 
-                    <div class="tag-and-social-area mb-30">
-                        <div class="tag-area">
-                            <h6><?= esc((string) ($blog['category'] ?? '')) ?></h6>
-                            <ul class="tag-list">
-                                <li><span><?= esc((string) ($blog['published_label'] ?? '')) ?></span></li>
-                                <li><span><?= esc((string) ($blog['author'] ?? $t('blog.authorFallback'))) ?></span></li>
-                            </ul>
+            <aside class="travelplus-blog-aside" aria-label="Blog sidebar">
+                <div class="travelplus-blog-side-card travelplus-blog-cta-card">
+                    <span>Travel Plus</span>
+                    <h2><?= esc($labels['ctaTitle']) ?></h2>
+                    <p><?= esc($labels['ctaDesc']) ?></p>
+                    <div class="travelplus-blog-cta-actions">
+                        <a href="<?= esc(\App\Data\LocalizedPathCatalog::url('contact', $locale), 'attr') ?>"><?= esc($labels['ctaPrimary']) ?></a>
+                        <a href="<?= esc(\App\Data\LocalizedPathCatalog::url('search', $locale), 'attr') ?>"><?= esc($labels['ctaSecondary']) ?></a>
+                    </div>
+                </div>
+
+                <?php if ($relatedBlogs !== []): ?>
+                    <div class="travelplus-blog-side-card">
+                        <h2><?= esc($t('blog.relatedPosts')) ?></h2>
+                        <div class="travelplus-blog-related-list">
+                            <?php foreach ($relatedBlogs as $relatedBlog): ?>
+                                <a class="travelplus-blog-related-item" href="<?= esc((string) $relatedBlog['link'], 'attr') ?>">
+                                    <img src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg')), 'attr') ?>" alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="92" height="72" loading="lazy" decoding="async">
+                                    <span>
+                                        <small><?= esc((string) $relatedBlog['published_label']) ?></small>
+                                        <strong><?= esc((string) $relatedBlog['title']) ?></strong>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
                         </div>
                     </div>
-
-                    <?php if (! empty($blog['excerpt'])): ?>
-                        <p class="mb-30"><?= esc((string) $blog['excerpt']) ?></p>
-                    <?php endif; ?>
-
-                    <div class="blog-detail-editor">
-                        <?= $blog['content'] ?? '' ?>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xl-4 col-lg-4">
-                <div class="blog-sidebar-area">
-                    <div class="single-widget mb-30">
-                        <h5 class="widget-title"><?= esc($t('blog.relatedPosts')) ?></h5>
-                        <?php foreach ($relatedBlogs as $relatedBlog): ?>
-                            <div class="recent-post-widget mb-30">
-                                <div class="recent-post-img">
-                                    <a href="<?= esc((string) $relatedBlog['link']) ?>">
-                                        <img alt="<?= esc((string) $relatedBlog['title']) ?>" loading="lazy" decoding="async" width="160" height="110" src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg'))) ?>">
-                                    </a>
-                                </div>
-                                <div class="recent-post-content">
-                                    <a href="<?= esc((string) $relatedBlog['link']) ?>"><?= esc((string) $relatedBlog['published_label']) ?></a>
-                                    <h6><a href="<?= esc((string) $relatedBlog['link']) ?>"><?= esc((string) $relatedBlog['title']) ?></a></h6>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            </div>
+                <?php endif; ?>
+            </aside>
         </div>
 
         <?php if ($relatedBlogs !== []): ?>
-            <div class="related-posts-section pt-40">
-                <div class="row mb-30">
-                    <div class="col-lg-12">
-                        <div class="section-title">
-                            <h3><?= esc($t('blog.moreArticles')) ?></h3>
-                        </div>
-                    </div>
+            <div class="travelplus-blog-more">
+                <div class="travelplus-blog-more-head">
+                    <span><?= esc($t('blog.listTitle')) ?></span>
+                    <h2><?= esc($t('blog.moreArticles')) ?></h2>
                 </div>
-                <div class="row g-4">
+                <div class="travelplus-blog-more-grid">
                     <?php foreach (array_slice($relatedBlogs, 0, 3) as $relatedBlog): ?>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="blog-card2 two">
-                                <div class="blog-img-wrap">
-                                    <a class="blog-img" href="<?= esc((string) $relatedBlog['link']) ?>">
-                                        <img alt="<?= esc((string) $relatedBlog['title']) ?>" loading="lazy" decoding="async" width="420" height="280" src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg'))) ?>">
-                                    </a>
-                                    <a class="blog-category" href="<?= esc((string) $relatedBlog['link']) ?>"><?= esc((string) $relatedBlog['published_label']) ?></a>
-                                </div>
-                                <div class="blog-content">
-                                    <h4><a href="<?= esc((string) $relatedBlog['link']) ?>"><?= esc((string) $relatedBlog['title']) ?></a></h4>
-                                    <p><?= esc((string) $relatedBlog['excerpt']) ?></p>
-                                </div>
-                            </div>
-                        </div>
+                        <a class="travelplus-blog-more-card" href="<?= esc((string) $relatedBlog['link'], 'attr') ?>">
+                            <img src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg')), 'attr') ?>" alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="420" height="280" loading="lazy" decoding="async">
+                            <span><?= esc((string) $relatedBlog['published_label']) ?></span>
+                            <h3><?= esc((string) $relatedBlog['title']) ?></h3>
+                            <?php if (! empty($relatedBlog['excerpt'])): ?>
+                                <p><?= esc((string) $relatedBlog['excerpt']) ?></p>
+                            <?php endif; ?>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             </div>
         <?php endif; ?>
     </div>
-</div>
+</section>

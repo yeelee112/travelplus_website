@@ -110,6 +110,7 @@ return [
     'hero.search.tours' => 'Tours',
     'hero.search.destinationPlaceholder' => 'Enter a country or destination',
     'hero.search.datePlaceholder' => 'Select departure date',
+    'hero.search.dateEmpty' => 'Choose date',
     'hero.search.submit' => 'Search',
 
     'home.featuredTour.title' => 'Featured Destinations',
