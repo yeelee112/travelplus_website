@@ -13,6 +13,8 @@ $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args,
     </div>
 </div>
 
+<?= $this->include('sections/tour-list-filter') ?>
+
 <?php if (((int) (($pagination['total'] ?? 0))) > 0): ?>
     <?= $this->include('sections/tour-list-show') ?>
 <?php else: ?>

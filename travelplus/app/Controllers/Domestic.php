@@ -29,6 +29,9 @@ class Domestic extends BaseController
             'page' => $result['page'],
             'lastPage' => $result['lastPage'],
         ];
+        $data['listingSearch'] = [
+            'tour_type' => 'inbound',
+        ];
         $data['meta_title'] = $t('domestic.metaTitle');
         $data['meta_desc'] = $t('domestic.metaDesc');
         $data['canonical_url'] = LocalizedPathCatalog::url('domestic', $locale);
@@ -92,6 +95,9 @@ class Domestic extends BaseController
             'total' => $result['total'],
             'page' => $result['page'],
             'lastPage' => $result['lastPage'],
+        ];
+        $data['listingSearch'] = [
+            'tour_type' => 'inbound',
         ];
         $activeLocation = $locations[array_key_last($locations)] ?? ['name' => ''];
         $data['meta_title'] = $locale === 'en'

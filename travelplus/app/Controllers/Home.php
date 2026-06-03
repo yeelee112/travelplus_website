@@ -21,12 +21,14 @@ class Home extends BaseController
         $searchUrl = LocalizedPathCatalog::url('search', $locale) . '?q={search_term_string}';
         $metaDesc = $t('home.metaDesc');
         $featuredTours = $tourService->getFeaturedTours($locale, 6);
+        $promotionalTours = $tourService->getPromotionalTours($locale, 4);
         $featuredDestinations = $this->getCuratedFeaturedDestinations($locale);
         $homeTours = $tourService->getHomeTours($locale, 6);
         $homeBlogs = $blogService->getHomeBlogs($locale, 3);
 
         return view('home/index', [
             'featuredTours' => $featuredTours,
+            'promotionalTours' => $promotionalTours,
             'featuredDestinations' => $featuredDestinations,
             'homeTours' => $homeTours,
             'homeBlogs' => $homeBlogs,

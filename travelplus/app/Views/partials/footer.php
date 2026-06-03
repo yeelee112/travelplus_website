@@ -4,6 +4,33 @@ $locale = $request->getLocale() === 'en' ? 'en' : 'vi';
 $totalViews = (new \App\Services\VisitorCounterService())->getTotalViews();
 $offices = \App\Data\OfficeLocationCatalog::getAll($locale);
 
+$footerCopy = [
+    'vi' => [
+        'eyebrow' => 'Travel Plus Vietnam',
+        'ctaTitle' => 'Cần tour, visa hoặc chương trình MICE riêng?',
+        'ctaDesc' => 'Gửi nhu cầu để Travel Plus đề xuất lịch trình, ngân sách và phương án vận hành phù hợp cho gia đình, nhóm bạn hoặc doanh nghiệp.',
+        'ctaPrimary' => 'Liên hệ Travel Plus',
+        'ctaSecondary' => 'Tìm tour',
+        'brandDesc' => 'Travel Plus cung cấp tour nước ngoài, tour trong nước, visa và MICE cho khách cá nhân, gia đình, nhóm bạn và doanh nghiệp.',
+        'contactTitle' => 'Liên hệ nhanh',
+        'officeTitle' => 'Văn phòng Travel Plus',
+        'socialTitle' => 'Kết nối với Travel Plus',
+        'viewLabel' => 'Lượt truy cập',
+    ],
+    'en' => [
+        'eyebrow' => 'Travel Plus Vietnam',
+        'ctaTitle' => 'Need a tour, visa service or custom MICE program?',
+        'ctaDesc' => 'Send your requirements and Travel Plus will recommend the right itinerary, budget and operating plan for families, groups or corporate teams.',
+        'ctaPrimary' => 'Contact Travel Plus',
+        'ctaSecondary' => 'Find tours',
+        'brandDesc' => 'Travel Plus provides outbound tours, domestic tours, visa services and MICE programs for individuals, families, groups and companies.',
+        'contactTitle' => 'Quick contact',
+        'officeTitle' => 'Travel Plus offices',
+        'socialTitle' => 'Connect with Travel Plus',
+        'viewLabel' => 'Total views',
+    ],
+][$locale];
+
 $tourLinks = [
     ['label' => lang('Frontend.footer.link.outbound'), 'url' => \App\Data\LocalizedPathCatalog::url('outbound', $locale)],
     ['label' => lang('Frontend.footer.link.domestic'), 'url' => \App\Data\LocalizedPathCatalog::url('domestic', $locale)],
@@ -25,127 +52,116 @@ $infoLinks = [
     ['label' => lang('Frontend.footer.link.contact'), 'url' => \App\Data\LocalizedPathCatalog::url('contact', $locale)],
     ['label' => lang('Frontend.footer.link.customTour'), 'url' => \App\Data\LocalizedPathCatalog::url('contact', $locale)],
     ['label' => lang('Frontend.footer.link.profile'), 'url' => base_url('assets/images/TravelPlus_CompanyProfile.png')],
-];
-
-$legalLinks = [
     ['label' => lang('Frontend.footer.link.terms'), 'url' => \App\Data\LocalizedPathCatalog::url('legal.terms', $locale)],
     ['label' => lang('Frontend.footer.link.privacy'), 'url' => \App\Data\LocalizedPathCatalog::url('legal.privacy', $locale)],
 ];
+
+$socialLinks = [
+    ['label' => 'Facebook', 'url' => 'https://www.facebook.com/uuthedulich.vietnam', 'icon' => 'bi-facebook'],
+    ['label' => 'YouTube', 'url' => 'https://www.youtube.com/@TravelPlus2023', 'icon' => 'bi-youtube'],
+];
 ?>
-<footer class="footer-section">
+<footer class="travelplus-footer" itemscope itemtype="https://schema.org/TravelAgency">
+    <meta itemprop="name" content="Travel Plus Vietnam">
+    <meta itemprop="url" content="<?= esc(base_url(), 'attr') ?>">
+    <meta itemprop="telephone" content="+84795681568">
+    <meta itemprop="email" content="info@travelplusvn.com">
     <div class="container">
-        <div class="footer-contact-wrap">
-            <div class="inquiry-area">
-                <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-                    <g>
-                        <path d="M35.8703 28.2548L33.7795 22.1697C34.7873 20.1094 35.3199 17.8181 35.3235 15.5126C35.3297 11.5039 33.7788 7.71355 30.9563 4.83988C28.1332 1.96565 24.3714 0.347686 20.3636 0.284193C16.2077 0.218522 12.3015 1.79929 9.36472 4.73596C6.53295 7.56766 4.96231 11.3008 4.9126 15.29C2.12162 17.3914 0.474267 20.6676 0.479681 24.167C0.482282 25.8045 0.850861 27.4323 1.54927 28.9043L0.109064 33.0955C-0.138507 33.816 0.0423371 34.5983 0.581071 35.1371C0.960196 35.5162 1.46005 35.7181 1.9741 35.7181C2.19038 35.7181 2.4092 35.6824 2.62259 35.6091L6.81385 34.1688C8.28584 34.8673 9.91365 35.2358 11.5512 35.2384H11.5687C15.1201 35.2383 18.4213 33.5485 20.515 30.6891C22.6938 30.6317 24.8495 30.1043 26.7983 29.1509L32.8835 31.2419C33.1314 31.3274 33.3918 31.3712 33.654 31.3715C34.2649 31.3715 34.8589 31.1316 35.3095 30.6809C35.9497 30.0407 36.1645 29.1111 35.8703 28.2548Z"></path>
-                        <path d="M26.5002 9.80957H13.7343C13.1426 9.80957 12.6629 10.2893 12.6629 10.881C12.6629 11.4727 13.1426 11.9524 13.7343 11.9524H26.5002C27.092 11.9524 27.5717 11.4727 27.5717 10.881C27.5717 10.2893 27.092 9.80957 26.5002 9.80957ZM26.5002 14.2161H13.7343C13.1426 14.2161 12.6629 14.6959 12.6629 15.2875C12.6629 15.8792 13.1426 16.359 13.7343 16.359H26.5002C27.092 16.359 27.5717 15.8792 27.5717 15.2875C27.5717 14.6959 27.092 14.2161 26.5002 14.2161ZM21.5862 18.6225H13.7342C13.1425 18.6225 12.6628 19.1023 12.6628 19.694C12.6628 20.2857 13.1426 20.7654 13.7342 20.7654H21.5862C22.1779 20.7654 22.6576 20.2856 22.6576 19.694C22.6576 19.1023 22.178 18.6225 21.5862 18.6225Z"></path>
-                    </g>
-                </svg>
-                <div class="content">
-                    <h6><?= esc(lang('Frontend.footer.needHelp')) ?></h6>
-                    <span><?= esc(lang('Frontend.footer.needHelpDesc')) ?></span>
-                </div>
+        <div class="travelplus-footer__cta">
+            <div class="travelplus-footer__cta-copy">
+                <span class="travelplus-footer__eyebrow"><?= esc($footerCopy['eyebrow']) ?></span>
+                <h2><?= esc($footerCopy['ctaTitle']) ?></h2>
+                <p><?= esc($footerCopy['ctaDesc']) ?></p>
             </div>
-            <ul class="contact-area">
-                <li class="single-contact">
-                    <div class="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 100 100"><g><path d="m90.99 16.75H9.01l37.98 32.416a4.638 4.638 0 0 0 6.02 0zM69 48.037l28.5 28.5V23.666zM46.987 61.684l-8.767-7.466L9.188 83.25h81.624L61.729 54.218l-8.721 7.46a4.638 4.638 0 0 1-6.021.006zM2.5 23.666v52.82l28.5-28.5z" fill="#009CDE"></path></g></svg>
-                    </div>
-                    <div class="content">
-                        <span><?= esc(lang('Frontend.footer.email')) ?></span>
-                        <a href="mailto:info@travelplusvn.com">info@travelplusvn.com</a>
-                    </div>
-                </li>
-                <li class="single-contact">
-                    <div class="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 513.64 513.64"><g><path d="m499.66 376.96-71.68-71.68c-25.6-25.6-69.12-15.359-79.36 17.92-7.68 23.041-33.28 35.841-56.32 30.72-51.2-12.8-120.32-79.36-133.12-133.12-7.68-23.041 7.68-48.641 30.72-56.32 33.28-10.24 43.52-53.76 17.92-79.36l-71.68-71.68c-20.48-17.92-51.2-17.92-69.12 0L18.38 62.08c-48.64 51.2 5.12 186.88 125.44 307.2s256 176.641 307.2 125.44l48.64-48.64c17.921-20.48 17.921-51.2 0-69.12z" fill="#009CDE"></path></g></svg>
-                    </div>
-                    <div class="content">
-                        <span><?= esc(lang('Frontend.footer.hotline')) ?></span>
-                        <a href="tel:+84795681568">+84 79 568 1 568</a>
-                    </div>
-                </li>
-            </ul>
+            <div class="travelplus-footer__cta-actions">
+                <a class="travelplus-footer__button travelplus-footer__button--primary" href="<?= esc(\App\Data\LocalizedPathCatalog::url('contact', $locale)) ?>">
+                    <?= esc($footerCopy['ctaPrimary']) ?>
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+                <a class="travelplus-footer__button travelplus-footer__button--ghost" href="<?= esc(\App\Data\LocalizedPathCatalog::url('search', $locale)) ?>">
+                    <?= esc($footerCopy['ctaSecondary']) ?>
+                </a>
+            </div>
         </div>
-        <svg class="divider" width="1320" height="6" viewBox="0 0 1320 6" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 2.5L0 0.113249V5.88675L5 3.5V2.5ZM1315 3.5L1320 5.88675V0.113249L1315 2.5V3.5ZM4.5 3.5H1315.5V2.5H4.5V3.5Z"></path>
-        </svg>
-        <div class="footer-menu-wrap">
-            <div class="row gy-md-4 gy-5">
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="footer-logo-and-addition-info">
-                        <a class="footer-logo" href="<?= localized_url('/') ?>" aria-label="Travel Plus homepage">
-                            <img src="<?= base_url('assets/images/logo.svg') ?>" alt="Travel Plus" loading="lazy" decoding="async" width="240" height="96">
+
+        <div class="travelplus-footer__grid">
+            <div class="travelplus-footer__brand">
+                <a class="travelplus-footer__logo" href="<?= localized_url('/') ?>" aria-label="Travel Plus homepage" itemprop="url">
+                    <img src="<?= base_url('assets/images/logo.svg') ?>" alt="Travel Plus" loading="lazy" decoding="async" width="240" height="96" itemprop="logo">
+                </a>
+                <p><?= esc($footerCopy['brandDesc']) ?></p>
+                <div class="travelplus-footer__contact" aria-label="<?= esc($footerCopy['contactTitle']) ?>">
+                    <a href="tel:+84795681568"><i class="bi bi-telephone"></i> +84 79 568 1 568</a>
+                    <a href="mailto:info@travelplusvn.com"><i class="bi bi-envelope"></i> info@travelplusvn.com</a>
+                </div>
+                <div class="travelplus-footer__socials" aria-label="<?= esc($footerCopy['socialTitle']) ?>">
+                    <?php foreach ($socialLinks as $social): ?>
+                        <a href="<?= esc($social['url']) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= esc($social['label']) ?>">
+                            <i class="bi <?= esc($social['icon']) ?>"></i>
                         </a>
-                        <p class="mt-3 mb-4"><?= esc(lang('Frontend.footer.aboutDesc')) ?></p>
-                        <?php foreach ($offices as $office): ?>
-                            <div class="address-area">
-                                <span><?= esc($office['title']) ?></span>
-                                <a href="<?= esc($office['map_url']) ?>" target="_blank"><?= esc($office['address']) ?></a>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 d-flex justify-content-lg-end">
-                    <div class="footer-widget">
-                        <div class="widget-title">
-                            <h5><?= esc(lang('Frontend.footer.title.tours')) ?></h5>
-                        </div>
-                        <ul class="widget-list">
-                            <?php foreach ($tourLinks as $link): ?>
-                                <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 d-flex justify-content-lg-end">
-                    <div class="footer-widget">
-                        <div class="widget-title">
-                            <h5><?= esc(lang('Frontend.footer.title.services')) ?></h5>
-                        </div>
-                        <ul class="widget-list">
-                            <?php foreach ($serviceLinks as $link): ?>
-                                <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 d-flex justify-content-lg-end">
-                    <div class="footer-widget">
-                        <div class="widget-title">
-                            <h5><?= esc(lang('Frontend.footer.title.contactLegal')) ?></h5>
-                        </div>
-                        <ul class="widget-list">
-                            <?php foreach ($infoLinks as $link): ?>
-                                <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
-                            <?php endforeach; ?>
-                            <?php foreach ($legalLinks as $link): ?>
-                                <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
+
+            <nav class="travelplus-footer__nav" aria-label="<?= esc(lang('Frontend.footer.title.tours')) ?>">
+                <h3><?= esc(lang('Frontend.footer.title.tours')) ?></h3>
+                <ul>
+                    <?php foreach ($tourLinks as $link): ?>
+                        <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
+                    <?php endforeach; ?>
+                </ul>
+            </nav>
+
+            <nav class="travelplus-footer__nav" aria-label="<?= esc(lang('Frontend.footer.title.services')) ?>">
+                <h3><?= esc(lang('Frontend.footer.title.services')) ?></h3>
+                <ul>
+                    <?php foreach ($serviceLinks as $link): ?>
+                        <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
+                    <?php endforeach; ?>
+                </ul>
+            </nav>
+
+            <div class="travelplus-footer__side">
+                <nav class="travelplus-footer__nav" aria-label="<?= esc(lang('Frontend.footer.title.contactLegal')) ?>">
+                    <h3><?= esc(lang('Frontend.footer.title.contactLegal')) ?></h3>
+                    <ul>
+                        <?php foreach ($infoLinks as $link): ?>
+                            <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </nav>
+            </div>
         </div>
+
+        <?php if ($offices !== []): ?>
+            <div class="travelplus-footer__offices">
+                <h3><?= esc($footerCopy['officeTitle']) ?></h3>
+                <div class="travelplus-footer__office-grid">
+                    <?php foreach ($offices as $office): ?>
+                        <a class="travelplus-footer__office" href="<?= esc($office['map_url']) ?>" target="_blank" rel="noopener noreferrer" itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
+                            <strong><?= esc($office['title']) ?></strong>
+                            <span itemprop="streetAddress"><?= esc($office['address']) ?></span>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
-    <div class="footer-bottom">
+
+    <div class="travelplus-footer__bottom">
         <div class="container">
-            <div class="copyright-and-payment-method-area">
+            <div class="travelplus-footer__bottom-inner">
                 <p><?= esc(lang('Frontend.footer.copyright')) ?></p>
-                <div class="payment-method-area footer-view-metric">
-                    <div class="footer-view-badge" aria-label="<?= esc(lang('Frontend.footer.views')) ?>">
-                        <span class="footer-view-icon"><i class="bi bi-eye"></i></span>
-                        <div class="footer-view-content">
-                            <small><?= esc(lang('Frontend.footer.views')) ?></small>
-                            <strong><?= esc(number_format($totalViews, 0, ',', '.')) ?></strong>
-                        </div>
-                    </div>
+                <div class="travelplus-footer__views" aria-label="<?= esc($footerCopy['viewLabel']) ?>">
+                    <i class="bi bi-eye"></i>
+                    <span><?= esc($footerCopy['viewLabel']) ?>:</span>
+                    <strong><?= esc(number_format($totalViews, 0, ',', '.')) ?></strong>
                 </div>
             </div>
         </div>
     </div>
 </footer>
+
 <div class="progress-wrap" id="progressWrap">
     <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
         <path id="progressPath" d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98"></path>

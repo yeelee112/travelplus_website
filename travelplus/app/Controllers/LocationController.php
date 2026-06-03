@@ -93,6 +93,9 @@ class LocationController extends BaseController
             'page' => $result['page'],
             'lastPage' => $result['lastPage'],
         ];
+        $data['listingSearch'] = [
+            'tour_type' => 'outbound',
+        ];
         $titleTemplate = self::LOCATION_TITLE_TEMPLATES[$locale] ?? self::LOCATION_TITLE_TEMPLATES['vi'];
         $data['meta_title'] = sprintf($titleTemplate, (string) $activeLocation['name']);
         $data['meta_desc'] = $t('location.metaDesc', [(string) $activeLocation['name']]);

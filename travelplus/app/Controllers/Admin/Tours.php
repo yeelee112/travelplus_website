@@ -353,6 +353,10 @@ class Tours extends BaseAdminController
             'duration_nights' => (int) $post['duration_nights'],
             'thumbnail' => trim((string) ($post['thumbnail'] ?? '')),
             'is_featured' => isset($post['is_featured']) ? 1 : 0,
+            'is_promotion' => isset($post['is_promotion']) ? 1 : 0,
+            'promotion_badge' => trim((string) ($post['promotion_badge'] ?? '')),
+            'promotion_ends_at' => $this->nullableDateTime($post['promotion_ends_at'] ?? null),
+            'promotion_sort' => (int) ($post['promotion_sort'] ?? 0),
             'status' => $post['status'] ?? 'draft',
             'updated_at' => $now,
             'sku' => trim((string) ($post['sku'] ?? '')),
@@ -749,6 +753,10 @@ class Tours extends BaseAdminController
             'thumbnail' => $tour['thumbnail'] ?? '',
             'status' => $tour['status'] ?? 'draft',
             'is_featured' => (int) ($tour['is_featured'] ?? 0),
+            'is_promotion' => (int) ($tour['is_promotion'] ?? 0),
+            'promotion_badge' => $tour['promotion_badge'] ?? '',
+            'promotion_ends_at' => $this->formatDateTimeLocal($tour['promotion_ends_at'] ?? ''),
+            'promotion_sort' => $tour['promotion_sort'] ?? 0,
             'departure_location_id' => $tour['departure_location_id'] ?? '',
             'primary_destination_id' => $tour['primary_destination_id'] ?? '',
             'name_vi' => $translationMap['vi']['name'] ?? '',
@@ -790,6 +798,7 @@ class Tours extends BaseAdminController
             'duration_nights' => 4,
             'max_travelers' => 15,
             'status' => 'draft',
+            'promotion_sort' => 0,
             'departure_status' => 'open',
             'departures' => [$this->defaultDepartureRow()],
             'destinations' => [$this->defaultDestinationRow('outbound')],
@@ -1136,6 +1145,42 @@ class Tours extends BaseAdminController
         }
 
         return (int) $value;
+    }
+
+    private function nullableDateTime($value): ?string
+    {
+        $value = trim((string) ($value ?? ''));
+
+        if ($value === '') {
+            return null;
+        }
+
+        $formats = ['Y-m-d\TH:i', 'Y-m-d H:i:s', 'Y-m-d H:i'];
+
+        foreach ($formats as $format) {
+            $date = \DateTime::createFromFormat($format, $value);
+
+            if ($date instanceof \DateTime) {
+                return $date->format('Y-m-d H:i:s');
+            }
+        }
+
+        $timestamp = strtotime($value);
+
+        return $timestamp === false ? null : date('Y-m-d H:i:s', $timestamp);
+    }
+
+    private function formatDateTimeLocal($value): string
+    {
+        $value = trim((string) ($value ?? ''));
+
+        if ($value === '') {
+            return '';
+        }
+
+        $timestamp = strtotime($value);
+
+        return $timestamp === false ? '' : date('Y-m-d\TH:i', $timestamp);
     }
 
     private function slugify(string $value): string

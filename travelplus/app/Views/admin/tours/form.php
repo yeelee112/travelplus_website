@@ -232,6 +232,15 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
                         <span class="form-check-label">Featured tour</span>
                     </label>
                 </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <label class="form-check">
+                        <input type="checkbox" name="is_promotion" value="1" class="form-check-input" <?= (int) $fv('is_promotion') === 1 ? 'checked' : '' ?>>
+                        <span class="form-check-label">Show in home promotion</span>
+                    </label>
+                </div>
+                <div class="col-md-3"><label>Promotion badge</label><input name="promotion_badge" class="form-control" value="<?= esc($fv('promotion_badge', 'Tour khuyến mãi')) ?>"></div>
+                <div class="col-md-3"><label>Promotion ends at</label><input type="datetime-local" name="promotion_ends_at" class="form-control" value="<?= esc($fv('promotion_ends_at')) ?>"></div>
+                <div class="col-md-3"><label>Promotion sort</label><input type="number" name="promotion_sort" class="form-control" value="<?= esc($fv('promotion_sort', '0')) ?>"></div>
             </div>
             </section>
 

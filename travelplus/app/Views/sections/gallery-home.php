@@ -1,32 +1,58 @@
-<?php $blogListUrl = \App\Data\LocalizedPathCatalog::url('blog', service('request')->getLocale() === 'en' ? 'en' : 'vi'); ?>
-<div class="home-page__gallery mb-100">
+<?php
+$locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
+$blogListUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
+$copy = $locale === 'en'
+    ? [
+        'eyebrow' => 'Travel moments',
+        'title' => 'A glimpse of destinations and experiences with Travel Plus',
+        'desc' => 'From city breaks and nature routes to corporate programs, these moments show the kind of journeys Travel Plus designs and operates.',
+        'cta' => 'Read travel inspiration',
+    ]
+    : [
+        'eyebrow' => 'Khoảnh khắc hành trình',
+        'title' => 'Hình ảnh điểm đến và trải nghiệm cùng Travel Plus',
+        'desc' => 'Từ city break, thiên nhiên đến chương trình doanh nghiệp, mỗi hình ảnh gợi mở cách Travel Plus thiết kế và vận hành hành trình.',
+        'cta' => 'Xem cảm hứng du lịch',
+    ];
+$images = [
+    ['src' => 'assets/images/gallery-1.jpg', 'alt' => 'Travel Plus city travel experience', 'wide' => true],
+    ['src' => 'assets/images/gallery-3.jpg', 'alt' => 'Travel Plus mountain and lake itinerary', 'wide' => false],
+    ['src' => 'assets/images/gallery-4.jpg', 'alt' => 'Travel Plus group travel moment', 'wide' => false],
+    ['src' => 'assets/images/gallery-5.jpg', 'alt' => 'Travel Plus curated destination', 'wide' => false],
+    ['src' => 'assets/images/gallery-6.jpg', 'alt' => 'Travel Plus travel detail', 'wide' => false],
+];
+?>
+
+<section class="home-page__gallery home-section home-section--white" aria-labelledby="home-gallery-title">
     <div class="container">
-        <div class="row gy-md-4 gy-5">
-            <div class="col-lg-3 wow animate fadeInLeft" data-wow-delay="200ms" data-wow-duration="1500ms">
-                <div class="section-title">
-                    <h2><?= esc(lang('Frontend.home.gallery.title')) ?></h2>
-                    <p><?= esc(lang('Frontend.home.gallery.desc')) ?></p>
-                    <a class="primary-btn1 two black-bg" href="<?= esc($blogListUrl) ?>">
-                        <span><?= esc(lang('Frontend.home.gallery.cta')) ?><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z"></path></svg></span>
-                        <span><?= esc(lang('Frontend.home.gallery.cta')) ?><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z"></path></svg></span>
-                    </a>
-                </div>
+        <div class="home-section-head">
+            <div>
+                <span><?= esc($copy['eyebrow']) ?></span>
+                <h2 id="home-gallery-title"><?= esc($copy['title']) ?></h2>
+                <p><?= esc($copy['desc']) ?></p>
             </div>
-            <div class="col-lg-9 col-md-12">
-                <div class="home-page__gallery-grid">
-                    <div class="lg-react-element row g-2">
-                        <div class="col-md-7 mt-70">
-                            <div class="home-page__gallery-item justify-content-md-end"><a href="<?= esc(base_url('assets/images/gallery-6.jpg')) ?>" data-fancybox="gallery-01" class="gallery-item" aria-label="Xem ảnh thư viện Travel Plus 1"><img alt="Thư viện Travel Plus 1" loading="lazy" width="240" height="220" decoding="async" src="<?= base_url('assets/images/gallery-6.jpg') ?>"></a></div>
-                            <div class="home-page__gallery-item justify-content-md-end"><a href="<?= esc(base_url('assets/images/gallery-1.jpg')) ?>" data-fancybox="gallery-01" class="gallery-item" aria-label="Xem ảnh thư viện Travel Plus 2"><img alt="Thư viện Travel Plus 2" loading="lazy" width="550" height="220" decoding="async" src="<?= base_url('assets/images/gallery-1.jpg') ?>"></a></div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="home-page__gallery-item home-page__gallery-item--pair"><a href="<?= esc(base_url('assets/images/gallery-3.jpg')) ?>" data-fancybox="gallery-01" class="gallery-item" aria-label="Xem ảnh thư viện Travel Plus 3"><img alt="Thư viện Travel Plus 3" loading="lazy" width="550" height="220" decoding="async" src="<?= base_url('assets/images/gallery-3.jpg') ?>"></a><a href="<?= esc(base_url('assets/images/gallery-5.jpg')) ?>" data-fancybox="gallery-01" class="gallery-item" aria-label="Xem ảnh thư viện Travel Plus 4"><img alt="Thư viện Travel Plus 4" loading="lazy" width="550" height="220" decoding="async" src="<?= base_url('assets/images/gallery-5.jpg') ?>"></a></div>
-                            <div class="home-page__gallery-item"><a href="<?= esc(base_url('assets/images/gallery-4.jpg')) ?>" data-fancybox="gallery-01" class="gallery-item" aria-label="Xem ảnh thư viện Travel Plus 5"><img alt="Thư viện Travel Plus 5" loading="lazy" width="350" height="220" decoding="async" src="<?= base_url('assets/images/gallery-4.jpg') ?>"></a></div>
-                        </div>
-                    </div>
-                    <div class="home-page__gallery-mark"><svg width="46" height="46" viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg"><path d="M18.6771 27.9289C18.6799 27.9291 18.6826 27.9299 18.6854 27.93C18.6912 27.9301 18.6969 27.9323 18.7027 27.9323L18.7033 27.9322L18.7039 27.9323C18.7076 27.9323 18.7112 27.9309 18.7149 27.9309C18.73 27.931 18.7445 27.9331 18.7596 27.9331H18.76C23.336 27.9331 27.0588 24.2103 27.0588 19.6342C27.0588 15.058 23.336 11.3352 18.76 11.3352C18.7514 11.3352 18.743 11.3365 18.7344 11.3365C18.724 11.336 18.7136 11.3375 18.7032 11.3375C18.6833 11.3376 18.6634 11.3386 18.6435 11.3406C18.6321 11.3417 18.6206 11.3411 18.6092 11.3428C14.1032 11.4244 10.461 15.1088 10.461 19.6342C10.461 24.1823 14.1395 27.8837 18.6771 27.9289ZM12.3046 22.4714H14.1902C14.6282 23.9014 15.3929 25.2074 16.4381 26.2893C14.5894 25.6422 13.0899 24.251 12.3046 22.4714ZM25.8155 19.6341C25.8155 20.1829 25.7462 20.715 25.6271 21.2282H23.5043C23.5913 20.7026 23.6407 20.1657 23.6407 19.6187C23.6407 19.0831 23.5924 18.5566 23.5073 18.0404H25.6273C25.7463 18.5535 25.8155 19.0854 25.8155 19.6341ZM22.3975 19.6495C22.3975 20.1865 22.346 20.7143 22.2481 21.2283H19.3813V18.0405H22.2454C22.3467 18.5708 22.3977 19.1096 22.3975 19.6495ZM15.5035 22.4714H18.1382V26.1577C16.9203 25.1847 16.0188 23.9112 15.5035 22.4714ZM19.3813 26.0619V22.4713H21.9064C21.408 23.8621 20.5437 25.0999 19.3813 26.0619ZM19.3813 16.7972V13.2064C20.5413 14.1667 21.4044 15.4031 21.9033 16.7972H19.3813ZM18.1382 13.1105V16.7972H15.5001C16.0147 15.3608 16.9175 14.0853 18.1382 13.1105ZM18.1382 18.0404V21.2282H15.1611C15.0598 20.6977 15.0088 20.1588 15.009 19.6187C15.009 19.0819 15.0605 18.5541 15.1583 18.0404H18.1382ZM13.8993 21.2282H11.8926C11.7735 20.715 11.7042 20.1829 11.7042 19.6341C11.7042 19.0853 11.7734 18.5534 11.8925 18.0404H13.9023C13.8153 18.5658 13.7659 19.1026 13.7659 19.6494C13.7659 20.1852 13.8144 20.7119 13.8993 21.2282ZM20.8993 26.3562C21.9727 25.2669 22.7666 23.934 23.213 22.4713H25.2151C24.4038 24.3099 22.8326 25.7393 20.8993 26.3562ZM25.2153 16.7972H23.2165C22.7691 15.3343 21.9744 14.0014 20.9001 12.9123C22.8332 13.5293 24.4041 14.9588 25.2153 16.7972ZM16.4388 12.9787C15.3958 14.0589 14.632 15.364 14.1934 16.7972H12.3044C13.0898 15.0173 14.5896 13.6258 16.4388 12.9787ZM40.6427 8.16075C40.2167 7.33518 39.4976 6.72613 38.6178 6.44527L18.9497 0.165376C18.0703 -0.116284 17.131 -0.0361433 16.3055 0.390345C15.4801 0.816114 14.8709 1.53522 14.5901 2.41497L13.2847 6.50277H8.43676C6.5238 6.50277 4.96753 8.05923 4.96753 9.97218V42.531C4.96753 44.444 6.5238 46 8.43676 46H29.0829C30.9959 46 32.5522 44.444 32.5522 42.531V36.8481L40.8675 10.805C41.1483 9.92564 41.0686 8.98632 40.6427 8.16075ZM31.3089 42.531C31.3089 43.7585 30.3103 44.7568 29.0829 44.7568H8.43676C7.20931 44.7568 6.21079 43.7585 6.21079 42.531V9.97218C6.21079 8.74473 7.2094 7.74603 8.43676 7.74603H29.0829C30.3104 7.74603 31.3089 8.74482 31.3089 9.97218V42.531ZM39.6833 10.4271L32.5522 32.7615V9.97218C32.5522 8.05923 30.9959 6.50277 29.0829 6.50277H14.5894L15.7741 2.79304C15.954 2.22972 16.3452 1.76873 16.8755 1.49479C17.4057 1.22122 18.0078 1.16983 18.5718 1.34952L38.2398 7.6295C38.8031 7.80955 39.2643 8.20055 39.5379 8.73108C39.8115 9.26116 39.8632 9.86374 39.6833 10.4271ZM27.1446 32.7388C27.1446 32.9036 27.0791 33.0617 26.9626 33.1783C26.846 33.2949 26.6879 33.3604 26.523 33.3604H10.9964C10.8334 33.3576 10.6779 33.2909 10.5636 33.1746C10.4493 33.0584 10.3853 32.9018 10.3853 32.7388C10.3853 32.5757 10.4493 32.4192 10.5636 32.3029C10.6779 32.1866 10.8334 32.1199 10.9964 32.1171H26.5231C26.6047 32.1171 26.6856 32.1332 26.761 32.1645C26.8364 32.1957 26.9049 32.2415 26.9626 32.2992C27.0204 32.3569 27.0661 32.4255 27.0974 32.5009C27.1286 32.5763 27.1447 32.6571 27.1446 32.7388ZM27.1446 37.1267C27.1446 37.2916 27.0791 37.4497 26.9626 37.5663C26.846 37.6828 26.6879 37.7483 26.523 37.7484H10.9964C10.8334 37.7456 10.6779 37.6789 10.5636 37.5626C10.4493 37.4463 10.3853 37.2898 10.3853 37.1267C10.3853 36.9637 10.4493 36.8071 10.5636 36.6909C10.6779 36.5746 10.8334 36.5079 10.9964 36.5051H26.5231C26.688 36.5051 26.846 36.5707 26.9626 36.6872C27.0791 36.8038 27.1446 36.9619 27.1446 37.1267ZM23.623 41.5148C23.623 41.6796 23.5575 41.8377 23.4409 41.9543C23.3244 42.0709 23.1663 42.1364 23.0014 42.1364H14.5181C14.3551 42.1336 14.1996 42.0669 14.0853 41.9507C13.971 41.8344 13.9069 41.6778 13.9069 41.5148C13.9069 41.3517 13.971 41.1952 14.0853 41.0789C14.1996 40.9626 14.3551 40.8959 14.5181 40.8932H23.0014C23.1663 40.8932 23.3244 40.9586 23.441 41.0752C23.5576 41.1918 23.623 41.3499 23.623 41.5148Z"></path></svg></div>
-                </div>
-            </div>
+            <a class="home-section-link" href="<?= esc($blogListUrl, 'attr') ?>">
+                <?= esc($copy['cta']) ?>
+                <i class="bi bi-arrow-up-right"></i>
+            </a>
+        </div>
+
+        <div class="home-gallery-grid">
+            <?php foreach ($images as $image): ?>
+                <a
+                    class="home-gallery-item <?= ! empty($image['wide']) ? 'home-gallery-item--wide' : '' ?>"
+                    href="<?= esc(base_url((string) $image['src']), 'attr') ?>"
+                    data-fancybox="gallery-01"
+                    aria-label="<?= esc((string) $image['alt'], 'attr') ?>">
+                    <img
+                        src="<?= esc(base_url((string) $image['src']), 'attr') ?>"
+                        alt="<?= esc((string) $image['alt'], 'attr') ?>"
+                        width="<?= ! empty($image['wide']) ? '720' : '360' ?>"
+                        height="280"
+                        loading="lazy"
+                        decoding="async">
+                </a>
+            <?php endforeach; ?>
         </div>
     </div>
-</div>
+</section>

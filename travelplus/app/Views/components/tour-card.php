@@ -1,74 +1,132 @@
 <?php
-$locale = service('request')->getLocale() ?: 'vi';
+$locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
-$title = (string) ($tour['title'] ?? '');
-$link = (string) ($tour['link'] ?? '#');
-$image = (string) ($tour['image'] ?? '');
-$badge = $tour['badge'] ?? null;
-$locationName = (string) ($tour['continent'] ?? '');
-$locationLink = (string) ($tour['continent_link'] ?? '#');
-$durationLabel = (string) ($tour['duration']['label'] ?? trim(($tour['duration']['days'] ?? '') . ' ' . $t('tour.duration.days') . ' ' . ($tour['duration']['nights'] ?? '') . ' ' . $t('tour.duration.nights')));
-$departureLabel = (string) ($tour['departure'] ?? '');
-$priceLabel = (string) ($tour['price']['label'] ?? '');
+
+$copy = [
+    'vi' => [
+        'domestic' => 'Tour trong nước',
+        'outbound' => 'Tour nước ngoài',
+        'routeFallback' => 'Điểm đến đang cập nhật',
+        'duration' => 'Thời lượng',
+        'flightFrom' => 'Bay từ',
+        'departure' => 'Khởi hành',
+        'scheduleUpdating' => 'Đang cập nhật lịch',
+        'pricePrefix' => 'Giá từ',
+    ],
+    'en' => [
+        'domestic' => 'Domestic tour',
+        'outbound' => 'Outbound tour',
+        'routeFallback' => 'Destination updating',
+        'duration' => 'Duration',
+        'flightFrom' => 'From',
+        'departure' => 'Departure',
+        'scheduleUpdating' => 'Schedule updating',
+        'pricePrefix' => 'From',
+    ],
+][$locale];
+
+$title = trim((string) ($tour['title'] ?? ''));
+$link = trim((string) ($tour['link'] ?? '#'));
+$image = trim((string) ($tour['image'] ?? '')) ?: base_url('assets/images/home/banner02.jpg');
+$badge = trim((string) ($tour['badge'] ?? ''));
+$promotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
+$promotionBadge = trim((string) ($promotion['badge'] ?? ''));
+$isPromotion = ! empty($promotion['is_active']);
+$badgeText = $isPromotion && $promotionBadge !== '' ? $promotionBadge : $badge;
+$tourType = (string) ($tour['tour_type'] ?? '');
+$typeLabel = $tourType === 'inbound' ? $copy['domestic'] : $copy['outbound'];
+$locationName = trim((string) ($tour['continent'] ?? '')) ?: $copy['routeFallback'];
+$locationLink = trim((string) ($tour['continent_link'] ?? '#')) ?: '#';
+$departureFrom = trim((string) ($tour['departure_from'] ?? ''));
+$durationLabel = trim((string) ($tour['duration']['label'] ?? ''));
+
+if ($durationLabel === '') {
+    $days = (int) ($tour['duration']['days'] ?? 0);
+    $nights = (int) ($tour['duration']['nights'] ?? 0);
+    $durationLabel = $days > 0
+        ? trim($days . ' ' . $t('tour.duration.days') . ' ' . $nights . ' ' . $t('tour.duration.nights'))
+        : '';
+}
+
+$departureLabel = trim((string) ($tour['departure'] ?? ''));
+$priceLabel = trim((string) ($tour['price']['label'] ?? ''));
+$priceAmount = (float) ($tour['price']['amount'] ?? 0);
+$priceCurrency = trim((string) ($tour['price']['currency'] ?? 'VND')) ?: 'VND';
+$ariaLabel = $title !== '' ? $t('tourCard.viewDetails', [$title]) : $t('tourCard.cta');
 ?>
 
-<div class="package-card">
-    <div class="package-img-wrap">
-        <a class="package-img" href="<?= esc($link) ?>" aria-label="<?= esc($t('tourCard.viewDetails', [$title])) ?>">
-            <img src="<?= esc($image) ?>" alt="<?= esc($title) ?>" loading="lazy" decoding="async" width="420" height="280">
+<article class="package-card tp-tour-card<?= $isPromotion ? ' tp-tour-card--promo' : '' ?>" itemscope itemtype="https://schema.org/TouristTrip">
+    <meta itemprop="name" content="<?= esc($title, 'attr') ?>">
+    <meta itemprop="url" content="<?= esc($link, 'attr') ?>">
+    <meta itemprop="image" content="<?= esc($image, 'attr') ?>">
+
+    <div class="package-img-wrap tp-tour-card__media">
+        <a class="package-img tp-tour-card__image" href="<?= esc($link, 'attr') ?>" aria-label="<?= esc($ariaLabel, 'attr') ?>">
+            <img src="<?= esc($image, 'attr') ?>" alt="<?= esc($title, 'attr') ?>" loading="lazy" decoding="async" width="420" height="280">
         </a>
 
-        <?php if (! empty($badge)): ?>
-            <div class="batch"><span><?= esc($badge) ?></span></div>
-        <?php endif; ?>
+        <div class="tp-tour-card__media-top">
+            <?php if ($badgeText !== ''): ?>
+                <span class="tp-tour-card__badge"><?= esc($badgeText) ?></span>
+            <?php endif; ?>
+            <span class="tp-tour-card__type"><?= esc($typeLabel) ?></span>
+        </div>
     </div>
-    <div class="h-100">
-        <div class="package-content d-flex flex-column">
-            <h5 class="clamp-2">
-                <a href="<?= esc($link) ?>"><?= esc($title) ?></a>
-            </h5>
 
-            <div class="location-and-time">
-                <div class="location">
-                    <i class="bi bi-geo-alt"></i>
-                    <a href="<?= esc($locationLink) ?>"><?= esc($locationName) ?></a>
-                </div>
-                <svg class="arrow" width="25" height="6" viewBox="0 0 25 6" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0 3L5 5.88675V0.113249L0 3ZM25 3L20 0.113249V5.88675L25 3ZM4.5 3.5H20.5V2.5H4.5V3.5Z"></path>
-                </svg>
-                <span><?= esc($durationLabel) ?></span>
+    <div class="h-100">
+        <div class="package-content tp-tour-card__body">
+            <div class="tp-tour-card__meta">
+                <a class="tp-tour-card__route" href="<?= esc($locationLink, 'attr') ?>">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span><?= esc($locationName) ?></span>
+                </a>
+                <?php if ($durationLabel !== ''): ?>
+                    <span class="tp-tour-card__chip">
+                        <i class="bi bi-clock"></i>
+                        <?= esc($durationLabel) ?>
+                    </span>
+                <?php endif; ?>
             </div>
 
-            <?php if ($departureLabel !== ''): ?>
-                <div class="location-and-time mb-3">
-                    <div class="location">
-                        <i class="bi bi-calendar"></i>
-                        <a href="<?= esc($link) ?>"><?= esc($t('tourCard.departureDate')) ?></a>
-                        <span><?= esc($departureLabel) ?></span>
-                    </div>
-                </div>
-            <?php endif; ?>
+            <h3 class="tp-tour-card__title clamp-2" itemprop="name">
+                <a href="<?= esc($link, 'attr') ?>" itemprop="url"><?= esc($title) ?></a>
+            </h3>
 
-            <div class="btn-and-price-area mt-auto">
-                <div class="price-area">
-                    <h6><?= esc($t('tourCard.priceFrom')) ?></h6>
-                    <span><?= esc($priceLabel) ?></span>
+            <div class="tp-tour-card__schedule">
+                <div class="tp-tour-card__schedule-item">
+                    <span>
+                        <i class="bi bi-calendar3"></i>
+                        <?= esc($copy['departure']) ?>
+                    </span>
+                    <strong><?= esc($departureLabel !== '' ? $departureLabel : $copy['scheduleUpdating']) ?></strong>
                 </div>
-                <a class="primary-btn1" href="<?= esc($link) ?>">
-                    <span>
-                        <?= esc($t('tourCard.cta')) ?>
-                        <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z"></path>
-                        </svg>
-                    </span>
-                    <span>
-                        <?= esc($t('tourCard.cta')) ?>
-                        <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z"></path>
-                        </svg>
-                    </span>
+                <?php if ($departureFrom !== ''): ?>
+                    <div class="tp-tour-card__schedule-item">
+                        <span>
+                            <i class="bi bi-airplane-engines"></i>
+                            <?= esc($copy['flightFrom']) ?>
+                        </span>
+                        <strong><?= esc($departureFrom) ?></strong>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="tp-tour-card__footer" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                <div class="tp-tour-card__price">
+                    <span><?= esc($copy['pricePrefix']) ?></span>
+                    <strong><?= esc($priceLabel !== '' ? $priceLabel : $t('tour.sidebar.checkAvailability')) ?></strong>
+                    <?php if ($priceAmount > 0): ?>
+                        <meta itemprop="price" content="<?= esc((string) $priceAmount, 'attr') ?>">
+                        <meta itemprop="priceCurrency" content="<?= esc($priceCurrency, 'attr') ?>">
+                    <?php endif; ?>
+                    <link itemprop="availability" href="https://schema.org/InStock">
+                    <link itemprop="url" href="<?= esc($link, 'attr') ?>">
+                </div>
+                <a class="tp-tour-card__cta" href="<?= esc($link, 'attr') ?>">
+                    <?= esc($t('tourCard.cta')) ?>
+                    <i class="bi bi-arrow-up-right"></i>
                 </a>
             </div>
         </div>
     </div>
-</div>
+</article>

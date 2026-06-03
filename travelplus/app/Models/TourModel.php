@@ -16,6 +16,10 @@ class TourModel extends Model
         'duration_nights',
         'thumbnail',
         'is_featured',
+        'is_promotion',
+        'promotion_badge',
+        'promotion_ends_at',
+        'promotion_sort',
         'status'
     ];
 }

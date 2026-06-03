@@ -33,6 +33,9 @@ class Outbound extends BaseController
             'page' => $result['page'],
             'lastPage' => $result['lastPage'],
         ];
+        $data['listingSearch'] = [
+            'tour_type' => 'outbound',
+        ];
         $data['meta_title'] = $t('outbound.metaTitle');
         $data['meta_desc'] = $t('outbound.metaDesc');
         $data['canonical_url'] = LocalizedPathCatalog::url('outbound', $locale);

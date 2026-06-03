@@ -15,6 +15,128 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   /* =====================================================
+     SIMPLE IMAGE LIGHTBOX
+  ===================================================== */
+  const galleryLinks = qsa('[data-fancybox="gallery-01"]');
+
+  if (galleryLinks.length > 0) {
+    const lightbox = document.createElement("div");
+    lightbox.className = "tp-image-lightbox";
+    lightbox.hidden = true;
+    lightbox.innerHTML = `
+      <div class="tp-image-lightbox__backdrop" data-lightbox-close></div>
+      <div class="tp-image-lightbox__dialog" role="dialog" aria-modal="true" aria-label="Image preview">
+        <button type="button" class="tp-image-lightbox__close" data-lightbox-close aria-label="Close image preview">
+          <i class="bi bi-x-lg"></i>
+        </button>
+        <img class="tp-image-lightbox__image" alt="">
+      </div>
+    `;
+
+    document.body.appendChild(lightbox);
+
+    const lightboxImage = qs(".tp-image-lightbox__image", lightbox);
+    const closeLightbox = () => {
+      lightbox.hidden = true;
+      document.body.classList.remove("tp-lightbox-open");
+      if (lightboxImage) {
+        lightboxImage.removeAttribute("src");
+        lightboxImage.alt = "";
+      }
+    };
+    const openLightbox = (link) => {
+      if (!lightboxImage) {
+        return;
+      }
+
+      const image = qs("img", link);
+      lightboxImage.src = link.href;
+      lightboxImage.alt = image?.alt || link.getAttribute("aria-label") || "";
+      lightbox.hidden = false;
+      document.body.classList.add("tp-lightbox-open");
+      qs(".tp-image-lightbox__close", lightbox)?.focus();
+    };
+
+    galleryLinks.forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        openLightbox(link);
+      });
+    });
+
+    qsa("[data-lightbox-close]", lightbox).forEach((button) => {
+      button.addEventListener("click", closeLightbox);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !lightbox.hidden) {
+        closeLightbox();
+      }
+    });
+  }
+
+  /* =====================================================
+     PROMOTION COUNTDOWN
+  ===================================================== */
+  qsa("[data-countdown]").forEach((countdown) => {
+    const endValue = countdown.dataset.countdownEnd || "";
+    const endDate = new Date(endValue);
+    const expiredLabel = countdown.dataset.expiredLabel || "Expired";
+    const daysEl = qs("[data-countdown-days]", countdown);
+    const hoursEl = qs("[data-countdown-hours]", countdown);
+    const minutesEl = qs("[data-countdown-minutes]", countdown);
+    const secondsEl = qs("[data-countdown-seconds]", countdown);
+    const labelEl = qs(".home-promo-countdown__label", countdown);
+
+    if (
+      Number.isNaN(endDate.getTime()) ||
+      !daysEl ||
+      !hoursEl ||
+      !minutesEl ||
+      !secondsEl
+    ) {
+      return;
+    }
+
+    const pad = (value) => String(Math.max(0, value)).padStart(2, "0");
+    const render = () => {
+      const remaining = endDate.getTime() - Date.now();
+
+      if (remaining <= 0) {
+        countdown.classList.add("is-expired");
+        if (labelEl) {
+          labelEl.textContent = expiredLabel;
+        }
+        daysEl.textContent = "00";
+        hoursEl.textContent = "00";
+        minutesEl.textContent = "00";
+        secondsEl.textContent = "00";
+        return false;
+      }
+
+      const totalSeconds = Math.floor(remaining / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      daysEl.textContent = pad(days);
+      hoursEl.textContent = pad(hours);
+      minutesEl.textContent = pad(minutes);
+      secondsEl.textContent = pad(seconds);
+      return true;
+    };
+
+    if (render()) {
+      const timer = window.setInterval(() => {
+        if (!render()) {
+          window.clearInterval(timer);
+        }
+      }, 1000);
+    }
+  });
+
+  /* =====================================================
      HEADER DROPDOWN (language / contact / search)
   ===================================================== */
   qsa('[data-toggle="dropdown"]').forEach((btn) => {
@@ -73,6 +195,21 @@ document.addEventListener("DOMContentLoaded", () => {
         panel.classList.remove("active");
       });
     }
+  });
+
+  qsa("[data-tour-filter-toggle]").forEach((toggle) => {
+    const panelId = toggle.getAttribute("aria-controls");
+    const panel = panelId ? document.getElementById(panelId) : null;
+
+    if (!panel) {
+      return;
+    }
+
+    toggle.addEventListener("click", () => {
+      const isOpen = panel.classList.toggle("is-open");
+      toggle.classList.toggle("is-active", isOpen);
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
   });
 
   /* =====================================================
@@ -410,6 +547,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!input || !wrap || !list || !clearBtn) return;
 
+    const setHomeSearchLayerState = () => {
+      document.body.classList.toggle(
+        "home-search-layer-open",
+        document.querySelector(".home-modern-search .custom-select-wrap.active") !== null ||
+          document.querySelector(".home-modern-search .home-search-date__panel:not([hidden])") !== null
+      );
+    };
+
+    const openDestinationWrap = () => {
+      document.querySelectorAll(".home-modern-search .home-search-date__panel").forEach((panel) => {
+        panel.hidden = true;
+      });
+      document.querySelectorAll(".home-modern-search [data-home-date-trigger]").forEach((trigger) => {
+        trigger.setAttribute("aria-expanded", "false");
+      });
+      wrap.classList.add("active");
+      setHomeSearchLayerState();
+    };
+
+    const closeDestinationWrap = () => {
+      wrap.classList.remove("active");
+      setHomeSearchLayerState();
+    };
+
+    box.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
     let timer = null;
     let currentItems = [];
     const locale = document.documentElement.lang === "en" ? "en" : "vi";
@@ -476,7 +641,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const selectItem = function (item) {
       input.value = item.name || "";
-      wrap.classList.remove("active");
+      currentItems = [];
+      clearBtn.classList.toggle("hidden", input.value.trim().length === 0);
+      closeDestinationWrap();
       list.innerHTML = "";
     };
 
@@ -511,7 +678,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         li.appendChild(destination);
-        li.addEventListener("click", () => {
+        li.addEventListener("click", (event) => {
+          event.stopPropagation();
           selectItem(item);
         });
 
@@ -522,7 +690,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const showPopularSuggestions = function () {
       clearTimeout(timer);
       renderList(popularSuggestions);
-      wrap.classList.add("active");
+      openDestinationWrap();
     };
 
     input.addEventListener("focus", () => {
@@ -548,13 +716,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (keyword.length === 0) {
           showPopularSuggestions();
         } else {
-          wrap.classList.remove("active");
+          closeDestinationWrap();
           list.innerHTML = "";
         }
         return;
       }
 
-      wrap.classList.add("active");
+      openDestinationWrap();
         list.innerHTML = `
           <li class="single-item destination-loading-item" aria-hidden="true">
             <span class="tp-skeleton tp-skeleton-line tp-skeleton-line--wide"></span>
@@ -601,18 +769,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (keyword === "" && departureValue === "") {
           event.preventDefault();
           input.focus();
+          showPopularSuggestions();
           return;
         }
 
-        if (currentItems.length > 0) {
-          selectItem(currentItems[0]);
-        }
+        closeDestinationWrap();
       });
     }
 
     document.addEventListener("click", (e) => {
       if (!box.contains(e.target)) {
-        wrap.classList.remove("active");
+        closeDestinationWrap();
       }
     });
 
@@ -622,7 +789,7 @@ document.addEventListener("DOMContentLoaded", () => {
       input.value = "";
       clearBtn.classList.add("hidden");
 
-      wrap.classList.remove("active");
+      closeDestinationWrap();
       list.innerHTML = "";
 
       input.focus();
@@ -973,6 +1140,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeHomeDatePicker = () => {
       homeDatePanel.hidden = true;
       homeDateTrigger.setAttribute("aria-expanded", "false");
+      document.body.classList.toggle(
+        "home-search-layer-open",
+        document.querySelector(".home-modern-search .custom-select-wrap.active") !== null ||
+          document.querySelector(".home-modern-search .home-search-date__panel:not([hidden])") !== null
+      );
+    };
+
+    const openHomeDatePicker = () => {
+      document.querySelectorAll(".home-modern-search .custom-select-wrap.active").forEach((wrap) => {
+        wrap.classList.remove("active");
+      });
+      renderHomeDatePicker();
+      homeDatePanel.hidden = false;
+      homeDateTrigger.setAttribute("aria-expanded", "true");
+      document.body.classList.add("home-search-layer-open");
     };
 
     const renderHomeDatePicker = () => {
@@ -1032,9 +1214,7 @@ document.addEventListener("DOMContentLoaded", () => {
     homeDateTrigger.addEventListener("click", (event) => {
       event.preventDefault();
       if (homeDatePanel.hidden) {
-        renderHomeDatePicker();
-        homeDatePanel.hidden = false;
-        homeDateTrigger.setAttribute("aria-expanded", "true");
+        openHomeDatePicker();
       } else {
         closeHomeDatePicker();
       }
@@ -1062,5 +1242,159 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  qsa("[data-listing-date-picker]").forEach((datePicker) => {
+    const input = qs("[data-listing-date-input]", datePicker);
+    const trigger = qs("[data-listing-date-trigger]", datePicker);
+    const display = qs("[data-listing-date-display]", datePicker);
+    const panel = qs("[data-listing-date-panel]", datePicker);
+    const monthEl = qs("[data-listing-date-month]", datePicker);
+    const weekdaysEl = qs("[data-listing-date-weekdays]", datePicker);
+    const daysEl = qs("[data-listing-date-days]", datePicker);
+    const prevBtn = qs("[data-listing-date-prev]", datePicker);
+    const nextBtn = qs("[data-listing-date-next]", datePicker);
+
+    if (!input || !trigger || !display || !panel || !monthEl || !weekdaysEl || !daysEl || !prevBtn || !nextBtn) {
+      return;
+    }
+
+    const locale = datePicker.dataset.locale === "en" ? "en" : "vi";
+    const emptyDateLabel = trigger.dataset.emptyLabel || "dd/mm/yyyy";
+    const monthFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
+      month: "long",
+      year: "numeric",
+    });
+    const weekdayNames = {
+      vi: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
+      en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    };
+    const padDatePart = (value) => String(value).padStart(2, "0");
+    const today = new Date();
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const parseInputDate = (value) => {
+      const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+      if (!match) {
+        return null;
+      }
+
+      const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      return Number.isNaN(date.getTime()) ? null : date;
+    };
+    let selectedDate = parseInputDate(input.value);
+    let viewDate = selectedDate
+      ? new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
+      : new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+
+    const isSameDate = (first, second) => (
+      first &&
+      second &&
+      first.getFullYear() === second.getFullYear() &&
+      first.getMonth() === second.getMonth() &&
+      first.getDate() === second.getDate()
+    );
+    const formatValue = (date) => (
+      `${date.getFullYear()}-${padDatePart(date.getMonth() + 1)}-${padDatePart(date.getDate())}`
+    );
+    const formatDisplayDate = (date) => (
+      `${padDatePart(date.getDate())}/${padDatePart(date.getMonth() + 1)}/${date.getFullYear()}`
+    );
+    const closeDatePicker = () => {
+      panel.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+    };
+    const renderDatePicker = () => {
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const monthStartOffset = (firstDay.getDay() + 6) % 7;
+      const lastDay = new Date(year, month + 1, 0).getDate();
+      const currentMonthStart = new Date(year, month, 1);
+      const todayMonthStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+
+      monthEl.textContent = monthFormatter.format(new Date(year, month, 1));
+      prevBtn.disabled = currentMonthStart <= todayMonthStart;
+      daysEl.innerHTML = "";
+
+      for (let index = 0; index < monthStartOffset; index += 1) {
+        const blankDay = document.createElement("span");
+        blankDay.className = "home-search-date__day home-search-date__day--blank";
+        blankDay.setAttribute("aria-hidden", "true");
+        daysEl.appendChild(blankDay);
+      }
+
+      for (let day = 1; day <= lastDay; day += 1) {
+        const date = new Date(year, month, day);
+        const dateButton = document.createElement("button");
+        const isPastDate = date < todayDate;
+
+        dateButton.type = "button";
+        dateButton.className = "home-search-date__day";
+        dateButton.textContent = String(day);
+        dateButton.disabled = isPastDate;
+        dateButton.setAttribute("aria-label", formatDisplayDate(date));
+
+        if (isSameDate(date, selectedDate)) {
+          dateButton.classList.add("is-selected");
+          dateButton.setAttribute("aria-current", "date");
+        }
+
+        dateButton.addEventListener("click", () => {
+          selectedDate = date;
+          input.value = formatValue(date);
+          display.textContent = formatDisplayDate(date);
+          trigger.classList.add("is-selected");
+          closeDatePicker();
+        });
+
+        daysEl.appendChild(dateButton);
+      }
+    };
+
+    weekdayNames[locale].forEach((weekday) => {
+      const weekdayEl = document.createElement("span");
+      weekdayEl.textContent = weekday;
+      weekdaysEl.appendChild(weekdayEl);
+    });
+
+    trigger.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      if (panel.hidden) {
+        qsa("[data-listing-date-panel]").forEach((otherPanel) => {
+          if (otherPanel !== panel) {
+            otherPanel.hidden = true;
+          }
+        });
+        renderDatePicker();
+        panel.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+      } else {
+        closeDatePicker();
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+      renderDatePicker();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+      renderDatePicker();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!datePicker.contains(event.target)) {
+        closeDatePicker();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeDatePicker();
+      }
+    });
+  });
 
 });
