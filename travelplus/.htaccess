@@ -1,0 +1,19 @@
+Options -Indexes
+
+<FilesMatch "(^\.|\.env$|\.ini$|\.log$|\.sql$|\.bak$|\.old$|\.orig$|\.save$|\.swp$|\.tmp$|\.ya?ml$|\.lock$|composer\.(json|lock)$|package(-lock)?\.json$)">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^(?:app|build|database|scripts|tests|vendor|writable)(?:/|$) - [F,L]
+    RewriteRule ^(?:spark|preload\.php|phpunit\.xml\.dist|README\.md|LICENSE|DATABASE_.*\.md|tour_detail_schema_update\.sql|travelplus\.zip)$ - [F,L]
+
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    ErrorDocument 404 /public/index.php
+</IfModule>

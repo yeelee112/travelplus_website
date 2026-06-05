@@ -22,8 +22,28 @@ class Blog extends BaseController
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $seo = new SeoService();
         $listPath = LocalizedPathCatalog::path('blog', $locale);
-        $listUrl = localized_url($listPath);
-        $blogs = $this->blogService->getPublishedBlogs($locale, 12);
+        $baseListUrl = localized_url($listPath);
+        $perPage = 7;
+        $totalBlogs = $this->blogService->countPublishedBlogs($locale);
+        $totalPages = max(1, (int) ceil($totalBlogs / $perPage));
+        $currentPage = max(1, (int) $this->request->getGet('page'));
+        $currentPage = min($currentPage, $totalPages);
+        $offset = ($currentPage - 1) * $perPage;
+        $blogs = $this->blogService->getPublishedBlogs($locale, $perPage, $offset);
+        $recentBlogs = $this->blogService->getPublishedBlogs($locale, 4);
+        $categories = $this->blogService->getPublishedCategories($locale);
+        $listUrl = $currentPage > 1 ? $baseListUrl . '?page=' . $currentPage : $baseListUrl;
+        $pageUrl = static function (int $page) use ($baseListUrl): string {
+            return $page <= 1 ? $baseListUrl : $baseListUrl . '?page=' . $page;
+        };
+        $hreflangBlogUrl = static function (string $targetLocale, int $page = 1): string {
+            $path = LocalizedPathCatalog::path('blog', $targetLocale);
+            $url = $targetLocale === 'en'
+                ? base_url('en/' . ltrim($path, '/'))
+                : base_url(ltrim($path, '/'));
+
+            return $page > 1 ? $url . '?page=' . $page : $url;
+        };
 
         $breadcrumbs = [
             [
@@ -37,6 +57,9 @@ class Blog extends BaseController
 
         $metaTitle = $t('blog.metaTitle');
         $metaDesc = $t('blog.metaDesc');
+        if ($currentPage > 1) {
+            $metaTitle .= $locale === 'en' ? ' - Page ' . $currentPage : ' - Trang ' . $currentPage;
+        }
         $metaImage = ! empty($blogs[0]['image'])
             ? base_url((string) $blogs[0]['image'])
             : base_url('assets/images/TravelPlus_CompanyProfile.png');
@@ -44,17 +67,35 @@ class Blog extends BaseController
         return view('blog/index', [
             'blogs' => $blogs,
             'featuredBlog' => $blogs[0] ?? null,
-            'recentBlogs' => array_slice($blogs, 0, 4),
+            'recentBlogs' => $recentBlogs,
+            'categories' => $categories,
+            'totalBlogs' => $totalBlogs,
+            'pagination' => [
+                'current_page' => $currentPage,
+                'total_pages' => $totalPages,
+                'per_page' => $perPage,
+                'total_items' => $totalBlogs,
+                'prev_url' => $currentPage > 1 ? $pageUrl($currentPage - 1) : '',
+                'next_url' => $currentPage < $totalPages ? $pageUrl($currentPage + 1) : '',
+                'page_urls' => array_combine(
+                    range(1, $totalPages),
+                    array_map($pageUrl, range(1, $totalPages))
+                ),
+            ],
             'breadcrumbs' => $breadcrumbs,
             'meta_title' => $metaTitle,
             'meta_desc' => $metaDesc,
             'meta_image' => $metaImage,
             'meta_image_alt' => $metaTitle,
             'canonical_url' => $listUrl,
+            'pagination_links' => [
+                'prev' => $currentPage > 1 ? $pageUrl($currentPage - 1) : '',
+                'next' => $currentPage < $totalPages ? $pageUrl($currentPage + 1) : '',
+            ],
             'alternate_links' => [
-                ['hreflang' => 'vi', 'href' => LocalizedPathCatalog::url('blog', 'vi')],
-                ['hreflang' => 'en', 'href' => LocalizedPathCatalog::url('blog', 'en')],
-                ['hreflang' => 'x-default', 'href' => LocalizedPathCatalog::url('blog', 'vi')],
+                ['hreflang' => 'vi', 'href' => $hreflangBlogUrl('vi', $currentPage)],
+                ['hreflang' => 'en', 'href' => $hreflangBlogUrl('en', $currentPage)],
+                ['hreflang' => 'x-default', 'href' => $hreflangBlogUrl('vi', $currentPage)],
             ],
             'schema_graph' => [
                 $seo->organizationSchema(),

@@ -16,7 +16,7 @@ return [
     'auth.googleCreateFailed' => 'Không thể khởi tạo tài khoản Google.',
     'auth.usersTableMissing' => 'Bảng users chưa tồn tại. Hãy chạy file SQL tạo tài khoản trước.',
     'auth.emailExists' => 'Email này đã tồn tại.',
-    'auth.registerFailed' => 'Không thể tạo tài khoản lúc này: {0}',
+    'auth.registerFailed' => 'Không thể tạo tài khoản lúc này. Vui lòng thử lại sau.',
     'auth.registerSuccess' => 'Tạo tài khoản thành công. Bạn đã được đăng nhập.',
     'auth.logoutSuccess' => 'Bạn đã đăng xuất.',
     'auth.register.title' => 'Đăng ký tài khoản',

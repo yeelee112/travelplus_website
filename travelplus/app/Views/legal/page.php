@@ -12,23 +12,24 @@ $updatedAt = (string) ($page['updated_at'] ?? '');
 $updatedLabel = (string) ($page['updated_label'] ?? 'Last updated');
 ?>
 
-<div class="container pt-100 pb-100">
-    <div class="row justify-content-center">
-        <div class="col-xl-10 col-lg-11">
-            <div class="section-title text-center mb-50">
-                <h2><?= esc($title) ?></h2>
+<section class="travelplus-legal-page">
+    <div class="container">
+        <div class="travelplus-legal-shell">
+            <header class="travelplus-legal-head">
+                <span><?= esc($updatedLabel) ?></span>
+                <h1><?= esc($title) ?></h1>
                 <?php if ($subtitle !== ''): ?>
                     <p><?= esc($subtitle) ?></p>
                 <?php endif; ?>
                 <?php if ($updatedAt !== ''): ?>
-                    <p><strong><?= esc($updatedLabel) ?>:</strong> <?= esc(app_datetime($updatedAt, 'd/m/Y')) ?></p>
+                    <time datetime="<?= esc($updatedAt, 'attr') ?>"><?= esc(app_datetime($updatedAt, 'd/m/Y')) ?></time>
                 <?php endif; ?>
-            </div>
+            </header>
 
             <div class="legal-content">
                 <?php foreach ($sections as $section): ?>
-                    <section class="mb-40">
-                        <h4 class="mb-20"><?= esc((string) ($section['heading'] ?? '')) ?></h4>
+                    <section class="travelplus-legal-section">
+                        <h2><?= esc((string) ($section['heading'] ?? '')) ?></h2>
 
                         <?php foreach (($section['paragraphs'] ?? []) as $paragraph): ?>
                             <p><?= esc((string) $paragraph) ?></p>
@@ -43,8 +44,8 @@ $updatedLabel = (string) ($page['updated_label'] ?? 'Last updated');
                         <?php endif; ?>
 
                         <?php foreach (($section['subsections'] ?? []) as $subsection): ?>
-                            <div class="mt-25">
-                                <h5 class="mb-15"><?= esc((string) ($subsection['heading'] ?? '')) ?></h5>
+                            <div class="travelplus-legal-subsection">
+                                <h3><?= esc((string) ($subsection['heading'] ?? '')) ?></h3>
 
                                 <?php foreach (($subsection['paragraphs'] ?? []) as $paragraph): ?>
                                     <p><?= esc((string) $paragraph) ?></p>
@@ -64,5 +65,5 @@ $updatedLabel = (string) ($page['updated_label'] ?? 'Last updated');
             </div>
         </div>
     </div>
-</div>
+</section>
 <?= $this->endSection() ?>

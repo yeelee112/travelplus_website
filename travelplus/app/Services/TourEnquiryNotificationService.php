@@ -54,20 +54,25 @@ class TourEnquiryNotificationService
      */
     private function sendCustomerEmail(string $to, array $enquiry): bool
     {
-        $tourTitle = $this->e((string) ($enquiry['tour_title'] ?? ''));
-        $message = <<<HTML
-<h2>Xác nhận yêu cầu tư vấn</h2>
-<p>Xin chào {$this->e((string) ($enquiry['full_name'] ?? 'Quý khách'))},</p>
-<p>Travel Plus đã nhận được yêu cầu tư vấn tour của bạn. Bộ phận tư vấn sẽ liên hệ sớm nhất có thể.</p>
-<table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;border-color:#d8d8d8;">
-    <tr><td><strong>Tour quan tâm</strong></td><td>{$tourTitle}</td></tr>
-    <tr><td><strong>Ngày dự kiến đi</strong></td><td>{$this->e((string) ($enquiry['travel_date'] ?? '-'))}</td></tr>
-    <tr><td><strong>Số lượng khách</strong></td><td>{$this->e((string) ($enquiry['travelers'] ?? '-'))}</td></tr>
-    <tr><td><strong>Số điện thoại</strong></td><td>{$this->e((string) ($enquiry['phone'] ?? '-'))}</td></tr>
-    <tr><td><strong>Nội dung</strong></td><td>{$this->e((string) ($enquiry['message'] ?? ''))}</td></tr>
-</table>
-<p>Nếu cần bổ sung thông tin, bạn chỉ cần phản hồi lại email này.</p>
-HTML;
+        $tourTitle = (string) ($enquiry['tour_title'] ?? '');
+        $template = new EmailTemplateService();
+        $message = $template->render(
+            'Xác nhận yêu cầu',
+            'Travel Plus đã nhận yêu cầu tư vấn',
+            'Xin chào ' . ((string) ($enquiry['full_name'] ?? '') ?: 'Quý khách') . ', đội ngũ Travel Plus sẽ kiểm tra thông tin và liên hệ lại sớm nhất.',
+            [
+                'Tour quan tâm' => $tourTitle,
+                'Ngày dự kiến đi' => (string) ($enquiry['travel_date'] ?? '-'),
+            ],
+            [
+                ['label' => 'Số lượng khách', 'value' => (string) ($enquiry['travelers'] ?? '-')],
+                ['label' => 'Số điện thoại', 'value' => (string) ($enquiry['phone'] ?? '-')],
+                ['label' => 'Email', 'value' => (string) ($enquiry['email'] ?? '-')],
+            ],
+            (string) ($enquiry['message'] ?? ''),
+            'Xem lại tour',
+            (string) ($enquiry['tour_link'] ?? '')
+        );
 
         return $this->deliver($to, 'Xác nhận yêu cầu tư vấn tour - ' . $tourTitle, $message);
     }
@@ -77,20 +82,27 @@ HTML;
      */
     private function sendAdminEmail(string $to, array $enquiry): bool
     {
-        $tourTitle = $this->e((string) ($enquiry['tour_title'] ?? ''));
-        $message = <<<HTML
-<h2>Có yêu cầu tư vấn tour mới</h2>
-<table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;border-color:#d8d8d8;">
-    <tr><td><strong>Họ và tên</strong></td><td>{$this->e((string) ($enquiry['full_name'] ?? ''))}</td></tr>
-    <tr><td><strong>Email</strong></td><td>{$this->e((string) ($enquiry['email'] ?? ''))}</td></tr>
-    <tr><td><strong>Số điện thoại</strong></td><td>{$this->e((string) ($enquiry['phone'] ?? ''))}</td></tr>
-    <tr><td><strong>Tour quan tâm</strong></td><td>{$tourTitle}</td></tr>
-    <tr><td><strong>Ngày dự kiến đi</strong></td><td>{$this->e((string) ($enquiry['travel_date'] ?? '-'))}</td></tr>
-    <tr><td><strong>Số lượng khách</strong></td><td>{$this->e((string) ($enquiry['travelers'] ?? '-'))}</td></tr>
-    <tr><td><strong>Link tour</strong></td><td>{$this->e((string) ($enquiry['tour_link'] ?? '-'))}</td></tr>
-    <tr><td><strong>Nội dung</strong></td><td>{$this->e((string) ($enquiry['message'] ?? ''))}</td></tr>
-</table>
-HTML;
+        $tourTitle = (string) ($enquiry['tour_title'] ?? '');
+        $template = new EmailTemplateService();
+        $message = $template->render(
+            'Lead tư vấn tour',
+            'Có yêu cầu tư vấn tour mới',
+            'Khách vừa gửi form tư vấn trên website Travel Plus. Vui lòng kiểm tra và phản hồi sớm.',
+            [
+                'Khách hàng' => (string) ($enquiry['full_name'] ?? ''),
+                'Tour quan tâm' => $tourTitle,
+            ],
+            [
+                ['label' => 'Email', 'value' => (string) ($enquiry['email'] ?? '')],
+                ['label' => 'Số điện thoại', 'value' => (string) ($enquiry['phone'] ?? '')],
+                ['label' => 'Ngày dự kiến đi', 'value' => (string) ($enquiry['travel_date'] ?? '-')],
+                ['label' => 'Số lượng khách', 'value' => (string) ($enquiry['travelers'] ?? '-')],
+                ['label' => 'Link tour', 'value' => (string) ($enquiry['tour_link'] ?? '-')],
+            ],
+            (string) ($enquiry['message'] ?? ''),
+            'Mở tour',
+            (string) ($enquiry['tour_link'] ?? '')
+        );
 
         return $this->deliver($to, 'Yêu cầu tư vấn tour mới - ' . $tourTitle, $message, (string) ($enquiry['email'] ?? ''), (string) ($enquiry['full_name'] ?? ''));
     }
@@ -119,10 +131,5 @@ HTML;
         }
 
         return true;
-    }
-
-    private function e(string $value): string
-    {
-        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 }

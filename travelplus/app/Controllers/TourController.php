@@ -10,13 +10,6 @@ use CodeIgniter\Exceptions\PageNotFoundException;
 
 class TourController extends BaseController
 {
-    public function preview()
-    {
-        return view('tour/index', [
-            'featuredTours' => $this->getFeaturedTours(),
-        ]);
-    }
-
     public function featured()
     {
         $tours = $this->getFeaturedTours();
@@ -50,7 +43,10 @@ class TourController extends BaseController
             ? $t('common.domesticTours')
             : $t('common.outboundTours');
         $canonicalUrl = current_url();
-        $metaTitle = trim((string) ($tour['meta_title'] ?? '')) ?: ((string) $tour['title'] . ' | Travel Plus');
+        $metaTitle = trim((string) ($tour['meta_title'] ?? '')) ?: (string) $tour['title'];
+        if ($metaTitle !== '' && stripos($metaTitle, 'Travel Plus') === false) {
+            $metaTitle .= ' | Travel Plus';
+        }
         $metaDesc = $seo->excerpt(
             trim((string) ($tour['meta_description'] ?? '')) !== ''
                 ? (string) $tour['meta_description']

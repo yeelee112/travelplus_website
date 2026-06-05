@@ -88,7 +88,6 @@ $routes->GET('booking/vnpay/ipn', 'BookingController::vnpayIpn');
 
 $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
 $routes->GET('tour-trong-nuoc', 'Domestic::index');
-$routes->GET('tour-preview', 'TourController::preview');
 $routes->POST('tour/reviews', 'TourController::submitReview');
 $routes->POST('tour/enquiry', 'TourController::submitEnquiry');
 $routes->get('tour-nuoc-ngoai/(:segment)/(:segment)', 'TourController::detail/outbound/vi/$1/$2');
@@ -150,7 +149,6 @@ $routes->group('en', function ($routes) {
     
     $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
     $routes->GET('tour-trong-nuoc', 'Domestic::index');
-    $routes->GET('tour-preview', 'TourController::preview');
     $routes->POST('tour/reviews', 'TourController::submitReview');
     $routes->POST('tour/enquiry', 'TourController::submitEnquiry');
     $routes->get('tour-nuoc-ngoai/(:segment)/(:segment)', 'TourController::detail/outbound/en/$1/$2');

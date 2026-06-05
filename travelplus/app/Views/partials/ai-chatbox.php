@@ -120,8 +120,15 @@ $chatUi = $currentLocale === 'en'
     .tp-ai-chatbox__bubble{padding:12px 14px;border-radius:18px;background:#fff;border:1px solid #dce7f2;color:#17324a;line-height:1.52;white-space:pre-wrap;word-break:break-word}
     .tp-ai-chatbox__message--user .tp-ai-chatbox__bubble{background:linear-gradient(135deg,#1595d3,#246bff);border-color:transparent;color:#fff;border-bottom-right-radius:6px}
     .tp-ai-chatbox__message--assistant .tp-ai-chatbox__bubble{border-top-left-radius:6px}
-    .tp-ai-chatbox__sources{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(21,149,211,.25);font-size:12px}
-    .tp-ai-chatbox__sources a{display:block;margin-top:4px;color:#1595d3;text-decoration:none}
+    .tp-ai-chatbox__sources{max-width:100%;margin-top:5px;font-size:12px}
+    .tp-ai-chatbox__sources summary{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-height:28px;padding:5px 9px;border:1px solid #d8e8f4;border-radius:999px;background:#fff;color:#4e6b82;font-weight:700;line-height:1;cursor:pointer;list-style:none}
+    .tp-ai-chatbox__sources summary::-webkit-details-marker{display:none}
+    .tp-ai-chatbox__sources summary::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .16s ease}
+    .tp-ai-chatbox__sources[open] summary::after{transform:translateY(1px) rotate(225deg)}
+    .tp-ai-chatbox__source-list{display:grid;gap:6px;max-height:112px;overflow:auto;margin-top:7px;padding:8px;border:1px solid #dce7f2;border-radius:12px;background:#fff}
+    .tp-ai-chatbox__source-list a{display:flex;align-items:center;gap:6px;min-width:0;color:#1595d3;text-decoration:none;font-weight:700;line-height:1.35}
+    .tp-ai-chatbox__source-list a span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .tp-ai-chatbox__source-list small{color:#6b7f92;line-height:1.35}
     .tp-ai-chatbox__suggestions{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0 2px 2px}
     .tp-ai-chatbox__chip{border:1px solid #d8e5f1;background:#fff;color:#28506f;border-radius:999px;padding:8px 12px;font-size:12px;line-height:1.2;text-align:left;transition:all .18s ease}
     .tp-ai-chatbox__chip:hover{border-color:#99c9e8;background:#f4fbff;color:#1595d3}
@@ -144,10 +151,12 @@ $chatUi = $currentLocale === 'en'
 
     @media (max-width: 767px){
         .tp-ai-chatbox{left:12px;right:auto;bottom:12px}
-        .tp-ai-chatbox__toggle{width:auto;min-width:0;padding:13px 16px}
-        .tp-ai-chatbox__panel{position:fixed;left:12px;right:12px;bottom:84px;width:auto;height:min(72vh,620px)}
-        .tp-ai-chatbox.is-tour-page{bottom:calc(196px + env(safe-area-inset-bottom))}
-        .tp-ai-chatbox.is-tour-page .tp-ai-chatbox__panel{bottom:calc(268px + env(safe-area-inset-bottom));height:min(60vh,560px)}
+        .tp-ai-chatbox__toggle{width:auto;min-width:0;gap:9px;padding:8px 12px}
+        .tp-ai-chatbox__toggle-icon{width:34px;height:34px;border-radius:12px;font-size:16px;flex-basis:34px}
+        .tp-ai-chatbox__toggle-copy strong{font-size:14px}
+        .tp-ai-chatbox__panel{position:fixed;left:12px;right:12px;bottom:76px;width:auto;height:min(72vh,620px)}
+        .tp-ai-chatbox.is-tour-page{bottom:calc(112px + env(safe-area-inset-bottom))}
+        .tp-ai-chatbox.is-tour-page .tp-ai-chatbox__panel{bottom:calc(176px + env(safe-area-inset-bottom));height:min(60vh,560px)}
         .progress-wrap{right:12px;bottom:96px}
     }
 </style>
@@ -206,7 +215,86 @@ $chatUi = $currentLocale === 'en'
         }
     }
 
-    function appendMessage(role, text, sources = []) {
+    function sourceLabel(count) {
+        return locale === 'en' ? `Sources (${count})` : `Nguồn tham khảo (${count})`;
+    }
+
+    function appendSources(main, sources = []) {
+        const validSources = Array.isArray(sources)
+            ? sources.filter((source) => source && source.url).slice(0, 2)
+            : [];
+
+        if (validSources.length === 0) return;
+
+        const sourceWrap = document.createElement('details');
+        sourceWrap.className = 'tp-ai-chatbox__sources';
+
+        const summary = document.createElement('summary');
+        summary.textContent = sourceLabel(sources.length);
+        sourceWrap.appendChild(summary);
+
+        const list = document.createElement('div');
+        list.className = 'tp-ai-chatbox__source-list';
+
+        validSources.forEach((source, index) => {
+            const link = document.createElement('a');
+            link.href = source.url;
+            link.target = '_blank';
+            link.rel = 'noopener';
+
+            const title = document.createElement('span');
+            title.textContent = `${index + 1}. ${source.title || source.url}`;
+            link.appendChild(title);
+            list.appendChild(link);
+        });
+
+        if (sources.length > validSources.length) {
+            const more = document.createElement('small');
+            more.textContent = locale === 'en'
+                ? `+${sources.length - validSources.length} more source${sources.length - validSources.length > 1 ? 's' : ''}`
+                : `+${sources.length - validSources.length} nguồn khác`;
+            list.appendChild(more);
+        }
+
+        sourceWrap.appendChild(list);
+        main.appendChild(sourceWrap);
+    }
+
+    function revealText(bubble, text) {
+        const chars = Array.from(text || '');
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (reduceMotion || chars.length === 0) {
+            bubble.textContent = text || '';
+            return Promise.resolve();
+        }
+
+        const step = chars.length > 900 ? 4 : chars.length > 520 ? 3 : chars.length > 260 ? 2 : 1;
+        const delay = chars.length > 900 ? 8 : chars.length > 520 ? 10 : 13;
+        let index = 0;
+
+        return new Promise((resolve) => {
+            const tick = () => {
+                index = Math.min(index + step, chars.length);
+                bubble.textContent = chars.slice(0, index).join('');
+
+                if (index < chars.length) {
+                    window.setTimeout(tick, delay);
+                } else {
+                    resolve();
+                }
+            };
+
+            tick();
+        });
+    }
+
+    function focusMessageStart(item) {
+        const offset = Math.max(0, item.offsetTop - 8);
+        messages.scrollTop = offset;
+    }
+
+    async function appendMessage(role, text, sources = [], options = {}) {
         const item = document.createElement('div');
         item.className = `tp-ai-chatbox__message tp-ai-chatbox__message--${role}`;
 
@@ -229,29 +317,21 @@ $chatUi = $currentLocale === 'en'
 
         const bubble = document.createElement('div');
         bubble.className = 'tp-ai-chatbox__bubble';
-        bubble.textContent = text;
-
-        if (role === 'assistant' && Array.isArray(sources) && sources.length > 0) {
-            const sourceWrap = document.createElement('div');
-            sourceWrap.className = 'tp-ai-chatbox__sources';
-
-            sources.forEach((source, index) => {
-                if (!source || !source.url) return;
-                const link = document.createElement('a');
-                link.href = source.url;
-                link.textContent = `[${index + 1}] ${source.title || source.url}`;
-                link.target = '_blank';
-                link.rel = 'noopener';
-                sourceWrap.appendChild(link);
-            });
-
-            bubble.appendChild(sourceWrap);
-        }
+        bubble.textContent = options.animate ? '' : text;
 
         main.appendChild(bubble);
         item.appendChild(main);
         messages.appendChild(item);
-        messages.scrollTop = messages.scrollHeight;
+
+        if (role === 'assistant' && options.animate) {
+            focusMessageStart(item);
+            await revealText(bubble, text);
+            appendSources(main, sources);
+        } else {
+            appendSources(main, role === 'assistant' ? sources : []);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
         return item;
     }
 
@@ -329,13 +409,13 @@ $chatUi = $currentLocale === 'en'
             }
 
             hideTyping();
-            appendMessage('assistant', data.message, data.sources || []);
+            status.textContent = '';
+            await appendMessage('assistant', data.message, data.sources || [], { animate: true });
             history.push({ role: 'assistant', text: data.message });
             history.splice(0, Math.max(0, history.length - 8));
-            status.textContent = '';
         } catch (error) {
             hideTyping();
-            appendMessage('assistant', error.message || ui.error);
+            await appendMessage('assistant', error.message || ui.error, [], { animate: true });
             history.push({ role: 'assistant', text: error.message || ui.error });
             status.textContent = ui.error;
         } finally {

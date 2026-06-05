@@ -149,15 +149,17 @@ $email = 'info@travelplusvn.com';
                     <p><?= esc($labels['formDesc']) ?></p>
                 </div>
 
-                <?php if (session()->getFlashdata('error')): ?>
+                <?php $contactError = session()->getFlashdata('error'); ?>
+                <?php if ($contactError): ?>
                     <div class="alert alert-danger">
-                        <?= session()->getFlashdata('error') ?>
+                        <?= nl2br(esc((string) $contactError)) ?>
                     </div>
                 <?php endif; ?>
 
-                <?php if (session()->getFlashdata('success')): ?>
+                <?php $contactSuccess = session()->getFlashdata('success'); ?>
+                <?php if ($contactSuccess): ?>
                     <div class="alert alert-success">
-                        <?= esc((string) session()->getFlashdata('success')) ?>
+                        <?= esc((string) $contactSuccess) ?>
                     </div>
                 <?php endif; ?>
 

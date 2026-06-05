@@ -16,7 +16,7 @@ return [
     'auth.googleCreateFailed' => 'Unable to create a Google account.',
     'auth.usersTableMissing' => 'The users table does not exist yet. Run the SQL file to create accounts first.',
     'auth.emailExists' => 'This email already exists.',
-    'auth.registerFailed' => 'Unable to create the account right now: {0}',
+    'auth.registerFailed' => 'Unable to create the account right now. Please try again later.',
     'auth.registerSuccess' => 'Account created successfully. You are now signed in.',
     'auth.logoutSuccess' => 'You have been logged out.',
     'auth.register.title' => 'Create an account',

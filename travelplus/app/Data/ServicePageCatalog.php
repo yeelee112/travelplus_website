@@ -186,7 +186,7 @@ class ServicePageCatalog
                         'vi' => 'Travel Plus hỗ trợ dịch hồ sơ visa, tài liệu công tác, xác nhận booking, thư mời và nội dung song ngữ liên quan đến vận hành du lịch hoặc sự kiện.',
                         'en' => 'Travel Plus supports visa files, work documents, booking confirmations, invitation letters and bilingual materials for travel or events.',
                     ],
-                    'image' => 'assets/images/translation.jpg',
+                    'image' => 'assets/images/translate.png',
                 ],
                 'metrics' => [
                     ['icon' => 'bi bi-file-earmark-text', 'title' => ['vi' => 'Theo loại hồ sơ', 'en' => 'File-based support'], 'text' => ['vi' => 'Không dịch đại trà, mà căn theo mục đích nộp hồ sơ hoặc sử dụng.', 'en' => 'Handled according to the intended submission or business use.']],

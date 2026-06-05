@@ -51,7 +51,8 @@ $paymentLabels = [
     'zalopay' => 'ZaloPay',
 ];
 ?>
-<div class="container pt-100 pb-100">
+<section class="travelplus-account-page">
+    <div class="container">
     <div class="row justify-content-center">
         <div class="col-xl-9 col-lg-10">
             <?php if (! empty($authSuccess)): ?>
@@ -61,9 +62,10 @@ $paymentLabels = [
                 <div class="alert alert-danger mb-4"><?= esc($authError) ?></div>
             <?php endif; ?>
 
-            <div class="contact-form-wrap">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-                    <div class="section-title mb-0">
+            <div class="travelplus-account-card">
+                <div class="travelplus-account-head">
+                    <div>
+                        <span><?= esc($locale === 'en' ? 'My Travel Plus' : 'Tài khoản của tôi') ?></span>
                         <h2><?= esc($t('auth.profile.title')) ?></h2>
                         <p><?= esc($t('auth.profile.desc')) ?></p>
                     </div>
@@ -154,8 +156,8 @@ $paymentLabels = [
                 <?= csrf_field() ?>
             </form>
 
-            <div class="checkout-stepper-card mt-4">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div class="travelplus-account-card travelplus-account-bookings">
+                <div class="travelplus-account-head travelplus-account-head--compact">
                     <div>
                         <h4 class="mb-1"><?= esc($locale === 'en' ? 'My bookings' : 'Booking đã đặt') ?></h4>
                         <p class="mb-0 text-muted"><?= esc($locale === 'en' ? 'Recent bookings linked to your account or email.' : 'Các booking gần đây gắn với tài khoản hoặc email của bạn.') ?></p>
@@ -227,5 +229,6 @@ $paymentLabels = [
             </div>
         </div>
     </div>
-</div>
+    </div>
+</section>
 <?= $this->endSection() ?>

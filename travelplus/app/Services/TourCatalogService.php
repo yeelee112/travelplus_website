@@ -10,6 +10,9 @@ use CodeIgniter\Database\BaseConnection;
 
 class TourCatalogService
 {
+    private const DEFAULT_CHILD_PRICE_RATE = 0.85;
+    private const DEFAULT_INFANT_PRICE_RATE = 0.25;
+
     private BaseConnection $db;
 
     public function __construct()
@@ -850,6 +853,8 @@ class TourCatalogService
         $detail['overview'] = (string) ($translation['overview'] ?? $fallbackTranslation['overview'] ?? '');
         $detail['description'] = (string) ($translation['description'] ?? $fallbackTranslation['description'] ?? '');
         $detail['max_travelers'] = (int) ($tourRow['max_travelers'] ?? 15);
+        $detail['child_price_rate'] = $this->normalizeTravelerPriceRate($tourRow['child_price_rate'] ?? null, self::DEFAULT_CHILD_PRICE_RATE);
+        $detail['infant_price_rate'] = $this->normalizeTravelerPriceRate($tourRow['infant_price_rate'] ?? null, self::DEFAULT_INFANT_PRICE_RATE);
         $detail['created_at'] = (string) ($tourRow['created_at'] ?? '');
         $detail['updated_at'] = (string) ($tourRow['updated_at'] ?? $tourRow['created_at'] ?? '');
 
@@ -875,6 +880,21 @@ class TourCatalogService
         }
 
         return $detail;
+    }
+
+    private function normalizeTravelerPriceRate($value, float $default): float
+    {
+        if ($value === null || $value === '') {
+            return $default;
+        }
+
+        $rate = (float) $value;
+
+        if ($rate < 0 || $rate > 1) {
+            return $default;
+        }
+
+        return $rate;
     }
 
     private function getTourDepartures(int $tourId): array

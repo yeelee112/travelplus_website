@@ -49,6 +49,21 @@
         .departure-generator { border:1px dashed #cbd5e1; border-radius:14px; background:#f8fafc; padding:16px; margin-bottom:16px; }
         .departure-generator .weekday-list { display:flex; flex-wrap:wrap; gap:8px; }
         .departure-generator .weekday-list label { display:inline-flex; align-items:center; gap:6px; margin:0; padding:7px 10px; border:1px solid #d9e2ec; border-radius:999px; background:#fff; font-size:13px; }
+        .itinerary-importer { border:1px solid #cfeefa; border-radius:18px; background:linear-gradient(135deg,#f2fbff 0%,#fff 65%); padding:18px; margin-bottom:18px; }
+        .itinerary-importer__head { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; flex-wrap:wrap; margin-bottom:12px; }
+        .itinerary-importer__title { font-size:16px; font-weight:800; color:#0f172a; margin:0; }
+        .itinerary-importer__hint { color:#64748b; font-size:13px; line-height:1.55; margin:4px 0 0; max-width:720px; }
+        .itinerary-importer textarea { min-height:170px; font-family:Consolas,Monaco,monospace; font-size:13px; line-height:1.55; }
+        .itinerary-importer__actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+        .itinerary-importer__preview { display:none; margin-top:14px; border:1px solid #d9edf5; border-radius:14px; background:#fff; overflow:hidden; }
+        .itinerary-importer__preview.is-visible { display:block; }
+        .itinerary-importer__preview-head { padding:12px 14px; background:#f8fcfe; border-bottom:1px solid #e3f2f7; color:#334155; font-size:13px; font-weight:800; }
+        .itinerary-importer__preview-list { max-height:260px; overflow:auto; }
+        .itinerary-importer__preview-item { padding:12px 14px; border-bottom:1px solid #eef5f8; }
+        .itinerary-importer__preview-item:last-child { border-bottom:0; }
+        .itinerary-importer__preview-day { color:#0ea5e9; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
+        .itinerary-importer__preview-title { color:#111827; font-weight:800; margin-bottom:4px; }
+        .itinerary-importer__preview-desc { color:#64748b; font-size:13px; line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .departure-row { padding-right:102px; }
         .departure-row .form-control, .departure-row .form-select { min-height:42px; }
         .section-title-row { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
@@ -218,6 +233,16 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
                 <div class="col-md-2"><label>Max travelers</label><input type="number" min="0" name="max_travelers" class="form-control" value="<?= esc($fv('max_travelers', '15')) ?>"></div>
                 <div class="col-md-3"><label>Adult price</label><input type="number" min="0" name="base_price" class="form-control" value="<?= esc($fv('base_price')) ?>"></div>
                 <div class="col-md-3"><label>Sale price</label><input type="number" min="0" name="sale_price" class="form-control" value="<?= esc($fv('sale_price')) ?>"></div>
+                <div class="col-md-3">
+                    <label>Child rate</label>
+                    <input type="number" min="0" max="1" step="0.01" name="child_price_rate" class="form-control" value="<?= esc($fv('child_price_rate', '0.85')) ?>">
+                    <div class="help">0.85 = 85% adult price</div>
+                </div>
+                <div class="col-md-3">
+                    <label>Infant rate</label>
+                    <input type="number" min="0" max="1" step="0.01" name="infant_price_rate" class="form-control" value="<?= esc($fv('infant_price_rate', '0.25')) ?>">
+                    <div class="help">0.25 = 25% adult price</div>
+                </div>
                 <div class="col-md-6"><label>Thumbnail</label><input name="thumbnail" class="form-control" value="<?= esc($fv('thumbnail')) ?>"></div>
                 <div class="col-md-3">
                     <label>Status</label>
@@ -465,6 +490,28 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
                 <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">▾</span><span>Collapse</span></button>
             </div>
             <div class="accordion-content">
+            <div class="itinerary-importer" id="itineraryImporter">
+                <div class="itinerary-importer__head">
+                    <div>
+                        <h3 class="itinerary-importer__title">Import lịch trình từ Word</h3>
+                        <p class="itinerary-importer__hint">Copy toàn bộ lịch trình từ file Word rồi dán vào đây. Hệ thống sẽ tự tách theo mẫu "Ngày 1:", "NGÀY 01 -" hoặc "Day 1:".</p>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearItineraryImport">Clear</button>
+                </div>
+                <textarea class="form-control" id="itineraryImportText" placeholder="Ví dụ:
+Ngày 1: TPHCM - PARIS
+Quý khách tập trung tại sân bay Tân Sơn Nhất...
+Nghỉ đêm trên máy bay.
+
+Ngày 2: PARIS CITY TOUR
+Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
+                <div class="itinerary-importer__actions">
+                    <button type="button" class="btn btn-outline-primary" id="previewItineraryImport">Xem trước</button>
+                    <button type="button" class="btn btn-primary" id="replaceItineraryImport">Import thay thế lịch trình hiện tại</button>
+                    <button type="button" class="btn btn-outline-success" id="appendItineraryImport">Import thêm vào cuối</button>
+                </div>
+                <div class="itinerary-importer__preview" id="itineraryImportPreview" aria-live="polite"></div>
+            </div>
             <div id="itineraryRows">
                 <?php foreach (array_values($itineraryRows) as $index => $row): ?>
                     <?php $row = is_array($row) ? $row : []; ?>
@@ -1172,6 +1219,189 @@ document.getElementById('addItinerary').addEventListener('click', () => {
   refreshSummaryMetrics();
   scheduleDraftSave();
 });
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function textLinesToHtml(lines) {
+  const paragraphs = [];
+  let current = [];
+
+  lines.forEach(line => {
+    const cleanLine = String(line || '').trim();
+    if (cleanLine === '') {
+      if (current.length) {
+        paragraphs.push(current);
+        current = [];
+      }
+      return;
+    }
+    current.push(cleanLine);
+  });
+
+  if (current.length) paragraphs.push(current);
+
+  return paragraphs
+    .map(group => '<p>' + group.map(escapeHtml).join('<br>') + '</p>')
+    .join('');
+}
+
+function parseItineraryImportText(text) {
+  const headingPattern = /^\s*(?:ng[aà]y|ngay|day)\s*0*(\d{1,3})\s*(?:[:.)\-\u2013\u2014|]\s*)?(.*)$/i;
+  const normalized = String(text || '')
+    .replace(/\r/g, '')
+    .replace(/\u00a0/g, ' ')
+    .replace(/[ \t]+$/gm, '')
+    .trim();
+  const rows = [];
+  let current = null;
+
+  const pushCurrent = () => {
+    if (!current) return;
+
+    if (current.generated_title) {
+      const titleIndex = current.description_lines.findIndex(line => String(line || '').trim() !== '');
+      const titleCandidate = titleIndex >= 0 ? String(current.description_lines[titleIndex]).trim() : '';
+      if (titleCandidate !== '' && titleCandidate.length <= 140 && !headingPattern.test(titleCandidate)) {
+        current.title_vi = titleCandidate;
+        current.description_lines.splice(titleIndex, 1);
+      }
+    }
+
+    rows.push(current);
+  };
+
+  normalized.split('\n').forEach(rawLine => {
+    const line = rawLine.trim();
+    const match = line.match(headingPattern);
+
+    if (match) {
+      if (current) pushCurrent();
+      const title = (match[2] || '').trim();
+      current = {
+        day_number: parseInt(match[1], 10) || (rows.length + 1),
+        title_vi: title || `Ngày ${parseInt(match[1], 10) || (rows.length + 1)}`,
+        generated_title: title === '',
+        description_lines: [],
+      };
+      return;
+    }
+
+    if (current) {
+      current.description_lines.push(rawLine);
+    }
+  });
+
+  if (current) pushCurrent();
+
+  return rows.map((row, index) => ({
+    day_number: row.day_number || (index + 1),
+    title_vi: row.title_vi,
+    title_en: '',
+    description_vi: textLinesToHtml(row.description_lines),
+    description_en: '',
+    description_text: row.description_lines.map(line => line.trim()).filter(Boolean).join(' '),
+  }));
+}
+
+function renderItineraryImportPreview(rows) {
+  const preview = document.getElementById('itineraryImportPreview');
+  if (!preview) return;
+
+  preview.classList.add('is-visible');
+
+  if (!rows.length) {
+    preview.innerHTML = '<div class="itinerary-importer__preview-head">Chưa nhận diện được ngày nào. Mỗi ngày nên bắt đầu bằng "Ngày 1:" hoặc "Day 1:".</div>';
+    return;
+  }
+
+  preview.innerHTML = `
+    <div class="itinerary-importer__preview-head">Nhận diện ${rows.length} ngày lịch trình</div>
+    <div class="itinerary-importer__preview-list">
+      ${rows.map(row => `
+        <div class="itinerary-importer__preview-item">
+          <div class="itinerary-importer__preview-day">Ngày ${escapeHtml(row.day_number)}</div>
+          <div class="itinerary-importer__preview-title">${escapeHtml(row.title_vi)}</div>
+          <div class="itinerary-importer__preview-desc">${escapeHtml(row.description_text || 'Chưa có mô tả.')}</div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function appendImportedItineraryRow(data = {}) {
+  const div = document.createElement('div');
+  div.className = 'repeat-item itinerary-row is-sortable';
+  div.setAttribute('draggable', 'true');
+  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Duplicate</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button><input type="hidden" name="itinerary_days[${itineraryIndex}][sort_order]" class="js-sort-order" value="${itineraryIndex}">
+    <div class="row g-3">
+      <div class="col-md-2"><label>Day</label><input type="number" min="1" name="itinerary_days[${itineraryIndex}][day_number]" class="form-control" value="${escapeHtml(data.day_number || (itineraryIndex + 1))}"></div>
+      <div class="col-md-5"><label>Title VI</label><input name="itinerary_days[${itineraryIndex}][title_vi]" class="form-control" value="${escapeHtml(data.title_vi || '')}"></div>
+      <div class="col-md-5"><label>Title EN</label><input name="itinerary_days[${itineraryIndex}][title_en]" class="form-control" value="${escapeHtml(data.title_en || '')}"></div>
+      <div class="col-md-6"><label>Description VI</label><textarea name="itinerary_days[${itineraryIndex}][description_vi]" class="form-control d-none js-rich-source">${escapeHtml(data.description_vi || '')}</textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">List</button><button type="button" data-command="removeFormat">Clear</button></div><div class="rich-editor js-rich-editor" contenteditable="true">${data.description_vi || ''}</div></div></div>
+      <div class="col-md-6"><label>Description EN</label><textarea name="itinerary_days[${itineraryIndex}][description_en]" class="form-control d-none js-rich-source">${escapeHtml(data.description_en || '')}</textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">List</button><button type="button" data-command="removeFormat">Clear</button></div><div class="rich-editor js-rich-editor" contenteditable="true">${data.description_en || ''}</div></div></div>
+    </div>`;
+  document.getElementById('itineraryRows').appendChild(div);
+  bindRemoveButtons(div);
+  bindRichEditor(div);
+  bindDuplicateButtons(div);
+  itineraryIndex++;
+}
+
+function importItineraryRows(mode) {
+  const input = document.getElementById('itineraryImportText');
+  const rows = parseItineraryImportText(input?.value || '');
+  renderItineraryImportPreview(rows);
+
+  if (!rows.length) return;
+
+  if (mode === 'replace') {
+    const existingCount = countRows('#itineraryRows .itinerary-row');
+    if (existingCount > 0 && !window.confirm(`Thay thế ${existingCount} ngày lịch trình hiện tại bằng ${rows.length} ngày vừa import?`)) {
+      return;
+    }
+    document.getElementById('itineraryRows').innerHTML = '';
+    itineraryIndex = 0;
+  }
+
+  const currentCount = countRows('#itineraryRows .itinerary-row');
+  rows.forEach((row, index) => {
+    appendImportedItineraryRow({
+      ...row,
+      day_number: mode === 'append' ? currentCount + index + 1 : index + 1,
+    });
+  });
+
+  refreshSummaryMetrics();
+  scheduleDraftSave();
+}
+
+function initItineraryImporter() {
+  const input = document.getElementById('itineraryImportText');
+  const previewButton = document.getElementById('previewItineraryImport');
+  const replaceButton = document.getElementById('replaceItineraryImport');
+  const appendButton = document.getElementById('appendItineraryImport');
+  const clearButton = document.getElementById('clearItineraryImport');
+
+  previewButton?.addEventListener('click', () => renderItineraryImportPreview(parseItineraryImportText(input?.value || '')));
+  replaceButton?.addEventListener('click', () => importItineraryRows('replace'));
+  appendButton?.addEventListener('click', () => importItineraryRows('append'));
+  clearButton?.addEventListener('click', () => {
+    if (input) input.value = '';
+    const preview = document.getElementById('itineraryImportPreview');
+    if (preview) {
+      preview.classList.remove('is-visible');
+      preview.innerHTML = '';
+    }
+  });
+}
+
+initItineraryImporter();
 
 document.getElementById('addMedia').addEventListener('click', () => {
   const div = document.createElement('div');

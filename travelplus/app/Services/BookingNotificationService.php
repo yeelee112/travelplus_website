@@ -61,7 +61,7 @@ class BookingNotificationService
      */
     private function sendAdminEmail(string $email, array $booking): void
     {
-        $subject = 'Booking moi: ' . (string) ($booking['booking_code'] ?? '');
+        $subject = 'Booking mới: ' . (string) ($booking['booking_code'] ?? '');
         $message = $this->buildAdminMessage($booking);
         $this->deliver($email, $subject, $message);
     }
@@ -94,10 +94,10 @@ class BookingNotificationService
         $code = (string) ($booking['booking_code'] ?? '');
 
         if ($status === 'paid') {
-            return 'Xac nhan thanh toan booking ' . $code;
+            return 'Xác nhận thanh toán booking ' . $code;
         }
 
-        return 'Xac nhan da nhan booking ' . $code;
+        return 'Xác nhận đã nhận booking ' . $code;
     }
 
     /**
@@ -105,30 +105,34 @@ class BookingNotificationService
      */
     private function buildCustomerMessage(array $booking): string
     {
-        $name = $this->e((string) ($booking['customer_name'] ?? 'Quy khach'));
-        $code = $this->e((string) ($booking['booking_code'] ?? ''));
-        $tourTitle = $this->e((string) ($booking['tour_title'] ?? ''));
-        $departure = $this->e((string) ($booking['departure_label'] ?? '-'));
-        $paymentMethod = strtoupper($this->e((string) ($booking['payment_method'] ?? '-')));
+        $name = (string) ($booking['customer_name'] ?? 'Quý khách');
+        $code = (string) ($booking['booking_code'] ?? '');
+        $tourTitle = (string) ($booking['tour_title'] ?? '');
+        $departure = (string) ($booking['departure_label'] ?? '-');
+        $paymentMethod = strtoupper((string) ($booking['payment_method'] ?? '-'));
         $status = strtolower((string) ($booking['payment_status'] ?? ''));
         $amount = number_format((float) ($status === 'paid' ? ($booking['amount_paid_vnd'] ?? 0) : ($booking['amount_due_vnd'] ?? 0)), 0, ',', '.') . ' VND';
-        $statusText = $status === 'paid'
-            ? 'Booking cua ban da thanh toan thanh cong.'
-            : 'Booking cua ban da duoc ghi nhan va dang cho doi soat chuyen khoan.';
+        $isPaid = $status === 'paid';
+        $template = new EmailTemplateService();
 
-        return <<<HTML
-<h2>Thong tin booking</h2>
-<p>Xin chao {$name},</p>
-<p>{$statusText}</p>
-<table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;border-color:#d8d8d8;">
-    <tr><td><strong>Ma booking</strong></td><td>{$code}</td></tr>
-    <tr><td><strong>Tour</strong></td><td>{$tourTitle}</td></tr>
-    <tr><td><strong>Ngay khoi hanh</strong></td><td>{$departure}</td></tr>
-    <tr><td><strong>Phuong thuc</strong></td><td>{$paymentMethod}</td></tr>
-    <tr><td><strong>So tien</strong></td><td>{$amount}</td></tr>
-</table>
-<p>Cam on ban da dat tour tai TravelPlus.</p>
-HTML;
+        return $template->render(
+            $isPaid ? 'Thanh toán thành công' : 'Đã ghi nhận booking',
+            $isPaid ? 'Booking của bạn đã thanh toán thành công' : 'Travel Plus đã ghi nhận booking của bạn',
+            'Xin chào ' . $name . ', cảm ơn bạn đã đặt dịch vụ tại Travel Plus. Thông tin booking được tóm tắt bên dưới.',
+            [
+                'Mã booking' => $code,
+                'Số tiền' => $amount,
+            ],
+            [
+                ['label' => 'Tour', 'value' => $tourTitle],
+                ['label' => 'Ngày khởi hành', 'value' => $departure],
+                ['label' => 'Phương thức', 'value' => $paymentMethod],
+                ['label' => 'Trạng thái', 'value' => $isPaid ? 'Đã thanh toán' : 'Chờ đối soát'],
+            ],
+            '',
+            'Xem booking',
+            $this->bookingUrl($booking)
+        );
     }
 
     /**
@@ -136,30 +140,48 @@ HTML;
      */
     private function buildAdminMessage(array $booking): string
     {
-        $status = $this->e((string) ($booking['payment_status'] ?? '-'));
-        $paymentMethod = strtoupper($this->e((string) ($booking['payment_method'] ?? '-')));
+        $status = (string) ($booking['payment_status'] ?? '-');
+        $paymentMethod = strtoupper((string) ($booking['payment_method'] ?? '-'));
         $amountDue = number_format((float) ($booking['amount_due_vnd'] ?? 0), 0, ',', '.') . ' VND';
         $amountPaid = number_format((float) ($booking['amount_paid_vnd'] ?? 0), 0, ',', '.') . ' VND';
+        $template = new EmailTemplateService();
 
-        return <<<HTML
-<h2>Co booking moi</h2>
-<table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;border-color:#d8d8d8;">
-    <tr><td><strong>Ma booking</strong></td><td>{$this->e((string) ($booking['booking_code'] ?? ''))}</td></tr>
-    <tr><td><strong>Khach hang</strong></td><td>{$this->e((string) ($booking['customer_name'] ?? ''))}</td></tr>
-    <tr><td><strong>Email</strong></td><td>{$this->e((string) ($booking['customer_email'] ?? ''))}</td></tr>
-    <tr><td><strong>So dien thoai</strong></td><td>{$this->e((string) ($booking['customer_phone'] ?? ''))}</td></tr>
-    <tr><td><strong>Tour</strong></td><td>{$this->e((string) ($booking['tour_title'] ?? ''))}</td></tr>
-    <tr><td><strong>Khoi hanh</strong></td><td>{$this->e((string) ($booking['departure_label'] ?? '-'))}</td></tr>
-    <tr><td><strong>Phuong thuc</strong></td><td>{$paymentMethod}</td></tr>
-    <tr><td><strong>Trang thai</strong></td><td>{$status}</td></tr>
-    <tr><td><strong>Can thu</strong></td><td>{$amountDue}</td></tr>
-    <tr><td><strong>Da thu</strong></td><td>{$amountPaid}</td></tr>
-</table>
-HTML;
+        return $template->render(
+            'Booking mới',
+            'Có booking mới từ website',
+            'Khách vừa hoàn tất bước đặt tour/thanh toán trên website Travel Plus. Vui lòng kiểm tra và xử lý trong hệ thống.',
+            [
+                'Mã booking' => (string) ($booking['booking_code'] ?? ''),
+                'Khách hàng' => (string) ($booking['customer_name'] ?? ''),
+            ],
+            [
+                ['label' => 'Email', 'value' => (string) ($booking['customer_email'] ?? '')],
+                ['label' => 'Số điện thoại', 'value' => (string) ($booking['customer_phone'] ?? '')],
+                ['label' => 'Tour', 'value' => (string) ($booking['tour_title'] ?? '')],
+                ['label' => 'Khởi hành', 'value' => (string) ($booking['departure_label'] ?? '-')],
+                ['label' => 'Phương thức', 'value' => $paymentMethod],
+                ['label' => 'Trạng thái', 'value' => $status],
+                ['label' => 'Cần thu', 'value' => $amountDue],
+                ['label' => 'Đã thu', 'value' => $amountPaid],
+            ],
+            '',
+            'Mở booking',
+            $this->bookingUrl($booking)
+        );
     }
 
     private function e(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * @param array<string, mixed> $booking
+     */
+    private function bookingUrl(array $booking): string
+    {
+        $code = trim((string) ($booking['booking_code'] ?? ''));
+
+        return $code !== '' ? site_url('booking/success/' . rawurlencode($code)) : site_url('/');
     }
 }

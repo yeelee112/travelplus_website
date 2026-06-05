@@ -7,45 +7,54 @@ $authSuccess = session()->getFlashdata('auth_success');
 $locale = service('request')->getLocale() ?: 'vi';
 $title = $locale === 'en' ? 'Reset password' : 'Đặt lại mật khẩu';
 $desc = $locale === 'en'
-    ? 'Enter your new password for this account.'
-    : 'Nhập mật khẩu mới cho tài khoản này.';
+    ? 'Create a new password for your Travel Plus account.'
+    : 'Tạo mật khẩu mới cho tài khoản Travel Plus của bạn.';
 $submit = $locale === 'en' ? 'Update password' : 'Cập nhật mật khẩu';
+$authKicker = $locale === 'en' ? 'Account recovery' : 'Khôi phục tài khoản';
+$authHighlights = $locale === 'en'
+    ? ['Use at least 6 characters', 'Sign in again after updating', 'Avoid reusing an old password']
+    : ['Dùng tối thiểu 6 ký tự', 'Đăng nhập lại sau khi cập nhật', 'Không nên dùng lại mật khẩu cũ'];
 ?>
-<div class="container pt-100 pb-100">
-    <div class="row justify-content-center">
-        <div class="col-xl-6 col-lg-8">
-            <div class="contact-form-wrap">
-                <div class="section-title mb-30 text-center">
-                    <h2><?= esc($title) ?></h2>
-                    <p><?= esc($desc) ?></p>
+<section class="travelplus-auth-page">
+    <div class="container">
+        <div class="travelplus-auth-shell travelplus-auth-shell--compact">
+            <aside class="travelplus-auth-intro">
+                <span><?= esc($authKicker) ?></span>
+                <h1><?= esc($title) ?></h1>
+                <p><?= esc($desc) ?></p>
+                <ul>
+                    <?php foreach ($authHighlights as $highlight): ?>
+                        <li><i class="bi bi-check2" aria-hidden="true"></i><?= esc($highlight) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </aside>
+
+            <div class="travelplus-auth-card">
+                <div class="travelplus-auth-card-head">
+                    <span><?= esc($authKicker) ?></span>
+                    <h2><?= esc($submit) ?></h2>
                 </div>
                 <?php if (! empty($authError)): ?><div class="alert alert-danger"><?= esc($authError) ?></div><?php endif; ?>
                 <?php if (! empty($authSuccess)): ?><div class="alert alert-success"><?= esc($authSuccess) ?></div><?php endif; ?>
-                <form method="post" action="">
+                <form method="post" action="" class="travelplus-auth-form">
                     <?= csrf_field() ?>
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="form-inner">
-                                <label><?= esc(lang('Frontend.auth.register.password', [], $locale)) ?></label>
-                                <input type="password" name="password" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-inner">
-                                <label><?= esc(lang('Frontend.auth.register.passwordConfirm', [], $locale)) ?></label>
-                                <input type="password" name="password_confirm" required>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" class="primary-btn1 two w-100">
-                                <span><?= esc($submit) ?></span>
-                                <span><?= esc($submit) ?></span>
-                            </button>
-                        </div>
+                    <div class="travelplus-auth-field-grid">
+                        <label class="travelplus-auth-field">
+                            <span><?= esc(lang('Frontend.auth.register.password', [], $locale)) ?></span>
+                            <input type="password" name="password" autocomplete="new-password" required>
+                        </label>
+                        <label class="travelplus-auth-field">
+                            <span><?= esc(lang('Frontend.auth.register.passwordConfirm', [], $locale)) ?></span>
+                            <input type="password" name="password_confirm" autocomplete="new-password" required>
+                        </label>
                     </div>
+                    <button type="submit" class="primary-btn1 two travelplus-auth-submit">
+                        <span><?= esc($submit) ?></span>
+                        <span><?= esc($submit) ?></span>
+                    </button>
                 </form>
             </div>
         </div>
     </div>
-</div>
+</section>
 <?= $this->endSection() ?>

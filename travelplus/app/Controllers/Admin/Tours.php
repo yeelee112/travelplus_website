@@ -365,6 +365,8 @@ class Tours extends BaseAdminController
             'max_travelers' => $this->nullableInt($post['max_travelers'] ?? null),
             'base_price' => $this->nullableInt($post['base_price'] ?? null),
             'sale_price' => $this->nullableInt($post['sale_price'] ?? null),
+            'child_price_rate' => $this->normalizeTravelerPriceRate($post['child_price_rate'] ?? null, 0.85),
+            'infant_price_rate' => $this->normalizeTravelerPriceRate($post['infant_price_rate'] ?? null, 0.25),
             'currency' => 'VND',
             'primary_destination_id' => $this->nullableInt($post['primary_destination_id'] ?? null),
             'map_embed' => trim((string) ($post['map_embed'] ?? '')),
@@ -398,27 +400,27 @@ class Tours extends BaseAdminController
                 'name' => trim((string) $post['name_vi']),
                 'slug' => trim((string) ($post['slug_vi'] ?? '')) ?: $this->slugify(trim((string) $post['name_vi'])),
                 'short_description' => trim((string) ($post['short_description_vi'] ?? '')),
-                'description' => trim((string) ($post['description_vi'] ?? '')),
-                'itinerary' => trim((string) ($post['itinerary_vi'] ?? '')),
+                'description' => $this->sanitizeRichHtml((string) ($post['description_vi'] ?? '')),
+                'itinerary' => $this->sanitizeRichHtml((string) ($post['itinerary_vi'] ?? '')),
                 'meta_title' => trim((string) ($post['meta_title_vi'] ?? '')),
                 'meta_description' => trim((string) ($post['meta_description_vi'] ?? '')),
-                'overview' => trim((string) ($post['overview_vi'] ?? '')),
-                'booking_policy' => trim((string) ($post['booking_policy_vi'] ?? '')),
-                'cancellation_policy' => trim((string) ($post['cancellation_policy_vi'] ?? '')),
-                'price_note' => trim((string) ($post['price_note_vi'] ?? '')),
+                'overview' => $this->sanitizeRichHtml((string) ($post['overview_vi'] ?? '')),
+                'booking_policy' => $this->sanitizeRichHtml((string) ($post['booking_policy_vi'] ?? '')),
+                'cancellation_policy' => $this->sanitizeRichHtml((string) ($post['cancellation_policy_vi'] ?? '')),
+                'price_note' => $this->sanitizeRichHtml((string) ($post['price_note_vi'] ?? '')),
             ],
             'en' => [
                 'name' => trim((string) (($post['name_en'] ?? '') ?: $post['name_vi'])),
                 'slug' => trim((string) ($post['slug_en'] ?? '')) ?: $this->slugify(trim((string) (($post['name_en'] ?? '') ?: $post['name_vi']))),
                 'short_description' => trim((string) ($post['short_description_en'] ?? '')),
-                'description' => trim((string) ($post['description_en'] ?? '')),
-                'itinerary' => trim((string) ($post['itinerary_en'] ?? '')),
+                'description' => $this->sanitizeRichHtml((string) ($post['description_en'] ?? '')),
+                'itinerary' => $this->sanitizeRichHtml((string) ($post['itinerary_en'] ?? '')),
                 'meta_title' => trim((string) ($post['meta_title_en'] ?? '')),
                 'meta_description' => trim((string) ($post['meta_description_en'] ?? '')),
-                'overview' => trim((string) ($post['overview_en'] ?? '')),
-                'booking_policy' => trim((string) ($post['booking_policy_en'] ?? '')),
-                'cancellation_policy' => trim((string) ($post['cancellation_policy_en'] ?? '')),
-                'price_note' => trim((string) ($post['price_note_en'] ?? '')),
+                'overview' => $this->sanitizeRichHtml((string) ($post['overview_en'] ?? '')),
+                'booking_policy' => $this->sanitizeRichHtml((string) ($post['booking_policy_en'] ?? '')),
+                'cancellation_policy' => $this->sanitizeRichHtml((string) ($post['cancellation_policy_en'] ?? '')),
+                'price_note' => $this->sanitizeRichHtml((string) ($post['price_note_en'] ?? '')),
             ],
         ];
 
@@ -600,8 +602,8 @@ class Tours extends BaseAdminController
                 continue;
             }
 
-            $questionVi = trim((string) ($row['question_vi'] ?? ''));
-            $answerVi = trim((string) ($row['answer_vi'] ?? ''));
+            $questionVi = trim(strip_tags((string) ($row['question_vi'] ?? '')));
+            $answerVi = $this->sanitizeRichHtml((string) ($row['answer_vi'] ?? ''));
 
             if ($questionVi === '' && $answerVi === '') {
                 continue;
@@ -627,8 +629,8 @@ class Tours extends BaseAdminController
             $db->table('tour_faq_translations')->insert([
                 'faq_id' => $faqId,
                 'locale' => 'en',
-                'question' => trim((string) ($row['question_en'] ?? '')) ?: $questionVi,
-                'answer' => trim((string) ($row['answer_en'] ?? '')) ?: $answerVi,
+                'question' => trim(strip_tags((string) ($row['question_en'] ?? ''))) ?: $questionVi,
+                'answer' => $this->sanitizeRichHtml((string) ($row['answer_en'] ?? '')) ?: $answerVi,
             ]);
         }
     }
@@ -750,6 +752,8 @@ class Tours extends BaseAdminController
             'min_travelers' => $tour['min_travelers'] ?? '',
             'base_price' => $tour['base_price'] ?? '',
             'sale_price' => $tour['sale_price'] ?? '',
+            'child_price_rate' => $tour['child_price_rate'] ?? '0.85',
+            'infant_price_rate' => $tour['infant_price_rate'] ?? '0.25',
             'thumbnail' => $tour['thumbnail'] ?? '',
             'status' => $tour['status'] ?? 'draft',
             'is_featured' => (int) ($tour['is_featured'] ?? 0),
@@ -797,6 +801,8 @@ class Tours extends BaseAdminController
             'duration_days' => 5,
             'duration_nights' => 4,
             'max_travelers' => 15,
+            'child_price_rate' => '0.85',
+            'infant_price_rate' => '0.25',
             'status' => 'draft',
             'promotion_sort' => 0,
             'departure_status' => 'open',
@@ -1091,6 +1097,8 @@ class Tours extends BaseAdminController
             return '';
         }
 
+        $html = preg_replace('/<(script|style|iframe|object|embed|link|meta)\b[^>]*>.*?<\/\1>/is', '', $html) ?? '';
+        $html = preg_replace('/<\s*(script|style|iframe|object|embed|link|meta)\b[^>]*\/?\s*>/i', '', $html) ?? '';
         $html = preg_replace('/<div\b[^>]*>/i', '<p>', $html) ?? '';
         $html = str_ireplace('</div>', '</p>', $html);
         $html = strip_tags($html, '<p><br><strong><b><em><i><u><ul><ol><li>');
@@ -1145,6 +1153,22 @@ class Tours extends BaseAdminController
         }
 
         return (int) $value;
+    }
+
+    private function normalizeTravelerPriceRate($value, float $default): float
+    {
+        if ($value === null || $value === '') {
+            return $default;
+        }
+
+        $value = str_replace(',', '.', trim((string) $value));
+        $rate = (float) $value;
+
+        if ($rate < 0 || $rate > 1) {
+            return $default;
+        }
+
+        return round($rate, 4);
     }
 
     private function nullableDateTime($value): ?string

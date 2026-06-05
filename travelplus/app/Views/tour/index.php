@@ -5,7 +5,21 @@
 if (! function_exists('tour_detail_html')) {
     function tour_detail_html(?string $html): string
     {
-        return trim(strip_tags((string) $html, '<p><br><strong><em><u><ul><ol><li>'));
+        $html = trim((string) $html);
+
+        if ($html === '') {
+            return '';
+        }
+
+        $html = preg_replace('/<(script|style|iframe|object|embed|link|meta)\b[^>]*>.*?<\/\1>/is', '', $html) ?? '';
+        $html = preg_replace('/<\s*(script|style|iframe|object|embed|link|meta)\b[^>]*\/?\s*>/i', '', $html) ?? '';
+        $html = preg_replace('/<div\b[^>]*>/i', '<p>', $html) ?? '';
+        $html = str_ireplace('</div>', '</p>', $html);
+        $html = strip_tags($html, '<p><br><strong><b><em><i><u><ul><ol><li>');
+        $html = preg_replace('/<([a-z][a-z0-9]*)(?:\s[^>]*)?>/i', '<$1>', $html) ?? '';
+        $html = str_ireplace(['<b>', '</b>', '<i>', '</i>'], ['<strong>', '</strong>', '<em>', '</em>'], $html);
+
+        return trim($html);
     }
 }
 
@@ -39,8 +53,19 @@ $departures = array_values(array_filter($tour['departures'] ?? [], static fn($it
 $firstDeparture = $departures[0] ?? null;
 $adultPrice = (float) ($firstDeparture['price'] ?? $tour['price']['amount'] ?? 0);
 $adultPrice = $adultPrice > 0 ? $adultPrice : (float) ($tour['price']['amount'] ?? 0);
-$childPrice = $adultPrice * 0.85;
-$infantPrice = $adultPrice * 0.25;
+$normalizeTravelerPriceRate = static function ($value, float $default): float {
+    if ($value === null || $value === '') {
+        return $default;
+    }
+
+    $rate = (float) $value;
+
+    return $rate >= 0 && $rate <= 1 ? $rate : $default;
+};
+$childPriceRate = $normalizeTravelerPriceRate($tour['child_price_rate'] ?? null, 0.85);
+$infantPriceRate = $normalizeTravelerPriceRate($tour['infant_price_rate'] ?? null, 0.25);
+$childPrice = round($adultPrice * $childPriceRate, 0);
+$infantPrice = round($adultPrice * $infantPriceRate, 0);
 $maxTravelers = max(1, (int) ($tour['max_travelers'] ?? 15));
 $departureLabel = (string) ($firstDeparture['date_label'] ?? $tour['departure'] ?? '');
 $hasBookableDepartures = $firstDeparture !== null;
@@ -59,8 +84,8 @@ foreach ($departures as $departure) {
         'available_slots' => $departureSlots,
         'max_travelers' => $departureMaxTravelers,
         'adult_price' => $departureAdultPrice,
-        'child_price' => round($departureAdultPrice * 0.85, 0),
-        'infant_price' => round($departureAdultPrice * 0.25, 0),
+        'child_price' => round($departureAdultPrice * $childPriceRate, 0),
+        'infant_price' => round($departureAdultPrice * $infantPriceRate, 0),
     ];
 }
 $reviewSummary = $tour['review_summary'] ?? ['count' => 0, 'overall' => 0, 'destination' => 0, 'transport' => 0, 'value' => 0];
@@ -73,6 +98,26 @@ $googleEnabled = config(\Config\SocialAuth::class)->googleEnabled;
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
 
 $durationLabel = ($tour['duration']['days'] ?? 0) . ' ' . $t('tour.duration.days') . ' ' . ($tour['duration']['nights'] ?? 0) . ' ' . $t('tour.duration.nights');
+$heroIntroSource = trim((string) ($tour['short_description'] ?? ''));
+if ($heroIntroSource === '') {
+    $heroIntroSource = trim((string) ($tour['overview'] ?? ''));
+}
+if ($heroIntroSource === '') {
+    $heroIntroSource = trim((string) ($tour['description'] ?? ''));
+}
+$heroIntro = trim((string) preg_replace('/\s+/u', ' ', strip_tags($heroIntroSource)));
+if (function_exists('mb_strlen') && mb_strlen($heroIntro) > 180) {
+    $heroIntro = rtrim(mb_substr($heroIntro, 0, 177)) . '...';
+}
+$priceDisplay = $adultPrice > 0 ? number_format($adultPrice, 0, ',', '.') . 'đ' : (string) ($tour['price']['label'] ?? '');
+$destinationLabel = trim((string) ($tour['continent'] ?? ''));
+$departureFrom = trim((string) ($tour['departure_from'] ?? ''));
+$heroMetaItems = array_values(array_filter([
+    ['icon' => 'bi-clock', 'label' => $durationLabel],
+    $departureLabel !== '' ? ['icon' => 'bi-calendar3', 'label' => $t('tour.booking.departurePrefix') . ' ' . $departureLabel] : null,
+    $departureFrom !== '' ? ['icon' => 'bi-airplane', 'label' => $departureFrom] : null,
+    $destinationLabel !== '' ? ['icon' => 'bi-geo-alt', 'label' => $destinationLabel] : null,
+]));
 $reviewLabel = match (true) {
     $reviewSummary['overall'] >= 4.5 => $t('tour.reviewLabel.excellent'),
     $reviewSummary['overall'] >= 4.0 => $t('tour.reviewLabel.veryGood'),
@@ -101,25 +146,87 @@ $enquiryLabels = [
     'agree' => $t('tour.enquiry.agree'),
     'submit' => $t('tour.enquiry.submit'),
 ];
+$heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) : [];
 ?>
 
-<div class="breadcrumb-section two">
-    <div class="home2-banner-slider">
-        <div class="banner-bg">
-            <img class="tour-detail-hero-img" src="<?= esc($tour['image']) ?>" alt="<?= esc($tour['title']) ?>" loading="eager" fetchpriority="high" decoding="async" width="1920" height="760">
-        </div>
+<section class="tour-detail-hero" itemscope itemtype="https://schema.org/TouristTrip">
+    <div class="tour-detail-hero__media">
+        <img class="tour-detail-hero__image" src="<?= esc($tour['image']) ?>" alt="<?= esc($tour['title']) ?>" loading="eager" fetchpriority="high" decoding="async" width="1920" height="760" itemprop="image">
     </div>
-    <div class="banner-content-wrap">
-        <div class="container">
-            <div class="banner-content">
-                <h1><?= esc($tour['title']) ?></h1>
-                <div class="batch">
-                    <span><?= esc($durationLabel) ?><?= $departureLabel !== '' ? ' | ' . esc($t('tour.booking.departurePrefix')) . ' ' . esc($departureLabel) : '' ?></span>
+    <div class="tour-detail-hero__shade"></div>
+    <div class="container">
+        <div class="tour-detail-hero__grid">
+            <div class="tour-detail-hero__copy">
+                <?php if ($heroBreadcrumbs !== []): ?>
+                    <nav class="tour-detail-hero__breadcrumbs" aria-label="Breadcrumb">
+                        <ol>
+                            <?php foreach ($heroBreadcrumbs as $crumbIndex => $crumb): ?>
+                                <?php $isLastCrumb = $crumbIndex === array_key_last($heroBreadcrumbs); ?>
+                                <li>
+                                    <?php if (! $isLastCrumb && ! empty($crumb['url'])): ?>
+                                        <a href="<?= esc((string) $crumb['url']) ?>"><?= esc((string) ($crumb['label'] ?? '')) ?></a>
+                                    <?php else: ?>
+                                        <span><?= esc((string) ($crumb['label'] ?? '')) ?></span>
+                                    <?php endif; ?>
+                                </li>
+                                <?php if (! $isLastCrumb): ?>
+                                    <li class="tour-detail-hero__breadcrumb-separator" aria-hidden="true"><i class="bi bi-chevron-right"></i></li>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </ol>
+                    </nav>
+                <?php endif; ?>
+                <span class="tour-detail-hero__eyebrow">Travel Plus Tour</span>
+                <h1 itemprop="name"><?= esc($tour['title']) ?></h1>
+                <?php if ($heroIntro !== ''): ?>
+                    <p itemprop="description"><?= esc($heroIntro) ?></p>
+                <?php endif; ?>
+                <?php if ($heroMetaItems !== []): ?>
+                    <ul class="tour-detail-hero__meta">
+                        <?php foreach ($heroMetaItems as $item): ?>
+                            <li><i class="bi <?= esc($item['icon']) ?>" aria-hidden="true"></i><?= esc($item['label']) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+                <div class="tour-detail-hero__actions">
+                    <button class="primary-btn1" <?= $hasBookableDepartures ? 'data-bs-toggle="modal" data-bs-target="#bookingModal"' : 'disabled' ?>>
+                        <span><?= esc($hasBookableDepartures ? $t('tour.sidebar.checkAvailability') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
+                        <span><?= esc($hasBookableDepartures ? $t('tour.sidebar.checkAvailability') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
+                    </button>
+                    <button class="primary-btn1 transparent" data-bs-toggle="modal" data-bs-target="#enquiryModal">
+                        <span><?= esc($t('tour.sidebar.consult')) ?><i class="bi bi-chat-dots"></i></span>
+                        <span><?= esc($t('tour.sidebar.consult')) ?><i class="bi bi-chat-dots"></i></span>
+                    </button>
                 </div>
             </div>
+            <aside class="tour-detail-hero__summary" aria-label="<?= esc($t('tour.sidebar.price')) ?>">
+                <span><?= esc($t('tour.sidebar.price')) ?></span>
+                <?php if ($priceDisplay !== ''): ?>
+                    <strong><?= esc($priceDisplay) ?><small><?= esc($t('tour.booking.perPerson')) ?></small></strong>
+                <?php endif; ?>
+                <?php if ($departureLabel !== ''): ?>
+                    <p><i class="bi bi-calendar-check" aria-hidden="true"></i><?= esc($departureLabel) ?></p>
+                <?php endif; ?>
+                <button class="primary-btn1 two" <?= $hasBookableDepartures ? 'data-bs-toggle="modal" data-bs-target="#bookingModal"' : 'disabled' ?>>
+                    <span><?= esc($hasBookableDepartures ? $t('tour.booking.bookNow') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
+                    <span><?= esc($hasBookableDepartures ? $t('tour.booking.bookNow') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
+                </button>
+            </aside>
         </div>
     </div>
-</div>
+</section>
+<nav class="tour-detail-anchor-nav" aria-label="Tour detail sections">
+    <div class="container">
+        <div class="tour-detail-anchor-nav__scroller">
+            <a href="#tour-overview"><?= esc($t('tour.overview.title')) ?></a>
+            <?php if ($gallery !== []): ?><a href="#tour-gallery"><?= esc($t('tour.gallery.title')) ?></a><?php endif; ?>
+            <?php if (! empty($tour['itinerary_days'])): ?><a href="#tour-itinerary"><?= esc($t('tour.itinerary.title')) ?></a><?php endif; ?>
+            <a href="#tour-details"><?= esc($t('tour.details.title')) ?></a>
+            <?php if (! empty($tour['faqs'])): ?><a href="#tour-faq"><?= esc($t('tour.faq.title')) ?></a><?php endif; ?>
+            <a href="#tour-reviews"><?= esc($t('tour.reviews.title')) ?></a>
+        </div>
+    </div>
+</nav>
 <div class="modal rating-modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -241,89 +348,68 @@ $enquiryLabels = [
                     <?php else: ?>
                         <div class="alert alert-warning"><?= esc($t('tour.booking.noDepartures')) ?></div>
                     <?php endif; ?>
-                <div class="package-list">
-                    <div class="accordion accordion-flush" id="accordionFlushPackage">
-                        <div class="accordion-item">
-                            <div class="accordion-header">
-                                <div class="accordion-button" role="button" data-bs-toggle="collapse"
-                                    data-bs-target="#flush-package-collapseOne" aria-expanded="false"
-                                    aria-controls="flush-package-collapseOne">
-                                    <div class="batch"><span><?= esc($t('tour.booking.details')) ?></span></div>
-                                    <div class="title-area"><span class="check"></span>
-                                        <h6><?= esc($tour['title']) ?></h6>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="accordion-collapse collapse show"
-                                aria-labelledby="flush-package-headingOne" data-bs-parent="#accordionFlushPackage">
-                                <div class="accordion-body">
-                                    <div class="tour-info-and-calculate-area">
-                                        <p data-booking-tour-info><?= esc($durationLabel) ?><?= $departureLabel !== '' ? ' | ' . esc($t('tour.booking.departurePrefix')) . ' ' . esc($departureLabel) : '' ?></p>
-                                    </div>
-                                    <div class="additional-service-area" data-max-travelers="<?= esc($maxTravelers) ?>" data-base-max-travelers="<?= esc($maxTravelers) ?>" data-duration-label="<?= esc($durationLabel, 'attr') ?>" data-departure-prefix="<?= esc($t('tour.booking.departurePrefix'), 'attr') ?>">
-                                        <h6><?= esc($t('tour.booking.travelersTitle')) ?> <sub data-booking-travelers-max-label>(<?= esc($t('tour.booking.travelersMax', [$maxTravelers])) ?>)</sub></h6>
-                                        <ul class="service-list booking-service-list">
-                                            <li class="booking-service-item" data-service-type="adult" data-unit-price="<?= $adultPrice ?>" data-min="1">
-                                                <div class="service-info-wrap">
-                                                    <div class="service-info">
-                                                        <h6><?= esc($t('tour.booking.adult')) ?></h6>
-                                                        <p data-booking-price-label="adult"><?= esc(number_format($adultPrice, 0, ',', '.')) ?></p>
-                                                    </div>
-                                                </div>
-                                                <div class="pricing-and-count-area">
-                                                    <div class="quantity-counter"><a data-type="adult" class="quantity__minus"><i class="bi bi-dash"></i></a><input type="text" class="quantity__input" name="adult_service_quantity" value="1" data-min="1"><a data-type="adult" class="quantity__plus"><i class="bi bi-plus"></i></a></div>
-                                                </div>
-                                            </li>
-                                            <li class="booking-service-item" data-service-type="child" data-unit-price="<?= $childPrice ?>" data-min="0">
-                                                <div class="service-info-wrap">
-                                                    <div class="service-info">
-                                                        <h6><?= esc($t('tour.booking.child')) ?></h6>
-                                                        <p data-booking-price-label="child"><?= esc(number_format($childPrice, 0, ',', '.')) ?></p>
-                                                    </div>
-                                                </div>
-                                                <div class="pricing-and-count-area">
-                                                    <div class="quantity-counter"><a data-type="child" class="quantity__minus"><i class="bi bi-dash"></i></a><input type="text" class="quantity__input" name="child_service_quantity" value="0" data-min="0"><a data-type="child" class="quantity__plus"><i class="bi bi-plus"></i></a></div>
-                                                </div>
-                                            </li>
-                                            <li class="booking-service-item" data-service-type="infant" data-unit-price="<?= $infantPrice ?>" data-min="0">
-                                                <div class="service-info-wrap">
-                                                    <div class="service-info">
-                                                        <h6><?= esc($t('tour.booking.infant')) ?></h6>
-                                                        <p data-booking-price-label="infant"><?= esc(number_format($infantPrice, 0, ',', '.')) ?>₫</p>
-                                                    </div>
-                                                </div>
-                                                <div class="pricing-and-count-area">
-                                                    <div class="quantity-counter"><a data-type="infant" class="quantity__minus"><i class="bi bi-dash"></i></a><input type="text" class="quantity__input" name="infant_service_quantity" value="0" data-min="0"><a data-type="infant" class="quantity__plus"><i class="bi bi-plus"></i></a></div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                        <div class="booking-total-area">
-                                            <span class="booking-total-label"><?= esc($t('tour.booking.total')) ?> </span>
-                                            <strong class="booking-grand-total"><?= esc(number_format($adultPrice, 0, ',', '.')) ?></strong>
-                                        </div>
-                                    </div>
-                                    <div class="btn-area">
-                                        <button class="primary-btn1 two" type="submit" <?= $hasBookableDepartures ? '' : 'disabled' ?>>
-                                            <span>
-                                                <?= esc($t('tour.booking.bookNow')) ?>
-                                                <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
-                                                    </path>
-                                                </svg>
-                                            </span>
-                                            <span>
-                                                <?= esc($t('tour.booking.bookNow')) ?>
-                                                <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">
-                                                    </path>
-                                                </svg>
-                                            </span>
-                                        </button>
-                                        <div class="alert alert-danger d-none mt-3" data-booking-proceed-error></div>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="booking-modal-card">
+                    <div class="booking-modal-tour">
+                        <span class="booking-modal-tour__check"><i class="bi bi-check2" aria-hidden="true"></i></span>
+                        <div class="booking-modal-tour__body">
+                            <span><?= esc($t('tour.booking.details')) ?></span>
+                            <h6><?= esc($tour['title']) ?></h6>
+                            <p data-booking-tour-info><?= esc($durationLabel) ?><?= $departureLabel !== '' ? ' | ' . esc($t('tour.booking.departurePrefix')) . ' ' . esc($departureLabel) : '' ?></p>
                         </div>
+                    </div>
+
+                    <div class="additional-service-area booking-modal-travelers" data-max-travelers="<?= esc($maxTravelers) ?>" data-base-max-travelers="<?= esc($maxTravelers) ?>" data-duration-label="<?= esc($durationLabel, 'attr') ?>" data-departure-prefix="<?= esc($t('tour.booking.departurePrefix'), 'attr') ?>">
+                        <div class="booking-modal-section-title">
+                            <h6><?= esc($t('tour.booking.travelersTitle')) ?></h6>
+                            <sub data-booking-travelers-max-label>(<?= esc($t('tour.booking.travelersMax', [$maxTravelers])) ?>)</sub>
+                        </div>
+                        <ul class="service-list booking-service-list">
+                            <li class="booking-service-item" data-service-type="adult" data-unit-price="<?= $adultPrice ?>" data-min="1">
+                                <div class="service-info-wrap">
+                                    <div class="service-info">
+                                        <h6><?= esc($t('tour.booking.adult')) ?></h6>
+                                        <p data-booking-price-label="adult"><?= esc(number_format($adultPrice, 0, ',', '.')) ?></p>
+                                    </div>
+                                </div>
+                                <div class="pricing-and-count-area">
+                                    <div class="quantity-counter"><a data-type="adult" class="quantity__minus"><i class="bi bi-dash"></i></a><input type="text" class="quantity__input" name="adult_service_quantity" value="1" data-min="1"><a data-type="adult" class="quantity__plus"><i class="bi bi-plus"></i></a></div>
+                                </div>
+                            </li>
+                            <li class="booking-service-item" data-service-type="child" data-unit-price="<?= $childPrice ?>" data-min="0">
+                                <div class="service-info-wrap">
+                                    <div class="service-info">
+                                        <h6><?= esc($t('tour.booking.child')) ?></h6>
+                                        <p data-booking-price-label="child"><?= esc(number_format($childPrice, 0, ',', '.')) ?></p>
+                                    </div>
+                                </div>
+                                <div class="pricing-and-count-area">
+                                    <div class="quantity-counter"><a data-type="child" class="quantity__minus"><i class="bi bi-dash"></i></a><input type="text" class="quantity__input" name="child_service_quantity" value="0" data-min="0"><a data-type="child" class="quantity__plus"><i class="bi bi-plus"></i></a></div>
+                                </div>
+                            </li>
+                            <li class="booking-service-item" data-service-type="infant" data-unit-price="<?= $infantPrice ?>" data-min="0">
+                                <div class="service-info-wrap">
+                                    <div class="service-info">
+                                        <h6><?= esc($t('tour.booking.infant')) ?></h6>
+                                        <p data-booking-price-label="infant"><?= esc(number_format($infantPrice, 0, ',', '.')) ?>₫</p>
+                                    </div>
+                                </div>
+                                <div class="pricing-and-count-area">
+                                    <div class="quantity-counter"><a data-type="infant" class="quantity__minus"><i class="bi bi-dash"></i></a><input type="text" class="quantity__input" name="infant_service_quantity" value="0" data-min="0"><a data-type="infant" class="quantity__plus"><i class="bi bi-plus"></i></a></div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="booking-total-area">
+                            <span class="booking-total-label"><?= esc($t('tour.booking.total')) ?> </span>
+                            <strong class="booking-grand-total"><?= esc(number_format($adultPrice, 0, ',', '.')) ?></strong>
+                        </div>
+                    </div>
+
+                    <div class="btn-area booking-modal-actions">
+                        <button class="primary-btn1 two" type="submit" <?= $hasBookableDepartures ? '' : 'disabled' ?>>
+                            <span><?= esc($t('tour.booking.bookNow')) ?> <i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+                            <span><?= esc($t('tour.booking.bookNow')) ?> <i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+                        </button>
+                        <div class="alert alert-danger d-none mt-3" data-booking-proceed-error></div>
                     </div>
                 </div>
                 </form>
@@ -436,13 +522,29 @@ $enquiryLabels = [
                         <div class="col-md-6">
                             <div class="form-inner">
                                 <label><?= esc($enquiryLabels['date']) ?></label>
-                                <div class="date-field-area">
-                                    <input type="date" name="travel_date" min="<?= esc(date('Y-m-d')) ?>">
-                                    <svg class="calender-icon" width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                        <g>
-                                            <path d="M12.1953 1.09375H10.9375V0.4375C10.9375 0.195891 10.7416 0 10.5 0C10.2584 0 10.0625 0.195891 10.0625 0.4375V1.09375H3.9375V0.4375C3.9375 0.195891 3.74164 0 3.5 0C3.25836 0 3.0625 0.195891 3.0625 0.4375V1.09375H1.80469C0.809566 1.09375 0 1.90332 0 2.89844V12.1953C0 13.1904 0.809566 14 1.80469 14H12.1953C13.1904 14 14 13.1904 14 12.1953V2.89844C14 1.90332 13.1904 1.09375 12.1953 1.09375ZM13.125 12.1953C13.125 12.7088 12.7088 13.125 12.1953 13.125H1.80469C1.29123 13.125 0.875 12.7088 0.875 12.1953V4.94922C0.875 4.91296 0.889404 4.87818 0.915044 4.85254C0.940684 4.8269 0.975459 4.8125 1.01172 4.8125H12.9883C13.0245 4.8125 13.0593 4.8269 13.085 4.85254C13.1106 4.87818 13.125 4.91296 13.125 4.94922V12.1953Z"></path>
-                                        </g>
-                                    </svg>
+                                <div class="date-field-area enquiry-date-picker home-search-date" data-listing-date-picker data-locale="<?= esc($locale, 'attr') ?>" data-value-format="display">
+                                    <input type="hidden" name="travel_date" value="" data-listing-date-input>
+                                    <button
+                                        type="button"
+                                        class="home-search-date__trigger enquiry-date-picker__trigger"
+                                        data-listing-date-trigger
+                                        data-empty-label="dd/mm/yyyy"
+                                        aria-expanded="false"
+                                        aria-haspopup="dialog">
+                                        <span class="home-search-date__value" data-listing-date-display>dd/mm/yyyy</span>
+                                        <i class="bi bi-calendar3" aria-hidden="true"></i>
+                                    </button>
+                                    <div class="home-search-date__panel" data-listing-date-panel hidden>
+                                        <div class="home-search-date__calendar" role="dialog" aria-label="<?= esc($enquiryLabels['date'], 'attr') ?>">
+                                            <div class="home-search-date__calendar-head">
+                                                <button type="button" class="home-search-date__nav" data-listing-date-prev aria-label="Previous month">&lsaquo;</button>
+                                                <strong class="home-search-date__month" data-listing-date-month></strong>
+                                                <button type="button" class="home-search-date__nav" data-listing-date-next aria-label="Next month">&rsaquo;</button>
+                                            </div>
+                                            <div class="home-search-date__weekdays" data-listing-date-weekdays aria-hidden="true"></div>
+                                            <div class="home-search-date__days" data-listing-date-days></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -485,14 +587,14 @@ $enquiryLabels = [
         </div>
     </div>
 </div>
-<div class="package-details-page pt-100 mb-100">
+<div class="package-details-page tour-detail-content pt-100 mb-100">
     <div class="container">
         <div class="row g-lg-4 gy-5 justify-content-between">
             <div class="col-xl-7 col-lg-8">
                 <div class="package-details-warpper">
-                    <div class="package-info-wrap mb-60">
+                    <div class="package-info-wrap mb-60" id="tour-overview">
                         <h4><?= esc($t('tour.overview.title')) ?></h4>
-                        <p><?= tour_detail_html($tour['description']) ?></p>
+                        <div class="tour-detail-richtext"><?= tour_detail_html($tour['description']) ?></div>
                         <ul class="package-info-list">
                             <li><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                                     <g>
@@ -579,7 +681,7 @@ $enquiryLabels = [
                         </ul>
                     </div>
                     <?php if ($gallery !== []): ?>
-                    <div class="location-slider-wrap mb-60">
+                    <div class="location-slider-wrap mb-60" id="tour-gallery">
                         <h4><?= esc($t('tour.gallery.title')) ?></h4>
                         <div class="location-slider-area">
                             <div class="swiper package-dt-location-slider">
@@ -620,9 +722,9 @@ $enquiryLabels = [
 
                 <?php if (! empty($tour['itinerary_days'])): ?>
 
-                    <div class="tour-itinerary-area mb-60">
+                    <div class="tour-itinerary-area mb-60" id="tour-itinerary">
                         <div class="itinerary-title">
-                            <h4><?= esc($t('tour.itinerary.title')) ?></h4><a href="#" class="expand-btn"><?= esc($t('tour.itinerary.expand')) ?></a>
+                            <h4><?= esc($t('tour.itinerary.title')) ?></h4>
                         </div>
                         <ul class="itinerary-list">
                             <li class="single-itinerary">
@@ -663,7 +765,7 @@ $enquiryLabels = [
                         <h4><?= esc($t('tour.highlights.title')) ?></h4>
                         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3257.313598043175!2d2.291906376866813!3d48.858373600707175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca9ee380ef7e0!2sTh%C3%A1p%20Eiffel!5e1!3m2!1svi!2s!4v1775463086452!5m2!1svi!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div> -->
-                    <div class="feature-list-area mb-60">
+                    <div class="feature-list-area mb-60" id="tour-details">
                         <h4><?= esc($t('tour.details.title')) ?></h4>
                         <div class="row gy-md-5 gy-4 justify-content-between">
                             <div class="col-lg-5 col-md-6">
@@ -860,7 +962,7 @@ $enquiryLabels = [
                         </ul>
                     </div>
                     <?php if (! empty($tour['faqs'])): ?>
-                    <div class="faq-area mb-60">
+                    <div class="faq-area mb-60" id="tour-faq">
                         <h4><?= esc($t('tour.faq.title')) ?></h4>
                         <div class="faq-wrap">
                             <div class="accordion accordion-flush" id="accordionFlushExample">
@@ -881,7 +983,7 @@ $enquiryLabels = [
                         </div>
                     </div>
                     <?php endif; ?>
-                    <div class="customer-rating-area">
+                    <div class="customer-rating-area" id="tour-reviews">
                         <h4><?= esc($t('tour.reviews.title')) ?></h4>
                         <div class="rating-wrapper">
                             <div class="rating-area">

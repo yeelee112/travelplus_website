@@ -77,6 +77,10 @@ class WebsiteKnowledgeService
      */
     public function getStructuredFacts(string $locale, string $question, array $chatState = []): ?array
     {
+        if ($this->looksLikeCompanyStrengthQuestion($question)) {
+            return $this->buildStructuredCompanyStrengthFacts($locale);
+        }
+
         if ($this->looksLikePaymentQuestion($question)) {
             return $this->buildStructuredPaymentFacts($locale);
         }
@@ -95,6 +99,10 @@ class WebsiteKnowledgeService
 
         if ($this->looksLikeVisaQuestion($question)) {
             return $this->buildStructuredVisaFacts($locale, $question);
+        }
+
+        if ($this->looksLikeMiceQuestion($question)) {
+            return $this->buildStructuredMiceFacts($locale);
         }
 
         if (! $this->looksLikeTourQuestion($question) && ! $this->referencesCurrentTour($question)) {
@@ -143,7 +151,13 @@ class WebsiteKnowledgeService
             return null;
         }
 
-        if ($this->looksLikeTourContentQuestion($question) || $this->looksLikeDestinationListQuestion($question) || $this->referencesCurrentTour($question)) {
+        if (
+            $this->looksLikeTourContentQuestion($question)
+            || $this->looksLikeDestinationListQuestion($question)
+            || $this->looksLikeTourPriceQuestion($question)
+            || $this->looksLikeTourDepartureQuestion($question)
+            || $this->referencesCurrentTour($question)
+        ) {
             return $this->buildStructuredTourDetailFacts($locale, $question, $selectedTour);
         }
 
@@ -158,13 +172,25 @@ class WebsiteKnowledgeService
     {
         if ($this->looksLikeVisaQuestion($question) && $this->looksLikeVisaProcessingTimeQuestion($question)) {
             $visaFacts = $this->buildStructuredVisaFacts($locale, $question);
+            $referenceRegion = $this->looksLikeSchengenVisaQuestion($question) ? 'schengen' : 'general';
+            $sources = is_array($visaFacts['sources'] ?? null) ? $visaFacts['sources'] : [];
+
+            if ($referenceRegion === 'schengen') {
+                array_unshift($sources, [
+                    'title' => $locale === 'en'
+                        ? 'European Commission - Applying for a Schengen visa'
+                        : 'Ủy ban Châu Âu - Nộp hồ sơ visa Schengen',
+                    'url' => 'https://home-affairs.ec.europa.eu/policies/schengen/visa-policy/applying-schengen-visa_en',
+                ]);
+            }
 
             return [
                 'type' => 'reference_visa_timeline',
                 'intent' => 'reference_visa_timeline',
                 'reference_topic' => $this->extractReferenceTopic($question),
+                'reference_region' => $referenceRegion,
                 'website_facts' => $visaFacts,
-                'sources' => $visaFacts['sources'] ?? [],
+                'sources' => $sources,
             ];
         }
 
@@ -470,9 +496,21 @@ class WebsiteKnowledgeService
             }
         }
 
+        $intent = 'itinerary';
+
+        if ($this->looksLikeDestinationListQuestion($question)) {
+            $intent = 'destinations';
+        } elseif ($this->looksLikeTourHighlightQuestion($question)) {
+            $intent = 'highlights';
+        } elseif ($this->looksLikeTourPriceQuestion($question)) {
+            $intent = 'price';
+        } elseif ($this->looksLikeTourDepartureQuestion($question)) {
+            $intent = 'departure';
+        }
+
         return [
             'type' => 'tour_detail',
-            'intent' => $this->looksLikeDestinationListQuestion($question) ? 'destinations' : 'itinerary',
+            'intent' => $intent,
             'selected_tour' => $this->formatTourFactItem($tour),
             'tour' => [
                 'title' => (string) ($tour['title'] ?? ''),
@@ -493,8 +531,158 @@ class WebsiteKnowledgeService
                 'last_tour_slug' => (string) ($tour['slug'] ?? ''),
                 'last_tour_type' => (string) ($tour['tour_type'] ?? ''),
                 'last_tour_title' => (string) ($tour['title'] ?? ''),
+                'last_tour_departure' => (string) ($tour['departure'] ?? ''),
+                'last_tour_price_label' => (string) ($tour['price_label'] ?? ''),
+                'last_tour_duration_label' => (string) ($tour['duration_label'] ?? ''),
+                'last_tour_url' => (string) ($tour['url'] ?? ''),
                 'last_locale' => $locale,
             ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildStructuredCompanyStrengthFacts(string $locale): array
+    {
+        if ($locale === 'en') {
+            return [
+                'type' => 'company_strength',
+                'intent' => 'company_strength',
+                'company_strength' => [
+                    'summary' => 'Travel Plus is strongest in professional MICE programs for businesses, with a notable advantage in healthcare and pharmaceutical events. The company also supports outbound tours, domestic tours, visa preparation and related travel services as one coordinated operating team.',
+                    'strengths' => [
+                        [
+                            'title' => 'Corporate MICE organization',
+                            'text' => 'End-to-end conferences, seminars, incentive travel, team building, gala dinners and customer events built around each business objective.',
+                        ],
+                        [
+                            'title' => 'Healthcare and pharmaceutical MICE',
+                            'text' => 'Experience with medical conferences, pharmaceutical meetings, symposiums, congresses, doctor groups, speakers, rooming lists, visas, transfers and onsite coordination.',
+                        ],
+                        [
+                            'title' => 'Custom tour and travel operation',
+                            'text' => 'Outbound tours, domestic tours and tailor-made itineraries with clear schedules, budget control and practical support before and during the trip.',
+                        ],
+                        [
+                            'title' => 'Connected travel services',
+                            'text' => 'Visa consultation, flights, hotels, transport and travel add-ons can be coordinated together instead of handled as isolated services.',
+                        ],
+                    ],
+                ],
+                'sources' => [
+                    [
+                        'title' => 'Professional MICE organization for businesses',
+                        'url' => $this->makeLocalizedUrl('dich-vu-mice', $locale),
+                    ],
+                    [
+                        'title' => 'About Travel Plus',
+                        'url' => $this->makeLocalizedUrl('ve-chung-toi', $locale),
+                    ],
+                ],
+            ];
+        }
+
+        return [
+            'type' => 'company_strength',
+            'intent' => 'company_strength',
+            'company_strength' => [
+                'summary' => 'Thế mạnh của Travel Plus là tổ chức MICE chuyên nghiệp cho doanh nghiệp, nổi bật nhất ở các chương trình y dược/bác sĩ. Ngoài ra Travel Plus còn hỗ trợ tour nước ngoài, tour trong nước, visa và các dịch vụ du lịch đi kèm theo một đầu mối vận hành.',
+                'strengths' => [
+                    [
+                        'title' => 'MICE doanh nghiệp',
+                        'text' => 'Tổ chức hội nghị, hội thảo, incentive, team building, gala dinner và sự kiện khách hàng theo đúng mục tiêu của từng doanh nghiệp.',
+                    ],
+                    [
+                        'title' => 'MICE ngành y dược',
+                        'text' => 'Có kinh nghiệm với hội nghị y khoa, hội thảo dược phẩm, symposium, congress, đoàn bác sĩ, speaker, rooming list, visa, đưa đón và điều phối onsite.',
+                    ],
+                    [
+                        'title' => 'Tour và lịch trình riêng',
+                        'text' => 'Triển khai tour nước ngoài, tour trong nước và hành trình thiết kế riêng với lịch trình rõ, ngân sách minh bạch và hỗ trợ trong suốt chuyến đi.',
+                    ],
+                    [
+                        'title' => 'Dịch vụ du lịch trọn gói',
+                        'text' => 'Visa, vé máy bay, khách sạn, vận chuyển và dịch vụ đi kèm có thể được phối hợp chung, giúp khách không phải làm việc với nhiều đầu mối rời rạc.',
+                    ],
+                ],
+            ],
+            'sources' => [
+                [
+                    'title' => 'Tổ chức MICE chuyên nghiệp cho doanh nghiệp',
+                    'url' => $this->makeLocalizedUrl('dich-vu-mice', $locale),
+                ],
+                [
+                    'title' => 'Về Travel Plus',
+                    'url' => $this->makeLocalizedUrl('ve-chung-toi', $locale),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildStructuredMiceFacts(string $locale): array
+    {
+        $mice = MicePageContent::get($locale);
+        $serviceCards = [];
+
+        foreach (array_slice((array) ($mice['service_cards'] ?? []), 0, 4) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $title = trim((string) ($item['title'] ?? ''));
+            $text = trim((string) ($item['text'] ?? ''));
+            $bullets = array_values(array_filter((array) ($item['bullets'] ?? []), 'is_string'));
+
+            if ($title === '' && $text === '') {
+                continue;
+            }
+
+            $serviceCards[] = [
+                'title' => $title,
+                'text' => $text,
+                'bullets' => array_slice($bullets, 0, 3),
+            ];
+        }
+
+        $solutionItems = [];
+
+        foreach (array_slice((array) ($mice['solution_items'] ?? []), 0, 4) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $title = trim((string) ($item['title'] ?? ''));
+            $text = trim((string) ($item['text'] ?? ''));
+
+            if ($title === '' && $text === '') {
+                continue;
+            }
+
+            $solutionItems[] = [
+                'title' => $title,
+                'text' => $text,
+            ];
+        }
+
+        return [
+            'type' => 'mice_service',
+            'intent' => 'mice_service',
+            'mice' => [
+                'title' => (string) ($mice['hero_title'] ?? 'MICE'),
+                'description' => (string) ($mice['hero_desc'] ?? ''),
+                'intro' => trim(((string) ($mice['intro_p1'] ?? '')) . ' ' . ((string) ($mice['intro_p2'] ?? ''))),
+                'services_desc' => (string) ($mice['services_desc'] ?? ''),
+                'service_cards' => $serviceCards,
+                'solution_items' => $solutionItems,
+            ],
+            'sources' => [[
+                'title' => (string) ($mice['hero_title'] ?? 'MICE'),
+                'url' => $this->makeLocalizedUrl('dich-vu-mice', $locale),
+            ]],
         ];
     }
 
@@ -527,6 +715,10 @@ class WebsiteKnowledgeService
                 'last_tour_slug' => (string) ($matches[0]['slug'] ?? ''),
                 'last_tour_type' => (string) ($matches[0]['tour_type'] ?? ''),
                 'last_tour_title' => (string) ($matches[0]['title'] ?? ''),
+                'last_tour_departure' => (string) ($matches[0]['departure'] ?? ''),
+                'last_tour_price_label' => (string) ($matches[0]['price_label'] ?? ''),
+                'last_tour_duration_label' => (string) ($matches[0]['duration_label'] ?? ''),
+                'last_tour_url' => (string) ($matches[0]['url'] ?? ''),
                 'last_locale' => $locale,
             ],
         ];
@@ -540,7 +732,13 @@ class WebsiteKnowledgeService
         $visa = VisaPageContent::get($locale);
         $normalizedQuestion = $this->normalizeSearchText($question);
         $matchedRegion = null;
-        $intent = $this->looksLikeVisaProcessingTimeQuestion($question) ? 'visa_timeline' : 'visa_process';
+        $intent = 'visa_process';
+
+        if ($this->looksLikeVisaCostQuestion($question)) {
+            $intent = 'visa_cost';
+        } elseif ($this->looksLikeVisaProcessingTimeQuestion($question)) {
+            $intent = 'visa_timeline';
+        }
 
         foreach ((array) ($visa['regions'] ?? []) as $region) {
             foreach ((array) ($region['items'] ?? []) as $item) {
@@ -758,25 +956,38 @@ class WebsiteKnowledgeService
             $priceAmount = (float) (($detail['price']['amount'] ?? 0));
         }
 
+        $firstDeparture = is_array($detail['departures'] ?? null) ? ($detail['departures'][0] ?? null) : null;
+
         if ($priceAmount <= 0) {
-            $firstDeparture = is_array($detail['departures'] ?? null) ? ($detail['departures'][0] ?? null) : null;
             if (is_array($firstDeparture)) {
                 $priceAmount = (float) ($firstDeparture['price'] ?? 0);
             }
         }
 
+        $departureDate = (string) ($detail['departure_date'] ?? '');
+
+        if ($departureDate === '' && is_array($firstDeparture)) {
+            $departureDate = (string) ($firstDeparture['date'] ?? $firstDeparture['departure_date'] ?? '');
+        }
+
+        $stateDeparture = trim((string) ($chatState['last_tour_departure'] ?? ''));
+        $statePriceLabel = trim((string) ($chatState['last_tour_price_label'] ?? ''));
+        $stateDurationLabel = trim((string) ($chatState['last_tour_duration_label'] ?? ''));
+        $stateUrl = trim((string) ($chatState['last_tour_url'] ?? ''));
+        $detailUrl = trim((string) ($detail['url'] ?? ''));
+
         return [
             'title' => (string) ($detail['title'] ?? ''),
             'slug' => $slug,
             'tour_type' => (string) ($detail['tour_type'] ?? $tourType),
-            'departure' => $this->formatDisplayDate((string) ($detail['departure_date'] ?? '')),
-            'price_label' => $this->formatMoneyLabel($priceAmount),
-            'duration_label' => $this->formatDurationLabel(
+            'departure' => $departureDate !== '' ? $this->formatDisplayDate($departureDate) : $stateDeparture,
+            'price_label' => $priceAmount > 0 ? $this->formatMoneyLabel($priceAmount) : $statePriceLabel,
+            'duration_label' => $stateDurationLabel !== '' ? $stateDurationLabel : $this->formatDurationLabel(
                 (int) ($detail['duration_days'] ?? 0),
                 (int) ($detail['duration_nights'] ?? 0),
                 $locale
             ),
-            'url' => (string) ($detail['url'] ?? ''),
+            'url' => $detailUrl !== '' ? $detailUrl : $stateUrl,
         ];
     }
 
@@ -792,7 +1003,7 @@ class WebsiteKnowledgeService
             return [];
         }
 
-        if ($focusTargets !== []) {
+        if ($focusTargets !== [] && $query === '') {
             $focusedMatches = $this->findToursByLocationTargets($locale, $focusTargets, $limit);
 
             if ($focusedMatches !== []) {
@@ -840,6 +1051,7 @@ class WebsiteKnowledgeService
 
         $matches = [];
         $queryTokens = $this->tokenize($query);
+        $destinationSignals = $this->extractDestinationSignals($question);
 
         foreach ($rows as $row) {
             $title = trim((string) ($row['title'] ?? ''));
@@ -861,6 +1073,7 @@ class WebsiteKnowledgeService
             }
 
             $score = $this->scoreTokenSet($queryTokens, $haystack);
+            $score += $this->scoreDestinationSignals($destinationSignals, $normalizedHaystack);
 
             if ($focusTargets !== []) {
                 foreach ($focusTargets as $target) {
@@ -1417,6 +1630,121 @@ class WebsiteKnowledgeService
         return $score;
     }
 
+    /**
+     * @return array<string, list<string>>
+     */
+    private function extractDestinationSignals(string $question): array
+    {
+        $search = ' ' . trim($this->normalizeSearchText($question)) . ' ';
+        $destinationMap = [
+            'france' => ['phap', 'france', 'paris'],
+            'switzerland' => ['thuy si', 'thuy sy', 'switzerland', 'swiss', 'zurich', 'lucerne', 'interlaken', 'titlis'],
+            'italy' => ['y', 'italy', 'italia', 'rome', 'roma', 'milan', 'venice', 'venezia', 'pisa', 'florence'],
+            'europe' => ['chau au', 'europe', 'tay au'],
+            'japan' => ['nhat ban', 'japan', 'tokyo', 'osaka', 'kyoto'],
+            'korea' => ['han quoc', 'korea', 'seoul', 'nami', 'busan'],
+            'thailand' => ['thai lan', 'thailand', 'bangkok', 'pattaya', 'phuket'],
+            'usa' => ['my', 'hoa ky', 'usa', 'america', 'new york', 'washington', 'los angeles'],
+            'vietnam' => ['viet nam', 'vietnam', 'ha noi', 'da nang', 'tphcm', 'sai gon'],
+        ];
+
+        $signals = [];
+
+        foreach ($destinationMap as $key => $needles) {
+            foreach ($needles as $needle) {
+                if ($this->containsNormalizedPhrase($search, $needle)) {
+                    $signals[$key] = $needles;
+                    break;
+                }
+            }
+        }
+
+        return $signals;
+    }
+
+    /**
+     * @param array<string, list<string>> $destinationSignals
+     */
+    private function scoreDestinationSignals(array $destinationSignals, string $normalizedHaystack): int
+    {
+        if ($destinationSignals === []) {
+            return 0;
+        }
+
+        $haystack = ' ' . trim($normalizedHaystack) . ' ';
+        $matchedCount = 0;
+        $score = 0;
+
+        foreach ($destinationSignals as $needles) {
+            foreach ($needles as $needle) {
+                if ($this->containsNormalizedPhrase($haystack, $needle)) {
+                    $matchedCount++;
+                    $score += 12;
+                    break;
+                }
+            }
+        }
+
+        if ($matchedCount >= 2) {
+            $score += $matchedCount * 10;
+        }
+
+        if ($matchedCount === count($destinationSignals) && $matchedCount > 1) {
+            $score += 15;
+        }
+
+        return $score;
+    }
+
+    private function containsNormalizedPhrase(string $normalizedText, string $phrase): bool
+    {
+        $phrase = trim($this->normalizeSearchText($phrase));
+
+        if ($phrase === '') {
+            return false;
+        }
+
+        return str_contains($normalizedText, ' ' . $phrase . ' ');
+    }
+
+    private function looksLikeCompanyStrengthQuestion(string $question): bool
+    {
+        $search = $this->normalizeSearchText($question);
+
+        if (
+            str_contains($search, 'tour')
+            && ! str_contains($search, 'travel plus')
+            && ! str_contains($search, 'cong ty')
+            && ! str_contains($search, 'doanh nghiep')
+            && ! str_contains($search, 'the manh')
+        ) {
+            return false;
+        }
+
+        foreach ([
+            'the manh',
+            'diem manh',
+            'loi the',
+            'uu diem',
+            'manh ve gi',
+            'manh nhat',
+            'noi bat',
+            'khac biet',
+            'vi sao chon',
+            'tai sao chon',
+            'why choose',
+            'strength',
+            'advantage',
+            'different',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function looksLikeTourQuestion(string $question): bool
     {
         $normalized = mb_strtolower($question);
@@ -1476,6 +1804,10 @@ class WebsiteKnowledgeService
     {
         $search = $this->normalizeSearchText($question);
         $collapsed = str_replace(' ', '', $search);
+
+        if ($this->looksLikeVisaCostQuestion($question) && ! $this->containsVisaTimeSignal($search)) {
+            return false;
+        }
 
         foreach ([
             'bao lau',
@@ -1551,16 +1883,84 @@ class WebsiteKnowledgeService
             return true;
         }
 
-        if (preg_match('/\\b(trong\\s+)?bao\\s+\\S{1,8}\\b/u', $search) === 1) {
+        if (! $this->looksLikeVisaCostQuestion($question) && preg_match('/\\b(trong\\s+)?bao\\s+\\S{1,8}\\b/u', $search) === 1) {
             return true;
         }
 
         return false;
     }
 
+    private function containsVisaTimeSignal(string $search): bool
+    {
+        foreach ([
+            'bao lau',
+            'mat bao lau',
+            'thoi gian',
+            'xu ly',
+            'bao nhieu ngay',
+            'may ngay',
+            'trong bao lau',
+            'lam trong bao lau',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function looksLikeVisaCostQuestion(string $question): bool
+    {
+        $search = $this->normalizeSearchText($question);
+
+        foreach ([
+            'chi phi',
+            'le phi',
+            'phi visa',
+            'gia visa',
+            'bao nhieu tien',
+            'ton bao nhieu',
+            'cost',
+            'fee',
+            'price',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function looksLikeSchengenVisaQuestion(string $question): bool
+    {
+        $search = ' ' . trim($this->normalizeSearchText($question)) . ' ';
+
+        foreach ([
+            'schengen',
+            'phap',
+            'france',
+            'thuy si',
+            'thuy sy',
+            'switzerland',
+            'italy',
+            'italia',
+            'chau au',
+            'tay au',
+            'europe',
+        ] as $needle) {
+            if ($this->containsNormalizedPhrase($search, $needle)) {
+                return true;
+            }
+        }
+
+        return $this->containsNormalizedPhrase($search, 'y');
+    }
+
     private function looksLikePaymentQuestion(string $question): bool
     {
-        $normalized = mb_strtolower($question);
+        $normalized = $this->normalizeSearchText($question);
 
         foreach ([
             'thanh toan',
@@ -1572,7 +1972,7 @@ class WebsiteKnowledgeService
             'zalo pay',
             'zalopay',
             'dat coc',
-            'đặt cọc',
+            'chuyen khoan',
         ] as $needle) {
             if (str_contains($normalized, $needle)) {
                 return true;
@@ -1584,7 +1984,7 @@ class WebsiteKnowledgeService
 
     private function looksLikeCustomTourQuestion(string $question): bool
     {
-        $normalized = mb_strtolower($question);
+        $normalized = $this->normalizeSearchText($question);
 
         foreach ([
             'tour theo yeu cau',
@@ -1593,9 +1993,42 @@ class WebsiteKnowledgeService
             'tạo tour',
             'thiet ke hanh trinh',
             'thiết kế hành trình',
+            'hanh trinh rieng',
+            'lich trinh rieng',
+            'tour rieng',
+            'khong co tour',
+            'khong tim thay tour',
+            'khong co hanh trinh',
+            'khong co lich trinh',
+            'toi muon tour rieng',
+            'toi muon lich trinh rieng',
             'custom tour',
         ] as $needle) {
             if (str_contains($normalized, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function looksLikeMiceQuestion(string $question): bool
+    {
+        $search = $this->normalizeSearchText($question);
+
+        foreach ([
+            'mice',
+            'hoi nghi',
+            'hoi thao',
+            'incentive',
+            'team building',
+            'gala dinner',
+            'congress',
+            'symposium',
+            'su kien doanh nghiep',
+            'khach hang doanh nghiep',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
                 return true;
             }
         }
@@ -1785,8 +2218,109 @@ class WebsiteKnowledgeService
         return false;
     }
 
+    private function looksLikeTourHighlightQuestion(string $question): bool
+    {
+        $search = $this->normalizeSearchText($question);
+
+        foreach ([
+            'co gi dac biet',
+            'diem dac biet',
+            'dac biet',
+            'diem nhan',
+            'diem noi bat',
+            'noi bat',
+            'co gi hay',
+            'co gi dep',
+            'hay o dau',
+            'highlight',
+            'highlights',
+            'special',
+            'unique',
+            'interesting',
+            'what is special',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function looksLikeTourPriceQuestion(string $question): bool
+    {
+        $search = $this->normalizeSearchText($question);
+
+        foreach ([
+            'gia',
+            'gia tu',
+            'bao nhieu tien',
+            'chi phi',
+            'price',
+            'cost',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function looksLikeTourDepartureQuestion(string $question): bool
+    {
+        $search = $this->normalizeSearchText($question);
+
+        foreach ([
+            'khoi hanh',
+            'ngay nao',
+            'ngay di',
+            'lich di',
+            'departure',
+            'depart',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function looksLikeTourContentQuestion(string $question): bool
     {
+        if ($this->looksLikeTourHighlightQuestion($question)) {
+            return true;
+        }
+
+        $search = $this->normalizeSearchText($question);
+
+        foreach ([
+            'lich trinh',
+            'co gi hay',
+            'co gi dac biet',
+            'diem dac biet',
+            'dac biet',
+            'diem nhan',
+            'diem noi bat',
+            'noi bat',
+            'co gi dep',
+            'hay o dau',
+            'tham quan',
+            'trai nghiem',
+            'noi dung',
+            'highlight',
+            'highlights',
+            'special',
+            'unique',
+            'interesting',
+            'what is special',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
         $normalized = mb_strtolower($question);
 
         foreach (['lịch trình', 'lich trinh', 'có gì hay', 'co gi hay', 'điểm nổi bật', 'diem noi bat', 'tham quan', 'trải nghiệm', 'trai nghiem', 'nội dung', 'noi dung'] as $needle) {
@@ -1809,6 +2343,7 @@ class WebsiteKnowledgeService
             'co', 'khong', 'hong', 'tour', 'xin', 'thong', 'tin', 'ngay', 'khoi', 'hanh', 'va', 'gia',
             'voi', 'giup', 'toi', 'website', 'travel', 'plus', 'cho', 'em', 'anh', 'chi', 've', 'cua',
             'nhung', 'nao', 'the', 'duoc', 'khong', 'hay', 'co', 'ko', 'gia', 'tour', 'lich', 'trinh',
+            'diem', 'noi', 'bat', 'dac', 'biet', 'special', 'highlight', 'highlights', 'unique',
         ];
 
         $tokens = preg_split('/\s+/u', trim($query)) ?: [];
@@ -1844,6 +2379,21 @@ class WebsiteKnowledgeService
     private function normalizeSearchText(string $text): string
     {
         $text = mb_strtolower($text);
+        $text = strtr($text, [
+            'à' => 'a', 'á' => 'a', 'ạ' => 'a', 'ả' => 'a', 'ã' => 'a',
+            'â' => 'a', 'ầ' => 'a', 'ấ' => 'a', 'ậ' => 'a', 'ẩ' => 'a', 'ẫ' => 'a',
+            'ă' => 'a', 'ằ' => 'a', 'ắ' => 'a', 'ặ' => 'a', 'ẳ' => 'a', 'ẵ' => 'a',
+            'è' => 'e', 'é' => 'e', 'ẹ' => 'e', 'ẻ' => 'e', 'ẽ' => 'e',
+            'ê' => 'e', 'ề' => 'e', 'ế' => 'e', 'ệ' => 'e', 'ể' => 'e', 'ễ' => 'e',
+            'ì' => 'i', 'í' => 'i', 'ị' => 'i', 'ỉ' => 'i', 'ĩ' => 'i',
+            'ò' => 'o', 'ó' => 'o', 'ọ' => 'o', 'ỏ' => 'o', 'õ' => 'o',
+            'ô' => 'o', 'ồ' => 'o', 'ố' => 'o', 'ộ' => 'o', 'ổ' => 'o', 'ỗ' => 'o',
+            'ơ' => 'o', 'ờ' => 'o', 'ớ' => 'o', 'ợ' => 'o', 'ở' => 'o', 'ỡ' => 'o',
+            'ù' => 'u', 'ú' => 'u', 'ụ' => 'u', 'ủ' => 'u', 'ũ' => 'u',
+            'ư' => 'u', 'ừ' => 'u', 'ứ' => 'u', 'ự' => 'u', 'ử' => 'u', 'ữ' => 'u',
+            'ỳ' => 'y', 'ý' => 'y', 'ỵ' => 'y', 'ỷ' => 'y', 'ỹ' => 'y',
+            'đ' => 'd',
+        ]);
         $ascii = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
 
         if (is_string($ascii) && $ascii !== '') {

@@ -50,6 +50,8 @@ class AddTourDetailTables extends Migration
             'max_travelers',
             'base_price',
             'sale_price',
+            'child_price_rate',
+            'infant_price_rate',
             'currency',
             'rating_avg',
             'reviews_count',
@@ -90,8 +92,16 @@ class AddTourDetailTables extends Migration
             $fields['sale_price'] = ['type' => 'INT', 'null' => true, 'after' => 'base_price'];
         }
 
+        if (! $this->db->fieldExists('child_price_rate', 'tours')) {
+            $fields['child_price_rate'] = ['type' => 'DECIMAL', 'constraint' => '5,4', 'null' => false, 'default' => '0.8500', 'after' => 'sale_price'];
+        }
+
+        if (! $this->db->fieldExists('infant_price_rate', 'tours')) {
+            $fields['infant_price_rate'] = ['type' => 'DECIMAL', 'constraint' => '5,4', 'null' => false, 'default' => '0.2500', 'after' => 'child_price_rate'];
+        }
+
         if (! $this->db->fieldExists('currency', 'tours')) {
-            $fields['currency'] = ['type' => 'VARCHAR', 'constraint' => 10, 'null' => false, 'default' => 'VND', 'after' => 'sale_price'];
+            $fields['currency'] = ['type' => 'VARCHAR', 'constraint' => 10, 'null' => false, 'default' => 'VND', 'after' => 'infant_price_rate'];
         }
 
         if (! $this->db->fieldExists('rating_avg', 'tours')) {

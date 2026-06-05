@@ -1259,6 +1259,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const locale = datePicker.dataset.locale === "en" ? "en" : "vi";
+    const valueFormat = datePicker.dataset.valueFormat === "display" ? "display" : "iso";
     const emptyDateLabel = trigger.dataset.emptyLabel || "dd/mm/yyyy";
     const monthFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
       month: "long",
@@ -1272,13 +1273,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const today = new Date();
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const parseInputDate = (value) => {
-      const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const rawValue = String(value || "");
+      const match = rawValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
 
-      if (!match) {
+      if (match) {
+        const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+        return Number.isNaN(date.getTime()) ? null : date;
+      }
+
+      const displayMatch = rawValue.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!displayMatch) {
         return null;
       }
 
-      const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      const date = new Date(Number(displayMatch[3]), Number(displayMatch[2]) - 1, Number(displayMatch[1]));
       return Number.isNaN(date.getTime()) ? null : date;
     };
     let selectedDate = parseInputDate(input.value);
@@ -1341,7 +1349,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         dateButton.addEventListener("click", () => {
           selectedDate = date;
-          input.value = formatValue(date);
+          input.value = valueFormat === "display" ? formatDisplayDate(date) : formatValue(date);
           display.textContent = formatDisplayDate(date);
           trigger.classList.add("is-selected");
           closeDatePicker();

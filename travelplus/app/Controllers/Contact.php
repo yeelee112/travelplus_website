@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Data\LocalizedPathCatalog;
+use App\Services\EmailTemplateService;
 use App\Services\SeoService;
 use Config\Email as EmailConfig;
 
@@ -63,7 +64,7 @@ class Contact extends BaseController
         ];
 
         if (! $this->validate($rules, $messages)) {
-            return redirect()->back()->withInput()->with('error', implode('<br>', $this->validator->getErrors()));
+            return redirect()->back()->withInput()->with('error', implode("\n", $this->validator->getErrors()));
         }
 
         if (! $this->verifyRecaptcha((string) $this->request->getPost('recaptcha_token'))) {
@@ -152,18 +153,25 @@ class Contact extends BaseController
     private function buildMailBody(array $payload, string $locale): string
     {
         $destination = $payload['destination'] !== ''
-            ? esc($payload['destination'])
+            ? $payload['destination']
             : lang('Frontend.contact.mailUnknownDestination', [], $locale);
 
-        return '
-            <h2>' . esc(lang('Frontend.contact.mailHeading', [], $locale)) . '</h2>
-            <p><strong>' . esc(lang('Frontend.contact.name', [], $locale)) . ':</strong> ' . esc($payload['name']) . '</p>
-            <p><strong>' . esc(lang('Frontend.contact.email', [], $locale)) . ':</strong> ' . esc($payload['email']) . '</p>
-            <p><strong>' . esc(lang('Frontend.contact.phone', [], $locale)) . ':</strong> ' . esc($payload['phone']) . '</p>
-            <p><strong>' . esc(lang('Frontend.contact.destination', [], $locale)) . ':</strong> ' . $destination . '</p>
-            <p><strong>' . esc(lang('Frontend.contact.message', [], $locale)) . ':</strong></p>
-            <div>' . nl2br(esc($payload['message'])) . '</div>
-        ';
+        return (new EmailTemplateService())->render(
+            'Yêu cầu liên hệ',
+            lang('Frontend.contact.mailHeading', [], $locale),
+            'Khách vừa gửi yêu cầu tư vấn từ trang liên hệ Travel Plus. Vui lòng kiểm tra nhu cầu và phản hồi sớm.',
+            [
+                lang('Frontend.contact.name', [], $locale) => $payload['name'],
+                lang('Frontend.contact.destination', [], $locale) => $destination,
+            ],
+            [
+                ['label' => lang('Frontend.contact.email', [], $locale), 'value' => $payload['email']],
+                ['label' => lang('Frontend.contact.phone', [], $locale), 'value' => $payload['phone']],
+            ],
+            $payload['message'],
+            'Mở website',
+            LocalizedPathCatalog::url('contact', $locale)
+        );
     }
 
     /**

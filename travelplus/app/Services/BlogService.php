@@ -29,7 +29,7 @@ class BlogService
     /**
      * @return list<array<string, mixed>>
      */
-    public function getPublishedBlogs(string $locale, int $limit = 12): array
+    public function getPublishedBlogs(string $locale, int $limit = 12, int $offset = 0): array
     {
         if (! $this->hasTables()) {
             return [];
@@ -58,11 +58,55 @@ class BlogService
             ->where('bt.locale', $locale)
             ->orderBy('b.is_featured', 'DESC')
             ->orderBy('b.published_at', 'DESC')
-            ->limit($limit)
+            ->limit($limit, max(0, $offset))
             ->get()
             ->getResultArray();
 
         return array_map(fn (array $row): array => $this->mapBlogRow($row, $locale), $rows);
+    }
+
+    public function countPublishedBlogs(string $locale): int
+    {
+        if (! $this->hasTables()) {
+            return 0;
+        }
+
+        return (int) $this->db->table('blogs b')
+            ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
+            ->where('b.status', 'published')
+            ->where('bt.locale', $locale)
+            ->countAllResults();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getPublishedCategories(string $locale): array
+    {
+        if (! $this->hasTables()) {
+            return [];
+        }
+
+        $rows = $this->db->table('blogs b')
+            ->select('b.category')
+            ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
+            ->where('b.status', 'published')
+            ->where('bt.locale', $locale)
+            ->where('b.category !=', '')
+            ->groupBy('b.category')
+            ->orderBy('b.category', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $categories = [];
+        foreach ($rows as $row) {
+            $category = TextEncodingService::repair(trim((string) ($row['category'] ?? '')));
+            if ($category !== '') {
+                $categories[] = $this->translateCategory($category, $locale);
+            }
+        }
+
+        return array_values(array_unique($categories));
     }
 
     /**

@@ -12,8 +12,8 @@ use App\Services\VietQrService;
 
 class BookingController extends BaseController
 {
-    private const CHILD_PRICE_RATE = 0.85;
-    private const INFANT_PRICE_RATE = 0.25;
+    private const DEFAULT_CHILD_PRICE_RATE = 0.85;
+    private const DEFAULT_INFANT_PRICE_RATE = 0.25;
     private const DEFAULT_MAX_TRAVELERS = 15;
 
     public function proceed()
@@ -49,9 +49,11 @@ class BookingController extends BaseController
                 trim((string) $this->request->getPost('tour_link'))
             );
         } catch (\RuntimeException $exception) {
+            log_message('warning', 'Booking snapshot failed: {message}', ['message' => $exception->getMessage()]);
+
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => $exception->getMessage(),
+                'message' => $this->bookingRequestErrorMessage(),
             ]);
         }
 
@@ -114,7 +116,32 @@ class BookingController extends BaseController
 
         return view('booking/success', [
             'booking' => $booking,
+            'departureFrom' => $this->resolveBookingDepartureFrom((int) ($booking['tour_id'] ?? 0), $this->request->getLocale()),
         ]);
+    }
+
+    private function resolveBookingDepartureFrom(int $tourId, string $locale): string
+    {
+        if ($tourId <= 0) {
+            return '';
+        }
+
+        $db = db_connect();
+
+        if (! $db->tableExists('tours') || ! $db->tableExists('locations') || ! $db->tableExists('location_translations')) {
+            return '';
+        }
+
+        $row = $db->table('tours t')
+            ->select('COALESCE(ltn.name, ltvi.name, l.code, "") AS departure_from', false)
+            ->join('locations l', 'l.id = t.departure_location_id', 'left')
+            ->join('location_translations ltn', 'ltn.location_id = l.id AND ltn.locale = ' . $db->escape($locale), 'left')
+            ->join('location_translations ltvi', 'ltvi.location_id = l.id AND ltvi.locale = ' . $db->escape('vi'), 'left')
+            ->where('t.id', $tourId)
+            ->get(1)
+            ->getRowArray();
+
+        return trim((string) ($row['departure_from'] ?? ''));
     }
 
     public function createPayPalOrder()
@@ -156,9 +183,11 @@ class BookingController extends BaseController
         $paypal = new PayPalSandboxService();
 
         if (! $paypal->isConfigured()) {
+            log_message('error', 'PayPal payment requested but gateway credentials are missing.');
+
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => 'PayPal credentials are missing.',
+                'message' => $this->paymentRequestErrorMessage(),
             ]);
         }
 
@@ -206,9 +235,11 @@ class BookingController extends BaseController
                 'redirect' => $approveLink,
             ]);
         } catch (\Throwable $exception) {
+            log_message('error', 'PayPal order creation failed: {message}', ['message' => $exception->getMessage()]);
+
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => $exception->getMessage(),
+                'message' => $this->paymentRequestErrorMessage(),
             ]);
         }
     }
@@ -251,9 +282,11 @@ class BookingController extends BaseController
         $vietQr = new VietQrService();
 
         if (! $vietQr->isConfigured()) {
+            log_message('error', 'VietQR payment requested but gateway configuration is incomplete.');
+
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => 'VietQR chua duoc cau hinh day du.',
+                'message' => $this->paymentRequestErrorMessage(),
             ]);
         }
 
@@ -301,9 +334,11 @@ class BookingController extends BaseController
                 ],
             ]);
         } catch (\Throwable $exception) {
+            log_message('error', 'VietQR generation failed: {message}', ['message' => $exception->getMessage()]);
+
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => $exception->getMessage(),
+                'message' => $this->paymentRequestErrorMessage(),
             ]);
         }
     }
@@ -345,9 +380,11 @@ class BookingController extends BaseController
         $vnpay = new VnpayGatewayService();
 
         if (! $vnpay->isConfigured()) {
+            log_message('error', 'VNPAY payment requested but gateway configuration is incomplete.');
+
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => 'VNPAY chua duoc cau hinh day du.',
+                'message' => $this->paymentRequestErrorMessage(),
             ]);
         }
 
@@ -397,9 +434,11 @@ class BookingController extends BaseController
                 'redirect' => $paymentUrl,
             ]);
         } catch (\Throwable $exception) {
+            log_message('error', 'VNPAY payment creation failed: {message}', ['message' => $exception->getMessage()]);
+
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => $exception->getMessage(),
+                'message' => $this->paymentRequestErrorMessage(),
             ]);
         }
     }
@@ -519,7 +558,8 @@ class BookingController extends BaseController
                 'paypal_status' => 'FAILED',
             ]);
 
-            session()->setFlashdata('checkout_error', $exception->getMessage());
+            log_message('error', 'PayPal capture failed: {message}', ['message' => $exception->getMessage()]);
+            session()->setFlashdata('checkout_error', $this->paymentRequestErrorMessage());
         }
 
         return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
@@ -681,6 +721,20 @@ class BookingController extends BaseController
         return $this->response->setJSON(['RspCode' => '00', 'Message' => 'Confirm success']);
     }
 
+    private function bookingRequestErrorMessage(): string
+    {
+        return $this->request->getLocale() === 'en'
+            ? 'The booking request could not be processed. Please check your selection or contact Travel Plus.'
+            : 'Khong the xu ly yeu cau booking luc nay. Vui long kiem tra lai lua chon hoac lien he Travel Plus.';
+    }
+
+    private function paymentRequestErrorMessage(): string
+    {
+        return $this->request->getLocale() === 'en'
+            ? 'The payment request could not be processed right now. Please try again or contact Travel Plus.'
+            : 'Khong the xu ly thanh toan luc nay. Vui long thu lai hoac lien he Travel Plus.';
+    }
+
     private function getPendingBooking(): ?array
     {
         $booking = session()->get('pending_booking');
@@ -725,7 +779,7 @@ class BookingController extends BaseController
             'COALESCE(tt.slug, tt_vi.slug, CONCAT("tour-", t.id)) AS tour_slug',
         ];
 
-        foreach (['max_travelers', 'base_price', 'sale_price', 'currency'] as $field) {
+        foreach (['max_travelers', 'base_price', 'sale_price', 'currency', 'child_price_rate', 'infant_price_rate'] as $field) {
             if ($has($field)) {
                 $select[] = 't.' . $field;
             }
@@ -772,8 +826,10 @@ class BookingController extends BaseController
             throw new \RuntimeException('So luong khach vuot qua so cho con nhan.');
         }
 
-        $childPrice = round($adultPrice * self::CHILD_PRICE_RATE, 0);
-        $infantPrice = round($adultPrice * self::INFANT_PRICE_RATE, 0);
+        $childRate = $this->normalizeTravelerPriceRate($tour['child_price_rate'] ?? null, self::DEFAULT_CHILD_PRICE_RATE);
+        $infantRate = $this->normalizeTravelerPriceRate($tour['infant_price_rate'] ?? null, self::DEFAULT_INFANT_PRICE_RATE);
+        $childPrice = round($adultPrice * $childRate, 0);
+        $infantPrice = round($adultPrice * $infantRate, 0);
         $grandTotal = ($adultQty * $adultPrice) + ($childQty * $childPrice) + ($infantQty * $infantPrice);
         $departureValue = (string) ($departure['departure_date'] ?? '');
 
@@ -800,6 +856,21 @@ class BookingController extends BaseController
             'max_travelers' => $maxTravelers,
             'saved_at' => date('Y-m-d H:i:s'),
         ];
+    }
+
+    private function normalizeTravelerPriceRate($value, float $default): float
+    {
+        if ($value === null || $value === '') {
+            return $default;
+        }
+
+        $rate = (float) $value;
+
+        if ($rate < 0 || $rate > 1) {
+            return $default;
+        }
+
+        return $rate;
     }
 
     private function resolveDepartureRow($db, int $tourId, string $departureDate): array

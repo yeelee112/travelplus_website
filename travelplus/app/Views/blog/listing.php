@@ -2,6 +2,9 @@
 $blogs = $blogs ?? [];
 $featuredBlog = $featuredBlog ?? ($blogs[0] ?? null);
 $recentBlogs = $recentBlogs ?? array_slice($blogs, 0, 4);
+$categories = is_array($categories ?? null) ? $categories : [];
+$totalBlogs = (int) ($totalBlogs ?? count($blogs));
+$pagination = is_array($pagination ?? null) ? $pagination : [];
 $fallbackImage = base_url('assets/images/home/banner02.jpg');
 $locale = service('request')->getLocale() ?: 'vi';
 $t = static fn(string $key) => lang('Frontend.' . $key, [], $locale);
@@ -17,14 +20,14 @@ $labels = $locale === 'en'
         'featured' => 'Featured story',
         'readMore' => 'Read article',
         'topics' => 'Topics',
-        'statsArticles' => 'Published articles',
-        'statsTopics' => 'Content topics',
         'recent' => 'Recently published',
         'ctaTitle' => 'Need a real itinerary, not only ideas?',
         'ctaDesc' => 'Travel Plus can turn destination ideas into a practical tour, visa plan or MICE itinerary.',
         'ctaPrimary' => 'Contact Travel Plus',
         'ctaSecondary' => 'Find tours',
         'emptyTitle' => 'No articles yet',
+        'prev' => 'Previous',
+        'next' => 'Next',
         'seoTitle' => 'Travel ideas, destination guides and trip planning tips',
         'seoDesc' => 'Travel Plus shares practical travel inspiration for travelers and companies: destination ideas, itinerary suggestions, visa notes, MICE travel insights and curated experiences in Vietnam and abroad.',
     ]
@@ -34,8 +37,6 @@ $labels = $locale === 'en'
         'featured' => 'Bài viết nổi bật',
         'readMore' => 'Đọc bài viết',
         'topics' => 'Chủ đề',
-        'statsArticles' => 'Bài viết đã đăng',
-        'statsTopics' => 'Nhóm nội dung',
         'recent' => 'Mới đăng gần đây',
         'ctaTitle' => 'Cần một lịch trình thực tế, không chỉ là ý tưởng?',
         'ctaDesc' => 'Travel Plus có thể biến cảm hứng điểm đến thành tour, kế hoạch visa hoặc chương trình MICE phù hợp.',
@@ -45,6 +46,8 @@ $labels = $locale === 'en'
         'seoTitle' => 'Ý tưởng điểm đến, kinh nghiệm du lịch và gợi ý lịch trình',
         'seoDesc' => 'Travel Plus chia sẻ cảm hứng du lịch thực tế cho khách cá nhân và doanh nghiệp: điểm đến nổi bật, kinh nghiệm lên lịch trình, lưu ý visa, góc nhìn MICE và những trải nghiệm đáng chọn tại Việt Nam lẫn quốc tế.',
     ];
+$labels['prev'] ??= $locale === 'en' ? 'Previous' : 'Trước';
+$labels['next'] ??= $locale === 'en' ? 'Next' : 'Sau';
 $imageUrl = static function (string $path) use ($fallbackImage): string {
     $path = trim($path);
     if ($path === '') {
@@ -57,10 +60,6 @@ $imageUrl = static function (string $path) use ($fallbackImage): string {
 
     return base_url($path);
 };
-$categories = array_values(array_unique(array_filter(array_map(
-    static fn(array $item): string => trim((string) ($item['category'] ?? '')),
-    $blogs
-))));
 $articleCards = $featuredBlog !== null
     ? array_values(array_filter($blogs, static fn(array $blog): bool => (int) ($blog['id'] ?? 0) !== (int) ($featuredBlog['id'] ?? 0)))
     : $blogs;
@@ -75,16 +74,6 @@ $articleCards = $featuredBlog !== null
                 <?php endif; ?>
                 <h1 id="blog-list-title"><?= esc($pageTitle) ?></h1>
                 <p><?= esc($pageDesc) ?></p>
-            </div>
-            <div class="travelplus-blog-list-stats" aria-label="Blog summary">
-                <div>
-                    <strong><?= esc((string) count($blogs)) ?></strong>
-                    <span><?= esc($labels['statsArticles']) ?></span>
-                </div>
-                <div>
-                    <strong><?= esc((string) count($categories)) ?></strong>
-                    <span><?= esc($labels['statsTopics']) ?></span>
-                </div>
             </div>
         </div>
     </div>
@@ -185,6 +174,51 @@ $articleCards = $featuredBlog !== null
                             </article>
                         <?php endforeach; ?>
                     </div>
+
+                    <?php if (($pagination['total_pages'] ?? 1) > 1): ?>
+                        <?php
+                            $currentPage = (int) ($pagination['current_page'] ?? 1);
+                            $totalPages = (int) ($pagination['total_pages'] ?? 1);
+                            $pageUrls = is_array($pagination['page_urls'] ?? null) ? $pagination['page_urls'] : [];
+                            $windowStart = max(1, $currentPage - 2);
+                            $windowEnd = min($totalPages, $currentPage + 2);
+                        ?>
+                        <nav class="travelplus-blog-pagination" aria-label="Blog pagination">
+                            <?php if (! empty($pagination['prev_url'])): ?>
+                                <a class="travelplus-blog-pagination__arrow" href="<?= esc((string) $pagination['prev_url'], 'attr') ?>">
+                                    <i class="bi bi-arrow-left"></i>
+                                    <?= esc($labels['prev']) ?>
+                                </a>
+                            <?php endif; ?>
+
+                            <div class="travelplus-blog-pagination__pages">
+                                <?php if ($windowStart > 1): ?>
+                                    <a href="<?= esc((string) ($pageUrls[1] ?? $listUrl), 'attr') ?>">1</a>
+                                    <?php if ($windowStart > 2): ?><span>...</span><?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php for ($page = $windowStart; $page <= $windowEnd; $page++): ?>
+                                    <?php if ($page === $currentPage): ?>
+                                        <span class="is-active" aria-current="page"><?= esc((string) $page) ?></span>
+                                    <?php else: ?>
+                                        <a href="<?= esc((string) ($pageUrls[$page] ?? $listUrl), 'attr') ?>"><?= esc((string) $page) ?></a>
+                                    <?php endif; ?>
+                                <?php endfor; ?>
+
+                                <?php if ($windowEnd < $totalPages): ?>
+                                    <?php if ($windowEnd < $totalPages - 1): ?><span>...</span><?php endif; ?>
+                                    <a href="<?= esc((string) ($pageUrls[$totalPages] ?? $listUrl), 'attr') ?>"><?= esc((string) $totalPages) ?></a>
+                                <?php endif; ?>
+                            </div>
+
+                            <?php if (! empty($pagination['next_url'])): ?>
+                                <a class="travelplus-blog-pagination__arrow" href="<?= esc((string) $pagination['next_url'], 'attr') ?>">
+                                    <?= esc($labels['next']) ?>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            <?php endif; ?>
+                        </nav>
+                    <?php endif; ?>
                 </main>
 
                 <aside class="travelplus-blog-list-aside" aria-label="Blog listing sidebar">

@@ -39,6 +39,19 @@ class GeminiWebsiteChatService
         $referenceFacts = $this->knowledgeService->getReferenceFacts($locale, $message, $chatState);
 
         if ($referenceFacts !== null) {
+            if (($referenceFacts['type'] ?? '') === 'reference_visa_timeline') {
+                return [
+                    'message' => $this->buildReferenceFallbackMessage($locale, $referenceFacts),
+                    'sources' => $referenceFacts['sources'] ?? [],
+                    'debug_meta' => [
+                        'branch' => 'reference_mode_direct',
+                        'facts_type' => (string) ($referenceFacts['type'] ?? ''),
+                        'facts_intent' => (string) ($referenceFacts['intent'] ?? ''),
+                        'source_count' => count($referenceFacts['sources'] ?? []),
+                    ],
+                ];
+            }
+
             $prompt = $this->buildReferencePrompt($locale, $message, $history, $referenceFacts);
             try {
                 $response = $this->normalizeChatMessage($this->requestGemini($prompt));
@@ -69,6 +82,30 @@ class GeminiWebsiteChatService
         $structuredFacts = $this->knowledgeService->getStructuredFacts($locale, $message, $chatState);
 
         if ($structuredFacts !== null) {
+            $factsType = (string) ($structuredFacts['type'] ?? '');
+            $factsIntent = (string) ($structuredFacts['intent'] ?? '');
+
+            if (
+                $factsType === 'company_strength'
+                || $factsType === 'payment_support'
+                || $factsType === 'custom_tour_support'
+                || $factsType === 'mice_service'
+                || ($factsType === 'visa_support' && $factsIntent === 'visa_cost')
+                || ($factsType === 'tour_detail' && in_array($factsIntent, ['price', 'departure'], true))
+            ) {
+                return [
+                    'message' => $this->buildFactsFallbackMessage($locale, $structuredFacts),
+                    'sources' => $structuredFacts['sources'] ?? [],
+                    'chat_state' => $structuredFacts['chat_state'] ?? [],
+                    'debug_meta' => [
+                        'branch' => 'structured_facts_direct',
+                        'facts_type' => $factsType,
+                        'facts_intent' => $factsIntent,
+                        'source_count' => count($structuredFacts['sources'] ?? []),
+                    ],
+                ];
+            }
+
             $prompt = $this->buildStructuredFactsPrompt($locale, $message, $history, $structuredFacts);
             $usedFactsFallback = false;
             $usedQuotaFallback = false;
@@ -166,6 +203,7 @@ class GeminiWebsiteChatService
             'The structured facts below are trusted website data. Use only these facts. Do not invent details.',
             'Answer naturally, concisely, and directly for the user intent.',
             'If the user asks about itinerary highlights or destinations, summarize the meaningful places and experiences from the facts instead of repeating operational lines like airport procedures, breakfast, or hotel checkout.',
+            'If structured facts intent is "highlights", explain what makes the selected tour notable. Do not answer by listing alternative tours.',
             'If multiple tours are listed, keep the answer easy to scan.',
             'If a follow-up references "this tour", use the selected tour in the structured facts.',
             'Do not say the website lacks information when the structured facts already contain relevant data.',
@@ -240,7 +278,8 @@ class GeminiWebsiteChatService
             $locale === 'en'
                 ? 'Reference information outside website data:'
                 : 'Thông tin tham khảo ngoài dữ liệu website:',
-            'If website facts are provided, keep them separate from general reference knowledge and do not present them as the same thing.',
+            'After that label, explain the external reference information first. Do not start the next sentence with "According to the Travel Plus website", "According to the website", "Theo website", or "Theo thông tin hiện có trên website".',
+            'If website facts are provided, keep them in a separate final sentence that starts with "Website data:" in English or "Dữ liệu website:" in Vietnamese.',
             'Do not invent specific Travel Plus policies, prices, processing commitments, or promises that are not explicitly in website facts.',
             'Keep the answer under 180 words and finish with a complete sentence.',
             'Write in plain text. Do not use markdown bold, markdown bullet markers, raw URLs, or citation markers like [1].',
@@ -466,8 +505,8 @@ class GeminiWebsiteChatService
 
             if ($intent === 'visa_timeline') {
                 $lines[] = $locale === 'en'
-                    ? 'The current website content does not state an exact processing time for this visa destination [1].'
-                    : 'Nội dung hiện tại trên website chưa nêu thời gian xử lý cụ thể cho visa này [1].';
+                    ? 'The current website content does not state an exact processing time for this visa destination.'
+                    : 'Nội dung hiện tại trên website chưa nêu thời gian xử lý cụ thể cho visa này.';
 
                 if ($matchedDestination !== '') {
                     $lines[] = $locale === 'en'
@@ -497,9 +536,15 @@ class GeminiWebsiteChatService
                 return trim(implode("\n", $lines));
             }
 
+            if ($intent === 'visa_cost') {
+                return $locale === 'en'
+                    ? 'Travel Plus has not published a fixed visa service fee on the website. The final cost depends on the destination, visa type, consular fees, service scope and the applicant profile.'
+                    : 'Travel Plus chưa công bố mức phí dịch vụ visa cố định trên website. Chi phí cuối cùng phụ thuộc vào điểm đến, loại visa, phí lãnh sự, phạm vi hỗ trợ và hồ sơ của từng khách.';
+            }
+
             $lines[] = $locale === 'en'
-                ? 'Travel Plus currently supports visa consultation and document preparation [1].'
-                : 'Travel Plus hiện có hỗ trợ tư vấn và chuẩn bị hồ sơ visa [1].';
+                ? 'Travel Plus currently supports visa consultation and document preparation.'
+                : 'Travel Plus hiện có hỗ trợ tư vấn và chuẩn bị hồ sơ visa.';
 
             if ($matchedDestination !== '') {
                 $lines[] = $locale === 'en'
@@ -529,12 +574,88 @@ class GeminiWebsiteChatService
             return trim(implode("\n", $lines));
         }
 
+        if ($type === 'company_strength') {
+            $companyStrength = is_array($facts['company_strength'] ?? null) ? $facts['company_strength'] : [];
+            $summary = trim((string) ($companyStrength['summary'] ?? ''));
+            $strengths = array_slice(array_values(array_filter((array) ($companyStrength['strengths'] ?? []), 'is_array')), 0, 4);
+            $lines = [$summary !== '' ? $summary : ($locale === 'en'
+                ? 'Travel Plus has strengths in corporate MICE, tours, visa support and coordinated travel services.'
+                : 'Travel Plus có thế mạnh về MICE doanh nghiệp, tour, visa và dịch vụ du lịch phối hợp trọn gói.')];
+
+            if ($strengths !== []) {
+                $lines[] = '';
+                $lines[] = $locale === 'en' ? 'Key strengths:' : 'Các điểm mạnh chính:';
+
+                foreach ($strengths as $item) {
+                    $title = trim((string) ($item['title'] ?? ''));
+                    $text = trim((string) ($item['text'] ?? ''));
+
+                    if ($title === '' && $text === '') {
+                        continue;
+                    }
+
+                    $line = '- ' . $title;
+                    if ($text !== '') {
+                        $line .= ': ' . $text;
+                    }
+
+                    $lines[] = $line;
+                }
+            }
+
+            return trim(implode("\n", $lines));
+        }
+
+        if ($type === 'mice_service') {
+            $mice = is_array($facts['mice'] ?? null) ? $facts['mice'] : [];
+            $lines = [];
+            $description = trim((string) ($mice['description'] ?? ''));
+            $servicesDesc = trim((string) ($mice['services_desc'] ?? ''));
+
+            if ($description !== '') {
+                $lines[] = $description;
+            } else {
+                $lines[] = $locale === 'en'
+                    ? 'Travel Plus provides end-to-end MICE services for business programs.'
+                    : 'Travel Plus cung cấp dịch vụ MICE trọn gói cho các chương trình doanh nghiệp.';
+            }
+
+            if ($servicesDesc !== '') {
+                $lines[] = $servicesDesc;
+            }
+
+            $cards = array_slice(array_values(array_filter((array) ($mice['service_cards'] ?? []), 'is_array')), 0, 4);
+
+            if ($cards !== []) {
+                $lines[] = '';
+                $lines[] = $locale === 'en' ? 'Main MICE services:' : 'Các mảng MICE chính:';
+
+                foreach ($cards as $card) {
+                    $title = trim((string) ($card['title'] ?? ''));
+                    $text = trim((string) ($card['text'] ?? ''));
+
+                    if ($title === '' && $text === '') {
+                        continue;
+                    }
+
+                    $line = '- ' . $title;
+                    if ($text !== '') {
+                        $line .= ': ' . $text;
+                    }
+
+                    $lines[] = $line;
+                }
+            }
+
+            return trim(implode("\n", $lines));
+        }
+
         if (in_array($type, ['payment_support', 'custom_tour_support', 'hotel_service', 'transport_service'], true)) {
             if ($type === 'payment_support') {
                 $payment = is_array($facts['payment'] ?? null) ? $facts['payment'] : [];
                 $summary = trim((string) ($payment['summary'] ?? ''));
                 $methods = array_values(array_filter((array) ($payment['methods'] ?? []), 'is_string'));
-                $lines = [$summary !== '' ? $summary . ' [1]' : (($locale === 'en' ? 'The website supports several payment methods.' : 'Website hiện có nhiều phương thức thanh toán.') . ' [1]')];
+                $lines = [$summary !== '' ? $summary : ($locale === 'en' ? 'The website supports several payment methods.' : 'Website hiện có nhiều phương thức thanh toán.')];
 
                 if ($methods !== []) {
                     $lines[] = '';
@@ -548,14 +669,14 @@ class GeminiWebsiteChatService
                 $customTour = is_array($facts['custom_tour'] ?? null) ? $facts['custom_tour'] : [];
                 return trim(((string) ($customTour['summary'] ?? ($locale === 'en'
                     ? 'Travel Plus supports custom tour requests.'
-                    : 'Travel Plus có hỗ trợ tạo tour theo yêu cầu.'))) . ' [1]');
+                    : 'Travel Plus có hỗ trợ tạo tour theo yêu cầu.'))));
             }
 
             $service = is_array($facts['service'] ?? null) ? $facts['service'] : [];
             $summary = [];
 
             if (! empty($service['description'])) {
-                $summary[] = (string) $service['description'] . ' [1]';
+                $summary[] = (string) $service['description'];
             }
 
             if (! empty($service['intro'])) {
@@ -583,6 +704,48 @@ class GeminiWebsiteChatService
         $intent = (string) ($facts['intent'] ?? 'itinerary');
         $title = (string) ($tour['title'] ?? $selectedTour['title'] ?? '');
 
+        if ($intent === 'price') {
+            $price = trim((string) ($tour['price_label'] ?? $selectedTour['price_label'] ?? ''));
+            $departure = trim((string) ($tour['departure'] ?? $selectedTour['departure'] ?? ''));
+            $duration = trim((string) ($tour['duration_label'] ?? $selectedTour['duration_label'] ?? ''));
+            $lines = [
+                $price !== ''
+                    ? ($locale === 'en' ? 'Price from for ' . $title . ': ' . $price . '.' : 'Giá từ của tour ' . $title . ' là ' . $price . '.')
+                    : ($locale === 'en' ? 'The website has not published a price for ' . $title . '.' : 'Website chưa công bố giá cho tour ' . $title . '.'),
+            ];
+            $factsLine = array_values(array_filter([
+                $departure !== '' ? (($locale === 'en' ? 'Departure' : 'Khởi hành') . ': ' . $departure) : '',
+                $duration !== '' ? (($locale === 'en' ? 'Duration' : 'Thời lượng') . ': ' . $duration) : '',
+            ]));
+
+            if ($factsLine !== []) {
+                $lines[] = implode(' | ', $factsLine);
+            }
+
+            return trim(implode("\n", $lines));
+        }
+
+        if ($intent === 'departure') {
+            $departure = trim((string) ($tour['departure'] ?? $selectedTour['departure'] ?? ''));
+            $price = trim((string) ($tour['price_label'] ?? $selectedTour['price_label'] ?? ''));
+            $duration = trim((string) ($tour['duration_label'] ?? $selectedTour['duration_label'] ?? ''));
+            $lines = [
+                $departure !== ''
+                    ? ($locale === 'en' ? $title . ' departs on ' . $departure . '.' : 'Tour ' . $title . ' khởi hành ngày ' . $departure . '.')
+                    : ($locale === 'en' ? 'The website has not published a departure date for ' . $title . '.' : 'Website chưa công bố ngày khởi hành cho tour ' . $title . '.'),
+            ];
+            $factsLine = array_values(array_filter([
+                $price !== '' ? (($locale === 'en' ? 'Price from' : 'Giá từ') . ': ' . $price) : '',
+                $duration !== '' ? (($locale === 'en' ? 'Duration' : 'Thời lượng') . ': ' . $duration) : '',
+            ]));
+
+            if ($factsLine !== []) {
+                $lines[] = implode(' | ', $factsLine);
+            }
+
+            return trim(implode("\n", $lines));
+        }
+
         if ($intent === 'destinations') {
             $routeStops = array_values(array_filter((array) ($tour['route_stops'] ?? []), 'is_string'));
             $attractions = array_values(array_filter((array) ($tour['attraction_highlights'] ?? []), 'is_string'));
@@ -609,14 +772,21 @@ class GeminiWebsiteChatService
         }
 
         $lines = [
-            ($locale === 'en'
-                ? 'The most relevant tour is: '
-                : 'Tour phù hợp nhất là: ') . $title,
+            ($intent === 'highlights'
+                ? ($locale === 'en' ? 'What stands out in this tour: ' : 'Điểm đặc biệt của tour: ')
+                : ($locale === 'en' ? 'The most relevant tour is: ' : 'Tour phù hợp nhất là: ')) . $title,
         ];
 
         if (! empty($tour['overview'])) {
             $lines[] = '';
             $lines[] = (string) $tour['overview'];
+        }
+
+        $routeStops = array_values(array_filter((array) ($tour['route_stops'] ?? []), 'is_string'));
+        if ($intent === 'highlights' && $routeStops !== []) {
+            $lines[] = '';
+            $lines[] = $locale === 'en' ? 'Notable route:' : 'Hành trình nổi bật:';
+            $lines[] = '- ' . implode(' - ', array_slice($routeStops, 0, 8));
         }
 
         $highlights = array_values(array_filter((array) ($tour['attraction_highlights'] ?? []), 'is_string'));
@@ -656,27 +826,37 @@ class GeminiWebsiteChatService
             $websiteFacts = is_array($facts['website_facts'] ?? null) ? $facts['website_facts'] : [];
             $visa = is_array($websiteFacts['visa'] ?? null) ? $websiteFacts['visa'] : [];
             $matchedDestination = trim((string) ($visa['matched_destination'] ?? ''));
+            $referenceRegion = (string) ($facts['reference_region'] ?? 'general');
+            $topic = trim((string) ($facts['reference_topic'] ?? ''));
 
-            $lines = [
-                $locale === 'en'
-                    ? 'Reference information outside website data: Visa processing time often depends on the destination, season, document completeness, and whether additional documents are requested.'
-                    : 'Thông tin tham khảo ngoài dữ liệu website: Thời gian xử lý visa thường phụ thuộc vào điểm đến, mùa nộp hồ sơ, độ đầy đủ của giấy tờ và việc có bị yêu cầu bổ sung hay không.',
-            ];
+            if ($referenceRegion === 'schengen') {
+                $lines = [
+                    $locale === 'en'
+                        ? 'Reference information outside website data: For Schengen visa destinations such as France, Italy and Switzerland, the usual decision time is 15 calendar days after the application is lodged. This can be extended up to 45 calendar days if the consulate needs additional examination or documents.'
+                        : 'Thông tin tham khảo ngoài dữ liệu website: Với visa Schengen như Pháp, Ý và Thụy Sĩ, thời gian xét duyệt thông thường là 15 ngày lịch kể từ khi nộp hồ sơ. Thời gian này có thể kéo dài tối đa 45 ngày lịch nếu lãnh sự cần kiểm tra thêm hoặc yêu cầu bổ sung giấy tờ.',
+                ];
+            } else {
+                $destinationText = $matchedDestination !== ''
+                    ? $matchedDestination
+                    : ($locale === 'en' ? 'this visa destination' : 'điểm đến visa này');
 
-            if ($matchedDestination !== '') {
-                $lines[] = $locale === 'en'
-                    ? 'For ' . $matchedDestination . ', processing time is usually something travelers should confirm close to the submission date because it can change.'
-                    : 'Với ' . $matchedDestination . ', thời gian xử lý thường nên được xác nhận sát ngày nộp vì có thể thay đổi theo từng thời điểm.';
+                $lines = [
+                    $locale === 'en'
+                        ? 'Reference information outside website data: Processing time for ' . $destinationText . ' can vary by destination, appointment availability, season, document completeness and whether additional review is required.'
+                        : 'Thông tin tham khảo ngoài dữ liệu website: Thời gian xử lý visa cho ' . $destinationText . ' có thể thay đổi theo điểm đến, lịch hẹn còn trống, mùa nộp hồ sơ, độ đầy đủ của giấy tờ và việc có bị yêu cầu kiểm tra bổ sung hay không.',
+                ];
             }
 
-            $lines[] = $locale === 'en'
-                ? 'For cost, Travel Plus has not published a fixed service fee on the website; the final amount depends on visa type, consular fees, service scope, and the applicant profile.'
-                : 'Về chi phí, Travel Plus chưa công bố mức phí cố định trên website; số tiền cuối cùng phụ thuộc vào loại visa, phí lãnh sự, phạm vi dịch vụ và hồ sơ của từng khách.';
+            if ($this->looksLikeCostQuestion($topic)) {
+                $lines[] = $locale === 'en'
+                    ? 'For cost, Travel Plus has not published a fixed service fee on the website; the final amount depends on visa type, consular fees, service scope and the applicant profile.'
+                    : 'Về chi phí, Travel Plus chưa công bố mức phí cố định trên website; số tiền cuối cùng phụ thuộc vào loại visa, phí lãnh sự, phạm vi dịch vụ và hồ sơ của từng khách.';
+            }
 
             $lines[] = '';
             $lines[] = $locale === 'en'
-                ? 'Website data: Travel Plus currently supports visa consultation and document preparation for this type of request [1].'
-                : 'Dữ liệu website: Travel Plus hiện có hỗ trợ tư vấn và chuẩn bị hồ sơ visa cho nhu cầu này [1].';
+                ? 'Website data: Travel Plus currently supports visa consultation and document preparation, but the website has not published a fixed processing time for this exact request.'
+                : 'Dữ liệu website: Travel Plus hiện hỗ trợ tư vấn và chuẩn bị hồ sơ visa, nhưng website chưa công bố thời gian xử lý cố định cho yêu cầu này.';
 
             return trim(implode("\n", $lines));
         }
@@ -684,6 +864,45 @@ class GeminiWebsiteChatService
         return $locale === 'en'
             ? 'Reference information outside website data: This topic is better treated as general travel guidance, but the AI reference answer is temporarily unavailable.'
             : 'Thông tin tham khảo ngoài dữ liệu website: Chủ đề này phù hợp với kiến thức tham khảo chung, nhưng phần trả lời tham khảo của AI đang tạm thời chưa sẵn sàng.';
+    }
+
+    private function looksLikeCostQuestion(string $text): bool
+    {
+        $search = mb_strtolower($text);
+        $search = strtr($search, [
+            'à' => 'a', 'á' => 'a', 'ạ' => 'a', 'ả' => 'a', 'ã' => 'a',
+            'â' => 'a', 'ầ' => 'a', 'ấ' => 'a', 'ậ' => 'a', 'ẩ' => 'a', 'ẫ' => 'a',
+            'ă' => 'a', 'ằ' => 'a', 'ắ' => 'a', 'ặ' => 'a', 'ẳ' => 'a', 'ẵ' => 'a',
+            'è' => 'e', 'é' => 'e', 'ẹ' => 'e', 'ẻ' => 'e', 'ẽ' => 'e',
+            'ê' => 'e', 'ề' => 'e', 'ế' => 'e', 'ệ' => 'e', 'ể' => 'e', 'ễ' => 'e',
+            'ì' => 'i', 'í' => 'i', 'ị' => 'i', 'ỉ' => 'i', 'ĩ' => 'i',
+            'ò' => 'o', 'ó' => 'o', 'ọ' => 'o', 'ỏ' => 'o', 'õ' => 'o',
+            'ô' => 'o', 'ồ' => 'o', 'ố' => 'o', 'ộ' => 'o', 'ổ' => 'o', 'ỗ' => 'o',
+            'ơ' => 'o', 'ờ' => 'o', 'ớ' => 'o', 'ợ' => 'o', 'ở' => 'o', 'ỡ' => 'o',
+            'ù' => 'u', 'ú' => 'u', 'ụ' => 'u', 'ủ' => 'u', 'ũ' => 'u',
+            'ư' => 'u', 'ừ' => 'u', 'ứ' => 'u', 'ự' => 'u', 'ử' => 'u', 'ữ' => 'u',
+            'ỳ' => 'y', 'ý' => 'y', 'ỵ' => 'y', 'ỷ' => 'y', 'ỹ' => 'y',
+            'đ' => 'd',
+        ]);
+        $ascii = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $search);
+        $search = is_string($ascii) && $ascii !== '' ? $ascii : $search;
+        $search = preg_replace('/[^a-z0-9\s]+/i', ' ', $search) ?? '';
+
+        foreach ([
+            'chi phi',
+            'phi',
+            'gia',
+            'bao nhieu tien',
+            'cost',
+            'fee',
+            'price',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function requestGemini(string $prompt): string

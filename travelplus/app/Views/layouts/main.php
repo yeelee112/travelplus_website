@@ -17,6 +17,7 @@ $metaPublishedTime = $formatMetaDate($meta_published_time ?? '');
 $metaUpdatedTime = $formatMetaDate($meta_updated_time ?? '');
 $metaAuthor = trim((string) ($meta_author ?? ''));
 $alternateLinks = is_array($alternate_links ?? null) ? $alternate_links : [];
+$paginationLinks = is_array($pagination_links ?? null) ? $pagination_links : [];
 $schemaGraph = is_array($schema_graph ?? null) ? array_values(array_filter($schema_graph)) : [];
 $ogLocale = $currentLocale === 'en' ? 'en_US' : 'vi_VN';
 $requestUri = service('request')->getUri();
@@ -51,6 +52,12 @@ $mainJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/main.
 <meta name="csrf-token-name" content="<?= esc(csrf_token()) ?>">
 <meta name="csrf-token" content="<?= esc(csrf_hash()) ?>">
 <link rel="canonical" href="<?= esc($canonicalUrl) ?>">
+<?php if (! empty($paginationLinks['prev'])): ?>
+<link rel="prev" href="<?= esc((string) $paginationLinks['prev']) ?>">
+<?php endif; ?>
+<?php if (! empty($paginationLinks['next'])): ?>
+<link rel="next" href="<?= esc((string) $paginationLinks['next']) ?>">
+<?php endif; ?>
 
 <meta property="og:site_name" content="<?= esc($siteName) ?>">
 <meta property="og:type" content="<?= esc($metaType) ?>">

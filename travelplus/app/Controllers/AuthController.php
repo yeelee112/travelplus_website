@@ -170,13 +170,7 @@ class AuthController extends BaseController
         }
 
         $bookings = (new BookingModel())
-            ->groupStart()
-                ->where('user_id', (int) $authUser['id'])
-                ->orGroupStart()
-                    ->where('user_id', null)
-                    ->where('customer_email', (string) ($user['email'] ?? ''))
-                ->groupEnd()
-            ->groupEnd()
+            ->where('user_id', (int) $authUser['id'])
             ->orderBy('created_at', 'DESC')
             ->findAll(10);
 
@@ -526,7 +520,9 @@ class AuthController extends BaseController
                 'updated_at' => $now,
             ], true);
         } catch (\Throwable $exception) {
-            return redirect()->back()->withInput()->with('auth_error', lang('Frontend.auth.registerFailed', [$exception->getMessage()], $locale));
+            log_message('error', 'Account registration failed: {message}', ['message' => $exception->getMessage()]);
+
+            return redirect()->back()->withInput()->with('auth_error', lang('Frontend.auth.registerFailed', [], $locale));
         }
 
         $user = $userModel->find((int) $userId);
