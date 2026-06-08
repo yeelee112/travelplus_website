@@ -94,7 +94,7 @@ $chatUi = $currentLocale === 'en'
 </div>
 
 <style>
-    .tp-ai-chatbox{position:fixed;left:20px;bottom:20px;z-index:1100;font-family:inherit;transition:opacity .18s ease,visibility .18s ease,transform .18s ease}
+    .tp-ai-chatbox{position:fixed;left:20px;bottom:20px;z-index:1030;font-family:inherit;transition:opacity .18s ease,visibility .18s ease,transform .18s ease}
     body.modal-open .tp-ai-chatbox{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px)}
     .tp-ai-chatbox__toggle{display:flex;align-items:center;gap:12px;min-width:0;border:1px solid #d8e6f4;padding:14px 18px;border-radius:999px;background:linear-gradient(180deg,#ffffff 0%,#eef7ff 100%);color:#12324a;box-shadow:0 18px 40px rgba(15,23,42,.14)}
     .tp-ai-chatbox__toggle-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#18a0dc,#246bff);font-size:18px;flex:0 0 40px}
@@ -150,14 +150,14 @@ $chatUi = $currentLocale === 'en'
     .tp-ai-chatbox__statusline small{color:#6a8095}
 
     @media (max-width: 767px){
-        .tp-ai-chatbox{left:12px;right:auto;bottom:12px}
-        .tp-ai-chatbox__toggle{width:auto;min-width:0;gap:9px;padding:8px 12px}
-        .tp-ai-chatbox__toggle-icon{width:34px;height:34px;border-radius:12px;font-size:16px;flex-basis:34px}
-        .tp-ai-chatbox__toggle-copy strong{font-size:14px}
+        .tp-ai-chatbox{left:12px;right:auto;bottom:calc(16px + env(safe-area-inset-bottom))}
+        .tp-ai-chatbox__toggle{width:48px;height:48px;min-width:48px;gap:0;padding:0;justify-content:center;border-radius:999px;box-shadow:0 14px 30px rgba(15,23,42,.16)}
+        .tp-ai-chatbox__toggle-icon{width:48px;height:48px;border-radius:999px;font-size:17px;flex:0 0 48px}
+        .tp-ai-chatbox__toggle-copy{display:none}
         .tp-ai-chatbox__panel{position:fixed;left:12px;right:12px;bottom:76px;width:auto;height:min(72vh,620px)}
         .tp-ai-chatbox.is-tour-page{bottom:calc(112px + env(safe-area-inset-bottom))}
         .tp-ai-chatbox.is-tour-page .tp-ai-chatbox__panel{bottom:calc(176px + env(safe-area-inset-bottom));height:min(60vh,560px)}
-        .progress-wrap{right:12px;bottom:96px}
+        .progress-wrap{right:12px;bottom:calc(16px + env(safe-area-inset-bottom))}
     }
 </style>
 
