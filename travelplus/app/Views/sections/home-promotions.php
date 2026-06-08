@@ -4,11 +4,63 @@ $searchUrl = \App\Data\LocalizedPathCatalog::url('search', $locale);
 $homeTours = array_values($homeTours ?? []);
 $promotionalTours = array_values($promotionalTours ?? []);
 $promoTours = $promotionalTours !== [] ? $promotionalTours : array_slice($homeTours, 0, 4);
+$uniqueTours = static function (array $tours): array {
+    $seen = [];
+    $items = [];
+
+    foreach ($tours as $tour) {
+        if (! is_array($tour)) {
+            continue;
+        }
+
+        $key = (string) ($tour['id'] ?? '');
+        if ($key === '') {
+            $key = trim((string) ($tour['link'] ?? ''));
+        }
+        if ($key === '') {
+            $key = mb_strtolower(trim((string) ($tour['title'] ?? '')));
+        }
+        if ($key === '' || isset($seen[$key])) {
+            continue;
+        }
+
+        $seen[$key] = true;
+        $items[] = $tour;
+    }
+
+    return $items;
+};
+
+$excludeTour = static function (array $tours, ?array $excludedTour) use ($uniqueTours): array {
+    if ($excludedTour === null) {
+        return $uniqueTours($tours);
+    }
+
+    $excludedId = (string) ($excludedTour['id'] ?? '');
+    $excludedLink = trim((string) ($excludedTour['link'] ?? ''));
+    $excludedTitle = mb_strtolower(trim((string) ($excludedTour['title'] ?? '')));
+
+    return $uniqueTours(array_values(array_filter($tours, static function (array $tour) use ($excludedId, $excludedLink, $excludedTitle): bool {
+        if ($excludedId !== '' && (string) ($tour['id'] ?? '') === $excludedId) {
+            return false;
+        }
+
+        $link = trim((string) ($tour['link'] ?? ''));
+        if ($excludedLink !== '' && $link === $excludedLink) {
+            return false;
+        }
+
+        $title = mb_strtolower(trim((string) ($tour['title'] ?? '')));
+        return $excludedTitle === '' || $title !== $excludedTitle;
+    })));
+};
+
+$promoTours = $uniqueTours($promoTours);
 $featureTour = $promoTours[0] ?? null;
-$sideTours = array_slice($promoTours, 1, 3);
+$sideTours = array_slice($excludeTour($promoTours, $featureTour), 0, 3);
 
 if ($sideTours === [] && count($homeTours) > 1) {
-    $sideTours = array_slice($homeTours, 1, 3);
+    $sideTours = array_slice($excludeTour($homeTours, $featureTour), 0, 3);
 }
 
 $fallbackTitle = $locale === 'en'
@@ -142,51 +194,59 @@ $copy = $locale === 'en'
                     <a href="<?= esc($searchUrl, 'attr') ?>"><?= esc($locale === 'en' ? 'All tours' : 'Tất cả tour') ?></a>
                 </div>
 
-                <?php foreach ($sideTours as $tour): ?>
-                    <?php
-                    $tourPromotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
-                    $tourBadge = trim((string) ($tourPromotion['badge'] ?? '')) ?: (string) $copy['moreBadge'];
-                    $tourPrice = (string) ($tour['price']['label'] ?? '');
-                    $tourDeparture = (string) ($tour['departure'] ?? '');
-                    $tourContinent = (string) ($tour['continent'] ?? '');
-                    $tourDuration = (string) ($tour['duration']['label'] ?? '');
-                    ?>
-                    <article class="home-promo-card">
-                        <a class="home-promo-card__media" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
-                            <span><?= esc($tourBadge) ?></span>
-                            <img
-                                src="<?= esc((string) ($tour['image'] ?? base_url('assets/images/avt-tour-01.jpg')), 'attr') ?>"
-                                alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>"
-                                width="240"
-                                height="180"
-                                loading="lazy"
-                                decoding="async">
-                        </a>
-                        <div class="home-promo-card__body">
-                            <h3><a href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>"><?= esc((string) ($tour['title'] ?? '')) ?></a></h3>
-                            <?php if ($tourContinent !== '' || $tourDuration !== ''): ?>
-                                <div class="home-promo-card__meta">
-                                    <?php if ($tourContinent !== ''): ?>
-                                        <span><i class="bi bi-geo-alt"></i><?= esc($tourContinent) ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($tourDuration !== ''): ?>
-                                        <span><i class="bi bi-clock"></i><?= esc($tourDuration) ?></span>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($tourPrice !== ''): ?>
-                                <strong class="home-promo-card__price"><?= esc($tourPrice) ?></strong>
-                            <?php endif; ?>
-                            <?php if ($tourDeparture !== ''): ?>
-                                <small><i class="bi bi-calendar3"></i><?= esc($copy['departureLabel']) ?>: <?= esc($tourDeparture) ?></small>
-                            <?php endif; ?>
-                            <a class="home-promo-card__link" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
-                                <?= esc($copy['moreCta']) ?>
-                                <i class="bi bi-arrow-right"></i>
+                <div class="home-promo-list__scroller">
+                    <?php foreach ($sideTours as $tour): ?>
+                        <?php
+                        $tourPromotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
+                        $tourBadge = trim((string) ($tourPromotion['badge'] ?? '')) ?: (string) $copy['moreBadge'];
+                        $tourPrice = (string) ($tour['price']['label'] ?? '');
+                        $tourPriceLabel = $tourPromotion !== []
+                            ? (string) $copy['priceLabel']
+                            : ($locale === 'en' ? 'Tour price' : 'Giá tour');
+                        $tourDeparture = (string) ($tour['departure'] ?? '');
+                        $tourContinent = (string) ($tour['continent'] ?? '');
+                        $tourDuration = (string) ($tour['duration']['label'] ?? '');
+                        ?>
+                        <article class="home-promo-card">
+                            <a class="home-promo-card__media" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
+                                <span><?= esc($tourBadge) ?></span>
+                                <img
+                                    src="<?= esc((string) ($tour['image'] ?? base_url('assets/images/avt-tour-01.jpg')), 'attr') ?>"
+                                    alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>"
+                                    width="240"
+                                    height="180"
+                                    loading="lazy"
+                                    decoding="async">
                             </a>
-                        </div>
-                    </article>
-                <?php endforeach; ?>
+                            <div class="home-promo-card__body">
+                                <h3><a href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>"><?= esc((string) ($tour['title'] ?? '')) ?></a></h3>
+                                <?php if ($tourContinent !== '' || $tourDuration !== ''): ?>
+                                    <div class="home-promo-card__meta">
+                                        <?php if ($tourContinent !== ''): ?>
+                                            <span><i class="bi bi-geo-alt"></i><?= esc($tourContinent) ?></span>
+                                        <?php endif; ?>
+                                        <?php if ($tourDuration !== ''): ?>
+                                            <span><i class="bi bi-clock"></i><?= esc($tourDuration) ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($tourPrice !== ''): ?>
+                                    <div class="home-promo-card__price">
+                                        <span><?= esc($tourPriceLabel) ?></span>
+                                        <strong><?= esc($tourPrice) ?></strong>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($tourDeparture !== ''): ?>
+                                    <small><i class="bi bi-calendar3"></i><?= esc($copy['departureLabel']) ?>: <?= esc($tourDeparture) ?></small>
+                                <?php endif; ?>
+                                <a class="home-promo-card__link" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
+                                    <?= esc($copy['moreCta']) ?>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
             </aside>
         </div>
     </div>

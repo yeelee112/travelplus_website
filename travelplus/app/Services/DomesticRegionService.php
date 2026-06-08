@@ -24,11 +24,136 @@ class DomesticRegionService
     ];
 
     private array $provinceCodeMap = [
-        'north' => ['HN', 'HP', 'QN', 'QNH', 'NB', 'LC', 'SP', 'BG', 'BN', 'TB', 'ND', 'HD', 'HY', 'VP', 'PT', 'TN', 'BC', 'CB', 'DB', 'HG', 'LS', 'YT', 'TBH'],
-        'central' => ['TH', 'NA', 'HT', 'QB', 'QT', 'HUE', 'DN', 'QN', 'QNG', 'BD', 'PY', 'KH', 'NT', 'GL', 'KT', 'DL', 'DNO'],
-        'south' => ['HCM', 'SG', 'BDG', 'DNA', 'VT', 'TNH', 'BPH', 'LDG', 'AGI'],
-        'mekong' => ['CT', 'AG', 'DT', 'VL', 'VLG', 'TV', 'BTR', 'ST', 'BL', 'CM', 'KG', 'HG', 'TG', 'LA'],
-        'vietnam' => ['AVN']
+        'north' => [
+            'VN-01', // Ha Noi
+            'VN-04', // Cao Bang
+            'VN-08', // Tuyen Quang
+            'VN-11', // Dien Bien
+            'VN-12', // Lai Chau
+            'VN-14', // Son La
+            'VN-15', // Lao Cai
+            'VN-19', // Thai Nguyen
+            'VN-20', // Lang Son
+            'VN-22', // Quang Ninh
+            'VN-24', // Bac Ninh
+            'VN-25', // Phu Tho
+            'VN-31', // Hai Phong
+            'VN-33', // Hung Yen
+            'VN-37', // Ninh Binh
+        ],
+        'central' => [
+            'VN-38', // Thanh Hoa
+            'VN-40', // Nghe An
+            'VN-42', // Ha Tinh
+            'VN-44', // Quang Tri
+            'VN-46', // Hue
+            'VN-48', // Da Nang
+            'VN-51', // Quang Ngai
+            'VN-52', // Gia Lai
+            'VN-56', // Khanh Hoa
+            'VN-66', // Dak Lak
+            'VN-68', // Lam Dong
+        ],
+        'south' => [
+            'VN-75', // Dong Nai
+            'VN-79', // Ho Chi Minh City
+            'VN-80', // Tay Ninh
+        ],
+        'mekong' => [
+            'VN-82', // Dong Thap
+            'VN-86', // Vinh Long
+            'VN-91', // An Giang
+            'VN-92', // Can Tho
+            'VN-96', // Ca Mau
+        ],
+        'vietnam' => ['VN-ALL'],
+    ];
+
+    private array $provinceCodeAliases = [
+        'AVN' => 'VN-ALL',
+
+        'HN' => 'VN-01',
+        'CB' => 'VN-04',
+        'TQ' => 'VN-08',
+        'HG' => 'VN-08',
+        'DB' => 'VN-11',
+        'LCH' => 'VN-12',
+        'LC' => 'VN-15',
+        'LCA' => 'VN-15',
+        'SP' => 'VN-15',
+        'YB' => 'VN-15',
+        'SL' => 'VN-14',
+        'TN' => 'VN-19',
+        'TNG' => 'VN-19',
+        'BC' => 'VN-19',
+        'BK' => 'VN-19',
+        'LS' => 'VN-20',
+        'QNH' => 'VN-22',
+        'QNI' => 'VN-22',
+        'BN' => 'VN-24',
+        'BG' => 'VN-24',
+        'PT' => 'VN-25',
+        'VP' => 'VN-25',
+        'HB' => 'VN-25',
+        'HP' => 'VN-31',
+        'HD' => 'VN-31',
+        'HY' => 'VN-33',
+        'TB' => 'VN-33',
+        'TBH' => 'VN-33',
+        'NB' => 'VN-37',
+        'ND' => 'VN-37',
+        'HNA' => 'VN-37',
+
+        'TH' => 'VN-38',
+        'NA' => 'VN-40',
+        'HT' => 'VN-42',
+        'QT' => 'VN-44',
+        'QB' => 'VN-44',
+        'HUE' => 'VN-46',
+        'TTH' => 'VN-46',
+        'DN' => 'VN-48',
+        'DNG' => 'VN-48',
+        'QNA' => 'VN-48',
+        'QNG' => 'VN-51',
+        'KT' => 'VN-51',
+        'GL' => 'VN-52',
+        'BD' => 'VN-52',
+        'BDI' => 'VN-52',
+        'KH' => 'VN-56',
+        'NT' => 'VN-56',
+        'DL' => 'VN-66',
+        'DDL' => 'VN-66',
+        'PY' => 'VN-66',
+        'LDG' => 'VN-68',
+        'LD' => 'VN-68',
+        'DNO' => 'VN-68',
+        'BTH' => 'VN-68',
+
+        'DNA' => 'VN-75',
+        'BPH' => 'VN-75',
+        'HCM' => 'VN-79',
+        'SG' => 'VN-79',
+        'BDG' => 'VN-79',
+        'BRVT' => 'VN-79',
+        'VT' => 'VN-79',
+        'TNH' => 'VN-80',
+        'LA' => 'VN-80',
+
+        'DT' => 'VN-82',
+        'TG' => 'VN-82',
+        'VL' => 'VN-86',
+        'VLG' => 'VN-86',
+        'BTR' => 'VN-86',
+        'TV' => 'VN-86',
+        'AG' => 'VN-91',
+        'AGI' => 'VN-91',
+        'KG' => 'VN-91',
+        'CT' => 'VN-92',
+        'CTH' => 'VN-92',
+        'HGI' => 'VN-92',
+        'ST' => 'VN-92',
+        'CM' => 'VN-96',
+        'BL' => 'VN-96',
     ];
 
     public function getMenu(string $locale = 'vi'): array
@@ -163,8 +288,11 @@ class DomesticRegionService
 
     private function resolveRegionKeyByProvinceCode(string $code): ?string
     {
+        $code = strtoupper($code);
+        $code = $this->provinceCodeAliases[$code] ?? $code;
+
         foreach ($this->provinceCodeMap as $regionKey => $codes) {
-            if (in_array(strtoupper($code), $codes, true)) {
+            if (in_array($code, $codes, true)) {
                 return $regionKey;
             }
         }

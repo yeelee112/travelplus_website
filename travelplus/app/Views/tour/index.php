@@ -326,17 +326,18 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                         data-departure-prefix="<?= esc($t('tour.booking.departurePrefix'), 'attr') ?>"
                         data-departures="<?= esc(json_encode($departureOptions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'attr') ?>">
                         <button type="button" class="tour-departure-trigger" data-departure-toggle aria-expanded="false">
+                            <span class="tour-departure-trigger-price-label">Giá từ</span>
+                            <span data-departure-current-price><?= esc(number_format((float) ($departureOptions[0]['adult_price'] ?? $adultPrice), 0, ',', '.') . 'đ') ?></span>
                             <span class="tour-departure-trigger-copy"><?= esc($t('tour.booking.departureSelect')) ?></span>
                             <strong data-departure-current-label><?= esc($departureLabel) ?></strong>
-                            <span data-departure-current-price><?= esc(number_format((float) ($departureOptions[0]['adult_price'] ?? $adultPrice), 0, ',', '.') . 'đ') ?></span>
                             <i class="bi bi-chevron-down" aria-hidden="true"></i>
                         </button>
                         <div class="tour-departure-menu" data-departure-menu>
                             <?php foreach ($departureOptions as $index => $departureOption): ?>
                                 <?php $timestamp = strtotime((string) $departureOption['date']); ?>
                                 <button type="button" class="tour-departure-option<?= $index === 0 ? ' is-active' : '' ?>" data-departure-option data-departure-date="<?= esc((string) $departureOption['date']) ?>">
-                                    <strong><?= esc($timestamp ? date('d/m', $timestamp) : (string) $departureOption['label']) ?></strong>
-                                    <span><?= esc($timestamp ? date('Y', $timestamp) : '') ?></span>
+                                    <strong><span>ngày</span> <?= esc($timestamp ? date('d/m', $timestamp) : (string) $departureOption['label']) ?></strong>
+                                    <small>Giá từ</small>
                                     <em><?= esc(number_format((float) $departureOption['adult_price'], 0, ',', '.') . 'đ') ?></em>
                                 </button>
                             <?php endforeach; ?>
@@ -368,7 +369,7 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                                 <div class="service-info-wrap">
                                     <div class="service-info">
                                         <h6><?= esc($t('tour.booking.adult')) ?></h6>
-                                        <p data-booking-price-label="adult"><?= esc(number_format($adultPrice, 0, ',', '.')) ?></p>
+                                        <p data-booking-price-label="adult"><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?></p>
                                     </div>
                                 </div>
                                 <div class="pricing-and-count-area">
@@ -379,7 +380,7 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                                 <div class="service-info-wrap">
                                     <div class="service-info">
                                         <h6><?= esc($t('tour.booking.child')) ?></h6>
-                                        <p data-booking-price-label="child"><?= esc(number_format($childPrice, 0, ',', '.')) ?></p>
+                                        <p data-booking-price-label="child"><?= esc(number_format($childPrice, 0, ',', '.') . 'đ') ?></p>
                                     </div>
                                 </div>
                                 <div class="pricing-and-count-area">
@@ -390,7 +391,7 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                                 <div class="service-info-wrap">
                                     <div class="service-info">
                                         <h6><?= esc($t('tour.booking.infant')) ?></h6>
-                                        <p data-booking-price-label="infant"><?= esc(number_format($infantPrice, 0, ',', '.')) ?>₫</p>
+                                        <p data-booking-price-label="infant"><?= esc(number_format($infantPrice, 0, ',', '.') . 'đ') ?></p>
                                     </div>
                                 </div>
                                 <div class="pricing-and-count-area">
@@ -400,7 +401,7 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                         </ul>
                         <div class="booking-total-area">
                             <span class="booking-total-label"><?= esc($t('tour.booking.total')) ?> </span>
-                            <strong class="booking-grand-total"><?= esc(number_format($adultPrice, 0, ',', '.')) ?></strong>
+                            <strong class="booking-grand-total"><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?></strong>
                         </div>
                     </div>
 

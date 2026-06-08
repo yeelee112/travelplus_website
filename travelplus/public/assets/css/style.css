@@ -140,6 +140,12 @@
     font-size: 12px;
     font-weight: 700;
     line-height: 1;}
+.tour-departure-trigger-price-label {grid-column: 1 / -1;
+    color: rgba(var(--title-color-opc), 0.58);
+    font-size: 11px;
+    font-weight: 850;
+    line-height: 1;
+    text-transform: uppercase;}
 .tour-departure-trigger strong {color: var(--title-color);
     font-size: 19px;
     line-height: 1.15;}
@@ -167,10 +173,10 @@
     box-shadow: 0 18px 40px rgba(17, 15, 15, 0.14);}
 .tour-departure-picker.is-open .tour-departure-menu {display: grid;}
 .tour-departure-option {display: grid;
-    min-height: 50px;
-    grid-template-columns: minmax(54px, auto) minmax(0, 1fr);
+    min-height: 64px;
+    grid-template-columns: minmax(68px, auto) minmax(0, 1fr);
     align-items: center;
-    gap: 0 8px;
+    gap: 2px 10px;
     padding: 7px 9px;
     border: 1px solid #dbe7ef;
     border-radius: 8px;
@@ -178,15 +184,29 @@
     color: var(--title-color);
     text-align: left;
     transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;}
-.tour-departure-option strong {grid-row: 1 / 3;
+.tour-departure-option strong {grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
     font-size: 18px;
     line-height: 1.1;}
-.tour-departure-option span {align-self: end;
-    color: rgba(var(--title-color-opc), 0.68);
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.05;}
-.tour-departure-option em {align-self: start;
+.tour-departure-option strong span {display: block;
+    margin-bottom: 2px;
+    color: rgba(var(--title-color-opc), 0.54);
+    font-size: 10px;
+    font-weight: 850;
+    line-height: 1;
+    text-transform: uppercase;}
+.tour-departure-option small {grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    color: rgba(var(--title-color-opc), 0.52);
+    font-size: 10px;
+    font-weight: 850;
+    line-height: 1;
+    text-transform: uppercase;}
+.tour-departure-option em {grid-column: 2;
+    grid-row: 2;
+    align-self: start;
     color: var(--primary-color1);
     font-size: 13px;
     font-style: normal;
@@ -7747,7 +7767,7 @@ body.modal-open .tp-ai-chatbox {display: none;}
     padding: 10px;
     border-color: #bde8f7;
     border-radius: 8px;}
-.booking-modal .tour-departure-option {min-height: 66px;
+.booking-modal .tour-departure-option {min-height: 50px;
     padding: 10px 11px;
     border-radius: 8px;}
 .booking-modal .tour-departure-meta {margin: 8px 0 0;
@@ -8025,12 +8045,15 @@ body.modal-open .tp-ai-chatbox {display: none;}
 }
 .booking-modal .tour-departure-trigger {min-height: 62px;
     grid-template-columns: minmax(0, 1fr) minmax(150px, auto) 22px;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     gap: 4px 12px;
     align-items: center;
     padding: 11px 14px;}
+.booking-modal .tour-departure-trigger-price-label {grid-column: 1;
+    grid-row: 1;
+    justify-self: start;}
 .booking-modal .tour-departure-trigger > span[data-departure-current-price] {grid-column: 1;
-    grid-row: 1 / 3;
+    grid-row: 2 / 4;
     align-self: center;
     justify-self: start;
     font-size: 20px;
@@ -8041,29 +8064,31 @@ body.modal-open .tp-ai-chatbox {display: none;}
     text-align: right;
     line-height: 1.15;}
 .booking-modal .tour-departure-trigger strong {grid-column: 2;
-    grid-row: 2;
+    grid-row: 2 / 4;
     justify-self: end;
     text-align: right;
     font-size: 19px;
     line-height: 1.15;}
 .booking-modal .tour-departure-trigger i {grid-column: 3;
-    grid-row: 1 / 3;
+    grid-row: 1 / 4;
     justify-self: end;}
 @media (max-width: 420px) {.booking-modal .tour-departure-trigger {grid-template-columns: minmax(0, 1fr) 22px;
-        grid-template-rows: auto auto auto;}
+        grid-template-rows: auto auto auto auto;}
 .booking-modal .tour-departure-trigger > span[data-departure-current-price] {grid-column: 1;
+        grid-row: 2;}
+.booking-modal .tour-departure-trigger-price-label {grid-column: 1;
         grid-row: 1;}
 .booking-modal .tour-departure-trigger-copy {grid-column: 1;
-        grid-row: 2;
+        grid-row: 3;
         justify-self: start;
         text-align: left;}
 .booking-modal .tour-departure-trigger strong {grid-column: 1;
-        grid-row: 3;
+        grid-row: 4;
         justify-self: start;
         text-align: left;
         font-size: 18px;}
 .booking-modal .tour-departure-trigger i {grid-column: 2;
-        grid-row: 1 / 4;}
+        grid-row: 1 / 5;}
 }
 .booking-modal .modal-dialog {width: min(700px, calc(100vw - 20px));
     max-width: 700px;}
@@ -8945,6 +8970,8 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     box-shadow: 0 14px 30px rgba(226, 55, 55, 0.24);}
 .home-promo-list {display: grid;
     gap: 14px;}
+.home-promo-list__scroller {display: grid;
+    gap: 14px;}
 .home-promo-list__head {display: flex;
     align-items: center;
     justify-content: space-between;
@@ -8966,26 +8993,47 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     left: 10px;
     z-index: 2;
     display: inline-flex;
-    padding: 7px 9px;
+    padding: 8px 11px;
     border-radius: 999px;
     background: #e23737;
     color: #fff;
     font-size: 11px;
     font-weight: 900;
     line-height: 1;
-    text-transform: uppercase;}
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    box-shadow: 0 12px 26px rgba(77, 8, 8, 0.28);}
 .home-promo-card__body {display: grid;
-    align-content: center;
-    gap: 9px;
-    padding: 18px;}
+    grid-template-columns: minmax(0, 1fr) minmax(138px, auto);
+    align-content: start;
+    align-items: start;
+    gap: 10px 12px;
+    padding: 18px;
+    border-left: 3px solid rgba(226, 55, 55, 0.16);
+    background: linear-gradient(135deg, rgba(255, 243, 243, 0.86), #fff 54%);}
 .home-promo-card h3 {font-size: 18px;
-    line-height: 1.25;}
+    line-height: 1.25;
+    grid-column: 1 / -1;}
 .home-promo-card p {font-size: 14px;}
-.home-promo-card__price {color: #e23737;
-    font-size: 19px;
+.home-promo-card__price {display: grid;
+    grid-column: 1;
+    width: fit-content;
+    gap: 3px;
+    padding: 8px 10px;
+    border: 1px solid rgba(226, 55, 55, 0.14);
+    border-radius: 8px;
+    background: #fff3f3;}
+.home-promo-card__price span {color: #c92d2d;
+    font-size: 11px;
+    font-weight: 850;
+    line-height: 1;
+    text-transform: uppercase;}
+.home-promo-card__price strong {color: #e23737;
+    font-size: 20px;
     font-weight: 900;
     line-height: 1.15;}
 .home-promo-card__meta {display: flex;
+    grid-column: 1 / -1;
     flex-wrap: wrap;
     gap: 6px;}
 .home-promo-card__meta span {display: inline-flex;
@@ -9002,12 +9050,25 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .home-promo-card__meta i, .home-promo-card small i {color: var(--primary-color1);
     font-size: 12px;}
 .home-promo-card small {display: inline-flex;
+    grid-column: 1 / -1;
     align-items: center;
     gap: 6px;
+    align-self: start;
+    justify-self: start;
+    justify-content: flex-start;
     color: rgba(var(--title-color-opc), 0.62);
     font-size: 13px;
     font-weight: 850;
     line-height: 1.35;}
+.home-promo-card__link {grid-column: 1 / -1;
+    min-height: 38px;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(var(--primary-color1-opc), 0.09);
+    white-space: nowrap;}
+.home-promo-card__link:hover {background: var(--primary-color1);
+    color: #fff;}
 .home-promo-countdown {display: grid;
     gap: 10px;
     padding: 14px;
@@ -9378,11 +9439,72 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .home-modern-search__links {display: flex;}
 .home-modern-search__submit, .home-modern-btn {width: 100%;}
 .home-modern-service-card__body {padding: 18px;}
+.home-promo-link {width: 100%;
+        min-height: 50px;
+        justify-content: center;
+        padding: 13px 18px;}
+.home-promo-list__scroller {display: grid;
+        grid-auto-columns: minmax(280px, 84vw);
+        grid-auto-flow: column;
+        grid-template-columns: none;
+        gap: 14px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-inline: contain;
+        padding: 0 2px 14px;
+        margin: 0 -2px;
+        scroll-padding-inline: 2px;
+        scroll-snap-type: inline mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;}
+.home-promo-list__scroller::-webkit-scrollbar {display: none;}
 .home-promo-card {grid-template-columns: 1fr;}
-.home-promo-card__media img {aspect-ratio: 1.7 / 1;
-        height: auto;}
+.home-promo-list__scroller > .home-promo-card {min-width: 0;
+        min-height: 100%;
+        grid-template-rows: auto 1fr;
+        align-content: start;
+        scroll-snap-align: start;}
+.home-promo-list__scroller .home-promo-card__media {aspect-ratio: 1.7 / 1;}
+.home-promo-list__scroller .home-promo-card__media img {height: 100%;
+        aspect-ratio: auto;}
 .home-promo-feature__body, .home-promo-card__body {padding: 18px;}
-.home-tour-grid, .home-destination-grid, .home-stats-grid, .home-gallery-grid {grid-template-columns: 1fr;}
+.home-promo-list__scroller .home-promo-card__body {grid-template-columns: 1fr;
+        align-content: start;}
+.home-promo-list__scroller .home-promo-card h3 a {display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;}
+.home-promo-list__scroller .home-promo-card__link {grid-column: 1;
+        grid-row: auto;
+        justify-self: stretch;}
+.home-promo-list__scroller .home-promo-card small {grid-column: 1;
+        justify-self: start;
+        text-align: left;}
+.home-promo-list__scroller .home-promo-card small {justify-content: flex-start;}
+.home-tour-grid, .home-stats-grid, .home-gallery-grid {grid-template-columns: 1fr;}
+.home-destination-tabs {flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scrollbar-width: none;}
+.home-destination-tabs::-webkit-scrollbar {display: none;}
+.home-destination-tabs .nav-item {flex: 0 0 auto;}
+.home-destination-grid {display: grid;
+        grid-auto-columns: minmax(280px, 84vw);
+        grid-auto-flow: column;
+        grid-template-columns: none;
+        gap: 14px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-inline: contain;
+        padding: 0 2px 14px;
+        margin: 0 -2px;
+        scroll-padding-inline: 2px;
+        scroll-snap-type: inline mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;}
+.home-destination-grid::-webkit-scrollbar {display: none;}
+.home-destination-grid > .home-destination-card {min-width: 0;
+        scroll-snap-align: start;}
 .home-tour-section .container {max-width: 100%;
         padding-left: 0;
         padding-right: 0;}
@@ -10635,7 +10757,7 @@ header.style-1.two.site-header-modern .main-menu .mega-menu .menu-single-item > 
 .travelplus-blog-featured-copy {padding: 14px 16px 14px 0;}
 .travelplus-blog-featured-copy h2 {margin: 0;
     color: var(--title-color);
-    font-size: clamp(30px, 3vw, 44px);
+    font-size: clamp(25px, 2vw, 40px);
     line-height: 1.13;
     font-weight: 850;}
 .travelplus-blog-featured-copy h2 a {color: inherit;}
@@ -10773,7 +10895,7 @@ header.style-1.two.site-header-modern .main-menu .mega-menu .menu-single-item > 
     padding: 20px;}
 .travelplus-blog-list-card h3 {margin: 0;
     color: var(--title-color);
-    font-size: 22px;
+    font-size: 20px;
     line-height: 1.35;
     font-weight: 850;}
 .travelplus-blog-list-card h3 a {display: -webkit-box;
