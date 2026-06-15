@@ -24,6 +24,10 @@ final class LocalizedPathCatalog
             'vi' => 'contact',
             'en' => 'contact',
         ],
+        'summer' => [
+            'vi' => 'tour-he',
+            'en' => 'summer-tours',
+        ],
         'outbound' => [
             'vi' => 'tour-nuoc-ngoai',
             'en' => 'tour-nuoc-ngoai',
@@ -120,6 +124,14 @@ final class LocalizedPathCatalog
             'vi' => 'admin/blogs/create',
             'en' => 'admin/blogs/create',
         ],
+        'admin.promotionCodes' => [
+            'vi' => 'admin/promotion-codes',
+            'en' => 'admin/promotion-codes',
+        ],
+        'admin.promotionCodes.create' => [
+            'vi' => 'admin/promotion-codes/create',
+            'en' => 'admin/promotion-codes/create',
+        ],
         'admin.reviews' => [
             'vi' => 'admin/reviews',
             'en' => 'admin/reviews',
@@ -135,6 +147,10 @@ final class LocalizedPathCatalog
         'booking.checkout' => [
             'vi' => 'booking/checkout',
             'en' => 'booking/checkout',
+        ],
+        'booking.applyCoupon' => [
+            'vi' => 'booking/apply-coupon',
+            'en' => 'booking/apply-coupon',
         ],
         'booking.guest' => [
             'vi' => 'booking/guest',

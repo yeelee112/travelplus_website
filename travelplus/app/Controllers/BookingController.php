@@ -4,9 +4,11 @@ namespace App\Controllers;
 
 use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
+use App\Models\PromotionCodeModel;
 use App\Models\UserModel;
 use App\Services\BookingNotificationService;
 use App\Services\PayPalSandboxService;
+use App\Services\PromotionCodeService;
 use App\Services\VnpayGatewayService;
 use App\Services\VietQrService;
 
@@ -106,6 +108,71 @@ class BookingController extends BaseController
         ]);
     }
 
+    public function applyCoupon()
+    {
+        $pendingBooking = $this->getPendingBooking();
+
+        if ($pendingBooking === null) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok' => false,
+                'message' => 'Không tìm thấy thông tin booking để áp dụng mã.',
+            ]);
+        }
+
+        $code = trim((string) $this->request->getPost('coupon_code'));
+
+        if ($code === '') {
+            $pendingBooking = $this->clearPendingBookingCoupon($pendingBooking);
+            session()->set('pending_booking', $pendingBooking);
+
+            return $this->response->setJSON([
+                'ok' => true,
+                'message' => 'Đã bỏ mã khuyến mãi.',
+                'coupon' => null,
+                'subtotal' => (float) ($pendingBooking['subtotal_vnd'] ?? 0),
+                'discount_amount' => 0.0,
+                'grand_total' => (float) ($pendingBooking['grand_total'] ?? 0),
+                'deposit_amount' => round(((float) ($pendingBooking['grand_total'] ?? 0)) * 0.10, 0),
+            ]);
+        }
+
+        $result = (new PromotionCodeService())->applyCode($code, $pendingBooking);
+
+        if (! $result['ok']) {
+            return $this->response->setStatusCode(422)->setJSON($result);
+        }
+
+        $promotion = is_array($result['code'] ?? null) ? $result['code'] : [];
+        $pendingBooking = $this->clearPendingBookingCoupon($pendingBooking);
+        $pendingBooking['coupon_id'] = (int) ($promotion['id'] ?? 0) ?: null;
+        $pendingBooking['coupon_code'] = strtoupper(trim((string) ($promotion['code'] ?? $code)));
+        $pendingBooking['coupon_name'] = trim((string) ($promotion['name'] ?? ''));
+        $pendingBooking['discount_amount_vnd'] = (float) ($result['discount_amount'] ?? 0);
+        $pendingBooking['grand_total'] = (float) ($result['grand_total'] ?? 0);
+        $pendingBooking['coupon_snapshot'] = [
+            'id' => (int) ($promotion['id'] ?? 0),
+            'code' => $pendingBooking['coupon_code'],
+            'name' => $pendingBooking['coupon_name'],
+            'discount_type' => (string) ($promotion['discount_type'] ?? ''),
+            'discount_value' => (float) ($promotion['discount_value'] ?? 0),
+            'discount_amount_vnd' => (float) ($result['discount_amount'] ?? 0),
+        ];
+        session()->set('pending_booking', $pendingBooking);
+
+        return $this->response->setJSON([
+            'ok' => true,
+            'message' => $result['message'],
+            'coupon' => [
+                'code' => (string) ($pendingBooking['coupon_code'] ?? ''),
+                'name' => (string) ($pendingBooking['coupon_name'] ?? ''),
+            ],
+            'subtotal' => (float) ($pendingBooking['subtotal_vnd'] ?? 0),
+            'discount_amount' => (float) ($pendingBooking['discount_amount_vnd'] ?? 0),
+            'grand_total' => (float) ($pendingBooking['grand_total'] ?? 0),
+            'deposit_amount' => round(((float) ($pendingBooking['grand_total'] ?? 0)) * 0.10, 0),
+        ]);
+    }
+
     public function success(string $bookingCode)
     {
         $booking = (new BookingModel())->where('booking_code', $bookingCode)->first();
@@ -117,7 +184,29 @@ class BookingController extends BaseController
         return view('booking/success', [
             'booking' => $booking,
             'departureFrom' => $this->resolveBookingDepartureFrom((int) ($booking['tour_id'] ?? 0), $this->request->getLocale()),
+            'bookingTourType' => $this->resolveBookingTourType((int) ($booking['tour_id'] ?? 0)),
         ]);
+    }
+
+    private function resolveBookingTourType(int $tourId): string
+    {
+        if ($tourId <= 0) {
+            return '';
+        }
+
+        $db = db_connect();
+
+        if (! $db->tableExists('tours')) {
+            return '';
+        }
+
+        $row = $db->table('tours')
+            ->select('tour_type')
+            ->where('id', $tourId)
+            ->get(1)
+            ->getRowArray();
+
+        return trim((string) ($row['tour_type'] ?? ''));
     }
 
     private function resolveBookingDepartureFrom(int $tourId, string $locale): string
@@ -476,6 +565,7 @@ class BookingController extends BaseController
         $updatedBooking = $bookingModel->find((int) $booking['id']);
 
         if (is_array($updatedBooking)) {
+            $this->incrementCouponUsage($booking, $updatedBooking);
             (new BookingNotificationService())->sendBookingEmails($updatedBooking);
         }
 
@@ -544,6 +634,7 @@ class BookingController extends BaseController
             $updatedBooking = $bookingModel->find((int) $booking['id']);
 
             if (is_array($updatedBooking)) {
+                $this->incrementCouponUsage($booking, $updatedBooking);
                 (new BookingNotificationService())->sendBookingEmails($updatedBooking);
             }
 
@@ -656,6 +747,7 @@ class BookingController extends BaseController
         $updatedBooking = $bookingModel->find((int) $booking['id']);
 
         if (is_array($updatedBooking)) {
+            $this->incrementCouponUsage($booking, $updatedBooking);
             (new BookingNotificationService())->sendBookingEmails($updatedBooking);
         }
 
@@ -715,6 +807,7 @@ class BookingController extends BaseController
         $updatedBooking = $bookingModel->find((int) $booking['id']);
 
         if (is_array($updatedBooking)) {
+            $this->incrementCouponUsage($booking, $updatedBooking);
             (new BookingNotificationService())->sendBookingEmails($updatedBooking);
         }
 
@@ -830,7 +923,7 @@ class BookingController extends BaseController
         $infantRate = $this->normalizeTravelerPriceRate($tour['infant_price_rate'] ?? null, self::DEFAULT_INFANT_PRICE_RATE);
         $childPrice = round($adultPrice * $childRate, 0);
         $infantPrice = round($adultPrice * $infantRate, 0);
-        $grandTotal = ($adultQty * $adultPrice) + ($childQty * $childPrice) + ($infantQty * $infantPrice);
+        $subtotal = ($adultQty * $adultPrice) + ($childQty * $childPrice) + ($infantQty * $infantPrice);
         $departureValue = (string) ($departure['departure_date'] ?? '');
 
         return [
@@ -851,7 +944,13 @@ class BookingController extends BaseController
             'adult_price' => $adultPrice,
             'child_price' => $childPrice,
             'infant_price' => $infantPrice,
-            'grand_total' => $grandTotal,
+            'subtotal_vnd' => $subtotal,
+            'discount_amount_vnd' => 0.0,
+            'coupon_id' => null,
+            'coupon_code' => '',
+            'coupon_name' => '',
+            'coupon_snapshot' => null,
+            'grand_total' => $subtotal,
             'currency' => (string) ($tour['currency'] ?? 'VND'),
             'max_travelers' => $maxTravelers,
             'saved_at' => date('Y-m-d H:i:s'),
@@ -1061,6 +1160,11 @@ class BookingController extends BaseController
             'adult_price' => (float) ($pendingBooking['adult_price'] ?? 0),
             'child_price' => (float) ($pendingBooking['child_price'] ?? 0),
             'infant_price' => (float) ($pendingBooking['infant_price'] ?? 0),
+            'subtotal_vnd' => (float) ($pendingBooking['subtotal_vnd'] ?? $pendingBooking['grand_total'] ?? 0),
+            'discount_amount_vnd' => (float) ($pendingBooking['discount_amount_vnd'] ?? 0),
+            'coupon_id' => (int) ($pendingBooking['coupon_id'] ?? 0) ?: null,
+            'coupon_code' => $this->nullableString((string) ($pendingBooking['coupon_code'] ?? '')),
+            'coupon_snapshot' => $this->encodeCouponSnapshot($pendingBooking['coupon_snapshot'] ?? null),
             'grand_total' => (float) ($pendingBooking['grand_total'] ?? 0),
             'currency' => (string) ($pendingBooking['currency'] ?? 'VND'),
             'payment_method' => $paymentMethod,
@@ -1085,6 +1189,66 @@ class BookingController extends BaseController
         session()->set('current_booking_code', (string) $booking['booking_code']);
 
         return $booking;
+    }
+
+    /**
+     * @param array<string, mixed> $pendingBooking
+     * @return array<string, mixed>
+     */
+    private function clearPendingBookingCoupon(array $pendingBooking): array
+    {
+        $pendingBooking['coupon_id'] = null;
+        $pendingBooking['coupon_code'] = '';
+        $pendingBooking['coupon_name'] = '';
+        $pendingBooking['coupon_snapshot'] = null;
+        $pendingBooking['discount_amount_vnd'] = 0.0;
+        $pendingBooking['grand_total'] = (float) ($pendingBooking['subtotal_vnd'] ?? $pendingBooking['grand_total'] ?? 0);
+
+        return $pendingBooking;
+    }
+
+    private function nullableString(string $value): ?string
+    {
+        $value = trim($value);
+
+        return $value !== '' ? $value : null;
+    }
+
+    /**
+     * @param mixed $snapshot
+     */
+    private function encodeCouponSnapshot($snapshot): ?string
+    {
+        if (! is_array($snapshot) || $snapshot === []) {
+            return null;
+        }
+
+        return json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: null;
+    }
+
+    /**
+     * @param array<string, mixed> $before
+     * @param array<string, mixed> $after
+     */
+    private function incrementCouponUsage(array $before, array $after): void
+    {
+        if ((string) ($before['payment_status'] ?? '') === 'paid' || (string) ($after['payment_status'] ?? '') !== 'paid') {
+            return;
+        }
+
+        $couponId = (int) ($after['coupon_id'] ?? 0);
+
+        if ($couponId <= 0) {
+            return;
+        }
+
+        $model = new PromotionCodeModel();
+
+        if (! $model->db->tableExists($model->getTable())) {
+            return;
+        }
+
+        $model->where('id', $couponId)->set('used_count', 'used_count + 1', false)->update();
     }
 
     /**

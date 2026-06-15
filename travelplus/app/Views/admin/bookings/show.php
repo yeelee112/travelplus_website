@@ -39,6 +39,7 @@
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/promotion-codes') ?>">Promotion codes</a>
             </div>
         </div>
 
@@ -50,6 +51,9 @@
             <div class="meta-item"><small>Khách hàng</small><div class="fw-semibold"><?= esc($booking['customer_name']) ?></div><div><?= esc($booking['customer_email']) ?> - <?= esc($booking['customer_phone']) ?></div></div>
             <div class="meta-item"><small>Trạng thái thanh toán</small><div class="fw-semibold"><?= esc((string) $booking['payment_status']) ?></div></div>
             <div class="meta-item"><small>Phương thức</small><div class="fw-semibold"><?= esc((string) ($booking['payment_method'] ?? '-')) ?> / <?= esc((string) ($booking['payment_plan'] ?? '-')) ?></div></div>
+            <div class="meta-item"><small>Tạm tính</small><div class="fw-semibold"><?= esc(number_format((float) ($booking['subtotal_vnd'] ?? $booking['grand_total'] ?? 0), 0, ',', '.')) ?> đ</div></div>
+            <div class="meta-item"><small>Giảm giá</small><div class="fw-semibold"><?= esc(number_format((float) ($booking['discount_amount_vnd'] ?? 0), 0, ',', '.')) ?> đ</div></div>
+            <div class="meta-item"><small>Mã khuyến mãi</small><div class="fw-semibold"><?= esc((string) ($booking['coupon_code'] ?? '-')) ?></div></div>
             <div class="meta-item"><small>Tổng booking</small><div class="fw-semibold"><?= esc(number_format((float) ($booking['grand_total'] ?? 0), 0, ',', '.')) ?> đ</div></div>
             <div class="meta-item"><small>Đã thanh toán</small><div class="fw-semibold"><?= esc(number_format((float) ($booking['amount_paid_vnd'] ?? 0), 0, ',', '.')) ?> đ</div></div>
             <div class="meta-item"><small>Ngày đi</small><div class="fw-semibold"><?= esc((string) ($booking['departure_label'] ?? '-')) ?></div></div>
@@ -64,7 +68,7 @@
                         <?= csrf_field() ?>
                         <div class="mb-3">
                             <select class="form-select" name="payment_status">
-                                <?php foreach (['pending_payment','pending_transfer','paid','cancelled','failed'] as $statusOption): ?>
+                                <?php foreach (['pending_payment', 'pending_transfer', 'paid', 'cancelled', 'failed'] as $statusOption): ?>
                                     <option value="<?= esc($statusOption) ?>" <?= ($booking['payment_status'] ?? '') === $statusOption ? 'selected' : '' ?>><?= esc($statusOption) ?></option>
                                 <?php endforeach; ?>
                             </select>

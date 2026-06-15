@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
+use App\Models\PromotionCodeModel;
 use App\Services\BookingNotificationService;
 
 class Bookings extends BaseAdminController
@@ -80,6 +81,8 @@ class Bookings extends BaseAdminController
             'payment_status',
             'payment_method',
             'payment_plan',
+            'coupon_code',
+            'discount_amount_vnd',
             'grand_total',
             'amount_paid_vnd',
             'departure_label',
@@ -96,6 +99,8 @@ class Bookings extends BaseAdminController
                 $booking['payment_status'] ?? '',
                 $booking['payment_method'] ?? '',
                 $booking['payment_plan'] ?? '',
+                $booking['coupon_code'] ?? '',
+                $booking['discount_amount_vnd'] ?? '',
                 $booking['grand_total'] ?? '',
                 $booking['amount_paid_vnd'] ?? '',
                 $booking['departure_label'] ?? '',
@@ -178,6 +183,7 @@ class Bookings extends BaseAdminController
         }
 
         if (is_array($updated) && $status === 'paid' && $previousStatus !== 'paid') {
+            $this->incrementCouponUsage($updated);
             (new BookingNotificationService())->sendBookingEmails($updated);
         }
 
@@ -223,5 +229,25 @@ class Bookings extends BaseAdminController
             'note' => $note !== '' ? $note : null,
             'created_at' => date('Y-m-d H:i:s'),
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $booking
+     */
+    private function incrementCouponUsage(array $booking): void
+    {
+        $couponId = (int) ($booking['coupon_id'] ?? 0);
+
+        if ($couponId <= 0) {
+            return;
+        }
+
+        $model = new PromotionCodeModel();
+
+        if (! $model->db->tableExists($model->getTable())) {
+            return;
+        }
+
+        $model->where('id', $couponId)->set('used_count', 'used_count + 1', false)->update();
     }
 }

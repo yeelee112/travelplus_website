@@ -100,6 +100,9 @@ $socialLinks = [
                             <i class="bi <?= esc($social['icon']) ?>"></i>
                         </a>
                     <?php endforeach; ?>
+                    <a class="travelplus-footer__bct" href="http://online.gov.vn/Home/WebDetails/32645" target="_blank" rel="noopener noreferrer" aria-label="Đã thông báo Bộ Công Thương">
+                        <img src="<?= base_url('assets/images/logo-da-thong-bao-bo-cong-thuong.webp') ?>" alt="Đã thông báo Bộ Công Thương" loading="lazy" decoding="async" width="240" height="91">
+                    </a>
                 </div>
             </div>
 

@@ -17,14 +17,15 @@ class SearchController extends BaseController
         $departureDate = trim((string) $this->request->getGet('departure_date'));
         $tourType = trim((string) $this->request->getGet('tour_type'));
         $tourType = in_array($tourType, ['outbound', 'inbound'], true) ? $tourType : '';
+        $promotionOnly = (string) $this->request->getGet('promotion') === '1';
         $page = (int) ($this->request->getGet('page') ?? 1);
 
         $tourService = new TourCatalogService();
-        $result = $tourService->searchTours($locale, $query, $departureDate, 9, $page, $tourType !== '' ? $tourType : null);
+        $result = $tourService->searchTours($locale, $query, $departureDate, 9, $page, $tourType !== '' ? $tourType : null, $promotionOnly);
         $fallbackTours = [];
 
         if (((int) ($result['total'] ?? 0)) === 0) {
-            $fallback = $tourService->getPagedTours($locale, 999, 1, $tourType !== '' ? $tourType : null);
+            $fallback = $tourService->getPagedTours($locale, 999, 1, $tourType !== '' ? $tourType : null, [], $promotionOnly);
             $fallbackTours = $fallback['tours'];
         }
 
@@ -32,6 +33,7 @@ class SearchController extends BaseController
             'q' => $query,
             'departure_date' => $departureDate,
             'tour_type' => $tourType,
+            'promotion' => $promotionOnly ? '1' : '',
         ], static fn($value): bool => $value !== '');
         $viSearchUrl = LocalizedPathCatalog::url('search', 'vi') . ($alternateParams !== [] ? '?' . http_build_query($alternateParams) : '');
         $enSearchUrl = LocalizedPathCatalog::url('search', 'en') . ($alternateParams !== [] ? '?' . http_build_query($alternateParams) : '');
@@ -55,6 +57,7 @@ class SearchController extends BaseController
                 'q' => $query,
                 'departure_date' => $departureDate,
                 'tour_type' => $tourType,
+                'promotion_only' => $promotionOnly,
                 'is_search_page' => true,
             ],
             'tours' => $result['tours'],

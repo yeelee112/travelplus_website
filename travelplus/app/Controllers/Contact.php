@@ -21,11 +21,12 @@ class Contact extends BaseController
     private function submitContactForm()
     {
         $locale = $this->request->getLocale() ?: 'vi';
+        $redirectTarget = $this->resolveRedirectTarget();
         $postedToken = (string) $this->request->getPost('contact_form_token');
         $sessionToken = (string) session()->get('contact_form_token');
 
         if ($postedToken === '' || $sessionToken === '' || ! hash_equals($sessionToken, $postedToken)) {
-            return redirect()->back()->withInput()->with('error', lang('Frontend.contact.invalidToken', [], $locale));
+            return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.invalidToken', [], $locale), true);
         }
 
         session()->remove('contact_form_token');
@@ -64,11 +65,11 @@ class Contact extends BaseController
         ];
 
         if (! $this->validate($rules, $messages)) {
-            return redirect()->back()->withInput()->with('error', implode("\n", $this->validator->getErrors()));
+            return $this->redirectWithMessage($locale, $redirectTarget, 'error', implode("\n", $this->validator->getErrors()), true);
         }
 
         if (! $this->verifyRecaptcha((string) $this->request->getPost('recaptcha_token'))) {
-            return redirect()->back()->withInput()->with('error', lang('Frontend.contact.recaptchaFailed', [], $locale));
+            return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.recaptchaFailed', [], $locale), true);
         }
 
         $emailConfig = config(EmailConfig::class);
@@ -77,7 +78,7 @@ class Contact extends BaseController
         $fromName = trim((string) ($emailConfig->fromName ?: 'Travel Plus'));
 
         if ($recipient === '' || $fromEmail === '') {
-            return redirect()->back()->withInput()->with('error', lang('Frontend.contact.smtpMissing', [], $locale));
+            return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.smtpMissing', [], $locale), true);
         }
 
         $name = trim((string) $this->request->getPost('name'));
@@ -103,10 +104,40 @@ class Contact extends BaseController
         if (! $mailer->send()) {
             log_message('error', 'Contact form email failed: {debug}', ['debug' => print_r($mailer->printDebugger(['headers']), true)]);
 
-            return redirect()->back()->withInput()->with('error', lang('Frontend.contact.sendFailed', [], $locale));
+            return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.sendFailed', [], $locale), true);
         }
 
-        return redirect()->to(LocalizedPathCatalog::url('contact', $locale))->with('success', lang('Frontend.contact.sendSuccess', [], $locale));
+        return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale));
+    }
+
+    private function resolveRedirectTarget(): ?string
+    {
+        $target = trim((string) $this->request->getPost('redirect_to'));
+        if ($target === '') {
+            return null;
+        }
+
+        $targetHost = parse_url($target, PHP_URL_HOST);
+        $baseHost = parse_url(base_url(), PHP_URL_HOST);
+
+        if ($targetHost !== null && $baseHost !== null && strcasecmp((string) $targetHost, (string) $baseHost) !== 0) {
+            return null;
+        }
+
+        return $target;
+    }
+
+    private function redirectWithMessage(string $locale, ?string $redirectTarget, string $flashKey, string $message, bool $withInput = false)
+    {
+        $redirect = $redirectTarget !== null
+            ? redirect()->to($redirectTarget)
+            : redirect()->to(LocalizedPathCatalog::url('contact', $locale));
+
+        if ($withInput) {
+            $redirect = $redirect->withInput();
+        }
+
+        return $redirect->with($flashKey, $message);
     }
 
     private function verifyRecaptcha(string $token): bool

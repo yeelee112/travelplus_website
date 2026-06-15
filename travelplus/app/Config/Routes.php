@@ -32,6 +32,7 @@ $routes->GET('dich-vu-khach-san', 'Services::hotels');
 $routes->GET('dieu-khoan-su-dung', 'LegalController::terms/vi');
 $routes->GET('chinh-sach-bao-mat', 'LegalController::privacy/vi');
 $routes->GET('tim-kiem-tour', 'SearchController::tours');
+$routes->GET('tour-he', 'SummerTours::index');
 
 $routes->GET('admin', 'Admin\Dashboard::index');
 $routes->GET('admin/bookings', 'Admin\Bookings::index');
@@ -52,6 +53,14 @@ $routes->POST('admin/blogs/(:num)', 'Admin\Blogs::update/$1');
 $routes->POST('admin/blogs/(:num)/status', 'Admin\Blogs::updateStatus/$1');
 $routes->POST('admin/blogs/(:num)/delete', 'Admin\Blogs::delete/$1');
 $routes->POST('admin/blogs/upload-image', 'Admin\Blogs::uploadEditorImage');
+$routes->GET('admin/promotion-codes', 'Admin\PromotionCodes::index');
+$routes->GET('admin/promotion-codes/create', 'Admin\PromotionCodes::create');
+$routes->POST('admin/promotion-codes', 'Admin\PromotionCodes::store');
+$routes->GET('admin/promotion-codes/(:num)/clone', 'Admin\PromotionCodes::cloneCode/$1');
+$routes->GET('admin/promotion-codes/(:num)/edit', 'Admin\PromotionCodes::edit/$1');
+$routes->POST('admin/promotion-codes/(:num)', 'Admin\PromotionCodes::update/$1');
+$routes->POST('admin/promotion-codes/(:num)/toggle', 'Admin\PromotionCodes::toggle/$1');
+$routes->POST('admin/promotion-codes/(:num)/delete', 'Admin\PromotionCodes::delete/$1');
 $routes->GET('admin/reviews', 'Admin\Reviews::index');
 $routes->GET('admin/reviews/(:num)', 'Admin\Reviews::show/$1');
 $routes->POST('admin/reviews/(:num)/status', 'Admin\Reviews::updateStatus/$1');
@@ -76,6 +85,7 @@ $routes->GET('auth/google/callback', 'AuthController::googleCallback');
 $routes->POST('booking/proceed', 'BookingController::proceed');
 $routes->match(['GET', 'POST'], 'booking/guest', 'BookingController::continueGuest');
 $routes->GET('booking/checkout', 'BookingController::checkout');
+$routes->POST('booking/apply-coupon', 'BookingController::applyCoupon');
 $routes->GET('booking/success/(:segment)', 'BookingController::success/$1');
 $routes->POST('booking/paypal/create-order', 'BookingController::createPayPalOrder');
 $routes->POST('booking/vnpay/create-payment', 'BookingController::createVnpayPayment');
@@ -123,6 +133,7 @@ $routes->group('en', function ($routes) {
     $routes->GET('terms-of-service', 'LegalController::terms/en');
     $routes->GET('privacy-statement', 'LegalController::privacy/en');
     $routes->GET('tour-search', 'SearchController::tours');
+    $routes->GET('summer-tours', 'SummerTours::index');
 
     $routes->match(['GET', 'POST'], 'account/register', 'AuthController::register');
     $routes->match(['GET', 'POST'], 'account/login', 'AuthController::login');
@@ -136,6 +147,7 @@ $routes->group('en', function ($routes) {
     $routes->POST('booking/proceed', 'BookingController::proceed');
     $routes->match(['GET', 'POST'], 'booking/guest', 'BookingController::continueGuest');
     $routes->GET('booking/checkout', 'BookingController::checkout');
+    $routes->POST('booking/apply-coupon', 'BookingController::applyCoupon');
     $routes->GET('booking/success/(:segment)', 'BookingController::success/$1');
     $routes->POST('booking/paypal/create-order', 'BookingController::createPayPalOrder');
     $routes->POST('booking/vnpay/create-payment', 'BookingController::createVnpayPayment');

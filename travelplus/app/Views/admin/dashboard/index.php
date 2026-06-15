@@ -31,6 +31,7 @@
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/media-audit') ?>">Media audit</a>
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/promotion-codes') ?>">Promotion codes</a>
             </div>
         </div>
     </div>

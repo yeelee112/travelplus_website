@@ -1,9 +1,9 @@
 <?php
 $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
-$searchUrl = \App\Data\LocalizedPathCatalog::url('search', $locale);
+$searchUrl = \App\Data\LocalizedPathCatalog::url('search', $locale) . '?promotion=1';
 $homeTours = array_values($homeTours ?? []);
 $promotionalTours = array_values($promotionalTours ?? []);
-$promoTours = $promotionalTours !== [] ? $promotionalTours : array_slice($homeTours, 0, 4);
+$promoTours = $promotionalTours;
 $uniqueTours = static function (array $tours): array {
     $seen = [];
     $items = [];
@@ -56,12 +56,13 @@ $excludeTour = static function (array $tours, ?array $excludedTour) use ($unique
 };
 
 $promoTours = $uniqueTours($promoTours);
+
+if ($promoTours === []) {
+    return;
+}
+
 $featureTour = $promoTours[0] ?? null;
 $sideTours = array_slice($excludeTour($promoTours, $featureTour), 0, 3);
-
-if ($sideTours === [] && count($homeTours) > 1) {
-    $sideTours = array_slice($excludeTour($homeTours, $featureTour), 0, 3);
-}
 
 $fallbackTitle = $locale === 'en'
     ? 'Selected departures for families and groups'
@@ -71,10 +72,14 @@ $featureLink = (string) ($featureTour['link'] ?? $searchUrl);
 $featureImage = (string) ($featureTour['image'] ?? base_url('assets/images/home/banner02.jpg'));
 $featurePrice = (string) ($featureTour['price']['label'] ?? '');
 $featureDeparture = (string) ($featureTour['departure'] ?? '');
+$featureContinent = (string) ($featureTour['continent'] ?? '');
+$featureDuration = (string) ($featureTour['duration']['label'] ?? '');
 $featurePromotion = is_array($featureTour['promotion'] ?? null) ? $featureTour['promotion'] : [];
 $featureBadge = trim((string) ($featurePromotion['badge'] ?? ''));
 $featureEndsAt = trim((string) ($featurePromotion['ends_at_iso'] ?? $featurePromotion['ends_at'] ?? ''));
 $hasRealPromotion = $promotionalTours !== [];
+$promoCount = count($promoTours);
+$promoCountDisplay = str_pad((string) max(1, $promoCount), 2, '0', STR_PAD_LEFT);
 
 if ($featureEndsAt === '' && ! $hasRealPromotion && $featureTour !== null) {
     $featureEndsAt = date(DATE_ATOM, strtotime('+3 days'));
@@ -85,6 +90,9 @@ $copy = $locale === 'en'
         'eyebrow' => 'Current offers',
         'title' => 'Tour deals worth checking first',
         'desc' => 'Limited-time departures, group-friendly routes and clear pricing for travelers who want to plan early.',
+        'sectionTitle' => 'Tour deals with clear schedules and limited-time pricing',
+        'signalCountLabel' => 'active tour deals',
+        'signalDepartureLabel' => 'nearest departure',
         'badge' => $featureBadge !== '' ? $featureBadge : 'Tour deal',
         'kicker' => 'Limited-time travel offer',
         'featureNote' => 'Early booking or group requests may receive better available slots.',
@@ -96,7 +104,7 @@ $copy = $locale === 'en'
         'minutes' => 'Minutes',
         'seconds' => 'Seconds',
         'expired' => 'Offer ended',
-        'featureCta' => 'View tour',
+        'featureCta' => 'View deal',
         'moreTitle' => 'More tour deals',
         'moreBadge' => 'Tour deal',
         'moreCta' => 'View deal',
@@ -123,12 +131,28 @@ $copy = $locale === 'en'
         'moreCta' => 'Xem ưu đãi',
         'emptyMore' => 'Có thể hiển thị thêm tour khuyến mãi tại đây sau khi đánh dấu tour trong database.',
     ];
+
+$copy['sectionTitle'] = $locale === 'en'
+    ? 'Tour deals with clear schedules and limited-time pricing'
+    : 'Tour khuyến mãi nổi bật hôm nay';
+$copy['signalCountLabel'] = $locale === 'en'
+    ? 'active tour deals'
+    : 'ưu đãi đang mở';
+$copy['signalDepartureLabel'] = $locale === 'en'
+    ? 'nearest departure'
+    : 'khởi hành gần nhất';
+$copy['featureCta'] = $locale === 'en' ? 'View deal' : 'Xem ưu đãi';
+$allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến mãi';
 ?>
 
 <section class="home-promo-section" aria-label="<?= esc($copy['title'], 'attr') ?>">
     <div class="container">
         <div class="home-promo-head">
-            <span><?= esc($copy['eyebrow']) ?></span>
+            <div class="home-promo-head__copy">
+                <span><?= esc($copy['eyebrow']) ?></span>
+                <h2><?= esc($copy['sectionTitle']) ?></h2>
+                <p><?= esc($copy['desc']) ?></p>
+            </div>
         </div>
 
         <div class="home-promo-layout">
@@ -144,8 +168,22 @@ $copy = $locale === 'en'
                         decoding="async">
                 </a>
                 <div class="home-promo-feature__body">
-                    <strong class="home-promo-feature__kicker"><?= esc($copy['kicker']) ?></strong>
-                    <h3><a href="<?= esc($featureLink, 'attr') ?>"><?= esc($featureTitle) ?></a></h3>
+                    <div class="home-promo-feature__top">
+                        <strong class="home-promo-feature__kicker"><?= esc($copy['kicker']) ?></strong>
+                        <h3><a href="<?= esc($featureLink, 'attr') ?>"><?= esc($featureTitle) ?></a></h3>
+                    </div>
+
+                    <?php if ($featureContinent !== '' || $featureDuration !== ''): ?>
+                        <div class="home-promo-feature__meta">
+                            <?php if ($featureContinent !== ''): ?>
+                                <span><i class="bi bi-geo-alt"></i><?= esc($featureContinent) ?></span>
+                            <?php endif; ?>
+                            <?php if ($featureDuration !== ''): ?>
+                                <span><i class="bi bi-clock"></i><?= esc($featureDuration) ?></span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
                     <p class="home-promo-feature__note"><?= esc($copy['featureNote']) ?></p>
 
                     <?php if ($featurePrice !== '' || $featureDeparture !== ''): ?>
@@ -162,6 +200,10 @@ $copy = $locale === 'en'
                                     <strong><?= esc($featureDeparture) ?></strong>
                                 </div>
                             <?php endif; ?>
+                            <a class="home-promo-link" href="<?= esc($featureLink, 'attr') ?>">
+                                <?= esc($copy['featureCta']) ?>
+                                <i class="bi bi-arrow-up-right"></i>
+                            </a>
                         </div>
                     <?php endif; ?>
 
@@ -180,18 +222,19 @@ $copy = $locale === 'en'
                             </div>
                         </div>
                     <?php endif; ?>
-
-                    <a class="home-promo-link" href="<?= esc($featureLink, 'attr') ?>">
-                        <?= esc($copy['featureCta']) ?>
-                        <i class="bi bi-arrow-up-right"></i>
-                    </a>
+                    <?php if ($featurePrice === '' && $featureDeparture === ''): ?>
+                        <a class="home-promo-link" href="<?= esc($featureLink, 'attr') ?>">
+                            <?= esc($copy['featureCta']) ?>
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                    <?php endif; ?>
                 </div>
             </article>
 
             <aside class="home-promo-list" aria-label="<?= esc($copy['moreTitle'], 'attr') ?>">
                 <div class="home-promo-list__head">
                     <h3><?= esc($copy['moreTitle']) ?></h3>
-                    <a href="<?= esc($searchUrl, 'attr') ?>"><?= esc($locale === 'en' ? 'All tours' : 'Tất cả tour') ?></a>
+                    <a href="<?= esc($searchUrl, 'attr') ?>"><?= esc($allToursLabel) ?></a>
                 </div>
 
                 <div class="home-promo-list__scroller">
@@ -220,7 +263,7 @@ $copy = $locale === 'en'
                             </a>
                             <div class="home-promo-card__body">
                                 <h3><a href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>"><?= esc((string) ($tour['title'] ?? '')) ?></a></h3>
-                                <?php if ($tourContinent !== '' || $tourDuration !== ''): ?>
+                                <?php if ($tourContinent !== '' || $tourDuration !== '' || $tourDeparture !== ''): ?>
                                     <div class="home-promo-card__meta">
                                         <?php if ($tourContinent !== ''): ?>
                                             <span><i class="bi bi-geo-alt"></i><?= esc($tourContinent) ?></span>
@@ -228,21 +271,23 @@ $copy = $locale === 'en'
                                         <?php if ($tourDuration !== ''): ?>
                                             <span><i class="bi bi-clock"></i><?= esc($tourDuration) ?></span>
                                         <?php endif; ?>
+                                        <?php if ($tourDeparture !== ''): ?>
+                                            <span><i class="bi bi-calendar3"></i><?= esc($copy['departureLabel']) ?>: <?= esc($tourDeparture) ?></span>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
-                                <?php if ($tourPrice !== ''): ?>
-                                    <div class="home-promo-card__price">
-                                        <span><?= esc($tourPriceLabel) ?></span>
-                                        <strong><?= esc($tourPrice) ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($tourDeparture !== ''): ?>
-                                    <small><i class="bi bi-calendar3"></i><?= esc($copy['departureLabel']) ?>: <?= esc($tourDeparture) ?></small>
-                                <?php endif; ?>
-                                <a class="home-promo-card__link" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
-                                    <?= esc($copy['moreCta']) ?>
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
+                                <div class="home-promo-card__footer">
+                                    <?php if ($tourPrice !== ''): ?>
+                                        <div class="home-promo-card__price">
+                                            <span><?= esc($tourPriceLabel) ?></span>
+                                            <strong><?= esc($tourPrice) ?></strong>
+                                        </div>
+                                    <?php endif; ?>
+                                    <a class="home-promo-card__link" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
+                                        <?= esc($copy['moreCta']) ?>
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
                             </div>
                         </article>
                     <?php endforeach; ?>

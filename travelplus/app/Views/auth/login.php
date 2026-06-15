@@ -2,12 +2,17 @@
 
 <?= $this->section('content') ?>
 <?php
-$authError = session()->getFlashdata('auth_error');
+$authError = session()->getFlashdata('auth_error') ?? session()->getFlashdata('error');
 $authSuccess = $authSuccess ?? session()->getFlashdata('auth_success');
 $googleEnabled = $googleEnabled ?? false;
 $locale = service('request')->getLocale() ?: 'vi';
 $returnTo = old('return_to', $returnTo ?? '');
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
+if (is_string($authError) && stripos($authError, 'csrf') !== false) {
+    $authError = $locale === 'en'
+        ? 'Your session has expired. Please try signing in again.'
+        : 'Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.';
+}
 $authKicker = $locale === 'en' ? 'Travel Plus Account' : 'Tài khoản Travel Plus';
 $authHighlights = $locale === 'en'
     ? ['Continue checkout without re-entering details', 'Track recent bookings and payment status', 'Receive faster support from Travel Plus']

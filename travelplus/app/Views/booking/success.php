@@ -68,8 +68,12 @@ $amountValue = $formatCurrency((float) ($isPaid ? ($booking['amount_paid_vnd'] ?
 $bookingCode = (string) ($booking['booking_code'] ?? '-');
 $tourTitle = (string) ($booking['tour_title'] ?? '-');
 $departureLabel = (string) ($booking['departure_label'] ?? '-');
+$bookingTourType = (string) ($bookingTourType ?? '');
 $departureFromLabel = trim((string) ($departureFrom ?? ''));
 $departureFromLabel = $departureFromLabel !== '' ? $departureFromLabel : ($locale === 'en' ? 'To be confirmed' : 'Đang cập nhật');
+$departureFromTitle = $bookingTourType === 'inbound'
+    ? ($locale === 'en' ? 'Pickup point' : 'Điểm đón')
+    : ($locale === 'en' ? 'Departure from' : 'Bay từ');
 $tourLink = (string) ($booking['tour_link'] ?? localized_url(''));
 $homeLink = localized_url('');
 $contactLink = \App\Data\LocalizedPathCatalog::url('contact', $locale);
@@ -107,7 +111,7 @@ $nextSteps = match ($statusTone) {
             : ['Hoàn tất thanh toán nếu bạn chưa thực hiện.', 'Travel Plus sẽ cập nhật trạng thái booking sau khi xác nhận.', 'Dùng mã booking này khi cần hỗ trợ.']),
 };
 $tripItems = [
-    ['icon' => 'bi-airplane', 'label' => $locale === 'en' ? 'Departure from' : 'Bay từ', 'value' => $departureFromLabel],
+    ['icon' => 'bi-airplane', 'label' => $departureFromTitle, 'value' => $departureFromLabel],
     ['icon' => 'bi-calendar-check', 'label' => $t('bookingSuccess.departure'), 'value' => $departureLabel],
     ['icon' => 'bi-people', 'label' => $t('bookingSuccess.travelers'), 'value' => $travelerSummary],
     ['icon' => 'bi-clock-history', 'label' => $locale === 'en' ? 'Created at' : 'Ngày tạo', 'value' => $createdAtLabel],

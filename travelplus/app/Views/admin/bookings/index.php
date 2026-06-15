@@ -32,6 +32,7 @@
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/promotion-codes') ?>">Promotion codes</a>
                 <a class="btn btn-outline-primary" href="<?= site_url('admin/bookings/export?' . http_build_query(array_filter(['status' => $status, 'q' => $keyword], static fn($value) => $value !== ''))) ?>">Export CSV</a>
                 <a class="btn btn-outline-secondary" href="<?= site_url('/') ?>">Home</a>
             </div>

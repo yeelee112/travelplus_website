@@ -11,6 +11,10 @@ $childQuantity = max(0, (int) ($booking['child_quantity'] ?? 0));
 $infantQuantity = max(0, (int) ($booking['infant_quantity'] ?? 0));
 $travelerCount = $adultQuantity + $childQuantity + $infantQuantity;
 $grandTotal = (float) ($booking['grand_total'] ?? 0);
+$subtotalAmount = (float) ($booking['subtotal_vnd'] ?? $grandTotal);
+$discountAmount = (float) ($booking['discount_amount_vnd'] ?? 0);
+$couponCode = trim((string) ($booking['coupon_code'] ?? ''));
+$couponName = trim((string) ($booking['coupon_name'] ?? ''));
 $depositRate = 0.10;
 $depositAmount = $grandTotal * $depositRate;
 $checkoutNotice = trim((string) ($checkoutNotice ?? ''));
@@ -33,6 +37,34 @@ if ($infantQuantity > 0) {
 }
 
 $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
+$durationLabelDisplay = trim((string) ($booking['duration_label'] ?? '-'));
+if ($locale !== 'en' && $durationLabelDisplay !== '' && $durationLabelDisplay !== '-') {
+    $durationLabelDisplay = strtr($durationLabelDisplay, [
+        'Ngay' => 'Ngày',
+        'Dem' => 'Đêm',
+    ]);
+}
+$couponUi = $locale === 'en'
+    ? [
+        'placeholder' => 'Enter coupon code',
+        'remove' => 'Remove',
+        'applied' => 'Applied code',
+        'subtotal' => 'Subtotal',
+        'discount' => 'Discount',
+        'current' => 'Current coupon',
+        'none' => 'No coupon applied',
+        'hint' => 'Enter a code and the final amount will update immediately.',
+    ]
+    : [
+        'placeholder' => 'Nhập mã khuyến mãi',
+        'remove' => 'Bỏ mã',
+        'applied' => 'Đã áp dụng mã',
+        'subtotal' => 'Tạm tính',
+        'discount' => 'Giảm giá',
+        'current' => 'Mã đang áp dụng',
+        'none' => 'Chưa áp dụng mã',
+        'hint' => 'Nhập mã để hệ thống cập nhật ngay số tiền cần thanh toán.',
+    ];
 ?>
 <style>
 .checkout-payment-options.is-highlighted {
@@ -42,7 +74,7 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
     transition: outline-color 0.25s ease;
 }
 </style>
-<div class="container pt-100 pb-100 checkout-stepper-page" data-checkout-stepper>
+<div class="container pt-100 pb-100 checkout-stepper-page" data-checkout-stepper data-coupon-apply-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.applyCoupon', $locale)) ?>">
     <div class="row g-4">
         <div class="col-lg-12">
             <div class="package-details-warpper">
@@ -164,32 +196,34 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
                     <div class="checkout-stepper-pane" data-step-pane="2">
                         <div class="row g-4">
                             <div class="col-xl-7">
-                                <div class="checkout-stepper-card">
-                                    <h5 class="checkout-card-title"><?= esc($t('checkout.customerInfo')) ?></h5>
-                                    <div class="checkout-info-grid">
-                                        <div class="checkout-info-item">
+                                <div class="checkout-stepper-card checkout-payment-card checkout-payment-card--minimal">
+                                    <div class="checkout-card-head">
+                                        <div>
+                                            <h5 class="checkout-card-title mb-1"><?= esc($t('checkout.paymentOptions')) ?></h5>
+                                        </div>
+                                        <div class="checkout-card-head__actions">
+                                            <button type="button" class="checkout-text-btn" data-price-breakdown-toggle><?= esc($t('checkout.viewPriceBreakdown')) ?></button>
+                                            <button type="button" class="checkout-text-btn" data-step-prev="1">Chỉnh sửa thông tin</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="checkout-contact-strip">
+                                        <div class="checkout-contact-item">
                                             <span><?= esc($t('checkout.fullName')) ?></span>
                                             <strong data-summary-output="full_name">-</strong>
                                         </div>
-                                        <div class="checkout-info-item">
-                                            <span><?= esc($t('checkout.email')) ?></span>
-                                            <strong data-summary-output="email">-</strong>
-                                        </div>
-                                        <div class="checkout-info-item">
+                                        <div class="checkout-contact-item">
                                             <span><?= esc($t('checkout.phone')) ?></span>
                                             <strong data-summary-output="phone">-</strong>
                                         </div>
-                                        <div class="checkout-info-item">
+                                        <div class="checkout-contact-item">
+                                            <span><?= esc($t('checkout.email')) ?></span>
+                                            <strong data-summary-output="email">-</strong>
+                                        </div>
+                                        <div class="checkout-contact-item">
                                             <span><?= esc($t('checkout.note')) ?></span>
                                             <strong data-summary-output="note">-</strong>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div class="checkout-stepper-card">
-                                    <div class="checkout-card-head">
-                                        <h5 class="checkout-card-title"><?= esc($t('checkout.paymentOptions')) ?></h5>
-                                        <button type="button" class="checkout-text-btn" data-price-breakdown-toggle><?= esc($t('checkout.viewPriceBreakdown')) ?></button>
                                     </div>
 
                                     <div class="checkout-price-breakdown" data-price-breakdown hidden>
@@ -210,34 +244,43 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
                                     <div class="checkout-coupon-row">
                                         <label for="checkout-coupon"><?= esc($t('checkout.couponCode')) ?></label>
                                         <div class="checkout-coupon-input">
-                                            <button type="button" class="checkout-text-btn" data-coupon-placeholder><?= esc($t('checkout.apply')) ?></button>
-                                            <input type="text" id="checkout-coupon" placeholder="<?= esc($t('checkout.comingSoon')) ?>">
+                                            <input type="text" id="checkout-coupon" value="<?= esc($couponCode, 'attr') ?>" placeholder="<?= esc($couponUi['placeholder'], 'attr') ?>"<?= $couponCode !== '' ? ' hidden' : '' ?>>
+                                            <button type="button" class="checkout-text-btn" data-coupon-apply<?= $couponCode !== '' ? ' hidden' : '' ?>><?= esc($t('checkout.apply')) ?></button>
+                                            <div class="checkout-coupon-chip<?= $couponCode === '' ? ' hidden' : '' ?>" data-coupon-chip>
+                                                <span data-coupon-chip-text><?= esc($couponName !== '' ? $couponName . ' (' . $couponCode . ')' : $couponCode) ?></span>
+                                                <button type="button" class="checkout-coupon-chip__remove" data-coupon-remove aria-label="<?= esc($couponUi['remove'], 'attr') ?>">×</button>
+                                            </div>
+                                        </div>
+                                        <p class="small mb-0 checkout-coupon-feedback text-muted" data-coupon-message hidden></p>
+                                    </div>
+
+                                    <div class="checkout-summary-subpanel checkout-summary-subpanel--plans">
+                                        <div class="checkout-section-subtitle">Hình thức thanh toán</div>
+                                        <div class="checkout-plan-options">
+                                            <label class="checkout-plan-option checkout-plan-option--inline">
+                                                <input type="radio" name="payment_plan" value="full" data-payment-plan="full">
+                                                <span class="checkout-plan-option__copy">
+                                                    <strong><?= esc($t('checkout.payFull')) ?></strong>
+                                                    <small>Thanh toán đủ một lần.</small>
+                                                </span>
+                                                <span class="checkout-plan-option__amount" data-plan-preview="full"><?= esc($formatCurrency($grandTotal)) ?></span>
+                                            </label>
+                                            <label class="checkout-plan-option checkout-plan-option--inline">
+                                                <input type="radio" name="payment_plan" value="deposit" data-payment-plan="deposit" checked>
+                                                <span class="checkout-plan-option__copy">
+                                                    <strong><?= esc($t('checkout.payDeposit')) ?></strong>
+                                                    <small>Giữ chỗ trước, thanh toán phần còn lại sau.</small>
+                                                </span>
+                                                <span class="checkout-plan-option__amount" data-plan-preview="deposit"><?= esc($formatCurrency($depositAmount)) ?></span>
+                                            </label>
                                         </div>
                                     </div>
 
-                                    <div class="checkout-price-row">
-                                        <span><?= esc($t('checkout.total')) ?></span>
-                                        <strong><?= esc($formatCurrency($grandTotal)) ?></strong>
-                                    </div>
-                                    <div class="checkout-price-row">
-                                        <span data-payment-plan-label><?= esc($t('checkout.depositLine')) ?></span>
-                                        <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
-                                    </div>
+                                    <div class="checkout-payment-divider"></div>
 
-                                    <div class="checkout-plan-options">
-                                        <label class="checkout-plan-option">
-                                            <input type="radio" name="payment_plan" value="full" data-payment-plan="full">
-                                            <span><?= esc($t('checkout.payFull')) ?></span>
-                                        </label>
-                                        <label class="checkout-plan-option">
-                                            <input type="radio" name="payment_plan" value="deposit" data-payment-plan="deposit" checked>
-                                            <span><?= esc($t('checkout.payDeposit')) ?></span>
-                                        </label>
+                                    <div class="checkout-methods-head">
+                                        <h6 class="checkout-section-subtitle mb-0"><?= esc($t('checkout.paymentMethods')) ?></h6>
                                     </div>
-                                </div>
-
-                                <div class="checkout-stepper-card">
-                                    <h5 class="checkout-card-title"><?= esc($t('checkout.paymentMethods')) ?></h5>
                                     <div class="checkout-payment-options">
                                         <label class="checkout-payment-option is-selected">
                                             <input type="radio" name="payment_method" value="paypal" checked>
@@ -297,25 +340,47 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
                             </div>
 
                             <div class="col-xl-5">
-                                <div class="checkout-stepper-card checkout-booking-summary">
+                                <div class="checkout-stepper-card checkout-booking-summary checkout-booking-summary--minimal">
                                     <img class="checkout-booking-image pb-10" src="<?= esc($booking['tour_image']) ?>" alt="<?= esc((string) ($booking['tour_title'] ?? 'Travel Plus tour')) ?>" loading="lazy" decoding="async" width="560" height="360">
                                     <h5 class="checkout-card-title"><?= esc((string) ($booking['tour_title'] ?? $t('checkout.bookingTitleFallback'))) ?></h5>
                                     <div class="checkout-summary-list">
-                                        <div class="checkout-summary-item">
-                                            <span><?= esc($t('checkout.travelDate')) ?></span>
-                                            <strong><?= esc((string) ($booking['departure_label'] ?? '-')) ?></strong>
+                                        <div class="checkout-summary-group">
+                                            <div class="checkout-summary-section-title">Tour</div>
+                                            <div class="checkout-summary-meta-list checkout-summary-meta-list--plain">
+                                                <div class="checkout-summary-meta-row">
+                                                    <span><?= esc($t('checkout.travelDate')) ?></span>
+                                                    <strong><?= esc((string) ($booking['departure_label'] ?? '-')) ?></strong>
+                                                </div>
+                                                <div class="checkout-summary-meta-row">
+                                                    <span><?= esc($t('checkout.period')) ?></span>
+                                                    <strong><?= esc($durationLabelDisplay) ?></strong>
+                                                </div>
+                                                <div class="checkout-summary-meta-row">
+                                                    <span><?= esc($t('checkout.travelers')) ?></span>
+                                                    <strong><?= esc($travelerSummary) ?></strong>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="checkout-summary-item">
-                                            <span><?= esc($t('checkout.period')) ?></span>
-                                            <strong><?= esc((string) ($booking['duration_label'] ?? '-')) ?></strong>
-                                        </div>
-                                        <div class="checkout-summary-item">
-                                            <span><?= esc($t('checkout.travelers')) ?></span>
-                                            <strong><?= esc($travelerSummary) ?></strong>
-                                        </div>
-                                        <div class="checkout-summary-item total">
-                                            <span><?= esc($t('checkout.total')) ?></span>
-                                            <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
+                                        <div class="checkout-summary-group">
+                                            <div class="checkout-summary-section-title">Thanh toán</div>
+                                            <div class="checkout-summary-pricing">
+                                                <div class="checkout-summary-price-row">
+                                                    <span><?= esc($couponUi['subtotal']) ?></span>
+                                                    <strong data-subtotal-amount><?= esc($formatCurrency($subtotalAmount)) ?></strong>
+                                                </div>
+                                                <div class="checkout-summary-price-row">
+                                                    <span><?= esc($couponUi['discount']) ?></span>
+                                                    <strong data-discount-amount>-<?= esc($formatCurrency($discountAmount)) ?></strong>
+                                                </div>
+                                                <div class="checkout-summary-price-row checkout-summary-price-row--grand">
+                                                    <span><?= esc($t('checkout.total')) ?></span>
+                                                    <strong data-grand-total><?= esc($formatCurrency($grandTotal)) ?></strong>
+                                                </div>
+                                                <div class="checkout-summary-price-row checkout-summary-price-row--due">
+                                                    <span data-payment-plan-label><?= esc($t('checkout.depositLine')) ?></span>
+                                                    <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="checkout-summary-cta mt-4">
@@ -367,7 +432,15 @@ $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
                                     <strong data-payment-plan-output><?= esc($t('checkout.payDeposit')) ?></strong>
                                 </div>
                                 <div class="checkout-finish-item">
+                                    <span><?= esc($couponUi['current']) ?></span>
+                                    <strong data-coupon-current-finish><?= esc($couponCode !== '' ? ($couponName !== '' ? $couponName . ' (' . $couponCode . ')' : $couponCode) : $couponUi['none']) ?></strong>
+                                </div>
+                                <div class="checkout-finish-item">
                                     <span><?= esc($t('checkout.total')) ?></span>
+                                    <strong data-grand-total><?= esc($formatCurrency($grandTotal)) ?></strong>
+                                </div>
+                                <div class="checkout-finish-item">
+                                    <span data-payment-plan-label><?= esc($t('checkout.depositLine')) ?></span>
                                     <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
                                 </div>
                                 <div class="checkout-finish-item">
@@ -413,13 +486,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const paymentAmountOutputs = Array.from(root.querySelectorAll('[data-payment-amount]'));
     const paymentPlanOutputs = Array.from(root.querySelectorAll('[data-payment-plan-output]'));
     const paymentPlanLabels = Array.from(root.querySelectorAll('[data-payment-plan-label]'));
+    const planPreviewFullOutputs = Array.from(root.querySelectorAll('[data-plan-preview="full"]'));
+    const planPreviewDepositOutputs = Array.from(root.querySelectorAll('[data-plan-preview="deposit"]'));
     const paymentMethodOutputs = Array.from(root.querySelectorAll('[data-payment-method-output]'));
+    const grandTotalOutputs = Array.from(root.querySelectorAll('[data-grand-total]'));
+    const subtotalOutputs = Array.from(root.querySelectorAll('[data-subtotal-amount]'));
+    const discountOutputs = Array.from(root.querySelectorAll('[data-discount-amount]'));
+    const subtotalRow = root.querySelector('[data-subtotal-row]');
+    const discountRow = root.querySelector('[data-discount-row]');
     const errorBox = root.querySelector('[data-step-error]');
     const termsCheckbox = root.querySelector('[data-agree-terms]');
     const vietQrBox = root.querySelector('[data-vietqr-box]');
     const priceBreakdown = root.querySelector('[data-price-breakdown]');
     const breakdownToggle = root.querySelector('[data-price-breakdown-toggle]');
-    const couponPlaceholder = root.querySelector('[data-coupon-placeholder]');
+    const couponInput = root.querySelector('#checkout-coupon');
+    const couponApplyButton = root.querySelector('[data-coupon-apply]');
+    const couponChip = root.querySelector('[data-coupon-chip]');
+    const couponChipText = root.querySelector('[data-coupon-chip-text]');
+    const couponRemoveButton = root.querySelector('[data-coupon-remove]');
+    const couponCurrentOutputs = Array.from(root.querySelectorAll('[data-coupon-current-summary], [data-coupon-current-finish]'));
+    const couponMessage = root.querySelector('[data-coupon-message]');
+    const couponApplyUrl = root.dataset.couponApplyUrl || '';
     const paySubmitButtons = Array.from(root.querySelectorAll('[data-pay-submit]'));
     const vietQrCreateUrl = vietQrBox ? vietQrBox.dataset.vietqrCreateUrl : '';
     const vietQrCompleteUrl = vietQrBox ? vietQrBox.dataset.vietqrCompleteUrl : '';
@@ -445,9 +532,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const currency = new Intl.NumberFormat('vi-VN');
     const csrfTokenName = window.CSRF_TOKEN_NAME || document.querySelector('meta[name="csrf-token-name"]')?.content || '';
     const csrfToken = window.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content || '';
-    const totals = {
-        full: <?= json_encode($grandTotal) ?>,
-        deposit: <?= json_encode($depositAmount) ?>
+    const pricingState = {
+        subtotal: <?= json_encode($subtotalAmount) ?>,
+        discount: <?= json_encode($discountAmount) ?>,
+        grandTotal: <?= json_encode($grandTotal) ?>,
+        depositAmount: <?= json_encode($depositAmount) ?>
+    };
+    const couponText = {
+        appliedPrefix: <?= json_encode($couponUi['applied']) ?>,
+        none: <?= json_encode($couponUi['none']) ?>,
+        invalid: <?= json_encode($locale === 'en' ? 'Could not apply the coupon code. Please check the code or try another one.' : 'Không thể áp dụng mã khuyến mãi. Vui lòng kiểm tra lại mã hoặc thử mã khác.') ?>
     };
     const planLabels = {
         full: <?= json_encode($t('checkout.payFull')) ?>,
@@ -466,6 +560,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const formatCurrency = function (amount) {
         return currency.format(amount) + ' VND';
+    };
+
+    const recalcPricingState = function () {
+        pricingState.depositAmount = Math.round((Number(pricingState.grandTotal) || 0) * 0.10);
     };
 
     const clearError = function () {
@@ -597,7 +695,9 @@ document.addEventListener('DOMContentLoaded', function () {
             return input.checked;
         });
         const plan = selectedPlan ? selectedPlan.value : 'deposit';
-        const amount = totals[plan] || 0;
+        const amount = plan === 'full'
+            ? (Number(pricingState.grandTotal) || 0)
+            : (Number(pricingState.depositAmount) || 0);
 
         paymentAmountOutputs.forEach(function (output) {
             output.textContent = formatCurrency(amount);
@@ -610,6 +710,171 @@ document.addEventListener('DOMContentLoaded', function () {
         paymentPlanLabels.forEach(function (output) {
             output.textContent = planLineLabels[plan] || '';
         });
+    };
+
+    const renderPricing = function () {
+        recalcPricingState();
+
+        planPreviewFullOutputs.forEach(function (output) {
+            output.textContent = formatCurrency(Number(pricingState.grandTotal) || 0);
+        });
+
+        planPreviewDepositOutputs.forEach(function (output) {
+            output.textContent = formatCurrency(Number(pricingState.depositAmount) || 0);
+        });
+
+        grandTotalOutputs.forEach(function (output) {
+            output.textContent = formatCurrency(Number(pricingState.grandTotal) || 0);
+        });
+
+        subtotalOutputs.forEach(function (output) {
+            output.textContent = formatCurrency(Number(pricingState.subtotal) || 0);
+        });
+
+        discountOutputs.forEach(function (output) {
+            output.textContent = '-' + formatCurrency(Number(pricingState.discount) || 0);
+        });
+
+        updatePaymentPlan();
+    };
+
+    const setCouponFeedback = function (message, isError) {
+        if (!couponMessage) {
+            return;
+        }
+
+        const text = String(message || '').trim();
+        couponMessage.hidden = text === '';
+        couponMessage.textContent = text;
+        couponMessage.classList.toggle('text-danger', text !== '' && !!isError);
+        couponMessage.classList.toggle('text-success', text !== '' && !isError);
+        couponMessage.classList.toggle('text-muted', text === '');
+    };
+
+    const setCouponButtonsState = function (disabled) {
+        [couponApplyButton, couponRemoveButton].forEach(function (button) {
+            if (!button) {
+                return;
+            }
+
+            if (disabled) {
+                button.setAttribute('disabled', 'disabled');
+            } else {
+                button.removeAttribute('disabled');
+            }
+        });
+
+        if (!couponInput) {
+            return;
+        }
+
+        if (disabled) {
+            couponInput.setAttribute('disabled', 'disabled');
+            return;
+        }
+
+        couponInput.removeAttribute('disabled');
+    };
+
+    const syncCouponPricing = function (payload) {
+        pricingState.subtotal = Number(payload.subtotal || 0);
+        pricingState.discount = Number(payload.discount_amount || 0);
+        pricingState.grandTotal = Number(payload.grand_total || 0);
+        pricingState.depositAmount = Number(payload.deposit_amount || 0);
+        renderPricing();
+    };
+
+    const renderCouponCurrent = function (coupon) {
+        const couponCode = coupon && coupon.code ? String(coupon.code) : '';
+        const couponName = coupon && coupon.name ? String(coupon.name) : '';
+        const label = couponCode === ''
+            ? couponText.none
+            : (couponName !== '' ? couponName + ' (' + couponCode + ')' : couponCode);
+
+        if (couponChipText) {
+            couponChipText.textContent = label;
+        }
+
+        if (couponChip) {
+            couponChip.hidden = couponCode === '';
+        }
+
+        if (couponInput) {
+            couponInput.hidden = couponCode !== '';
+        }
+
+        if (couponApplyButton) {
+            couponApplyButton.hidden = couponCode !== '';
+        }
+
+        couponCurrentOutputs.forEach(function (output) {
+            output.textContent = label;
+        });
+    };
+
+    const submitCouponCode = async function (couponCode) {
+        if (!couponApplyUrl || !couponInput) {
+            return;
+        }
+
+        setCouponButtonsState(true);
+        clearError();
+
+        try {
+            const formData = new FormData();
+            appendCsrf(formData);
+            formData.append('coupon_code', couponCode);
+
+            const response = await fetch(couponApplyUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok || !payload.ok) {
+                throw new Error(payload.message || couponText.invalid);
+            }
+
+            syncCouponPricing(payload);
+
+            const appliedCoupon = payload.coupon && typeof payload.coupon === 'object' ? payload.coupon : null;
+            const appliedCode = appliedCoupon && appliedCoupon.code ? String(appliedCoupon.code) : '';
+            const appliedName = appliedCoupon && appliedCoupon.name ? String(appliedCoupon.name) : '';
+
+            couponInput.value = appliedCode;
+            renderCouponCurrent(appliedCoupon);
+
+            if (couponRemoveButton) {
+                couponRemoveButton.hidden = appliedCode === '';
+            }
+
+            if (appliedCode === '') {
+                setCouponFeedback(payload.message || '', false);
+            } else {
+                const appliedLabel = appliedName !== ''
+                    ? appliedName + ' (' + appliedCode + ')'
+                    : appliedCode;
+                setCouponFeedback(payload.message || (couponText.appliedPrefix + ': ' + appliedLabel), false);
+            }
+
+            lastVietQrKey = '';
+
+            const selectedMethod = paymentMethodInputs.find(function (input) {
+                return input.checked;
+            });
+
+            if (selectedMethod && selectedMethod.value === 'vietqr') {
+                await generateVietQr();
+            }
+        } catch (error) {
+            setCouponFeedback(error.message || couponText.invalid, true);
+        } finally {
+            setCouponButtonsState(false);
+        }
     };
 
     const generateVietQr = async function () {
@@ -639,7 +904,7 @@ document.addEventListener('DOMContentLoaded', function () {
             image: '',
             placeholder: '...',
             message: 'Đang tạo mã VietQR...',
-            amount: formatCurrency(totals[plan] || 0),
+            amount: formatCurrency(plan === 'full' ? (Number(pricingState.grandTotal) || 0) : (Number(pricingState.depositAmount) || 0)),
             addInfo: '-',
             accountName: '-',
             accountNo: '-',
@@ -684,7 +949,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 image: '',
                 placeholder: 'QR',
                 message: error.message || 'Không thể tạo mã VietQR.',
-                amount: formatCurrency(totals[plan] || 0),
+                amount: formatCurrency(plan === 'full' ? (Number(pricingState.grandTotal) || 0) : (Number(pricingState.depositAmount) || 0)),
                 addInfo: '-',
                 accountName: '-',
                 accountNo: '-',
@@ -1104,9 +1369,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (couponPlaceholder) {
-        couponPlaceholder.addEventListener('click', function () {
-            window.alert(<?= json_encode($t('checkout.couponAlert')) ?>);
+    if (couponApplyButton && couponInput) {
+        couponApplyButton.addEventListener('click', async function () {
+            await submitCouponCode(couponInput.value.trim());
+        });
+    }
+
+    if (couponRemoveButton) {
+        couponRemoveButton.addEventListener('click', async function () {
+            await submitCouponCode('');
+        });
+    }
+
+    if (couponInput) {
+        couponInput.addEventListener('keydown', async function (event) {
+            if (event.key !== 'Enter') {
+                return;
+            }
+
+            event.preventDefault();
+            await submitCouponCode(couponInput.value.trim());
         });
     }
 
@@ -1115,14 +1397,15 @@ document.addEventListener('DOMContentLoaded', function () {
         retryButton.addEventListener('click', function () {
             clearError();
             updateSummary();
-            updatePaymentPlan();
+            renderPricing();
             updatePaymentMethod();
             focusPaymentStep();
         });
     }
 
     updateSummary();
-    updatePaymentPlan();
+    renderPricing();
+    renderCouponCurrent(<?= json_encode($couponCode !== '' ? ['code' => $couponCode, 'name' => $couponName] : null) ?>);
     updatePaymentMethod();
     setStep(<?= $checkoutRetry ? '2' : '1' ?>);
 

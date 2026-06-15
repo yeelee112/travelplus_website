@@ -103,29 +103,32 @@ $copy = $locale === 'en'
                     </div>
                 </div>
 
-                <div class="home-modern-search__field">
+                <div class="home-modern-search__field home-modern-search__field--date">
                     <label for="homeSearchDeparture"><?= esc($dateFieldLabel) ?></label>
-                    <div class="home-search-date" data-home-date-picker data-locale="<?= esc($locale, 'attr') ?>">
-                        <input type="hidden" name="departure_date" value="" data-home-date-input>
-                        <button
-                            type="button"
-                            id="homeSearchDeparture"
-                            class="home-search-date__trigger"
-                            data-home-date-trigger
-                            data-empty-label="<?= esc($dateEmptyLabel, 'attr') ?>"
-                            aria-expanded="false"
-                            aria-haspopup="dialog">
-                            <span class="home-search-date__value" data-home-date-display><?= esc($dateEmptyLabel) ?></span>
-                        </button>
-                        <div class="home-search-date__panel" data-home-date-panel hidden>
-                            <div class="home-search-date__calendar" role="dialog" aria-label="<?= esc($dateFieldLabel, 'attr') ?>">
-                                <div class="home-search-date__calendar-head">
-                                    <button type="button" class="home-search-date__nav" data-home-date-prev aria-label="Previous month">&lsaquo;</button>
-                                    <strong class="home-search-date__month" data-home-date-month></strong>
-                                    <button type="button" class="home-search-date__nav" data-home-date-next aria-label="Next month">&rsaquo;</button>
+                    <div class="home-modern-search__input-wrap home-modern-search__input-wrap--date">
+                        <i class="bi bi-calendar2-week-fill" aria-hidden="true"></i>
+                        <div class="home-search-date" data-home-date-picker data-locale="<?= esc($locale, 'attr') ?>">
+                            <input type="hidden" name="departure_date" value="" data-home-date-input>
+                            <button
+                                type="button"
+                                id="homeSearchDeparture"
+                                class="home-search-date__trigger"
+                                data-home-date-trigger
+                                data-empty-label="<?= esc($dateEmptyLabel, 'attr') ?>"
+                                aria-expanded="false"
+                                aria-haspopup="dialog">
+                                <span class="home-search-date__value" data-home-date-display><?= esc($dateEmptyLabel) ?></span>
+                            </button>
+                            <div class="home-search-date__panel" data-home-date-panel hidden>
+                                <div class="home-search-date__calendar" role="dialog" aria-label="<?= esc($dateFieldLabel, 'attr') ?>">
+                                    <div class="home-search-date__calendar-head">
+                                        <button type="button" class="home-search-date__nav" data-home-date-prev aria-label="Previous month">&lsaquo;</button>
+                                        <strong class="home-search-date__month" data-home-date-month></strong>
+                                        <button type="button" class="home-search-date__nav" data-home-date-next aria-label="Next month">&rsaquo;</button>
+                                    </div>
+                                    <div class="home-search-date__weekdays" data-home-date-weekdays aria-hidden="true"></div>
+                                    <div class="home-search-date__days" data-home-date-days></div>
                                 </div>
-                                <div class="home-search-date__weekdays" data-home-date-weekdays aria-hidden="true"></div>
-                                <div class="home-search-date__days" data-home-date-days></div>
                             </div>
                         </div>
                     </div>

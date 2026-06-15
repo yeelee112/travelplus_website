@@ -59,6 +59,8 @@ class TourCatalogService
             'tt.name AS title',
             'tt.slug AS slug',
             'MIN(dl.id) AS destination_id',
+            'MIN(dltn.name) AS destination_name',
+            'MIN(dltn.slug) AS destination_slug',
             'MIN(td.departure_date) AS departure_date',
             'MIN(COALESCE(NULLIF(td.price, 0), NULLIF(t.sale_price, 0), NULLIF(t.base_price, 0), 0)) AS min_price',
             'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name',
@@ -138,6 +140,8 @@ class TourCatalogService
                 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                 'tt.name AS title, tt.slug AS slug,' .
                 'MIN(dl.id) AS destination_id,' .
+                'MIN(dltn.name) AS destination_name,' .
+                'MIN(dltn.slug) AS destination_slug,' .
                 'MIN(td.departure_date) AS departure_date,' .
                 'MIN(td.price) AS min_price,' .
                 'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
@@ -183,6 +187,8 @@ class TourCatalogService
                 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                 'tt.name AS title, tt.slug AS slug,' .
                 'MIN(dl.id) AS destination_id,' .
+                'MIN(dltn.name) AS destination_name,' .
+                'MIN(dltn.slug) AS destination_slug,' .
                 'MIN(td.departure_date) AS departure_date,' .
                 'MIN(t.base_price) AS min_price,' .
                 'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
@@ -207,7 +213,8 @@ class TourCatalogService
         int $perPage = 9,
         int $page = 1,
         ?string $tourType = null,
-        array $locationFilter = []
+        array $locationFilter = [],
+        bool $promotionOnly = false
     ): array
     {
         $page = max(1, $page);
@@ -228,7 +235,7 @@ class TourCatalogService
             ];
         }
 
-        $countRow = $this->baseToursBuilder($locale, $tourType, $locationFilter)
+        $countRow = $this->baseToursBuilder($locale, $tourType, $locationFilter, false, $promotionOnly)
             ->select('COUNT(DISTINCT t.id) AS total', false)
             ->get()
             ->getRowArray();
@@ -237,11 +244,13 @@ class TourCatalogService
         $page = min($page, $lastPage);
         $offset = ($page - 1) * $perPage;
 
-        $rows = $this->baseToursBuilder($locale, $tourType, $locationFilter)
+        $rows = $this->baseToursBuilder($locale, $tourType, $locationFilter, false, $promotionOnly)
             ->select(
                 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                 'tt.name AS title, tt.slug AS slug,' .
                 'MIN(dl.id) AS destination_id,' .
+                'MIN(dltn.name) AS destination_name,' .
+                'MIN(dltn.slug) AS destination_slug,' .
                 'MIN(td.departure_date) AS departure_date,' .
                 'MIN(t.base_price) AS min_price,' .
                 'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
@@ -272,7 +281,8 @@ class TourCatalogService
         string $departureDate = '',
         int $perPage = 9,
         int $page = 1,
-        ?string $tourType = null
+        ?string $tourType = null,
+        bool $promotionOnly = false
     ): array {
         $page = max(1, $page);
         $perPage = max(1, $perPage);
@@ -280,7 +290,7 @@ class TourCatalogService
         $tourType = in_array($tourType, ['outbound', 'inbound'], true) ? $tourType : null;
 
         if ($query === '' && $departureDate === '') {
-            return $this->getPagedTours($locale, $perPage, $page, $tourType);
+            return $this->getPagedTours($locale, $perPage, $page, $tourType, [], $promotionOnly);
         }
 
         if (!$this->hasSchemaForTourCatalog()) {
@@ -293,7 +303,7 @@ class TourCatalogService
             ];
         }
 
-        $builder = $this->baseToursBuilder($locale, $tourType)
+        $builder = $this->baseToursBuilder($locale, $tourType, [], false, $promotionOnly)
             ->join('tour_media tm', 'tm.tour_id = t.id AND tm.type = "gallery"', 'left');
 
         if ($query !== '') {
@@ -330,6 +340,8 @@ class TourCatalogService
                 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                 'tt.name AS title, tt.slug AS slug,' .
                 'MIN(dl.id) AS destination_id,' .
+                'MIN(dltn.name) AS destination_name,' .
+                'MIN(dltn.slug) AS destination_slug,' .
                 'MIN(td.departure_date) AS departure_date,' .
                 'MIN(t.base_price) AS min_price,' .
                 'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
@@ -369,6 +381,8 @@ class TourCatalogService
                 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                 'tt.name AS title, tt.slug AS slug,' .
                 'MIN(dl.id) AS destination_id,' .
+                'MIN(dltn.name) AS destination_name,' .
+                'MIN(dltn.slug) AS destination_slug,' .
                 'MIN(td.departure_date) AS departure_date,' .
                 'MIN(t.base_price) AS min_price,' .
                 'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
@@ -388,7 +402,13 @@ class TourCatalogService
         return $this->mapRowsToCards($rows);
     }
 
-    private function baseToursBuilder(string $locale, ?string $tourType = null, array $locationFilter = [], bool $featuredOnly = false): BaseBuilder
+    private function baseToursBuilder(
+        string $locale,
+        ?string $tourType = null,
+        array $locationFilter = [],
+        bool $featuredOnly = false,
+        bool $promotionOnly = false
+    ): BaseBuilder
     {
         $today = $this->db->escape(date('Y-m-d'));
         $builder = $this->db->table('tours t')
@@ -411,6 +431,17 @@ class TourCatalogService
 
         if ($featuredOnly && $this->db->fieldExists('is_featured', 'tours')) {
             $builder->where('t.is_featured', 1);
+        }
+
+        if ($promotionOnly && $this->db->fieldExists('is_promotion', 'tours')) {
+            $builder->where('t.is_promotion', 1);
+
+            if ($this->db->fieldExists('promotion_ends_at', 'tours')) {
+                $builder->groupStart()
+                    ->where('t.promotion_ends_at IS NULL', null, false)
+                    ->orWhere('t.promotion_ends_at >=', date('Y-m-d H:i:s'))
+                    ->groupEnd();
+            }
         }
 
         $this->applyLocationFilter($builder, $locationFilter);
@@ -692,6 +723,8 @@ class TourCatalogService
                     'sort' => (int) ($row['promotion_sort'] ?? 0),
                 ],
                 'destination_id' => $destinationId,
+                'destination_name' => trim((string) ($row['destination_name'] ?? '')),
+                'destination_slug' => trim((string) ($row['destination_slug'] ?? '')),
                 'continent' => $locationName,
                 'continent_slug' => (string) ($row['continent_slug'] ?? ''),
                 'continent_link' => $locationLink,

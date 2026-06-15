@@ -9,6 +9,7 @@ $copy = [
         'routeFallback' => 'Điểm đến đang cập nhật',
         'duration' => 'Thời lượng',
         'flightFrom' => 'Bay từ',
+        'meetingPoint' => 'Điểm đón',
         'departure' => 'Khởi hành',
         'scheduleUpdating' => 'Đang cập nhật lịch',
         'pricePrefix' => 'Giá từ',
@@ -19,6 +20,7 @@ $copy = [
         'routeFallback' => 'Destination updating',
         'duration' => 'Duration',
         'flightFrom' => 'From',
+        'meetingPoint' => 'Meeting point',
         'departure' => 'Departure',
         'scheduleUpdating' => 'Schedule updating',
         'pricePrefix' => 'From',
@@ -35,6 +37,7 @@ $isPromotion = ! empty($promotion['is_active']);
 $badgeText = $isPromotion && $promotionBadge !== '' ? $promotionBadge : $badge;
 $tourType = (string) ($tour['tour_type'] ?? '');
 $typeLabel = $tourType === 'inbound' ? $copy['domestic'] : $copy['outbound'];
+$departureFromLabel = $tourType === 'inbound' ? $copy['meetingPoint'] : $copy['flightFrom'];
 $locationName = trim((string) ($tour['continent'] ?? '')) ?: $copy['routeFallback'];
 $locationLink = trim((string) ($tour['continent_link'] ?? '#')) ?: '#';
 $departureFrom = trim((string) ($tour['departure_from'] ?? ''));
@@ -104,7 +107,7 @@ $ariaLabel = $title !== '' ? $t('tourCard.viewDetails', [$title]) : $t('tourCard
                     <div class="tp-tour-card__schedule-item">
                         <span>
                             <i class="bi bi-airplane-engines"></i>
-                            <?= esc($copy['flightFrom']) ?>
+                            <?= esc($departureFromLabel) ?>
                         </span>
                         <strong><?= esc($departureFrom) ?></strong>
                     </div>

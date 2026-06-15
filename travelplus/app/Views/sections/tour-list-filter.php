@@ -4,6 +4,7 @@ $searchState = array_merge([
     'q' => (string) (service('request')->getGet('q') ?? ''),
     'departure_date' => (string) (service('request')->getGet('departure_date') ?? ''),
     'tour_type' => (string) (service('request')->getGet('tour_type') ?? ''),
+    'promotion_only' => (string) (service('request')->getGet('promotion') ?? '') === '1',
 ], is_array($listingSearch ?? null) ? $listingSearch : []);
 
 $searchState['tour_type'] = in_array($searchState['tour_type'], ['outbound', 'inbound'], true) ? $searchState['tour_type'] : '';
@@ -51,7 +52,7 @@ $copy = $locale === 'en'
     ];
 
 $searchUrl = \App\Data\LocalizedPathCatalog::url('search', $locale);
-$clearUrl = $searchUrl;
+$clearUrl = $searchState['promotion_only'] ? ($searchUrl . '?promotion=1') : $searchUrl;
 ?>
 
 <section class="tour-list-filter" aria-labelledby="tour-list-filter-title">
@@ -68,6 +69,9 @@ $clearUrl = $searchUrl;
             </div>
 
             <form class="tour-list-filter__form" action="<?= esc($searchUrl, 'attr') ?>" method="get">
+                <?php if (! empty($searchState['promotion_only'])): ?>
+                    <input type="hidden" name="promotion" value="1">
+                <?php endif; ?>
                 <label class="tour-list-filter__field">
                     <span><?= esc($copy['destination']) ?></span>
                     <input type="search" name="q" value="<?= esc($searchState['q'], 'attr') ?>" placeholder="<?= esc($copy['destinationPlaceholder'], 'attr') ?>" autocomplete="off">

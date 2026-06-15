@@ -293,6 +293,7 @@ class AuthController extends BaseController
         session()->remove(['auth_user', 'checkout_mode']);
 
         return redirect()->to(localized_url('/'))
+            ->withCookies()
             ->with('auth_success', lang('Frontend.auth.logoutSuccess', [], $this->request->getLocale() ?: 'vi'));
     }
 
@@ -311,7 +312,7 @@ class AuthController extends BaseController
         $rememberService->clear();
         session()->remove(['auth_user', 'checkout_mode']);
 
-        return redirect()->to(LocalizedPathCatalog::url('auth.login', $locale))->with(
+        return redirect()->to(LocalizedPathCatalog::url('auth.login', $locale))->withCookies()->with(
             'auth_success',
             $locale === 'en'
                 ? 'All remembered devices have been signed out. Please sign in again.'
@@ -470,7 +471,7 @@ class AuthController extends BaseController
         session()->set('auth_user', $this->buildAuthSessionUser($user));
         session()->remove('checkout_mode');
 
-        return $this->redirectAfterAuth($locale);
+        return $this->redirectAfterAuth($locale)->withCookies();
     }
 
     private function handleRegister()
@@ -546,7 +547,7 @@ class AuthController extends BaseController
             ]);
         }
 
-        return $this->redirectAfterAuth($locale);
+        return $this->redirectAfterAuth($locale)->withCookies();
     }
 
     private function respondAuthError(string $message, int $statusCode)
