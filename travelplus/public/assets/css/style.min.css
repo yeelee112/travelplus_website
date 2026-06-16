@@ -7021,7 +7021,19 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
     font-weight: 850;}
 .home-page__featured-destinations .nav-pills .nav-link.active, .home-page__featured-destinations .nav-pills .nav-link:hover {background: var(--primary-color1);
     color: #fff;}
-.home-page__stats {background: var(--title-color);}
+.home-page__stats {position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(135deg, rgba(6, 27, 34, 0.32), rgba(6, 27, 34, 0.24)),
+        var(--home-stats-bg, url("../images/summary-tp.png")) center/cover no-repeat,
+        var(--title-color);}
+.home-page__stats.home-section--dark {background:
+        linear-gradient(135deg, rgba(6, 27, 34, 0.32), rgba(6, 27, 34, 0.24)),
+        var(--home-stats-bg, url("../images/summary-tp.png")) center/cover no-repeat,
+        var(--title-color);
+    color: #fff;}
+.home-page__stats > .container {position: relative;
+    z-index: 1;}
 .tour-detail-hero {position: relative;
     min-height: 640px;
     display: flex;
@@ -9387,7 +9399,9 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     padding: 22px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.08);}
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);}
 .home-stat-card strong {color: #fff;
     font-size: clamp(30px, 4vw, 46px);
     line-height: 1;
@@ -11101,20 +11115,92 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .summer-hero-teaser__body small em {font-style: normal;}
 .summer-hero-teaser__offer {display: flex;
     flex-wrap: wrap;
-    gap: 8px;}
-.summer-hero-teaser__offer b, .summer-hero-teaser__offer span {display: inline-flex;
-    min-height: 30px;
+    align-items: end;
+    gap: 10px 8px;}
+.summer-hero-teaser__price {display: grid;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 106, 82, 0.18);
+    border-radius: 16px;
+    background: linear-gradient(145deg, #fff7f1, #fffdf8);
+    box-shadow: 0 10px 24px rgba(255, 106, 82, 0.08);}
+.summer-hero-teaser__price small {display: block;
+    color: #d95a3e;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;}
+.summer-hero-teaser__price strong {display: block;
+    color: #ff5f52;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 900;}
+.summer-hero-teaser__deadline {display: inline-flex;
+    min-height: 28px;
     align-items: center;
     padding: 0 10px;
     border-radius: 999px;
-    font-size: 12px;
-    font-style: normal;}
-.summer-hero-teaser__offer b {background: #fff7ed;
-    color: #ff6a52;
-    font-weight: 900;}
-.summer-hero-teaser__offer span {background: rgba(22, 191, 226, 0.08);
+    background: rgba(22, 191, 226, 0.08);
     color: #0f8fac;
+    font-size: 11px;
+    font-weight: 850;
+    font-style: normal;}
+.summer-hero-teaser--destination {grid-template-rows: auto 1fr;
+    height: 100%;
+    border-color: rgba(22, 191, 226, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(244, 251, 255, 0.94));}
+.summer-hero-teaser--destination .summer-hero-teaser__media img {aspect-ratio: 1.52 / 1;}
+.summer-hero-teaser--destination .summer-hero-teaser__body--destination {display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 14px;
+    height: 100%;
+    align-content: start;
+    padding: 20px 20px 18px;}
+.summer-hero-teaser--destination .summer-hero-teaser__body--destination > strong {font-size: 20px;
+    line-height: 1.2;
+    -webkit-line-clamp: 2;}
+.summer-destination-card__facts {display: grid;
+    gap: 10px;
+    align-content: start;}
+.summer-destination-card__fact {display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    margin: 0;
+    line-height: 1.5;}
+.summer-destination-card__fact i {color: #0f8fac;
+    font-size: 14px;
+    transform: translateY(2px);}
+.summer-destination-card__fact span {min-width: 0;}
+.summer-destination-card__fact--route {color: var(--title-color);
+    font-size: 14px;
+    font-weight: 800;}
+.summer-destination-card__fact--route span {display: -webkit-box;
+    overflow: hidden;
+    color: rgba(var(--title-color-opc), 0.8);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;}
+.summer-destination-card__meta-grid {display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;}
+.summer-destination-card__fact--meta {
+    color: rgba(var(--title-color-opc), 0.74);
+    font-size: 13px;
     font-weight: 850;}
+.summer-destination-card__fact--meta i {font-size: 12px;}
+.summer-hero-teaser--destination .summer-hero-teaser__offer {display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 10px 12px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);}
+.summer-hero-teaser--destination .summer-hero-teaser__price {min-width: 0;}
+.summer-hero-teaser--destination .summer-hero-teaser__deadline {justify-self: start;
+    align-self: center;}
+.summer-hero-teaser--destination:hover {transform: translateY(-4px);
+    border-color: rgba(255, 106, 82, 0.22);
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.11);}
 .summer-signal-bar {padding: 10px 0 0;}
 .summer-signal-bar .container {overflow: hidden;}
 .summer-signal-bar__track {display: flex;
@@ -11202,6 +11288,17 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     border-radius: 24px;
     background: rgba(255, 255, 255, 0.96);
     box-shadow: 0 20px 46px rgba(15, 23, 42, 0.12);}
+.summer-lead__form-intro {display: grid;
+    gap: 6px;
+    margin-bottom: 16px;}
+.summer-lead__form-intro strong {color: var(--title-color);
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 900;}
+.summer-lead__form-intro p {margin: 0;
+    color: rgba(var(--title-color-opc), 0.7);
+    font-size: 14px;
+    line-height: 1.7;}
 .summer-lead__form {display: grid;
     gap: 16px;}
 .summer-lead__form-grid {display: grid;
@@ -11212,7 +11309,7 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .summer-lead__form-grid label span {color: var(--title-color);
     font-size: 13px;
     font-weight: 850;}
-.summer-lead__form-grid input, .summer-lead__form-grid textarea {width: 100%;
+.summer-lead__form-grid input, .summer-lead__form-grid select, .summer-lead__form-grid textarea {width: 100%;
     padding: 14px 16px;
     border: 1px solid rgba(22, 191, 226, 0.16);
     border-radius: 16px;
@@ -11220,7 +11317,13 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     color: var(--title-color);
     font-size: 14px;
     line-height: 1.6;}
-.summer-lead__form-grid input:focus, .summer-lead__form-grid textarea:focus {outline: none;
+.summer-lead__form-grid select {appearance: none;
+    background-image: linear-gradient(135deg, rgba(243, 252, 255, 0.88), rgba(255, 250, 239, 0.84)), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%231f2937' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat, no-repeat;
+    background-position: 0 0, right 14px center;
+    background-size: auto, 16px 16px;
+    padding-right: 42px;}
+.summer-lead__form-grid input:focus, .summer-lead__form-grid select:focus, .summer-lead__form-grid textarea:focus {outline: none;
     border-color: rgba(22, 191, 226, 0.42);
     box-shadow: 0 0 0 4px rgba(22, 191, 226, 0.12);}
 .summer-lead__form-message {grid-column: 1 / -1;}
@@ -11415,10 +11518,11 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     gap: 14px;}
 .summer-editorial__price {display: grid;
     gap: 4px;
-    padding: 14px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    min-width: min(320px, 100%);
+    padding: 16px 18px;
+    border: 1px solid rgba(255, 214, 183, 0.34);
     border-radius: 18px;
-    background: rgba(255, 250, 242, 0.14);
+    background: linear-gradient(145deg, rgba(255, 249, 242, 0.24), rgba(255, 233, 214, 0.18));
     backdrop-filter: blur(10px);}
 .summer-editorial__price span {color: #ffe5cf;
     font-size: 11px;
@@ -11426,7 +11530,7 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     text-transform: uppercase;}
 .summer-editorial__price em {margin: 0;
     color: #fff;
-    font-size: 28px;
+    font-size: 34px;
     line-height: 1.02;
     font-weight: 900;
     font-style: normal;}
@@ -11511,20 +11615,35 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .summer-editorial__mini em {font-style: normal;}
 .summer-editorial__mini-offer {display: flex;
     flex-wrap: wrap;
-    gap: 8px;}
-.summer-editorial__mini-offer b, .summer-editorial__mini-offer span {display: inline-flex;
-    min-height: 30px;
+    align-items: end;
+    gap: 10px 8px;}
+.summer-editorial__mini-price {display: grid;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 106, 82, 0.18);
+    border-radius: 16px;
+    background: linear-gradient(145deg, #fff7f1, #fffdf8);}
+.summer-editorial__mini-price small {display: block;
+    color: #d95a3e;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;}
+.summer-editorial__mini-price strong {display: block;
+    color: #ff5f52;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 900;}
+.summer-editorial__mini-deadline {display: inline-flex;
+    min-height: 28px;
     align-items: center;
     padding: 0 10px;
     border-radius: 999px;
-    font-size: 12px;
-    font-style: normal;}
-.summer-editorial__mini-offer b {background: #fff7ed;
-    color: #ff6a52;
-    font-weight: 900;}
-.summer-editorial__mini-offer span {background: rgba(22, 191, 226, 0.08);
+    background: rgba(22, 191, 226, 0.08);
     color: #0f8fac;
-    font-weight: 850;}
+    font-size: 11px;
+    font-weight: 850;
+    font-style: normal;}
 .summer-rail-section {padding: 38px 0 0;}
 .summer-rail__head {display: flex;
     align-items: end;
@@ -11597,18 +11716,19 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     font-weight: 800;}
 .summer-rail-card__body small em {font-style: normal;}
 .summer-rail-card__price {display: grid;
-    gap: 4px;
-    width: fit-content;
-    padding: 12px 14px;
-    border: 1px solid rgba(255, 122, 83, 0.18);
+    gap: 5px;
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 122, 83, 0.22);
     border-radius: 16px;
-    background: linear-gradient(145deg, #fff6ef, #fffefb);}
+    background: linear-gradient(145deg, #fff5ed, #fffefb);
+    box-shadow: 0 12px 26px rgba(255, 106, 82, 0.08);}
 .summer-rail-card__price span {color: #d95a3e;
     font-size: 11px;
-    font-weight: 850;
+    font-weight: 900;
     text-transform: uppercase;}
 .summer-rail-card__price strong {color: #ff6a52;
-    font-size: 28px;
+    font-size: 32px;
     line-height: 1.04;
     font-weight: 900;}
 .summer-rail-card__details {display: grid;
@@ -11618,13 +11738,13 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .summer-rail-card__details em, .summer-rail-card__details span {font-style: normal;}
 .summer-rail-card__details em {display: inline-flex;
     width: fit-content;
-    min-height: 30px;
+    min-height: 28px;
     align-items: center;
     padding: 0 10px;
     border-radius: 999px;
     background: rgba(22, 191, 226, 0.08);
     color: #0f8fac;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 850;}
 .summer-rail-card__details span {color: rgba(var(--title-color-opc), 0.62);
     font-size: 13px;
@@ -11662,20 +11782,101 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     font-weight: 900;}
 .summer-bucket__list {display: grid;
     gap: 12px;}
-.summer-bucket__list a {display: grid;
-    gap: 6px;
-    padding: 14px 16px;
+.summer-bucket__item {position: relative;
+    display: block;
+    overflow: hidden;
+    min-height: 170px;
     border: 1px solid rgba(var(--primary-color1-opc), 0.1);
-    border-radius: 16px;
-    background: #fff;
+    border-radius: 18px;
+    background:
+        linear-gradient(90deg, rgba(6, 27, 34, 0.56) 0%, rgba(6, 27, 34, 0.26) 52%, rgba(6, 27, 34, 0.08) 100%),
+        var(--summer-bucket-image) center/cover no-repeat;
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;}
-.summer-bucket__list strong {color: var(--title-color);
-    font-size: 16px;
-    line-height: 1.42;
-    font-weight: 850;}
-.summer-bucket__list small {color: #ff6a52;
-    font-size: 14px;
-    font-weight: 900;}
+.summer-bucket__item::after {content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(8, 26, 39, 0.12) 0%, rgba(8, 26, 39, 0.04) 56%, rgba(8, 26, 39, 0) 100%);}
+.summer-bucket__item-content {position: absolute;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    z-index: 1;
+    display: grid;
+    gap: 10px;}
+.summer-bucket__item strong {display: -webkit-box;
+    overflow: hidden;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1.28;
+    font-weight: 900;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.34);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;}
+.summer-bucket__item-meta {display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px 12px;}
+.summer-bucket__item span {display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: linear-gradient(135deg, rgba(8, 26, 39, 0.78), rgba(8, 26, 39, 0.6));
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);}
+.summer-bucket__item span::before {content: "\f3e8";
+    font-family: bootstrap-icons !important;
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 11px;
+    line-height: 1;}
+.summer-bucket__item small {display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-height: 64px;
+    justify-content: center;
+    padding: 10px 14px 11px;
+    border: 1px solid rgba(255, 138, 76, 0.22);
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(255, 251, 248, 0.98), rgba(255, 240, 230, 0.96));
+    box-shadow: 0 18px 34px rgba(255, 106, 82, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.72);}
+.summer-bucket__item small span {display: block;
+    width: auto;
+    min-height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+    color: #d95a3e;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;}
+.summer-bucket__item small span::before {display: none;}
+.summer-bucket__item small strong {display: block;
+    color: #ff6a52;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 900;
+    text-shadow: none;}
 .summer-cta {padding: 56px 0 76px;}
 .summer-cta__card {display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -11852,6 +12053,18 @@ body.is-home-page .site-header-modern {margin-bottom: -34px;}
     border-radius: 22px;
     padding: 9px 26px;
     backdrop-filter: blur(18px);}
+.site-header-modern .header-season-link {align-items:center;
+    justify-content:center;
+    min-height:44px;
+    padding:0 18px;
+    border-radius:999px;
+    background:linear-gradient(135deg, #ff8a4c, #ff5f52);
+    color:#fff;
+    font-size:14px;
+    font-weight:800;
+    box-shadow:0 16px 30px rgba(255, 106, 82, 0.2);
+    white-space:nowrap;}
+.site-header-modern .header-season-link.is-active {box-shadow:0 18px 34px rgba(255, 106, 82, 0.28);}
 header.style-1.two.site-header-modern {background: transparent !important;
     box-shadow: none !important;}
 header.style-1.two.site-header-modern::before, header.style-1.two.site-header-modern::after {display: none !important;}
@@ -11878,6 +12091,37 @@ header.style-1.two.site-header-modern .main-menu > ul > li.menu-open > a, header
     background: linear-gradient(180deg, rgba(213, 245, 255, 0.95), rgba(231, 250, 255, 0.86));
     box-shadow: 0 8px 18px rgba(14, 169, 208, 0.12);}
 header.style-1.two.site-header-modern .main-menu > ul > li.menu-open > a i, header.style-1.two.site-header-modern .main-menu > ul > li.active > a i, header.style-1.two.site-header-modern .main-menu > ul > li.current-menu-item > a i {color: var(--primary-color1);}
+header.style-1.two.site-header-modern .main-menu > ul > li.current-menu-item--summer > a {background:linear-gradient(135deg, rgba(255, 138, 76, 0.14), rgba(255, 95, 82, 0.08));
+    color:#d94f3b;}
+header.style-1.two.site-header-modern .main-menu > ul > li.current-menu-item--summer.current-menu-item > a {background:linear-gradient(135deg, rgba(255, 138, 76, 0.2), rgba(255, 95, 82, 0.12));
+    color:#c7402b;
+    box-shadow:0 10px 20px rgba(255, 106, 82, 0.14);}
+.site-header-modern .header-season-menu-link {display:inline-flex;
+    align-items:center;
+    gap:8px;}
+.site-header-modern .header-season-menu-text {display:inline-flex;
+    align-items:center;
+    gap:8px;}
+.site-header-modern .header-season-menu-text::before {content:"";
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:linear-gradient(135deg, #ff8a4c, #ff5f52);
+    box-shadow:0 0 0 4px rgba(255, 106, 82, 0.12);}
+.site-header-modern .header-season-menu-badge {display:inline-flex;
+    min-height:22px;
+    align-items:center;
+    padding:0 8px;
+    border-radius:999px;
+    background:rgba(255, 255, 255, 0.62);
+    color:#c7402b;
+    font-size:10px;
+    font-weight:900;
+    line-height:1;
+    text-transform:uppercase;
+    letter-spacing:.02em;}
+header.style-1.two.site-header-modern .main-menu > ul > li.current-menu-item--summer.current-menu-item > a .header-season-menu-badge {background:rgba(255, 255, 255, 0.82);
+    color:#b93622;}
 header.style-1.two.site-header-modern .main-menu > ul > li ul.sub-menu {top: calc(100% + 16px) !important;
     display: none !important;
     padding-top: 0;
@@ -11912,6 +12156,7 @@ header.style-1.two.site-header-modern .main-menu > ul > li.menu-open > ul.sub-me
         background: #fff !important;
         border-bottom: 1px solid rgba(13, 60, 82, 0.08);
         margin-bottom: 0;}
+.site-header-modern .header-season-link {display:none !important;}
 .site-header-modern .site-header-shell {width: 100%;
         justify-content: space-between;
         align-items: center;

@@ -32,8 +32,14 @@ class SummerTours extends BaseController
         $promoCollection = array_slice($summerHighlights, 0, 6);
         $flashMeta = $this->buildFlashMeta($promoCollection, $featuredCollection, $locale);
 
-        $domesticTours = array_values(array_filter($featuredCollection, static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') === 'inbound'));
-        $outboundTours = array_values(array_filter($featuredCollection, static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') !== 'inbound'));
+        $domesticTours = array_values(array_filter(
+            $featuredCollection,
+            static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') === 'inbound'
+        ));
+        $outboundTours = array_values(array_filter(
+            $featuredCollection,
+            static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') !== 'inbound'
+        ));
 
         $heroLocations = [];
         foreach (array_slice($summerHighlights, 0, 6) as $tour) {
@@ -41,174 +47,186 @@ class SummerTours extends BaseController
             if ($label === '' || in_array($label, $heroLocations, true)) {
                 continue;
             }
+
             $heroLocations[] = $label;
         }
 
         $copy = $locale === 'en'
             ? [
-                'eyebrow' => 'Travel Plus Summer Escape',
-                'title' => 'Choose the right summer route faster with beach, city and family departures already grouped clearly.',
-                'desc' => 'Use the campaign banner as the visual lead, then compare routes, prices and promotional departures without dropping into a normal catalog layout too early.',
-                'primaryCta' => 'See summer tours',
-                'secondaryCta' => 'Get help shortlisting',
-                'flashBarLabel' => 'Summer flash sale',
+                'eyebrow' => 'Summer sale tours by Travel Plus',
+                'title' => 'Summer sale tours for beach trips, family holidays, group departures and outbound plans.',
+                'desc' => 'Compare live summer departures, promotional prices and routes worth booking early.',
+                'primaryCta' => 'View summer deals',
+                'secondaryCta' => 'Get summer tour advice',
+                'flashBarLabel' => 'Summer tour deals',
                 'flashBarMessage' => $flashMeta['bar_message'],
                 'flashBarPoints' => [
                     $flashMeta['deadline_line'],
-                    'Beach, city and family-friendly routes',
-                    'Shortlist support for family and group bookings',
+                    'Domestic and outbound summer tours on one page',
+                    'Useful for families, private groups and company trips',
                 ],
                 'seasonCues' => [
-                    ['icon' => 'bi-brightness-high', 'title' => 'Sunny escapes', 'desc' => 'Beach routes and bright city breaks that actually read like summer.'],
-                    ['icon' => 'bi-water', 'title' => 'Sea-first mood', 'desc' => 'A lighter aqua palette and warmer imagery so the page feels seasonal, not generic.'],
-                    ['icon' => 'bi-people', 'title' => 'Easy for groups', 'desc' => 'Families, friend groups and company teams can compare the shortlist faster.'],
+                    ['icon' => 'bi-brightness-high', 'title' => 'Peak summer routes', 'desc' => 'Beach trips, cooler escapes and the dates guests open first.'],
+                    ['icon' => 'bi-tags', 'title' => 'Promotional fares', 'desc' => 'Price-led picks so summer deals stand out faster.'],
+                    ['icon' => 'bi-people', 'title' => 'Group-friendly choices', 'desc' => 'Useful for families, private groups and company trips.'],
                 ],
                 'metrics' => [
                     ['value' => $flashMeta['promo_count'], 'label' => 'live deals'],
                     ['value' => count($featuredCollection), 'label' => 'summer routes'],
                     ['value' => max(1, count($heroLocations)), 'label' => 'popular zones'],
                 ],
-                'panelTitle' => 'Why act early this week',
-                'panelTag' => 'Fast-booking view',
+                'panelTitle' => 'Why this summer page is easier to book from',
+                'panelTag' => 'Travel Plus shortlist',
                 'quickNotes' => [
-                    'Promotional tours are shown on real product cards, not hidden inside generic listings.',
-                    'Domestic and outbound routes stay on one campaign page for quicker comparison.',
-                    'Some offers have live promotion end dates, so priority goes to departures worth opening now.',
+                    'Open the tours that already show stronger sale or schedule signals.',
+                    'Compare beach, domestic and outbound summer routes on one page.',
+                    'Best when you already know your month and want a tighter shortlist.',
                 ],
                 'offerBar' => [
-                    $flashMeta['promo_count'] . ' summer deals live now',
+                    $flashMeta['promo_count'] . ' summer tours on sale',
                     $flashMeta['deadline_line'],
-                    'Sea, city and family moods on one page',
+                    'Beach, family and outbound routes on one page',
                 ],
                 'signalBar' => [
-                    'Flash sale summer departures',
-                    'Beach mood with cleaner route visuals',
-                    'Promotional cards updated from live catalog data',
-                    'Family, friend and company group friendly',
-                    'Move from browsing to booking faster',
+                    'Summer tour sale is live',
+                    'Domestic and outbound summer tours',
+                    'Beach, city and family-friendly departures',
+                    'Promotional prices worth checking early',
+                    'Shortlist faster for private and group bookings',
                 ],
                 'dealTiles' => [
                     [
-                        'label' => 'Deals live now',
+                        'label' => 'Summer deals live',
                         'value' => $flashMeta['promo_count'] . ' tours',
-                        'desc' => 'Real promotional tours pulled to the front so the page reads like an active campaign, not a normal listing.',
+                        'desc' => 'Open the departures with the clearest sale signal first.',
                     ],
                     [
-                        'label' => 'Nearest deadline',
+                        'label' => 'Closest deadline',
                         'value' => $flashMeta['deadline_value'],
-                        'desc' => 'Some promotional departures already carry an end date, so earlier comparison matters more here.',
+                        'desc' => 'Earlier booking usually means better schedule choice.',
                     ],
                     [
-                        'label' => 'Need a faster shortlist?',
+                        'label' => 'Need a shortlist?',
                         'value' => '1 request',
-                        'desc' => 'Share your month, budget and group size to get a narrower summer shortlist from Travel Plus.',
+                        'desc' => 'Send your month and group size to get a tighter shortlist.',
                     ],
                 ],
-                'promoTitle' => 'Flash deals worth opening first',
-                'promoDesc' => 'Sale-led departures, fast-moving schedules and the tours that should take the first click in summer browsing.',
-                'featuredTitle' => 'Best-looking summer routes',
-                'featuredDesc' => 'The layout stays campaign-driven, but the color, spacing and imagery now feel more like a summer collection than a standard promotion page.',
-                'editorialKicker' => 'Lead summer offer',
-                'editorialCta' => 'Hold this deal',
-                'railTitle' => 'Deals people are checking now',
-                'railDesc' => 'A horizontal offer rail for quick comparisons, stronger pricing hierarchy and clearer action buttons.',
+                'promoTitle' => 'Summer sale tours worth opening first',
+                'promoDesc' => 'Summer tours with stronger price signals and easier booking timing.',
+                'featuredTitle' => 'Summer routes guests compare most',
+                'featuredDesc' => 'Popular summer routes for beach trips, family holidays and outbound plans.',
+                'editorialKicker' => 'Featured summer deal',
+                'editorialCta' => 'See this summer tour',
+                'railTitle' => 'Summer departures guests are checking now',
+                'railDesc' => 'Compare active deals, prices and timing without opening a long list first.',
                 'railLink' => 'See all summer tours',
-                'cardCta' => 'View this deal',
-                'destinationTitle' => 'Choose a destination before choosing a tour',
-                'destinationDesc' => 'Summer tours here are intentionally limited, so this filter helps visitors jump straight to the routes that actually have departures on the page.',
+                'cardCta' => 'See tour details',
+                'destinationTitle' => 'Filter summer tours by destination',
+                'destinationDesc' => 'Use destination filters to jump straight into the summer routes you care about.',
                 'destinationAll' => 'All destinations',
-                'domesticTitle' => 'Domestic summer picks',
-                'outboundTitle' => 'Outbound summer picks',
-                'pricePromoLabel' => 'Promotional price',
-                'priceDefaultLabel' => 'Summer tour price',
-                'urgencyFallback' => 'Deal is live',
-                'ctaTitle' => 'Already know your month and budget?',
-                'ctaDesc' => 'Send the expected travel month, group size and budget band. Travel Plus can cut the noise and suggest a tighter summer shortlist quickly.',
-                'ctaPrimary' => 'Talk to Travel Plus',
+                'domesticTitle' => 'Domestic summer tours',
+                'outboundTitle' => 'Outbound summer tours',
+                'pricePromoLabel' => 'Sale price',
+                'priceDefaultLabel' => 'Tour price',
+                'urgencyFallback' => 'Summer deal is live',
+                'ctaTitle' => 'Need the right summer route faster?',
+                'ctaDesc' => 'Send your destination, group size and travel period. Travel Plus will suggest a tighter summer shortlist.',
+                'ctaPrimary' => 'Request summer advice',
                 'ctaSecondary' => 'Browse all tours',
             ]
             : [
-                'eyebrow' => 'Bộ sưu tập hè Travel Plus',
-                'title' => 'Chọn nhanh tour hè đúng gu, đúng lịch và đúng kiểu trải nghiệm ngay từ màn hình đầu tiên.',
-                'desc' => 'Banner dẫn cảm xúc mùa hè, còn phần dưới gom lại tour biển, tour đổi gió, lịch đẹp cho gia đình và nhóm bạn để khách xem nhanh mà vẫn dễ chốt.',
-                'primaryCta' => 'Xem tour hè',
-                'secondaryCta' => 'Nhờ Travel Plus shortlist',
-                'flashBarLabel' => 'Flash sale mùa hè',
+                'eyebrow' => 'Tour du lịch hè 2026 Travel Plus',
+                'title' => 'Tour hè 2026 giá tốt: Tour du lịch, tour gia đình, tour trong nước và nước ngoài',
+                'desc' => 'Khám phá các tour du lịch hè 2026 hấp dẫn từ Travel Plus với nhiều lựa chọn tour biển, tour nghỉ dưỡng, tour gia đình, tour đoàn và tour nước ngoài. Cập nhật ưu đãi mới nhất, lịch khởi hành đa dạng và mức giá tốt cho mùa du lịch hè.',
+                'primaryCta' => 'Xem tour hè đang sale',
+                'secondaryCta' => 'Nhờ Travel Plus tư vấn',
+                'flashBarLabel' => 'Ưu đãi tour hè 2026',
                 'flashBarMessage' => $flashMeta['bar_message'],
                 'flashBarPoints' => [
                     $flashMeta['deadline_line'],
-                    'Biển, nghỉ dưỡng và tour gia đình',
-                    'Chốt nhanh hơn cho gia đình và đoàn nhóm',
+                    'Tour hè trong nước và tour hè nước ngoài khởi hành liên tục',
+                    'Phù hợp cho gia đình, nhóm bạn, công ty và đoàn khách riêng',
                 ],
                 'seasonCues' => [
-                    ['icon' => 'bi-brightness-high', 'title' => 'Đi trốn nắng', 'desc' => 'Nhìn vào là ra chất hè hơn: sáng, thoáng, có cảm giác muốn đi ngay.'],
-                    ['icon' => 'bi-water', 'title' => 'Biển và nghỉ dưỡng', 'desc' => 'Sắc xanh biển, cát sáng và tông coral giúp page đỡ nặng, đỡ giống campaign sale thường.'],
-                    ['icon' => 'bi-people', 'title' => 'Dễ chốt cho nhóm', 'desc' => 'Gia đình, nhóm bạn và đoàn doanh nghiệp đều có thể shortlist nhanh hơn trên cùng một trang.'],
+                    [
+                        'icon' => 'bi-brightness-high',
+                        'title' => 'Tour hè hot nhất',
+                        'desc' => 'Các tour biển, tour nghỉ dưỡng và điểm đến mùa hè được nhiều khách lựa chọn.'
+                    ],
+                    [
+                        'icon' => 'bi-tags',
+                        'title' => 'Ưu đãi tour hè hấp dẫn',
+                        'desc' => 'Cập nhật giá tốt và chương trình khuyến mãi mới nhất từ Travel Plus.'
+                    ],
+                    [
+                        'icon' => 'bi-people',
+                        'title' => 'Đa dạng đối tượng khách',
+                        'desc' => 'Phù hợp cho gia đình, nhóm bạn, doanh nghiệp và đoàn khách riêng.'
+                    ],
                 ],
                 'metrics' => [
                     ['value' => $flashMeta['promo_count'], 'label' => 'deal đang mở'],
                     ['value' => count($featuredCollection), 'label' => 'tuyến hè nổi bật'],
                     ['value' => max(1, count($heroLocations)), 'label' => 'khu vực hút khách'],
                 ],
-                'panelTitle' => 'Lý do nên xem sớm tuần này',
-                'panelTag' => 'Tư duy chốt nhanh',
+                'panelTitle' => 'Vì sao nên đặt tour hè tại Travel Plus?',
+                'panelTag' => 'Travel Plus chọn sẵn',
                 'quickNotes' => [
-                    'Tour ưu đãi được kéo lên trước bằng dữ liệu tour thật, không phải trang danh sách thường đổi màu.',
-                    'Tour trong nước và tour nước ngoài nằm trên cùng một campaign page để so nhanh hơn.',
-                    'Một số deal có hạn ưu đãi cụ thể, nên giá đẹp và lịch đẹp đáng xem sớm hơn bình thường.',
+                    'Tổng hợp các tour du lịch hè 2026 nổi bật trong nước và quốc tế.',
+                    'Dễ dàng so sánh lịch khởi hành, giá tour và điểm đến trên cùng một trang.',
+                    'Đội ngũ Travel Plus tư vấn lịch trình phù hợp theo ngân sách và nhu cầu.',
                 ],
                 'offerBar' => [
-                    $flashMeta['promo_count'] . ' tour hè đang mở deal',
+                    $flashMeta['promo_count'] . ' tour hè đang có ưu đãi',
                     $flashMeta['deadline_line'],
-                    'Biển, thành phố mát và tour nhóm trên cùng một trang',
+                    'Tour biển, tour gia đình và tour nước ngoài trên cùng một trang',
                 ],
                 'signalBar' => [
-                    'Flash sale tour hè đang mở',
-                    'Không khí biển và nghỉ dưỡng rõ hơn',
-                    'Deal thật lấy trực tiếp từ catalog tour',
-                    'Ưu tiên tour dễ chốt nhanh trong mùa cao điểm',
-                    'So nhanh tour gia đình, nhóm bạn và đoàn nhóm',
-                    'Từ xem tour sang giữ lịch nhanh hơn',
+                    'Tour hè sale đang mở',
+                    'Tour hè trong nước và tour hè nước ngoài',
+                    'Lịch đẹp cho gia đình, nhóm bạn và đoàn riêng',
+                    'Ưu đãi rõ hơn để chốt sớm hơn',
+                    'So nhanh giá, lịch và điểm đến ngay trên một trang',
                 ],
                 'dealTiles' => [
                     [
-                        'label' => 'Deal đang mở',
+                        'label' => 'Tour hè đang sale',
                         'value' => $flashMeta['promo_count'] . ' tour',
-                        'desc' => 'Đẩy các tour đang có ưu đãi lên trước để khách vào là thấy ngay phần đáng mở đầu tiên.',
+                        'desc' => 'Đưa các tour hè có giá tốt lên trước để khách thấy ngay.',
                     ],
                     [
                         'label' => 'Hạn gần nhất',
                         'value' => $flashMeta['deadline_value'],
-                        'desc' => 'Một số lịch hè có mốc ưu đãi cụ thể, nên càng để lâu càng khó giữ được mức giá đang đẹp.',
+                        'desc' => 'Xem sớm thường dễ giữ được giá và lịch đẹp hơn.',
                     ],
                     [
                         'label' => 'Muốn shortlist nhanh?',
                         'value' => '1 yêu cầu',
-                        'desc' => 'Gửi tháng đi, số người và ngân sách để Travel Plus gom lại nhóm tour phù hợp, đỡ phải lọc rời rạc.',
+                        'desc' => 'Gửi nhanh nhu cầu để nhận nhóm tour phù hợp hơn.',
                     ],
                 ],
-                'promoTitle' => 'Các deal hè nên mở trước',
-                'promoDesc' => 'Những tour đang sale, lịch đẹp và đáng bấm xem ngay khi khách vừa vào trang.',
-                'featuredTitle' => 'Những tuyến hè đang hút khách',
-                'featuredDesc' => 'Giữ lực bán của campaign page, nhưng phần nhìn phải ra mùa hè hơn: sáng hơn, xanh hơn, có cảm giác biển và nghỉ dưỡng rõ hơn.',
-                'editorialKicker' => 'Deal dẫn đầu mùa hè',
-                'editorialCta' => 'Giữ deal này',
-                'railTitle' => 'Các deal khách đang xem nhiều',
-                'railDesc' => 'Kéo ngang để so nhanh giá, hạn ưu đãi và hành trình mà không phải đọc lại một trang danh sách dài.',
+                'featuredTitle' => 'Tour hè 2026 được khách quan tâm nhiều',
+                'featuredDesc' => 'Các tour biển, tour nghỉ dưỡng, tour gia đình và tour nước ngoài được đặt nhiều trong mùa du lịch hè.',
+                'promoTitle' => 'Tour hè ưu đãi nổi bật',
+                'promoDesc' => 'Danh sách tour hè giá tốt với lịch khởi hành đẹp và ưu đãi hấp dẫn.',
+                'editorialKicker' => 'Tour hè nổi bật',
+                'editorialCta' => 'Xem tour này',
+                'railTitle' => 'Các tour hè khách đang mở nhiều',
+                'railDesc' => 'Kéo ngang để so nhanh giá, lịch và hạn ưu đãi.',
                 'railLink' => 'Xem tất cả tour hè',
-                'cardCta' => 'Xem deal này',
-                'destinationTitle' => 'Chọn điểm đến trước khi chọn tour hè',
-                'destinationDesc' => 'Tour hè trên trang này không quá nhiều, nên nên lọc nhanh theo điểm đến để khách vào là thấy đúng nhóm tour đang quan tâm.',
+                'cardCta' => 'Xem chi tiết tour',
+                'destinationTitle' => 'Chọn tour hè theo điểm đến',
+                'destinationDesc' => 'Khám phá các tour du lịch hè theo từng điểm đến nổi bật trong nước và quốc tế.',
                 'destinationAll' => 'Tất cả điểm đến',
-                'domesticTitle' => 'Tour hè trong nước',
-                'outboundTitle' => 'Tour hè nước ngoài',
+                'domesticTitle' => 'Tour hè trong nước nổi bật',
+                'outboundTitle' => 'Tour hè nước ngoài hấp dẫn',
                 'pricePromoLabel' => 'Giá ưu đãi',
-                'priceDefaultLabel' => 'Giá tour hè',
-                'urgencyFallback' => 'Deal đang mở',
-                'ctaTitle' => 'Đã có tháng đi và ngân sách rồi?',
-                'ctaDesc' => 'Gửi nhanh thời gian dự kiến, số người và mức chi. Travel Plus sẽ gợi ý nhóm tour phù hợp hơn để bạn chốt sớm thay vì xem quá nhiều lựa chọn rời rạc.',
-                'ctaPrimary' => 'Liên hệ Travel Plus',
-                'ctaSecondary' => 'Xem toàn bộ tour',
+                'priceDefaultLabel' => 'Giá tour',
+                'urgencyFallback' => 'Ưu đãi đang mở',
+                'ctaTitle' => 'Tư vấn tour hè 2026 phù hợp cho bạn',
+                'ctaDesc' => 'Gửi điểm đến mong muốn, số lượng khách và thời gian dự kiến. Travel Plus sẽ tư vấn tour hè phù hợp với ngân sách và nhu cầu của bạn trong thời gian sớm nhất.',
+                'ctaPrimary' => 'Nhận tư vấn tour hè',
+                'ctaSecondary' => 'Xem tất cả tour hè',
             ];
 
         $path = LocalizedPathCatalog::path('summer', $locale);
@@ -220,12 +238,13 @@ class SummerTours extends BaseController
         $recaptchaSiteKey = trim((string) env('recaptcha.siteKey', ''), " \t\n\r\0\x0B\"'");
         $contactFormToken = bin2hex(random_bytes(16));
         session()->set('contact_form_token', $contactFormToken);
+
         $metaTitle = $locale === 'en'
-            ? 'Summer Flash Sale Tours | Travel Plus'
-            : 'Flash Sale Tour Hè | Travel Plus';
+            ? 'Summer Tours on Sale | Domestic & Outbound Summer Deals | Travel Plus'
+            : 'Tour Hè Giá Tốt | Tour Hè Trong Nước, Tour Hè Nước Ngoài | Travel Plus';
         $metaDesc = $locale === 'en'
-            ? 'Summer campaign page with live promotional tours, stronger CTA hierarchy and better urgency cues for faster booking decisions.'
-            : 'Trang flash sale tour hè với tour ưu đãi thật, CTA mạnh hơn và tín hiệu chốt sớm rõ hơn để khách quyết định nhanh.';
+            ? 'Explore summer tours on sale, including domestic summer tours, outbound summer tours, family trips and group-friendly departures with live prices and schedules.'
+            : 'Khám phá tour hè giá tốt, tour hè trong nước, tour hè nước ngoài, tour gia đình và tour nhóm với giá ưu đãi, lịch khởi hành rõ ràng và gợi ý điểm đến dễ chọn hơn.';
 
         $breadcrumbs = [
             ['label' => lang('Frontend.common.home', [], $locale), 'url' => localized_url('/')],
@@ -279,13 +298,13 @@ class SummerTours extends BaseController
     {
         $promoTours = array_values(array_filter(
             $promoCollection,
-            static fn(array $tour): bool => !empty($tour['promotion']['is_active'])
+            static fn(array $tour): bool => ! empty($tour['promotion']['is_active'])
         ));
 
         if ($promoTours === []) {
             $promoTours = array_values(array_filter(
                 $featuredCollection,
-                static fn(array $tour): bool => !empty($tour['promotion']['is_active'])
+                static fn(array $tour): bool => ! empty($tour['promotion']['is_active'])
             ));
         }
 
@@ -298,6 +317,7 @@ class SummerTours extends BaseController
             if ($timestamp === false) {
                 continue;
             }
+
             $deadlines[] = $timestamp;
         }
 

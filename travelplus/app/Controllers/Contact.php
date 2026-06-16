@@ -36,6 +36,10 @@ class Contact extends BaseController
             'email' => 'required|valid_email|max_length[160]',
             'phone' => 'required|min_length[8]|max_length[30]',
             'destination' => 'permit_empty|max_length[160]',
+            'travelers' => 'permit_empty|max_length[80]',
+            'estimated_time' => 'permit_empty|max_length[120]',
+            'trip_length' => 'permit_empty|max_length[120]',
+            'hotel_rating' => 'permit_empty|max_length[80]',
             'message' => 'required|min_length[10]|max_length[5000]',
             'privacy_agree' => 'required',
             'recaptcha_token' => 'required',
@@ -85,6 +89,10 @@ class Contact extends BaseController
         $email = trim((string) $this->request->getPost('email'));
         $phone = trim((string) $this->request->getPost('phone'));
         $destination = trim((string) $this->request->getPost('destination'));
+        $travelers = trim((string) $this->request->getPost('travelers'));
+        $estimatedTime = trim((string) $this->request->getPost('estimated_time'));
+        $tripLength = trim((string) $this->request->getPost('trip_length'));
+        $hotelRating = trim((string) $this->request->getPost('hotel_rating'));
         $message = trim((string) $this->request->getPost('message'));
 
         $mailer = service('email');
@@ -98,6 +106,10 @@ class Contact extends BaseController
             'email' => $email,
             'phone' => $phone,
             'destination' => $destination,
+            'travelers' => $travelers,
+            'estimated_time' => $estimatedTime,
+            'trip_length' => $tripLength,
+            'hotel_rating' => $hotelRating,
             'message' => $message,
         ], $locale));
 
@@ -179,13 +191,48 @@ class Contact extends BaseController
     }
 
     /**
-     * @param array{name:string,email:string,phone:string,destination:string,message:string} $payload
+     * @param array{name:string,email:string,phone:string,destination:string,travelers:string,estimated_time:string,trip_length:string,hotel_rating:string,message:string} $payload
      */
     private function buildMailBody(array $payload, string $locale): string
     {
         $destination = $payload['destination'] !== ''
             ? $payload['destination']
             : lang('Frontend.contact.mailUnknownDestination', [], $locale);
+
+        $labels = $locale === 'en'
+            ? [
+                'travelers' => 'Group size',
+                'estimated_time' => 'Preferred travel period',
+                'trip_length' => 'Trip length',
+                'hotel_rating' => 'Hotel standard',
+            ]
+            : [
+                'travelers' => 'So luong khach',
+                'estimated_time' => 'Thoi gian du kien',
+                'trip_length' => 'Thoi gian di',
+                'hotel_rating' => 'Khach san mong muon',
+            ];
+
+        $details = [
+            ['label' => lang('Frontend.contact.email', [], $locale), 'value' => $payload['email']],
+            ['label' => lang('Frontend.contact.phone', [], $locale), 'value' => $payload['phone']],
+        ];
+
+        foreach ([
+            'travelers' => $payload['travelers'],
+            'estimated_time' => $payload['estimated_time'],
+            'trip_length' => $payload['trip_length'],
+            'hotel_rating' => $payload['hotel_rating'],
+        ] as $key => $value) {
+            if ($value === '') {
+                continue;
+            }
+
+            $details[] = [
+                'label' => $labels[$key],
+                'value' => $value,
+            ];
+        }
 
         return (new EmailTemplateService())->render(
             'Yêu cầu liên hệ',
@@ -195,10 +242,7 @@ class Contact extends BaseController
                 lang('Frontend.contact.name', [], $locale) => $payload['name'],
                 lang('Frontend.contact.destination', [], $locale) => $destination,
             ],
-            [
-                ['label' => lang('Frontend.contact.email', [], $locale), 'value' => $payload['email']],
-                ['label' => lang('Frontend.contact.phone', [], $locale), 'value' => $payload['phone']],
-            ],
+            $details,
             $payload['message'],
             'Mở website',
             LocalizedPathCatalog::url('contact', $locale)

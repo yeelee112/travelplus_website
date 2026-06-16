@@ -674,6 +674,10 @@ class TourCatalogService
         $cards = [];
         $domesticRegionService = new DomesticRegionService();
         $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
+        $tourDestinations = $this->fetchTourDestinations(array_values(array_filter(array_map(
+            static fn(array $row): int => (int) ($row['id'] ?? 0),
+            $rows
+        ))), $locale);
 
         foreach ($rows as $row) {
             $id = (int) ($row['id'] ?? 0);
@@ -707,6 +711,13 @@ class TourCatalogService
                 ? localized_url('tour-trong-nuoc/' . ($region['slug'] ?? 'viet-nam') . '/tour/' . $tourSlug)
                 : localized_url('tour-nuoc-ngoai/' . ((string) ($row['continent_slug'] ?? '') ?: 'diem-den') . '/' . $tourSlug);
 
+            $destinationMeta = $this->buildDestinationSummary(
+                $tourType,
+                $tourDestinations[$id] ?? [],
+                trim((string) ($row['destination_name'] ?? '')),
+                trim((string) $locationName)
+            );
+
             $cards[] = [
                 'id'        => $id,
                 'title'     => (string) ($row['title'] ?? ('Tour #' . $id)),
@@ -714,6 +725,7 @@ class TourCatalogService
                 'tour_type' => $tourType,
                 'link'      => $tourLink,
                 'image'     => $this->resolveImage($this->getTourCoverPath($id, (string) ($row['thumbnail'] ?? ''))),
+                'banner_image' => $this->resolveImage($this->getTourBannerPath($id, $this->getTourCoverPath($id, (string) ($row['thumbnail'] ?? '')))),
                 'badge'     => !empty($row['is_featured']) ? 'Hot Sale!' : null,
                 'promotion' => [
                     'is_active' => !empty($row['is_promotion']),
@@ -725,6 +737,9 @@ class TourCatalogService
                 'destination_id' => $destinationId,
                 'destination_name' => trim((string) ($row['destination_name'] ?? '')),
                 'destination_slug' => trim((string) ($row['destination_slug'] ?? '')),
+                'destination_summary' => $destinationMeta['summary'],
+                'destination_summary_full' => $destinationMeta['full'],
+                'destination_items' => $destinationMeta['items'],
                 'continent' => $locationName,
                 'continent_slug' => (string) ($row['continent_slug'] ?? ''),
                 'continent_link' => $locationLink,
@@ -747,6 +762,124 @@ class TourCatalogService
         }
 
         return $cards;
+    }
+
+    /**
+     * @param array<int> $tourIds
+     * @return array<int, array<int, array<string, string>>>
+     */
+    private function fetchTourDestinations(array $tourIds, string $locale): array
+    {
+        $tourIds = array_values(array_filter(array_unique(array_map('intval', $tourIds))));
+        if ($tourIds === [] || ! $this->db->tableExists('tour_destinations')) {
+            return [];
+        }
+
+        $rows = $this->db->table('tour_destinations tdst')
+            ->select(
+                'tdst.tour_id,' .
+                'COALESCE(dl.code, "") AS location_code,' .
+                'dl.type AS location_type,' .
+                'COALESCE(dltn.name, "") AS location_name,' .
+                'COALESCE(dlp.type, "") AS parent_type,' .
+                'COALESCE(dlptn.name, "") AS parent_name'
+            )
+            ->join('locations dl', 'dl.id = tdst.location_id', 'inner')
+            ->join('locations dlp', 'dlp.id = dl.parent_id', 'left')
+            ->join('location_translations dltn', 'dltn.location_id = dl.id AND dltn.locale = ' . $this->db->escape($locale), 'left')
+            ->join('location_translations dlptn', 'dlptn.location_id = dlp.id AND dlptn.locale = ' . $this->db->escape($locale), 'left')
+            ->whereIn('tdst.tour_id', $tourIds)
+            ->orderBy('tdst.id', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            $tourId = (int) ($row['tour_id'] ?? 0);
+            if ($tourId <= 0) {
+                continue;
+            }
+
+            $grouped[$tourId][] = [
+                'location_code' => trim((string) ($row['location_code'] ?? '')),
+                'location_type' => trim((string) ($row['location_type'] ?? '')),
+                'location_name' => trim((string) ($row['location_name'] ?? '')),
+                'parent_type' => trim((string) ($row['parent_type'] ?? '')),
+                'parent_name' => trim((string) ($row['parent_name'] ?? '')),
+            ];
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * @param array<int, array<string, string>> $destinations
+     * @return array{summary: string, full: string, items: array<int, string>}
+     */
+    private function buildDestinationSummary(string $tourType, array $destinations, string $fallbackDestination, string $fallbackLocation): array
+    {
+        $items = [];
+        $xuyenVietLabel = '';
+
+        foreach ($destinations as $destination) {
+            $locationCode = strtoupper(trim((string) ($destination['location_code'] ?? '')));
+            $locationType = (string) ($destination['location_type'] ?? '');
+            $locationName = trim((string) ($destination['location_name'] ?? ''));
+            $parentType = (string) ($destination['parent_type'] ?? '');
+            $parentName = trim((string) ($destination['parent_name'] ?? ''));
+
+            if (
+                $tourType === 'inbound'
+                && (
+                    $locationCode === 'VN-ALL'
+                    || strcasecmp($locationName, 'Xuyên Việt') === 0
+                    || strcasecmp($locationName, 'Vietnam Tours') === 0
+                )
+            ) {
+                $xuyenVietLabel = $locationName !== '' ? $locationName : ($fallbackDestination !== '' ? $fallbackDestination : $fallbackLocation);
+                continue;
+            }
+
+            $label = '';
+
+            if ($tourType === 'inbound') {
+                $label = $locationName;
+            } else {
+                if ($locationType === 'country') {
+                    $label = $locationName;
+                } elseif ($locationType === 'province' && $parentType === 'country' && $parentName !== '') {
+                    $label = $parentName;
+                } else {
+                    $label = $locationName;
+                }
+            }
+
+            $label = trim($label);
+            if ($label === '' || in_array($label, $items, true)) {
+                continue;
+            }
+
+            $items[] = $label;
+        }
+
+        if ($tourType === 'inbound' && $xuyenVietLabel !== '') {
+            $items = [$xuyenVietLabel];
+        }
+
+        if ($items === []) {
+            $fallback = trim($tourType === 'inbound' ? $fallbackDestination : ($fallbackDestination !== '' ? $fallbackDestination : $fallbackLocation));
+            if ($fallback !== '') {
+                $items[] = $fallback;
+            }
+        }
+
+        $full = implode(', ', $items);
+
+        return [
+            'summary' => $full,
+            'full' => $full,
+            'items' => $items,
+        ];
     }
 
     /**
@@ -851,6 +984,25 @@ class TourCatalogService
             ->select('file_path')
             ->where('tour_id', $tourId)
             ->where('type', 'cover')
+            ->orderBy('sort_order', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->limit(1)
+            ->get()
+            ->getRowArray();
+
+        return (string) ($row['file_path'] ?? $fallback);
+    }
+
+    private function getTourBannerPath(int $tourId, string $fallback = ''): string
+    {
+        if ($tourId <= 0 || !$this->db->tableExists('tour_media')) {
+            return $fallback;
+        }
+
+        $row = $this->db->table('tour_media')
+            ->select('file_path')
+            ->where('tour_id', $tourId)
+            ->where('type', 'banner')
             ->orderBy('sort_order', 'ASC')
             ->orderBy('id', 'ASC')
             ->limit(1)

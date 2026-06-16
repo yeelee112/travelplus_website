@@ -585,6 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
       noResults: locale === "en" ? "No results found" : "Không tìm thấy điểm đến",
       error: locale === "en" ? "Error loading data" : "Không tải được dữ liệu",
     };
+    suggestionCopy.searchFor = locale === "en" ? "Search with this keyword" : "TÃ¬m theo tá»« khÃ³a Ä‘Ã£ nháº­p";
     const popularSuggestions = locale === "en"
       ? [
           { type: "popular", name: "Japan", subtitle: "Tokyo, Osaka, Kyoto" },
@@ -637,6 +638,29 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       return "";
+    };
+
+    const prependQueryOption = function (keyword, data) {
+      const normalizedKeyword = String(keyword || "").trim().toLowerCase();
+      const items = Array.isArray(data) ? data.slice() : [];
+
+      if (normalizedKeyword === "") {
+        return items;
+      }
+
+      const firstMatchIndex = items.findIndex((item) => String(item && item.name ? item.name : "").trim().toLowerCase() === normalizedKeyword);
+
+      if (firstMatchIndex === 0) {
+        return items;
+      }
+
+      if (firstMatchIndex > 0) {
+        const [match] = items.splice(firstMatchIndex, 1);
+        items.unshift(match);
+        return items;
+      }
+
+      return items;
     };
 
     const selectItem = function (item) {
@@ -732,7 +756,7 @@ document.addEventListener("DOMContentLoaded", () => {
       timer = setTimeout(() => {
         fetch(`${BASE_URL}api/destinations?q=${encodeURIComponent(keyword)}`)
           .then((res) => res.json())
-          .then((data) => renderList(data))
+          .then((data) => renderList(prependQueryOption(keyword, data)))
           .catch(() => {
             list.innerHTML = `
               <li class="single-item">
@@ -753,7 +777,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       event.preventDefault();
-      selectItem(currentItems[0]);
+      closeDestinationWrap();
+      list.innerHTML = "";
+      currentItems = [];
 
       if (form) {
         form.requestSubmit();

@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/main') ?>
+﻿<?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
 
@@ -41,27 +41,34 @@ $slugify = static function (string $value): string {
 
 $destinationFilters = [];
 foreach ($summerFilterTours as $tour) {
-    $label = trim((string) (($tour['destination_name'] ?? '') ?: ($tour['continent'] ?? '')));
-    if ($label === '') {
-        continue;
+    $items = array_values(array_filter(array_map(
+        static fn($item): string => trim((string) $item),
+        (array) ($tour['destination_items'] ?? [])
+    )));
+
+    if ($items === []) {
+        $fallbackLabel = trim((string) (($tour['destination_name'] ?? '') ?: ($tour['continent'] ?? '')));
+        if ($fallbackLabel !== '') {
+            $items = [$fallbackLabel];
+        }
     }
 
-    $destinationId = (int) ($tour['destination_id'] ?? 0);
-    $key = trim((string) ($tour['destination_slug'] ?? ''));
+    foreach (array_unique($items) as $label) {
+        $key = 'destination-' . $slugify($label);
+        if ($key === 'destination-') {
+            continue;
+        }
 
-    if ($key === '') {
-        $key = $destinationId > 0 ? 'destination-' . $destinationId : 'destination-' . $slugify($label);
+        if (! isset($destinationFilters[$key])) {
+            $destinationFilters[$key] = [
+                'key' => $key,
+                'label' => $label,
+                'count' => 0,
+            ];
+        }
+
+        $destinationFilters[$key]['count']++;
     }
-
-    if (! isset($destinationFilters[$key])) {
-        $destinationFilters[$key] = [
-            'key' => $key,
-            'label' => $label,
-            'count' => 0,
-        ];
-    }
-
-    $destinationFilters[$key]['count']++;
 }
 
 $destinationFilters = array_values($destinationFilters);
@@ -127,24 +134,99 @@ $resolveDeparture = static function (array $tour) use ($locale): string {
         : 'Khởi hành: ' . $departure;
 };
 
+$resolveDisplayLocation = static function (array $tour): string {
+    $summary = trim((string) ($tour['destination_summary'] ?? ''));
+    if ($summary !== '') {
+        return $summary;
+    }
+
+    $destination = trim((string) ($tour['destination_name'] ?? ''));
+    if ($destination !== '') {
+        return $destination;
+    }
+
+    return trim((string) ($tour['continent'] ?? ''));
+};
+
 $leadCopy = $locale === 'en'
     ? [
-        'eyebrow' => 'Quick summer consultation',
-        'title' => 'Get a tighter summer shortlist instead of browsing every route one by one.',
-        'desc' => 'Leave your month, group size and destination idea. Travel Plus will suggest a summer shortlist that matches budget and travel style.',
-        'point1' => 'Best for families, friend groups and company teams',
-        'point2' => 'Clearer route shortlist with price direction',
-        'point3' => 'Works for beach trips, cooler city breaks and outbound plans',
+        'eyebrow' => 'Summer tour consultation',
+        'title' => 'Send your summer brief and get a tighter shortlist faster.',
+        'desc' => 'Share destination, group size and travel period. Travel Plus will suggest a more relevant summer shortlist.',
+        'point1' => 'Suitable for families, private groups and company trips',
+        'point2' => 'Clearer route, duration and service-level recommendation',
+        'point3' => 'Works for domestic summer tours, outbound tours and group departures',
         'hotlineLabel' => 'Hotline',
     ]
     : [
-        'eyebrow' => 'Đăng ký tư vấn nhanh',
-        'title' => 'Nhận shortlist tour hè gọn hơn thay vì phải mở từng tour một.',
-        'desc' => 'Để lại tháng đi, số người và điểm đến đang quan tâm. Travel Plus sẽ gợi ý nhóm tour phù hợp với ngân sách và kiểu trải nghiệm của bạn.',
-        'point1' => 'Phù hợp cho gia đình, nhóm bạn và đoàn doanh nghiệp',
-        'point2' => 'Gợi ý nhanh tuyến phù hợp và mặt bằng giá',
-        'point3' => 'Dùng tốt cho tour biển, tour đổi gió và tour nước ngoài',
+        'eyebrow' => 'Tư vấn tour hè nhanh',
+        'title' => 'Gửi nhu cầu tour hè để Travel Plus gợi ý nhanh hơn.',
+        'desc' => 'Điền điểm đến, số khách và thời gian dự kiến. Travel Plus sẽ gom lại nhóm tour hè phù hợp hơn cho bạn.',
+        'point1' => 'Phù hợp cho gia đình, nhóm bạn, công ty và đoàn riêng',
+        'point2' => 'Dễ chốt nhanh điểm đến, số ngày và mức dịch vụ',
+        'point3' => 'Nhận gợi ý tour hè có giá tốt và lịch khởi hành phù hợp',
         'hotlineLabel' => 'Hotline',
+    ];
+$leadFormCopy = $locale === 'en'
+    ? [
+        'formTitle' => 'Tell us about your summer plan',
+        'formDesc' => 'The clearer the brief, the faster Travel Plus can shortlist the right summer tours.',
+        'nameLabel' => 'Full name',
+        'namePlaceholder' => 'Your name',
+        'phoneLabel' => 'Phone number',
+        'phonePlaceholder' => '+84...',
+        'emailLabel' => 'Email',
+        'emailPlaceholder' => 'email@domain.com',
+        'destinationLabel' => 'Destination of interest',
+        'destinationPlaceholder' => 'Example: Da Nang, Phu Quoc, Europe, Japan',
+        'travelersLabel' => 'Group size',
+        'travelersPlaceholder' => 'Example: 12 guests',
+        'estimatedTimeLabel' => 'Preferred travel period',
+        'estimatedTimePlaceholder' => 'Example: July 2026 or late summer',
+        'tripLengthLabel' => 'Trip length',
+        'tripLengthPlaceholder' => 'Example: 8 days 7 nights',
+        'hotelRatingLabel' => 'Preferred hotel standard',
+        'messageLabel' => 'Specific requirements',
+        'messagePlaceholder' => 'Share budget, departure city, traveler profile, sightseeing priority or any service request.',
+        'hotelOptions' => [
+            '' => 'Select hotel standard',
+            '3-star' => '3-star',
+            '4-star' => '4-star',
+            '5-star' => '5-star',
+            'flexible' => 'Flexible',
+        ],
+        'privacyPrefix' => 'I agree to the',
+        'privacyJoin' => 'and',
+    ]
+    : [
+        'formTitle' => 'Để lại nhu cầu tour hè của bạn',
+        'formDesc' => 'Thông tin càng rõ, Travel Plus càng dễ lên shortlist tour hè sát nhu cầu hơn.',
+        'nameLabel' => 'Họ và tên',
+        'namePlaceholder' => 'Tên người liên hệ',
+        'phoneLabel' => 'Số điện thoại',
+        'phonePlaceholder' => '+84...',
+        'emailLabel' => 'Email',
+        'emailPlaceholder' => 'email@domain.com',
+        'destinationLabel' => 'Điểm đến quan tâm',
+        'destinationPlaceholder' => 'Ví dụ: Đà Nẵng, Phú Quốc, châu Âu, Nhật Bản',
+        'travelersLabel' => 'Số lượng khách',
+        'travelersPlaceholder' => 'Ví dụ: 12 khách',
+        'estimatedTimeLabel' => 'Thời gian dự kiến',
+        'estimatedTimePlaceholder' => 'Ví dụ: Tháng 7/2026 hoặc cuối hè',
+        'tripLengthLabel' => 'Thời gian đi',
+        'tripLengthPlaceholder' => 'Ví dụ: 8 ngày 7 đêm',
+        'hotelRatingLabel' => 'Khách sạn mong muốn',
+        'messageLabel' => 'Yêu cầu cụ thể',
+        'messagePlaceholder' => 'Mô tả thêm ngân sách, điểm khởi hành, nhóm khách, ưu tiên tham quan hoặc yêu cầu dịch vụ riêng.',
+        'hotelOptions' => [
+            '' => 'Chọn tiêu chuẩn khách sạn',
+            '3-star' => '3 sao',
+            '4-star' => '4 sao',
+            '5-star' => '5 sao',
+            'flexible' => 'Linh hoạt',
+        ],
+        'privacyPrefix' => 'Tôi đồng ý với',
+        'privacyJoin' => 'và',
     ];
 $contactError = session()->getFlashdata('error');
 $contactSuccess = session()->getFlashdata('success');
@@ -267,7 +349,9 @@ $phoneDisplay = '+84 79 568 1 568';
                     <?php foreach ($heroCards as $tour): ?>
                         <?php
                         $heroPriceLabel = ! empty($tour['price']['label']) ? (string) $tour['price']['label'] : '';
+                        $heroPriceTitle = $heroPriceLabel !== '' ? $resolvePriceLabel($tour) : '';
                         $heroUrgency = $resolveUrgency($tour);
+                        $heroLocation = $resolveDisplayLocation($tour);
                         ?>
                         <a class="summer-hero-teaser" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>">
                             <div class="summer-hero-teaser__media">
@@ -277,7 +361,7 @@ $phoneDisplay = '+84 79 568 1 568';
                             <div class="summer-hero-teaser__body">
                                 <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
                                 <small>
-                                    <?= esc((string) ($tour['continent'] ?? '')) ?>
+                                    <?= esc($heroLocation) ?>
                                     <?php if (! empty($tour['duration']['label'])): ?>
                                         <em><?= esc((string) $tour['duration']['label']) ?></em>
                                     <?php endif; ?>
@@ -285,10 +369,15 @@ $phoneDisplay = '+84 79 568 1 568';
                                 <?php if ($heroPriceLabel !== '' || $heroUrgency !== ''): ?>
                                     <div class="summer-hero-teaser__offer">
                                         <?php if ($heroPriceLabel !== ''): ?>
-                                            <b><?= esc($heroPriceLabel) ?></b>
+                                            <div class="summer-hero-teaser__price">
+                                                <?php if ($heroPriceTitle !== ''): ?>
+                                                    <small><?= esc($heroPriceTitle) ?></small>
+                                                <?php endif; ?>
+                                                <strong><?= esc($heroPriceLabel) ?></strong>
+                                            </div>
                                         <?php endif; ?>
                                         <?php if ($heroUrgency !== ''): ?>
-                                            <span><?= esc($heroUrgency) ?></span>
+                                            <span class="summer-hero-teaser__deadline"><?= esc($heroUrgency) ?></span>
                                         <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
@@ -333,6 +422,11 @@ $phoneDisplay = '+84 79 568 1 568';
                 </div>
 
                 <div class="summer-lead__form-card">
+                    <div class="summer-lead__form-intro">
+                        <strong><?= esc($leadFormCopy['formTitle']) ?></strong>
+                        <p><?= esc($leadFormCopy['formDesc']) ?></p>
+                    </div>
+
                     <?php if ($contactError): ?>
                         <div class="alert alert-danger">
                             <?= nl2br(esc((string) $contactError)) ?>
@@ -360,32 +454,56 @@ $phoneDisplay = '+84 79 568 1 568';
 
                         <div class="summer-lead__form-grid">
                             <label>
-                                <span><?= esc(lang('Frontend.contact.name', [], $locale)) ?></span>
-                                <input type="text" name="name" value="<?= esc((string) old('name'), 'attr') ?>" placeholder="<?= esc(lang('Frontend.contact.namePlaceholder', [], $locale), 'attr') ?>" autocomplete="name" required>
+                                <span><?= esc($leadFormCopy['nameLabel']) ?></span>
+                                <input type="text" name="name" value="<?= esc((string) old('name'), 'attr') ?>" placeholder="<?= esc($leadFormCopy['namePlaceholder'], 'attr') ?>" autocomplete="name" required>
                             </label>
                             <label>
-                                <span><?= esc(lang('Frontend.contact.phone', [], $locale)) ?></span>
-                                <input type="tel" name="phone" value="<?= esc((string) old('phone'), 'attr') ?>" placeholder="+84..." autocomplete="tel" required>
+                                <span><?= esc($leadFormCopy['phoneLabel']) ?></span>
+                                <input type="tel" name="phone" value="<?= esc((string) old('phone'), 'attr') ?>" placeholder="<?= esc($leadFormCopy['phonePlaceholder'], 'attr') ?>" autocomplete="tel" required>
                             </label>
                             <label>
-                                <span><?= esc(lang('Frontend.contact.email', [], $locale)) ?></span>
-                                <input type="email" name="email" value="<?= esc((string) old('email'), 'attr') ?>" placeholder="email@domain.com" autocomplete="email" required>
+                                <span><?= esc($leadFormCopy['emailLabel']) ?></span>
+                                <input type="email" name="email" value="<?= esc((string) old('email'), 'attr') ?>" placeholder="<?= esc($leadFormCopy['emailPlaceholder'], 'attr') ?>" autocomplete="email" required>
                             </label>
                             <label>
-                                <span><?= esc(lang('Frontend.contact.destination', [], $locale)) ?></span>
-                                <input type="text" name="destination" value="<?= esc((string) old('destination'), 'attr') ?>" placeholder="<?= esc(lang('Frontend.contact.destinationPlaceholder', [], $locale), 'attr') ?>">
+                                <span><?= esc($leadFormCopy['destinationLabel']) ?></span>
+                                <input type="text" name="destination" value="<?= esc((string) old('destination'), 'attr') ?>" placeholder="<?= esc($leadFormCopy['destinationPlaceholder'], 'attr') ?>">
+                            </label>
+                            <label>
+                                <span><?= esc($leadFormCopy['travelersLabel']) ?></span>
+                                <input type="text" name="travelers" value="<?= esc((string) old('travelers'), 'attr') ?>" placeholder="<?= esc($leadFormCopy['travelersPlaceholder'], 'attr') ?>">
+                            </label>
+                            <label>
+                                <span><?= esc($leadFormCopy['estimatedTimeLabel']) ?></span>
+                                <input type="text" name="estimated_time" value="<?= esc((string) old('estimated_time'), 'attr') ?>" placeholder="<?= esc($leadFormCopy['estimatedTimePlaceholder'], 'attr') ?>">
+                            </label>
+                            <label>
+                                <span><?= esc($leadFormCopy['tripLengthLabel']) ?></span>
+                                <input type="text" name="trip_length" value="<?= esc((string) old('trip_length'), 'attr') ?>" placeholder="<?= esc($leadFormCopy['tripLengthPlaceholder'], 'attr') ?>">
+                            </label>
+                            <label>
+                                <span><?= esc($leadFormCopy['hotelRatingLabel']) ?></span>
+                                <select name="hotel_rating">
+                                    <?php foreach ((array) $leadFormCopy['hotelOptions'] as $optionValue => $optionLabel): ?>
+                                        <option value="<?= esc((string) $optionValue, 'attr') ?>" <?= old('hotel_rating') === (string) $optionValue ? 'selected' : '' ?>>
+                                            <?= esc((string) $optionLabel) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </label>
                             <label class="summer-lead__form-message">
-                                <span><?= esc(lang('Frontend.contact.message', [], $locale)) ?></span>
-                                <textarea name="message" rows="5" placeholder="<?= esc(lang('Frontend.contact.messagePlaceholder', [], $locale), 'attr') ?>" required><?= esc((string) old('message')) ?></textarea>
+                                <span><?= esc($leadFormCopy['messageLabel']) ?></span>
+                                <textarea name="message" rows="5" placeholder="<?= esc($leadFormCopy['messagePlaceholder'], 'attr') ?>" required><?= esc((string) old('message')) ?></textarea>
                             </label>
                         </div>
 
                         <label class="summer-lead__check" for="summerLeadPrivacyAgree">
                             <input type="checkbox" name="privacy_agree" value="1" id="summerLeadPrivacyAgree" <?= old('privacy_agree') ? 'checked' : '' ?> required>
                             <span>
+                                <?= esc($leadFormCopy['privacyPrefix']) ?>
+                                &nbsp;
                                 <a href="<?= esc($privacyUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer"><?= esc(lang('Frontend.footer.link.privacy', [], $locale)) ?></a>
-                                &nbsp;&&nbsp;
+                                &nbsp;<?= esc($leadFormCopy['privacyJoin']) ?>&nbsp;
                                 <a href="<?= esc($termsUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer"><?= esc(lang('Frontend.footer.link.terms', [], $locale)) ?></a>
                             </span>
                         </label>
@@ -433,34 +551,68 @@ $phoneDisplay = '+84 79 568 1 568';
                     <?php foreach ($summerFilterTours as $tour): ?>
                         <?php
                         $destinationLabel = trim((string) (($tour['destination_name'] ?? '') ?: ($tour['continent'] ?? '')));
+                        $destinationSummary = trim((string) (($tour['destination_summary'] ?? '') ?: $destinationLabel));
+                        $destinationSummaryFull = trim((string) (($tour['destination_summary_full'] ?? '') ?: $destinationSummary));
+                        $destinationItems = array_values(array_filter(array_map(
+                            static fn($item): string => trim((string) $item),
+                            (array) ($tour['destination_items'] ?? [])
+                        )));
                         $destinationId = (int) ($tour['destination_id'] ?? 0);
-                        $destinationKey = trim((string) ($tour['destination_slug'] ?? ''));
-                        if ($destinationKey === '') {
-                            $destinationKey = $destinationId > 0 ? 'destination-' . $destinationId : 'destination-' . $slugify($destinationLabel);
+                        $destinationKeys = array_values(array_filter(array_map(
+                            static fn(string $label): string => ($slug = $slugify($label)) !== '' ? 'destination-' . $slug : '',
+                            array_unique($destinationItems)
+                        )));
+                        if ($destinationKeys === []) {
+                            $destinationKey = trim((string) ($tour['destination_slug'] ?? ''));
+                            if ($destinationKey === '') {
+                                $destinationKey = $destinationId > 0 ? 'destination-' . $destinationId : 'destination-' . $slugify($destinationLabel);
+                            }
+                            $destinationKeys = [$destinationKey];
                         }
                         $filterPriceLabel = ! empty($tour['price']['label']) ? (string) $tour['price']['label'] : '';
+                        $filterPriceTitle = $filterPriceLabel !== '' ? $resolvePriceLabel($tour) : '';
                         $filterUrgency = $resolveUrgency($tour);
+                        $filterDeparture = trim((string) ($tour['departure'] ?? ''));
                         ?>
-                        <a class="summer-hero-teaser" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>" data-summer-destination-item="<?= esc($destinationKey, 'attr') ?>">
+                        <a class="summer-hero-teaser summer-hero-teaser--destination" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>" data-summer-destination-item="<?= esc(implode(' ', $destinationKeys), 'attr') ?>">
                             <div class="summer-hero-teaser__media">
                                 <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async">
                                 <span><?= esc($resolveSaleBadge($tour)) ?></span>
                             </div>
-                            <div class="summer-hero-teaser__body">
+                            <div class="summer-hero-teaser__body summer-hero-teaser__body--destination">
                                 <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
-                                <small>
-                                    <?= esc($destinationLabel) ?>
-                                    <?php if (! empty($tour['duration']['label'])): ?>
-                                        <em><?= esc((string) $tour['duration']['label']) ?></em>
-                                    <?php endif; ?>
-                                </small>
+                                <div class="summer-destination-card__facts">
+                                    <p class="summer-destination-card__fact summer-destination-card__fact--route" title="<?= esc($destinationSummaryFull, 'attr') ?>">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                        <span><?= esc($destinationSummary) ?></span>
+                                    </p>
+                                    <div class="summer-destination-card__meta-grid">
+                                        <?php if (! empty($tour['duration']['label'])): ?>
+                                            <p class="summer-destination-card__fact summer-destination-card__fact--meta">
+                                                <i class="bi bi-clock"></i>
+                                                <span><?= esc((string) $tour['duration']['label']) ?></span>
+                                            </p>
+                                        <?php endif; ?>
+                                        <?php if ($filterDeparture !== ''): ?>
+                                            <p class="summer-destination-card__fact summer-destination-card__fact--meta" title="<?= esc($filterDeparture, 'attr') ?>">
+                                                <i class="bi bi-calendar-event"></i>
+                                                <span><?= esc($filterDeparture) ?></span>
+                                            </p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                                 <?php if ($filterPriceLabel !== '' || $filterUrgency !== ''): ?>
                                     <div class="summer-hero-teaser__offer">
                                         <?php if ($filterPriceLabel !== ''): ?>
-                                            <b><?= esc($filterPriceLabel) ?></b>
+                                            <div class="summer-hero-teaser__price">
+                                                <?php if ($filterPriceTitle !== ''): ?>
+                                                    <small><?= esc($filterPriceTitle) ?></small>
+                                                <?php endif; ?>
+                                                <strong><?= esc($filterPriceLabel) ?></strong>
+                                            </div>
                                         <?php endif; ?>
                                         <?php if ($filterUrgency !== ''): ?>
-                                            <span><?= esc($filterUrgency) ?></span>
+                                            <span class="summer-hero-teaser__deadline"><?= esc($filterUrgency) ?></span>
                                         <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
@@ -493,6 +645,7 @@ $phoneDisplay = '+84 79 568 1 568';
         $editorialPriceLabel = ! empty($editorialPrimary['price']['label']) ? (string) $editorialPrimary['price']['label'] : '';
         $editorialUrgency = $resolveUrgency($editorialPrimary);
         $editorialDeparture = $resolveDeparture($editorialPrimary);
+        $editorialLocation = $resolveDisplayLocation($editorialPrimary);
         ?>
         <section class="summer-editorial">
             <div class="container">
@@ -502,7 +655,7 @@ $phoneDisplay = '+84 79 568 1 568';
                         <div class="summer-editorial__overlay">
                             <span><?= esc((string) ($copy['editorialKicker'] ?? $copy['promoTitle'] ?? '')) ?></span>
                             <strong><?= esc((string) ($editorialPrimary['title'] ?? '')) ?></strong>
-                            <p><?= esc((string) ($editorialPrimary['continent'] ?? '')) ?></p>
+                            <p><?= esc($editorialLocation) ?></p>
 
                             <div class="summer-editorial__meta">
                                 <?php if ($editorialUrgency !== ''): ?>
@@ -535,7 +688,9 @@ $phoneDisplay = '+84 79 568 1 568';
                         <?php foreach ($editorialSide as $tour): ?>
                             <?php
                             $miniPriceLabel = ! empty($tour['price']['label']) ? (string) $tour['price']['label'] : '';
+                            $miniPriceTitle = $miniPriceLabel !== '' ? $resolvePriceLabel($tour) : '';
                             $miniUrgency = $resolveUrgency($tour);
+                            $miniLocation = $resolveDisplayLocation($tour);
                             ?>
                             <a class="summer-editorial__mini" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>">
                                 <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async">
@@ -543,7 +698,7 @@ $phoneDisplay = '+84 79 568 1 568';
                                     <span><?= esc($resolveSaleBadge($tour)) ?></span>
                                     <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
                                     <small>
-                                        <?= esc((string) ($tour['continent'] ?? '')) ?>
+                                        <?= esc($miniLocation) ?>
                                         <?php if (! empty($tour['duration']['label'])): ?>
                                             <em><?= esc((string) $tour['duration']['label']) ?></em>
                                         <?php endif; ?>
@@ -551,10 +706,15 @@ $phoneDisplay = '+84 79 568 1 568';
                                     <?php if ($miniPriceLabel !== '' || $miniUrgency !== ''): ?>
                                         <div class="summer-editorial__mini-offer">
                                             <?php if ($miniPriceLabel !== ''): ?>
-                                                <b><?= esc($miniPriceLabel) ?></b>
+                                                <div class="summer-editorial__mini-price">
+                                                    <?php if ($miniPriceTitle !== ''): ?>
+                                                        <small><?= esc($miniPriceTitle) ?></small>
+                                                    <?php endif; ?>
+                                                    <strong><?= esc($miniPriceLabel) ?></strong>
+                                                </div>
                                             <?php endif; ?>
                                             <?php if ($miniUrgency !== ''): ?>
-                                                <span><?= esc($miniUrgency) ?></span>
+                                                <span class="summer-editorial__mini-deadline"><?= esc($miniUrgency) ?></span>
                                             <?php endif; ?>
                                         </div>
                                     <?php endif; ?>
@@ -587,6 +747,7 @@ $phoneDisplay = '+84 79 568 1 568';
                         $railPriceLabel = ! empty($tour['price']['label']) ? (string) $tour['price']['label'] : '';
                         $railUrgency = $resolveUrgency($tour);
                         $railDeparture = $resolveDeparture($tour);
+                        $railLocation = $resolveDisplayLocation($tour);
                         ?>
                         <a class="summer-rail-card" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>">
                             <div class="summer-rail-card__media">
@@ -597,7 +758,7 @@ $phoneDisplay = '+84 79 568 1 568';
                             <div class="summer-rail-card__body">
                                 <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
                                 <small>
-                                    <?= esc((string) ($tour['continent'] ?? '')) ?>
+                                    <?= esc($railLocation) ?>
                                     <?php if (! empty($tour['duration']['label'])): ?>
                                         <em><?= esc((string) $tour['duration']['label']) ?></em>
                                     <?php endif; ?>
@@ -643,9 +804,18 @@ $phoneDisplay = '+84 79 568 1 568';
                             <h3><?= esc((string) ($copy['domesticTitle'] ?? '')) ?></h3>
                             <div class="summer-bucket__list">
                                 <?php foreach ($domesticTours as $tour): ?>
-                                    <a href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>">
-                                        <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
-                                        <small><?= esc((string) ($tour['price']['label'] ?? '')) ?></small>
+                                    <?php $bucketLocation = $resolveDisplayLocation($tour); ?>
+                                    <a href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>" class="summer-bucket__item" style="--summer-bucket-image:url('<?= esc((string) (($tour['banner_image'] ?? '') ?: ($tour['image'] ?? '')), 'attr') ?>');">
+                                        <div class="summer-bucket__item-content">
+                                            <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
+                                            <div class="summer-bucket__item-meta">
+                                                <small>
+                                                    <span><?= esc($locale === 'en' ? 'From' : 'Giá từ') ?></span>
+                                                    <strong><?= esc((string) ($tour['price']['label'] ?? '')) ?></strong>
+                                                </small>
+                                                <span><?= esc($bucketLocation) ?></span>
+                                            </div>
+                                        </div>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
@@ -658,9 +828,18 @@ $phoneDisplay = '+84 79 568 1 568';
                             <h3><?= esc((string) ($copy['outboundTitle'] ?? '')) ?></h3>
                             <div class="summer-bucket__list">
                                 <?php foreach ($outboundTours as $tour): ?>
-                                    <a href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>">
-                                        <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
-                                        <small><?= esc((string) ($tour['price']['label'] ?? '')) ?></small>
+                                    <?php $bucketLocation = $resolveDisplayLocation($tour); ?>
+                                    <a href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>" class="summer-bucket__item" style="--summer-bucket-image:url('<?= esc((string) (($tour['banner_image'] ?? '') ?: ($tour['image'] ?? '')), 'attr') ?>');">
+                                        <div class="summer-bucket__item-content">
+                                            <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
+                                            <div class="summer-bucket__item-meta">
+                                                <small>
+                                                    <span><?= esc($locale === 'en' ? 'From' : 'Giá từ') ?></span>
+                                                    <strong><?= esc((string) ($tour['price']['label'] ?? '')) ?></strong>
+                                                </small>
+                                                <span><?= esc($bucketLocation) ?></span>
+                                            </div>
+                                        </div>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
@@ -718,8 +897,10 @@ $phoneDisplay = '+84 79 568 1 568';
     });
 
     cards.forEach((card) => {
-      const cardKey = card.dataset.summerDestinationItem || "";
-      card.hidden = key !== "all" && cardKey !== key;
+      const cardKeys = (card.dataset.summerDestinationItem || "")
+        .split(/\s+/)
+        .filter(Boolean);
+      card.hidden = key !== "all" && !cardKeys.includes(key);
     });
   };
 

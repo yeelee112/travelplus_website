@@ -20,11 +20,35 @@ class Destination extends Controller
         $locale = $this->request->getLocale() ?: 'vi';
         $index = $this->getDestinationIndex($locale);
 
-        $results = array_filter($index, static function (array $item) use ($keyword): bool {
-            return str_contains($item['search_text'], $keyword);
+        $results = [];
+
+        foreach ($index as $item) {
+            $searchText = (string) ($item['search_text'] ?? '');
+
+            if (! str_contains($searchText, $keyword)) {
+                continue;
+            }
+
+            $results[] = [
+                'score' => $this->scoreMatch($searchText, $keyword),
+                'payload' => $item['payload'],
+            ];
+        }
+
+        usort($results, static function (array $a, array $b): int {
+            $scoreCompare = ($b['score'] ?? 0) <=> ($a['score'] ?? 0);
+
+            if ($scoreCompare !== 0) {
+                return $scoreCompare;
+            }
+
+            $nameA = mb_strlen((string) (($a['payload']['name'] ?? '')));
+            $nameB = mb_strlen((string) (($b['payload']['name'] ?? '')));
+
+            return $nameA <=> $nameB;
         });
 
-        $results = array_slice(array_values($results), 0, 10);
+        $results = array_slice($results, 0, 10);
         $payload = array_map(static fn(array $item): array => $item['payload'], $results);
 
         return $this->response->setJSON($payload);
@@ -213,5 +237,22 @@ class Destination extends Controller
         ];
 
         return strtr($value, $map);
+    }
+
+    private function scoreMatch(string $searchText, string $keyword): int
+    {
+        if ($searchText === $keyword) {
+            return 400;
+        }
+
+        if (str_starts_with($searchText, $keyword)) {
+            return 320;
+        }
+
+        if (preg_match('/\b' . preg_quote($keyword, '/') . '/u', $searchText) === 1) {
+            return 240;
+        }
+
+        return 100;
     }
 }

@@ -52,6 +52,7 @@ $languageOptions = [
 $currentLanguage = $languageOptions[$locale] ?? $languageOptions['vi'];
 $blogUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
 $aboutUrl = \App\Data\LocalizedPathCatalog::url('about', $locale);
+$summerUrl = \App\Data\LocalizedPathCatalog::url('summer', $locale);
 $outboundUrl = \App\Data\LocalizedPathCatalog::url('outbound', $locale);
 $domesticUrl = \App\Data\LocalizedPathCatalog::url('domestic', $locale);
 $visaUrl = \App\Data\LocalizedPathCatalog::url('service.visa', $locale);
@@ -69,6 +70,8 @@ $authPrimaryLabel = $authUser
     ? lang('Frontend.auth.profile.menu', [], $locale)
     : $loginLabel;
 $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
+$summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
+$summerHeaderCta = $locale === 'en' ? 'Summer sale' : 'Sale hè';
 ?>
 <div class="topbar-area two d-lg-block d-none">
     <div class="container-fluid">
@@ -121,6 +124,10 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
                 </div>
 
                 <div class="search-and-login">
+                    <a href="<?= esc($summerUrl) ?>" class="header-season-link d-xl-inline-flex d-none<?= $isActiveHeaderUrl($summerUrl) ? ' is-active' : '' ?>">
+                        <span><?= esc($summerHeaderCta) ?></span>
+                    </a>
+
                     <div class="search-bar">
                         <div class="search-btn" data-toggle="dropdown" data-target=".search-input">
                             <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
@@ -227,6 +234,13 @@ $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
             </div>
 
             <ul class="menu-list">
+                <li class="<?= $isActiveHeaderUrl($summerUrl) ? 'current-menu-item current-menu-item--summer' : 'current-menu-item--summer' ?>">
+                    <a href="<?= $summerUrl ?>" class="header-season-menu-link">
+                        <span class="header-season-menu-text"><?= esc($summerHeaderLabel) ?></span>
+                        <small class="header-season-menu-badge"><?= esc($locale === 'en' ? 'Sale' : 'Deal') ?></small>
+                    </a>
+                </li>
+
                 <li class="menu-item-has-children position-inherit <?= $isActiveHeaderUrl($outboundUrl) ? 'current-menu-item' : '' ?>">
                     <a class="drop-down" href="<?= $outboundUrl ?>"><?= esc(lang('Frontend.header.menu.outbound')) ?><i class="bi bi-caret-down-fill"></i></a>
                     <i class="bi bi-plus dropdown-icon"></i>

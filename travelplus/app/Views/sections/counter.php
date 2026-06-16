@@ -1,29 +1,30 @@
 <?php
 $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
+$statsBackground = base_url('assets/images/summary-tp.png');
 $copy = $locale === 'en'
     ? [
         'eyebrow' => 'Travel Plus in numbers',
-        'title' => 'A partner for repeat travel, MICE and group programs',
+        'title' => 'A stable operator for tours, MICE and repeat group travel',
         'stats' => [
-            ['value' => '26K+', 'label' => 'Journeys organized'],
-            ['value' => '19+', 'label' => 'Years of experience'],
-            ['value' => '2,000+', 'label' => 'Guests and business travelers'],
-            ['value' => '98%', 'label' => 'Customer satisfaction'],
+            ['value' => '90+', 'label' => 'Countries'],
+            ['value' => '2500+', 'label' => 'Groups'],
+            ['value' => '200K', 'label' => 'Customers'],
+            ['value' => '99%', 'label' => 'Satisfaction'],
         ],
     ]
     : [
         'eyebrow' => 'Travel Plus qua số liệu',
-        'title' => 'Đối tác cho tour, MICE và các đoàn khách cần vận hành ổn định',
+        'title' => 'Đối tác vận hành ổn định cho tour, MICE và các đoàn khách đi lặp lại',
         'stats' => [
-            ['value' => '26K+', 'label' => 'Hành trình đã tổ chức'],
-            ['value' => '19+', 'label' => 'Năm kinh nghiệm'],
-            ['value' => '2.000+', 'label' => 'Khách hàng và khách đoàn'],
-            ['value' => '98%', 'label' => 'Mức độ hài lòng'],
+            ['value' => '90+', 'label' => 'Quốc gia'],
+            ['value' => '2500+', 'label' => 'Đoàn'],
+            ['value' => '200K', 'label' => 'Khách hàng'],
+            ['value' => '99%', 'label' => 'Độ hài lòng'],
         ],
     ];
 ?>
 
-<section class="home-page__stats home-section home-section--dark" aria-labelledby="home-stats-title">
+<section class="home-page__stats home-section home-section--dark" aria-labelledby="home-stats-title" style="--home-stats-bg: url('<?= esc($statsBackground, 'attr') ?>');">
     <div class="container">
         <div class="home-stats-head">
             <span><?= esc($copy['eyebrow']) ?></span>
