@@ -278,7 +278,8 @@ class TourCatalogService
     public function searchTours(
         string $locale,
         string $query,
-        string $departureDate = '',
+        string $departureFrom = '',
+        string $departureTo = '',
         int $perPage = 9,
         int $page = 1,
         ?string $tourType = null,
@@ -289,7 +290,7 @@ class TourCatalogService
         $query = trim($query);
         $tourType = in_array($tourType, ['outbound', 'inbound'], true) ? $tourType : null;
 
-        if ($query === '' && $departureDate === '') {
+        if ($query === '' && $departureFrom === '' && $departureTo === '') {
             return $this->getPagedTours($locale, $perPage, $page, $tourType, [], $promotionOnly);
         }
 
@@ -319,10 +320,20 @@ class TourCatalogService
                 ->groupEnd();
         }
 
-        $normalizedDate = $this->normalizeSearchDate($departureDate);
+        $normalizedFrom = $this->normalizeSearchDate($departureFrom);
+        $normalizedTo = $this->normalizeSearchDate($departureTo);
 
-        if ($normalizedDate !== null) {
-            $builder->where('DATE(td.departure_date)', $normalizedDate);
+        if ($normalizedFrom !== null && $normalizedTo !== null && strcmp($normalizedFrom, $normalizedTo) > 0) {
+            [$normalizedFrom, $normalizedTo] = [$normalizedTo, $normalizedFrom];
+        }
+
+        if ($normalizedFrom !== null && $normalizedTo !== null) {
+            $builder->where('DATE(td.departure_date) >=', $normalizedFrom)
+                ->where('DATE(td.departure_date) <=', $normalizedTo);
+        } elseif ($normalizedFrom !== null) {
+            $builder->where('DATE(td.departure_date) >=', $normalizedFrom);
+        } elseif ($normalizedTo !== null) {
+            $builder->where('DATE(td.departure_date) <=', $normalizedTo);
         }
 
         $countRow = (clone $builder)

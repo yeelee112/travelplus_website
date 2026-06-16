@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin - Promotion codes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
         body { background:#f4f6f8; color:#172033; }
         .admin-shell { max-width:1360px; margin:32px auto; padding:0 16px; }
@@ -39,8 +40,10 @@
         }
     </style>
 </head>
-<body>
+<body class="admin-app">
+<?php $adminSection = 'promotion_codes'; ?>
 <?php helper('display'); ?>
+<?= view('admin/partials/app_start', ['adminSection' => $adminSection]) ?>
 <main class="admin-shell">
     <div class="admin-card">
         <div class="promo-hero">
@@ -197,5 +200,6 @@
         </div>
     </div>
 </main>
+<?= view('admin/partials/app_end') ?>
 </body>
 </html>

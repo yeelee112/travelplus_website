@@ -71,7 +71,6 @@ $authPrimaryLabel = $authUser
     : $loginLabel;
 $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
 $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
-$summerHeaderCta = $locale === 'en' ? 'Summer sale' : 'Sale hè';
 ?>
 <div class="topbar-area two d-lg-block d-none">
     <div class="container-fluid">
@@ -124,10 +123,6 @@ $summerHeaderCta = $locale === 'en' ? 'Summer sale' : 'Sale hè';
                 </div>
 
                 <div class="search-and-login">
-                    <a href="<?= esc($summerUrl) ?>" class="header-season-link d-xl-inline-flex d-none<?= $isActiveHeaderUrl($summerUrl) ? ' is-active' : '' ?>">
-                        <span><?= esc($summerHeaderCta) ?></span>
-                    </a>
-
                     <div class="search-bar">
                         <div class="search-btn" data-toggle="dropdown" data-target=".search-input">
                             <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">

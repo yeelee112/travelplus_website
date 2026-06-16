@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
         body { background:#f4f6f8; color:#172033; }
         .admin-shell { max-width:1320px; margin:32px auto; padding:0 16px; }
@@ -16,7 +17,9 @@
         .dashboard-toolbar { flex-wrap:wrap; justify-content:flex-end; }
     </style>
 </head>
-<body>
+<body class="admin-app">
+<?php $adminSection = 'dashboard'; ?>
+<?= view('admin/partials/app_start', ['adminSection' => $adminSection]) ?>
 <main class="admin-shell">
     <div class="admin-card mb-4">
         <div class="d-flex justify-content-between align-items-start gap-3">
@@ -121,5 +124,6 @@
         </div>
     </div>
 </main>
+<?= view('admin/partials/app_end') ?>
 </body>
 </html>

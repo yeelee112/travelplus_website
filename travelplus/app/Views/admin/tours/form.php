@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin - Tour Form</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
         body { background:#f4f6f8; color:#172033; }
         .admin-shell { max-width:1220px; margin:32px auto; padding:0 16px; }
@@ -16,7 +17,7 @@
         .repeat-item { border:1px solid #e5ebf2; border-radius:14px; padding:16px; background:#fbfcfe; margin-bottom:12px; position:relative; }
         .repeat-remove { position:absolute; top:14px; right:14px; }
         .repeat-duplicate { position:absolute; top:14px; right:94px; }
-        .repeat-drag { position:absolute; top:14px; left:14px; cursor:grab; }
+        .repeat-drag { position:absolute; top:14px; left:14px; cursor:grab; user-select:none; }
         .repeat-item.is-dragging { opacity:.55; border-style:dashed; }
         .repeat-item.is-sortable { padding-left:58px; }
         .new-country-fields, .new-province-fields { display:none; }
@@ -93,7 +94,8 @@
         }
     </style>
 </head>
-<body>
+<body class="admin-app">
+<?php $adminSection = 'tours'; ?>
 <?php
 $formData = $formData ?? [];
 $tourType = old('tour_type', $formData['tour_type'] ?? 'outbound');
@@ -113,6 +115,7 @@ $itineraryRows = old('itinerary_days') ?: ($formData['itinerary_days'] ?? []);
 $mediaRows = old('media') ?: ($formData['media'] ?? []);
 $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
 ?>
+<?= view('admin/partials/app_start', ['adminSection' => $adminSection]) ?>
 <main class="admin-shell">
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
@@ -515,7 +518,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
             <div id="itineraryRows">
                 <?php foreach (array_values($itineraryRows) as $index => $row): ?>
                     <?php $row = is_array($row) ? $row : []; ?>
-                    <div class="repeat-item itinerary-row is-sortable" draggable="true">
+                    <div class="repeat-item itinerary-row is-sortable" draggable="false">
                         <button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button>
                         <button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Duplicate</button>
                         <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
@@ -569,7 +572,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
             <div id="mediaRows">
                 <?php foreach (array_values($mediaRows) as $index => $row): ?>
                     <?php $row = is_array($row) ? $row : []; ?>
-                    <div class="repeat-item media-row is-sortable" draggable="true">
+                    <div class="repeat-item media-row is-sortable" draggable="false">
                         <button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button>
                         <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
                         <div class="row g-3">
@@ -982,10 +985,29 @@ function bindSortableList(containerSelector, itemSelector, options = {}) {
   container.dataset.sortableBound = '1';
 
   let draggedItem = null;
+  const setDraggableState = (value, item = null) => {
+    const items = item ? [item] : Array.from(container.querySelectorAll(itemSelector));
+    items.forEach(row => row.setAttribute('draggable', value ? 'true' : 'false'));
+  };
+
+  container.addEventListener('mousedown', event => {
+    const element = event.target instanceof HTMLElement ? event.target : null;
+    const handle = element?.closest('.js-drag-handle');
+    const row = element?.closest(itemSelector);
+
+    setDraggableState(false);
+
+    if (handle && row) {
+      setDraggableState(true, row);
+    }
+  });
 
   container.addEventListener('dragstart', event => {
     const target = event.target instanceof HTMLElement ? event.target.closest(itemSelector) : null;
-    if (!target) return;
+    if (!target || target.getAttribute('draggable') !== 'true') {
+      event.preventDefault();
+      return;
+    }
     draggedItem = target;
     target.classList.add('is-dragging');
     event.dataTransfer?.setData('text/plain', 'drag');
@@ -995,8 +1017,13 @@ function bindSortableList(containerSelector, itemSelector, options = {}) {
   container.addEventListener('dragend', () => {
     if (draggedItem) draggedItem.classList.remove('is-dragging');
     draggedItem = null;
+    setDraggableState(false);
     refreshSummaryMetrics();
     scheduleDraftSave();
+  });
+
+  container.addEventListener('drop', () => {
+    setDraggableState(false);
   });
 
   container.addEventListener('dragover', event => {
@@ -1202,7 +1229,7 @@ document.getElementById('addDestination').addEventListener('click', () => {
 document.getElementById('addItinerary').addEventListener('click', () => {
   const div = document.createElement('div');
   div.className = 'repeat-item itinerary-row is-sortable';
-  div.setAttribute('draggable', 'true');
+  div.setAttribute('draggable', 'false');
   div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Duplicate</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button><input type="hidden" name="itinerary_days[${itineraryIndex}][sort_order]" class="js-sort-order" value="${itineraryIndex}">
     <div class="row g-3">
       <div class="col-md-2"><label>Day</label><input type="number" min="1" name="itinerary_days[${itineraryIndex}][day_number]" class="form-control" value="${itineraryIndex + 1}"></div>
@@ -1337,7 +1364,7 @@ function renderItineraryImportPreview(rows) {
 function appendImportedItineraryRow(data = {}) {
   const div = document.createElement('div');
   div.className = 'repeat-item itinerary-row is-sortable';
-  div.setAttribute('draggable', 'true');
+  div.setAttribute('draggable', 'false');
   div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Duplicate</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button><input type="hidden" name="itinerary_days[${itineraryIndex}][sort_order]" class="js-sort-order" value="${itineraryIndex}">
     <div class="row g-3">
       <div class="col-md-2"><label>Day</label><input type="number" min="1" name="itinerary_days[${itineraryIndex}][day_number]" class="form-control" value="${escapeHtml(data.day_number || (itineraryIndex + 1))}"></div>
@@ -1406,7 +1433,7 @@ initItineraryImporter();
 document.getElementById('addMedia').addEventListener('click', () => {
   const div = document.createElement('div');
   div.className = 'repeat-item media-row is-sortable';
-  div.setAttribute('draggable', 'true');
+  div.setAttribute('draggable', 'false');
   div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
     <div class="row g-3">
       <div class="col-md-3"><label>Type</label><select name="media[${mediaIndex}][type]" class="form-select"><option value="banner">Banner</option><option value="cover">Cover</option><option value="gallery" selected>Gallery</option><option value="video">Video</option></select></div>
@@ -1550,5 +1577,6 @@ bindLangTabs();
 bindAccordions();
 bindCopyActions();
 </script>
+<?= view('admin/partials/app_end') ?>
 </body>
 </html>

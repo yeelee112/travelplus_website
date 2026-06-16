@@ -788,9 +788,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (form && form.hasAttribute("data-tour-search-form")) {
       form.addEventListener("submit", (event) => {
+        const departureFromInput = form.querySelector('[name="departure_from"]');
+        const departureToInput = form.querySelector('[name="departure_to"]');
         const departureInput = form.querySelector('[name="departure_date"]');
         const keyword = input.value.trim();
-        const departureValue = departureInput ? departureInput.value.trim() : "";
+        const departureValue = [
+          departureFromInput ? departureFromInput.value.trim() : "",
+          departureToInput ? departureToInput.value.trim() : "",
+          departureInput ? departureInput.value.trim() : "",
+        ].find((value) => value !== "") || "";
 
         if (keyword === "" && departureValue === "") {
           event.preventDefault();
@@ -1105,188 +1111,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const homeDateInput = qs("[data-home-date-input]");
-  const homeDateTrigger = qs("[data-home-date-trigger]");
-  const homeDateDisplay = qs("[data-home-date-display]");
-  const homeDatePicker = qs("[data-home-date-picker]");
-  const homeDatePanel = qs("[data-home-date-panel]");
-  const homeDateMonth = qs("[data-home-date-month]");
-  const homeDateWeekdays = qs("[data-home-date-weekdays]");
-  const homeDateDays = qs("[data-home-date-days]");
-  const homeDatePrev = qs("[data-home-date-prev]");
-  const homeDateNext = qs("[data-home-date-next]");
+  qsa("[data-date-range-picker]").forEach((datePicker) => {
+    const startInput = qs("[data-date-range-input-start]", datePicker);
+    const endInput = qs("[data-date-range-input-end]", datePicker);
+    const trigger = qs("[data-date-range-trigger]", datePicker);
+    const display = qs("[data-date-range-display]", datePicker);
+    const panel = qs("[data-date-range-panel]", datePicker);
+    const monthEl = qs("[data-date-range-month]", datePicker);
+    const weekdaysEl = qs("[data-date-range-weekdays]", datePicker);
+    const daysEl = qs("[data-date-range-days]", datePicker);
+    const prevBtn = qs("[data-date-range-prev]", datePicker);
+    const nextBtn = qs("[data-date-range-next]", datePicker);
+    const clearBtn = qs("[data-date-range-clear]", datePicker);
+    const previewStart = qs("[data-date-range-preview-start]", datePicker);
+    const previewEnd = qs("[data-date-range-preview-end]", datePicker);
 
-  if (
-    homeDateInput &&
-    homeDateTrigger &&
-    homeDateDisplay &&
-    homeDatePicker &&
-    homeDatePanel &&
-    homeDateMonth &&
-    homeDateWeekdays &&
-    homeDateDays &&
-    homeDatePrev &&
-    homeDateNext
-  ) {
-    const emptyDateLabel = homeDateTrigger.dataset.emptyLabel || homeDateDisplay.textContent.trim();
-    const locale = homeDatePicker.dataset.locale === "en" ? "en" : "vi";
-    const monthFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
-      month: "long",
-      year: "numeric",
-    });
-    const weekdayFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
-      weekday: "long",
-    });
-    const weekdayNames = {
-      vi: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-      en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    };
-    const padDatePart = (value) => String(value).padStart(2, "0");
-    const today = new Date();
-    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    let viewDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
-    let selectedDate = null;
-
-    const isSameDate = (first, second) => (
-      first &&
-      second &&
-      first.getFullYear() === second.getFullYear() &&
-      first.getMonth() === second.getMonth() &&
-      first.getDate() === second.getDate()
-    );
-
-    const formatValue = (date) => (
-      `${date.getFullYear()}-${padDatePart(date.getMonth() + 1)}-${padDatePart(date.getDate())}`
-    );
-
-    const formatDisplayDate = (date) => (
-      `${weekdayFormatter.format(date).replace(/^./, (char) => char.toUpperCase())}, ${padDatePart(date.getDate())}/${padDatePart(date.getMonth() + 1)}/${date.getFullYear()}`
-    );
-
-    const closeHomeDatePicker = () => {
-      homeDatePanel.hidden = true;
-      homeDateTrigger.setAttribute("aria-expanded", "false");
-      document.body.classList.toggle(
-        "home-search-layer-open",
-        document.querySelector(".home-modern-search .custom-select-wrap.active") !== null ||
-          document.querySelector(".home-modern-search .home-search-date__panel:not([hidden])") !== null
-      );
-    };
-
-    const openHomeDatePicker = () => {
-      document.querySelectorAll(".home-modern-search .custom-select-wrap.active").forEach((wrap) => {
-        wrap.classList.remove("active");
-      });
-      renderHomeDatePicker();
-      homeDatePanel.hidden = false;
-      homeDateTrigger.setAttribute("aria-expanded", "true");
-      document.body.classList.add("home-search-layer-open");
-    };
-
-    const renderHomeDatePicker = () => {
-      const year = viewDate.getFullYear();
-      const month = viewDate.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const monthStartOffset = (firstDay.getDay() + 6) % 7;
-      const lastDay = new Date(year, month + 1, 0).getDate();
-      const currentMonthStart = new Date(year, month, 1);
-      const todayMonthStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
-
-      homeDateMonth.textContent = monthFormatter.format(new Date(year, month, 1));
-      homeDatePrev.disabled = currentMonthStart <= todayMonthStart;
-      homeDateDays.innerHTML = "";
-
-      for (let index = 0; index < monthStartOffset; index += 1) {
-        const blankDay = document.createElement("span");
-        blankDay.className = "home-search-date__day home-search-date__day--blank";
-        blankDay.setAttribute("aria-hidden", "true");
-        homeDateDays.appendChild(blankDay);
-      }
-
-      for (let day = 1; day <= lastDay; day += 1) {
-        const date = new Date(year, month, day);
-        const dateButton = document.createElement("button");
-        const isPastDate = date < todayDate;
-
-        dateButton.type = "button";
-        dateButton.className = "home-search-date__day";
-        dateButton.textContent = String(day);
-        dateButton.disabled = isPastDate;
-        dateButton.setAttribute("aria-label", formatDisplayDate(date));
-
-        if (isSameDate(date, selectedDate)) {
-          dateButton.classList.add("is-selected");
-          dateButton.setAttribute("aria-current", "date");
-        }
-
-        dateButton.addEventListener("click", () => {
-          selectedDate = date;
-          homeDateInput.value = formatValue(date);
-          homeDateDisplay.textContent = formatDisplayDate(date);
-          homeDateTrigger.classList.add("is-selected");
-          closeHomeDatePicker();
-        });
-
-        homeDateDays.appendChild(dateButton);
-      }
-    };
-
-    weekdayNames[locale].forEach((weekday) => {
-      const weekdayEl = document.createElement("span");
-      weekdayEl.textContent = weekday;
-      homeDateWeekdays.appendChild(weekdayEl);
-    });
-
-    homeDateTrigger.addEventListener("click", (event) => {
-      event.preventDefault();
-      if (homeDatePanel.hidden) {
-        openHomeDatePicker();
-      } else {
-        closeHomeDatePicker();
-      }
-    });
-
-    homeDatePrev.addEventListener("click", () => {
-      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
-      renderHomeDatePicker();
-    });
-
-    homeDateNext.addEventListener("click", () => {
-      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
-      renderHomeDatePicker();
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!homeDatePicker.contains(event.target)) {
-        closeHomeDatePicker();
-      }
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        closeHomeDatePicker();
-      }
-    });
-  }
-
-  qsa("[data-listing-date-picker]").forEach((datePicker) => {
-    const input = qs("[data-listing-date-input]", datePicker);
-    const trigger = qs("[data-listing-date-trigger]", datePicker);
-    const display = qs("[data-listing-date-display]", datePicker);
-    const panel = qs("[data-listing-date-panel]", datePicker);
-    const monthEl = qs("[data-listing-date-month]", datePicker);
-    const weekdaysEl = qs("[data-listing-date-weekdays]", datePicker);
-    const daysEl = qs("[data-listing-date-days]", datePicker);
-    const prevBtn = qs("[data-listing-date-prev]", datePicker);
-    const nextBtn = qs("[data-listing-date-next]", datePicker);
-
-    if (!input || !trigger || !display || !panel || !monthEl || !weekdaysEl || !daysEl || !prevBtn || !nextBtn) {
+    if (
+      !startInput ||
+      !endInput ||
+      !trigger ||
+      !display ||
+      !panel ||
+      !monthEl ||
+      !weekdaysEl ||
+      !daysEl ||
+      !prevBtn ||
+      !nextBtn ||
+      !previewStart ||
+      !previewEnd
+    ) {
       return;
     }
 
     const locale = datePicker.dataset.locale === "en" ? "en" : "vi";
-    const valueFormat = datePicker.dataset.valueFormat === "display" ? "display" : "iso";
-    const emptyDateLabel = trigger.dataset.emptyLabel || "dd/mm/yyyy";
+    const emptyDateLabel = trigger.dataset.emptyLabel || "";
+    const startEmptyLabel = trigger.dataset.startEmptyLabel || emptyDateLabel;
+    const endEmptyLabel = trigger.dataset.endEmptyLabel || emptyDateLabel;
     const monthFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
       month: "long",
       year: "numeric",
@@ -1298,13 +1158,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const padDatePart = (value) => String(value).padStart(2, "0");
     const today = new Date();
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const parseInputDate = (value) => {
-      const rawValue = String(value || "");
-      const match = rawValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const isHomePicker = datePicker.closest(".home-modern-search") !== null;
 
-      if (match) {
-        const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-        return Number.isNaN(date.getTime()) ? null : date;
+    const parseInputDate = (value) => {
+      const rawValue = String(value || "").trim();
+      const isoMatch = rawValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+      if (isoMatch) {
+        const isoDate = new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3]));
+        return Number.isNaN(isoDate.getTime()) ? null : isoDate;
       }
 
       const displayMatch = rawValue.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
@@ -1312,13 +1174,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return null;
       }
 
-      const date = new Date(Number(displayMatch[3]), Number(displayMatch[2]) - 1, Number(displayMatch[1]));
-      return Number.isNaN(date.getTime()) ? null : date;
+      const displayDate = new Date(Number(displayMatch[3]), Number(displayMatch[2]) - 1, Number(displayMatch[1]));
+      return Number.isNaN(displayDate.getTime()) ? null : displayDate;
     };
-    let selectedDate = parseInputDate(input.value);
-    let viewDate = selectedDate
-      ? new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
-      : new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 
     const isSameDate = (first, second) => (
       first &&
@@ -1327,16 +1185,69 @@ document.addEventListener("DOMContentLoaded", () => {
       first.getMonth() === second.getMonth() &&
       first.getDate() === second.getDate()
     );
+
     const formatValue = (date) => (
       `${date.getFullYear()}-${padDatePart(date.getMonth() + 1)}-${padDatePart(date.getDate())}`
     );
+
     const formatDisplayDate = (date) => (
       `${padDatePart(date.getDate())}/${padDatePart(date.getMonth() + 1)}/${date.getFullYear()}`
     );
+
+    let selectedStart = parseInputDate(startInput.value);
+    let selectedEnd = parseInputDate(endInput.value);
+
+    if (selectedStart && selectedEnd && selectedEnd < selectedStart) {
+      [selectedStart, selectedEnd] = [selectedEnd, selectedStart];
+    }
+
+    let viewDate = selectedStart
+      ? new Date(selectedStart.getFullYear(), selectedStart.getMonth(), 1)
+      : new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+
+    const syncBodyOverlayState = () => {
+      if (!isHomePicker) {
+        return;
+      }
+
+      document.body.classList.toggle(
+        "home-search-layer-open",
+        document.querySelector(".home-modern-search .custom-select-wrap.active") !== null ||
+          document.querySelector(".home-modern-search .home-search-date__panel:not([hidden])") !== null
+      );
+    };
+
     const closeDatePicker = () => {
       panel.hidden = true;
       trigger.setAttribute("aria-expanded", "false");
+      syncBodyOverlayState();
     };
+
+    const updateSummary = () => {
+      startInput.value = selectedStart ? formatValue(selectedStart) : "";
+      endInput.value = selectedEnd ? formatValue(selectedEnd) : "";
+      previewStart.textContent = selectedStart ? formatDisplayDate(selectedStart) : startEmptyLabel;
+      previewEnd.textContent = selectedEnd ? formatDisplayDate(selectedEnd) : endEmptyLabel;
+
+      if (selectedStart && selectedEnd) {
+        display.textContent = `${formatDisplayDate(selectedStart)} - ${formatDisplayDate(selectedEnd)}`;
+        trigger.classList.add("is-selected");
+      } else if (selectedStart) {
+        display.textContent = `${formatDisplayDate(selectedStart)} - ...`;
+        trigger.classList.add("is-selected");
+      } else {
+        display.textContent = emptyDateLabel;
+        trigger.classList.remove("is-selected");
+      }
+    };
+
+    const isDateInRange = (date) => (
+      selectedStart &&
+      selectedEnd &&
+      date.getTime() > selectedStart.getTime() &&
+      date.getTime() < selectedEnd.getTime()
+    );
+
     const renderDatePicker = () => {
       const year = viewDate.getFullYear();
       const month = viewDate.getMonth();
@@ -1368,17 +1279,42 @@ document.addEventListener("DOMContentLoaded", () => {
         dateButton.disabled = isPastDate;
         dateButton.setAttribute("aria-label", formatDisplayDate(date));
 
-        if (isSameDate(date, selectedDate)) {
-          dateButton.classList.add("is-selected");
+        if (isSameDate(date, selectedStart)) {
+          dateButton.classList.add("is-range-start", "is-selected");
+        }
+
+        if (isSameDate(date, selectedEnd)) {
+          dateButton.classList.add("is-range-end", "is-selected");
+        }
+
+        if (isDateInRange(date)) {
+          dateButton.classList.add("is-in-range");
+        }
+
+        if (isSameDate(date, selectedStart) || isSameDate(date, selectedEnd)) {
           dateButton.setAttribute("aria-current", "date");
         }
 
         dateButton.addEventListener("click", () => {
-          selectedDate = date;
-          input.value = valueFormat === "display" ? formatDisplayDate(date) : formatValue(date);
-          display.textContent = formatDisplayDate(date);
-          trigger.classList.add("is-selected");
-          closeDatePicker();
+          if (!selectedStart || (selectedStart && selectedEnd)) {
+            selectedStart = date;
+            selectedEnd = null;
+          } else if (date.getTime() < selectedStart.getTime()) {
+            selectedEnd = selectedStart;
+            selectedStart = date;
+          } else if (isSameDate(date, selectedStart)) {
+            selectedStart = date;
+            selectedEnd = null;
+          } else {
+            selectedEnd = date;
+          }
+
+          updateSummary();
+          renderDatePicker();
+
+          if (selectedStart && selectedEnd) {
+            closeDatePicker();
+          }
         });
 
         daysEl.appendChild(dateButton);
@@ -1391,18 +1327,28 @@ document.addEventListener("DOMContentLoaded", () => {
       weekdaysEl.appendChild(weekdayEl);
     });
 
+    updateSummary();
+
     trigger.addEventListener("click", (event) => {
       event.preventDefault();
 
       if (panel.hidden) {
-        qsa("[data-listing-date-panel]").forEach((otherPanel) => {
+        qsa("[data-date-range-panel]").forEach((otherPanel) => {
           if (otherPanel !== panel) {
             otherPanel.hidden = true;
           }
         });
+
+        if (isHomePicker) {
+          document.querySelectorAll(".home-modern-search .custom-select-wrap.active").forEach((wrap) => {
+            wrap.classList.remove("active");
+          });
+        }
+
         renderDatePicker();
         panel.hidden = false;
         trigger.setAttribute("aria-expanded", "true");
+        syncBodyOverlayState();
       } else {
         closeDatePicker();
       }
@@ -1418,8 +1364,19 @@ document.addEventListener("DOMContentLoaded", () => {
       renderDatePicker();
     });
 
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        selectedStart = null;
+        selectedEnd = null;
+        updateSummary();
+        renderDatePicker();
+      });
+    }
+
     document.addEventListener("click", (event) => {
-      if (!datePicker.contains(event.target)) {
+      const eventPath = typeof event.composedPath === "function" ? event.composedPath() : [];
+
+      if (!eventPath.includes(datePicker) && !datePicker.contains(event.target)) {
         closeDatePicker();
       }
     });
