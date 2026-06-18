@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Data\LocalizedPathCatalog;
 use App\Services\EmailTemplateService;
 use App\Services\SeoService;
+use App\Services\VietnamPhoneService;
 use Config\Email as EmailConfig;
 
 class Contact extends BaseController
@@ -34,7 +35,7 @@ class Contact extends BaseController
         $rules = [
             'name' => 'required|min_length[2]|max_length[120]',
             'email' => 'required|valid_email|max_length[160]',
-            'phone' => 'required|min_length[8]|max_length[30]',
+            'phone' => 'required|validVietnamPhone|max_length[30]',
             'destination' => 'permit_empty|max_length[160]',
             'travelers' => 'permit_empty|max_length[80]',
             'estimated_time' => 'permit_empty|max_length[120]',
@@ -55,6 +56,9 @@ class Contact extends BaseController
             ],
             'phone' => [
                 'required' => lang('Frontend.contact.validation.phoneRequired', [], $locale),
+                'validVietnamPhone' => $locale === 'en'
+                    ? 'Please enter a valid Vietnamese phone number.'
+                    : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.',
             ],
             'message' => [
                 'required' => lang('Frontend.contact.validation.messageRequired', [], $locale),
@@ -87,7 +91,7 @@ class Contact extends BaseController
 
         $name = trim((string) $this->request->getPost('name'));
         $email = trim((string) $this->request->getPost('email'));
-        $phone = trim((string) $this->request->getPost('phone'));
+        $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
         $destination = trim((string) $this->request->getPost('destination'));
         $travelers = trim((string) $this->request->getPost('travelers'));
         $estimatedTime = trim((string) $this->request->getPost('estimated_time'));
@@ -207,7 +211,7 @@ class Contact extends BaseController
                 'hotel_rating' => 'Hotel standard',
             ]
             : [
-                'travelers' => 'So luong khach',
+                'travelers' => 'Số lượng khách',
                 'estimated_time' => 'Thoi gian du kien',
                 'trip_length' => 'Thoi gian di',
                 'hotel_rating' => 'Khach san mong muon',

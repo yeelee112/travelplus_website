@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use App\Models\LocationModel;
 use App\Services\DomesticRegionService;
 use App\Services\AdminAccessService;
+use App\Services\AnalyticsTrackingService;
 use App\Services\AuthSessionControlService;
 use App\Services\RememberLoginService;
 
@@ -72,6 +73,7 @@ abstract class BaseController extends Controller
         service('renderer')->setVar('authUser', is_array($authUser) ? $authUser : null);
         service('renderer')->setVar('isAdminUser', $isAdminUser);
         service('renderer')->setVar('currentLocale', $locale);
+        (new AnalyticsTrackingService())->track($request, static::class, is_array($authUser) ? $authUser : null);
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }

@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Models\BookingModel;
+use App\Services\AnalyticsReportService;
 
 class Dashboard extends BaseAdminController
 {
@@ -14,6 +15,8 @@ class Dashboard extends BaseAdminController
 
         $db = db_connect();
         $bookingModel = new BookingModel();
+        $analyticsReport = new AnalyticsReportService();
+        $analyticsSummary = $analyticsReport->getSummary(30);
 
         $stats = [
             'bookings_total' => $db->tableExists('bookings') ? $bookingModel->countAllResults() : 0,
@@ -31,6 +34,8 @@ class Dashboard extends BaseAdminController
             'blog_views_total' => ($db->tableExists('blogs') && $db->fieldExists('view_count', 'blogs'))
                 ? (int) (($db->table('blogs')->selectSum('view_count')->get()->getRowArray()['view_count'] ?? 0))
                 : 0,
+            'analytics_pageviews_30d' => (int) ($analyticsSummary['pageviews'] ?? 0),
+            'analytics_visits_30d' => (int) ($analyticsSummary['visits'] ?? 0),
         ];
 
         $recentBookings = $db->tableExists('bookings')
@@ -63,6 +68,7 @@ class Dashboard extends BaseAdminController
 
         return view('admin/dashboard/index', [
             'stats' => $stats,
+            'analyticsReady' => $analyticsReport->isReady(),
             'recentBookings' => $recentBookings,
             'topTours' => $topTours,
             'topBlogs' => $topBlogs,

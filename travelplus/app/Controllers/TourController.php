@@ -6,6 +6,7 @@ use App\Services\EntityViewService;
 use App\Services\SeoService;
 use App\Services\TourCatalogService;
 use App\Services\TourEnquiryNotificationService;
+use App\Services\VietnamPhoneService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 class TourController extends BaseController
@@ -160,13 +161,21 @@ class TourController extends BaseController
             'tour_link' => 'permit_empty|max_length[500]',
             'full_name' => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email|max_length[255]',
-            'phone' => 'required|min_length[8]|max_length[30]',
+            'phone' => 'required|validVietnamPhone|max_length[30]',
             'travel_date' => 'permit_empty|max_length[50]',
             'travelers' => 'permit_empty|max_length[50]',
             'message' => 'required|min_length[10]|max_length[3000]',
         ];
 
-        if (! $this->validate($rules)) {
+        $messages = [
+            'phone' => [
+                'validVietnamPhone' => $locale === 'en'
+                    ? 'Please enter a valid Vietnamese phone number.'
+                    : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.',
+            ],
+        ];
+
+        if (! $this->validate($rules, $messages)) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
                 'message' => lang('Frontend.tour.enquiry.invalid', [], $locale),
@@ -181,7 +190,7 @@ class TourController extends BaseController
             'tour_link' => trim((string) ($post['tour_link'] ?? '')),
             'full_name' => trim((string) $post['full_name']),
             'email' => trim((string) $post['email']),
-            'phone' => trim((string) $post['phone']),
+            'phone' => VietnamPhoneService::normalize((string) $post['phone']),
             'travel_date' => trim((string) ($post['travel_date'] ?? '')),
             'travelers' => trim((string) ($post['travelers'] ?? '')),
             'message' => trim((string) ($post['message'] ?? '')),

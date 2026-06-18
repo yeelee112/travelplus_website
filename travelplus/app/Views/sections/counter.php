@@ -1,6 +1,6 @@
 <?php
 $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
-$statsBackground = base_url('assets/images/summary-tp.png');
+$statsBackground = base_url('assets/images/summary-tp.webp');
 $copy = $locale === 'en'
     ? [
         'eyebrow' => 'Travel Plus in numbers',

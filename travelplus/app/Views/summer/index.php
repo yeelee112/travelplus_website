@@ -446,6 +446,13 @@ $phoneDisplay = '+84 79 568 1 568';
                         action="<?= esc($contactUrl, 'attr') ?>"
                         data-recaptcha-site-key="<?= esc($recaptchaSiteKey, 'attr') ?>"
                         data-recaptcha-error="<?= esc(lang('Frontend.contact.recaptchaFailed', [], $locale), 'attr') ?>"
+                        data-name-error="<?= esc($locale === 'en' ? 'Please enter your full name.' : 'Vui lòng nhập họ và tên.', 'attr') ?>"
+                        data-email-required="<?= esc($locale === 'en' ? 'Please enter your email address.' : 'Vui lòng nhập email.', 'attr') ?>"
+                        data-email-invalid="<?= esc($locale === 'en' ? 'Please enter a valid email address.' : 'Vui lòng nhập email hợp lệ.', 'attr') ?>"
+                        data-phone-required="<?= esc($locale === 'en' ? 'Please enter your phone number.' : 'Vui lòng nhập số điện thoại.', 'attr') ?>"
+                        data-phone-invalid="<?= esc($locale === 'en' ? 'Please enter a valid Vietnamese phone number.' : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.', 'attr') ?>"
+                        data-message-error="<?= esc($locale === 'en' ? 'Your message must be at least 10 characters.' : 'Nội dung tối thiểu 10 ký tự.', 'attr') ?>"
+                        data-privacy-error="<?= esc($locale === 'en' ? 'Please agree to the privacy statement and terms of service.' : 'Vui lòng đồng ý với Chính sách bảo mật và Điều khoản sử dụng.', 'attr') ?>"
                         novalidate>
                         <?= csrf_field() ?>
                         <input type="hidden" name="contact_form_token" value="<?= esc($contactFormToken, 'attr') ?>">

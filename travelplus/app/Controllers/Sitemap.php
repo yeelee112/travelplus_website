@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Data\LocalizedPathCatalog;
 use App\Services\BlogService;
 use App\Services\TourCatalogService;
 use CodeIgniter\Controller;
@@ -19,40 +20,37 @@ class Sitemap extends Controller
             APPPATH . 'Controllers/Home.php',
         ]);
 
-        $staticPaths = [
-            'vi' => [
-                '',
-                've-chung-toi',
-                'cam-hung-du-lich',
-                'dich-vu-visa',
-                'dich-vu-mice',
-                'dich-vu-ve-may-bay',
-                'dich-vu-van-chuyen',
-                'dich-vu-dich-thuat',
-                'dich-vu-khach-san',
-                'contact',
-                'dieu-khoan-su-dung',
-                'chinh-sach-bao-mat',
-                'tour-nuoc-ngoai',
-                'tour-trong-nuoc',
-            ],
-            'en' => [
-                'en',
-                'en/ve-chung-toi',
-                'en/travel-inspiration',
-                'en/dich-vu-visa',
-                'en/dich-vu-mice',
-                'en/airline-ticket-service',
-                'en/transport-service',
-                'en/translation-service',
-                'en/hotel-service',
-                'en/contact',
-                'en/terms-of-service',
-                'en/privacy-statement',
-                'en/tour-nuoc-ngoai',
-                'en/tour-trong-nuoc',
-            ],
+        $staticPathKeys = [
+            'about',
+            'blog',
+            'summer',
+            'service.visa',
+            'service.mice',
+            'service.airlineTickets',
+            'service.transport',
+            'service.translation',
+            'service.hotels',
+            'contact',
+            'legal.terms',
+            'legal.privacy',
+            'outbound',
+            'domestic',
         ];
+        $staticPaths = [
+            'vi' => [''],
+            'en' => ['en'],
+        ];
+
+        foreach ($staticPathKeys as $key) {
+            foreach ($locales as $locale) {
+                $path = LocalizedPathCatalog::path($key, $locale);
+                if ($path === '') {
+                    continue;
+                }
+
+                $staticPaths[$locale][] = $locale === 'en' ? 'en/' . $path : $path;
+            }
+        }
 
         foreach ($locales as $locale) {
             foreach ($staticPaths[$locale] as $path) {

@@ -87,6 +87,39 @@ $recaptchaSiteKey = trim((string) env('recaptcha.siteKey', ''), " \t\n\r\0\x0B\"
 $phone = '+84795681568';
 $phoneDisplay = '+84 79 568 1 568';
 $email = 'info@travelplusvn.com';
+$customTourFields = $locale === 'en'
+    ? [
+        'travelersLabel' => 'Group size',
+        'travelersPlaceholder' => 'Example: 12 guests',
+        'estimatedTimeLabel' => 'Preferred departure period',
+        'estimatedTimePlaceholder' => 'Example: July 2026 or late summer',
+        'tripLengthLabel' => 'Trip length',
+        'tripLengthPlaceholder' => 'Example: 7 days 6 nights',
+        'hotelRatingLabel' => 'Preferred hotel standard',
+        'hotelOptions' => [
+            '' => 'Select hotel standard',
+            '3-star' => '3-star',
+            '4-star' => '4-star',
+            '5-star' => '5-star',
+            'resort' => 'Resort / beachfront',
+        ],
+    ]
+    : [
+        'travelersLabel' => 'Số lượng khách đi',
+        'travelersPlaceholder' => 'Ví dụ: 12 khách',
+        'estimatedTimeLabel' => 'Thời gian dự kiến khởi hành',
+        'estimatedTimePlaceholder' => 'Ví dụ: Tháng 7/2026 hoặc cuối hè',
+        'tripLengthLabel' => 'Thời gian đi',
+        'tripLengthPlaceholder' => 'Ví dụ: 7 ngày 6 đêm',
+        'hotelRatingLabel' => 'Yêu cầu về khách sạn',
+        'hotelOptions' => [
+            '' => 'Chọn tiêu chuẩn khách sạn',
+            '3-star' => '3 sao',
+            '4-star' => '4 sao',
+            '5-star' => '5 sao',
+            'resort' => 'Resort / sát biển',
+        ],
+    ];
 ?>
 
 <section class="travelplus-contact-hero" aria-labelledby="contact-page-title">
@@ -170,6 +203,13 @@ $email = 'info@travelplusvn.com';
                     action="<?= esc($contactUrl, 'attr') ?>"
                     data-recaptcha-site-key="<?= esc($recaptchaSiteKey, 'attr') ?>"
                     data-recaptcha-error="<?= esc(lang('Frontend.contact.recaptchaFailed', [], $locale), 'attr') ?>"
+                    data-name-error="<?= esc($locale === 'en' ? 'Please enter your full name.' : 'Vui lòng nhập họ và tên.', 'attr') ?>"
+                    data-email-required="<?= esc($locale === 'en' ? 'Please enter your email address.' : 'Vui lòng nhập email.', 'attr') ?>"
+                    data-email-invalid="<?= esc($locale === 'en' ? 'Please enter a valid email address.' : 'Vui lòng nhập email hợp lệ.', 'attr') ?>"
+                    data-phone-required="<?= esc($locale === 'en' ? 'Please enter your phone number.' : 'Vui lòng nhập số điện thoại.', 'attr') ?>"
+                    data-phone-invalid="<?= esc($locale === 'en' ? 'Please enter a valid Vietnamese phone number.' : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.', 'attr') ?>"
+                    data-message-error="<?= esc($locale === 'en' ? 'Your message must be at least 10 characters.' : 'Nội dung tối thiểu 10 ký tự.', 'attr') ?>"
+                    data-privacy-error="<?= esc($locale === 'en' ? 'Please agree to the privacy statement and terms of service.' : 'Vui lòng đồng ý với điều khoản.', 'attr') ?>"
                     novalidate>
                     <?= csrf_field() ?>
                     <input type="hidden" name="contact_form_token" value="<?= esc((string) ($contact_form_token ?? '')) ?>">
@@ -191,6 +231,28 @@ $email = 'info@travelplusvn.com';
                         <label>
                             <span><?= esc(lang('Frontend.contact.destination', [], $locale)) ?></span>
                             <input type="text" name="destination" value="<?= esc((string) old('destination'), 'attr') ?>" placeholder="<?= esc(lang('Frontend.contact.destinationPlaceholder', [], $locale), 'attr') ?>">
+                        </label>
+                        <label>
+                            <span><?= esc($customTourFields['travelersLabel']) ?></span>
+                            <input type="text" name="travelers" value="<?= esc((string) old('travelers'), 'attr') ?>" placeholder="<?= esc($customTourFields['travelersPlaceholder'], 'attr') ?>">
+                        </label>
+                        <label>
+                            <span><?= esc($customTourFields['estimatedTimeLabel']) ?></span>
+                            <input type="text" name="estimated_time" value="<?= esc((string) old('estimated_time'), 'attr') ?>" placeholder="<?= esc($customTourFields['estimatedTimePlaceholder'], 'attr') ?>">
+                        </label>
+                        <label>
+                            <span><?= esc($customTourFields['tripLengthLabel']) ?></span>
+                            <input type="text" name="trip_length" value="<?= esc((string) old('trip_length'), 'attr') ?>" placeholder="<?= esc($customTourFields['tripLengthPlaceholder'], 'attr') ?>">
+                        </label>
+                        <label>
+                            <span><?= esc($customTourFields['hotelRatingLabel']) ?></span>
+                            <select name="hotel_rating">
+                                <?php foreach ($customTourFields['hotelOptions'] as $optionValue => $optionLabel): ?>
+                                    <option value="<?= esc((string) $optionValue, 'attr') ?>" <?= old('hotel_rating') === (string) $optionValue ? 'selected' : '' ?>>
+                                        <?= esc((string) $optionLabel) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </label>
                         <label class="travelplus-contact-form-message">
                             <span><?= esc(lang('Frontend.contact.message', [], $locale)) ?></span>

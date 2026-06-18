@@ -7,6 +7,7 @@ use App\Models\BookingModel;
 use App\Models\UserModel;
 use App\Services\AuthSessionControlService;
 use App\Services\RememberLoginService;
+use App\Services\VietnamPhoneService;
 use Config\SocialAuth;
 
 class AuthController extends BaseController
@@ -127,12 +128,18 @@ class AuthController extends BaseController
 
         if ($this->request->is('post')) {
             $fullName = trim((string) $this->request->getPost('full_name'));
-            $phone = trim((string) $this->request->getPost('phone'));
+            $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
             $newPassword = (string) $this->request->getPost('new_password');
             $confirmPassword = (string) $this->request->getPost('new_password_confirm');
 
             if ($fullName === '') {
                 return redirect()->back()->with('auth_error', $locale === 'en' ? 'Full name is required.' : 'Họ và tên là bắt buộc.');
+            }
+
+            if ($phone !== '' && ! VietnamPhoneService::isValid($phone)) {
+                return redirect()->back()->with('auth_error', $locale === 'en'
+                    ? 'Please enter a valid Vietnamese phone number.'
+                    : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.');
             }
 
             if ($newPassword !== '') {

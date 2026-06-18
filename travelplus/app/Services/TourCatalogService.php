@@ -1051,6 +1051,7 @@ class TourCatalogService
         $detail['max_travelers'] = (int) ($tourRow['max_travelers'] ?? 15);
         $detail['child_price_rate'] = $this->normalizeTravelerPriceRate($tourRow['child_price_rate'] ?? null, self::DEFAULT_CHILD_PRICE_RATE);
         $detail['infant_price_rate'] = $this->normalizeTravelerPriceRate($tourRow['infant_price_rate'] ?? null, self::DEFAULT_INFANT_PRICE_RATE);
+        $detail['single_room_supplement'] = (float) ($tourRow['single_room_supplement'] ?? 0);
         $detail['created_at'] = (string) ($tourRow['created_at'] ?? '');
         $detail['updated_at'] = (string) ($tourRow['updated_at'] ?? $tourRow['created_at'] ?? '');
 
@@ -1066,6 +1067,7 @@ class TourCatalogService
         $detail['departures'] = $this->getTourDepartures($tourId);
         $detail['media'] = $this->getTourMedia($tourId);
         $detail['itinerary_days'] = $this->getTourItineraryDays($tourId, $locale);
+        $detail['inclusions'] = $this->getTourInclusions($tourId, $locale);
         $detail['faqs'] = $this->getTourFaqs($tourId, $locale);
         $detail['review_summary'] = $this->getTourReviewSummary($tourId);
         $detail['reviews'] = $this->getTourReviews($tourId);
@@ -1120,6 +1122,48 @@ class TourCatalogService
                 'price_label' => number_format($price, 0, ',', '.') . ' VND',
             ];
         }, $rows);
+    }
+
+    private function getTourInclusions(int $tourId, string $locale): array
+    {
+        if (! $this->db->tableExists('tour_inclusions') || ! $this->db->tableExists('tour_inclusion_translations')) {
+            return [
+                'included' => [],
+                'excluded' => [],
+            ];
+        }
+
+        $rows = $this->db->table('tour_inclusions ti')
+            ->select('ti.type, ti.icon, ti.sort_order, COALESCE(tit.label, tit_vi.label, "") AS label', false)
+            ->join('tour_inclusion_translations tit', 'tit.tour_inclusion_id = ti.id AND tit.locale = ' . $this->db->escape($locale), 'left')
+            ->join('tour_inclusion_translations tit_vi', 'tit_vi.tour_inclusion_id = ti.id AND tit_vi.locale = "vi"', 'left')
+            ->where('ti.tour_id', $tourId)
+            ->orderBy('ti.type', 'ASC')
+            ->orderBy('ti.sort_order', 'ASC')
+            ->orderBy('ti.id', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $grouped = [
+            'included' => [],
+            'excluded' => [],
+        ];
+
+        foreach ($rows as $row) {
+            $type = ($row['type'] ?? 'included') === 'excluded' ? 'excluded' : 'included';
+            $label = trim((string) ($row['label'] ?? ''));
+
+            if ($label === '') {
+                continue;
+            }
+
+            $grouped[$type][] = [
+                'label' => $label,
+                'icon' => trim((string) ($row['icon'] ?? '')),
+            ];
+        }
+
+        return $grouped;
     }
 
     private function getTourMedia(int $tourId): array

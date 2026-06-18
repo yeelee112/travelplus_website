@@ -24,8 +24,8 @@ class SummerTours extends BaseController
         }
 
         $primaryTour = $summerHighlights[0] ?? $homeTours[0] ?? null;
-        $landingBannerImage = base_url('assets/images/landing/summer/Banner_Landing.png');
-        $landingBackdropImage = base_url('assets/images/landing/summer/Background_Landing_W1920xH5000px.png');
+        $landingBannerImage = base_url('assets/images/landing/summer/Banner_Landing.webp');
+        $landingBackdropImage = base_url('assets/images/landing/summer/Background_Landing_W1920xH5000px.webp');
         $heroImage = $landingBannerImage;
 
         $featuredCollection = array_slice($featuredTours !== [] ? $featuredTours : $homeTours, 0, 6);

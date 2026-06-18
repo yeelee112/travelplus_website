@@ -15,6 +15,7 @@ class PromotionCodeService
     {
         $code = strtoupper(trim($rawCode));
         $subtotal = max(0, (float) ($pendingBooking['subtotal_vnd'] ?? $pendingBooking['grand_total'] ?? 0));
+        $eligibleSubtotal = max(0, (float) ($pendingBooking['coupon_eligible_subtotal_vnd'] ?? $subtotal));
 
         if ($subtotal <= 0) {
             return $this->failure('invalidSubtotal', 0, 0);
@@ -61,7 +62,7 @@ class PromotionCodeService
 
         $minimumOrder = max(0, (float) ($promotion['min_order_amount'] ?? 0));
 
-        if ($minimumOrder > 0 && $subtotal < $minimumOrder) {
+        if ($minimumOrder > 0 && $eligibleSubtotal < $minimumOrder) {
             return $this->failure('minimumOrder', $subtotal, $subtotal);
         }
 
@@ -74,7 +75,7 @@ class PromotionCodeService
         $discountAmount = 0.0;
 
         if ($discountType === 'percent') {
-            $discountAmount = round($subtotal * ($discountValue / 100), 0);
+            $discountAmount = round($eligibleSubtotal * ($discountValue / 100), 0);
             $maxDiscount = max(0, (float) ($promotion['max_discount_amount'] ?? 0));
 
             if ($maxDiscount > 0) {
@@ -84,7 +85,7 @@ class PromotionCodeService
             $discountAmount = $discountValue;
         }
 
-        $discountAmount = min($subtotal, max(0, $discountAmount));
+        $discountAmount = min($eligibleSubtotal, max(0, $discountAmount));
         $grandTotal = max(0, $subtotal - $discountAmount);
 
         if ($discountAmount <= 0) {

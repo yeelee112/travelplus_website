@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="vi">
 <head>
     <meta charset="utf-8">
@@ -9,7 +9,7 @@
     <style>
         body { background:#f4f6f8; color:#172033; }
         .admin-shell { max-width:1220px; margin:32px auto; padding:0 16px; }
-        .admin-card { background:#fff; border:1px solid #e6ebf0; border-radius:18px; box-shadow:0 16px 40px rgba(23,32,51,.06); padding:28px; }
+        .admin-card { background:#fff; border:1px solid #e6ebf0; border-radius:18px; box-shadow:0 16px 40px rgba(23,32,51,.06); padding:22px; }
         .section-title { font-size:18px; font-weight:700; margin:0 0 14px; }
         label { font-weight:600; margin-bottom:6px; }
         textarea { min-height:105px; }
@@ -27,7 +27,7 @@
         .rich-editor-toolbar button { border:1px solid #d8dee6; background:#fff; border-radius:6px; padding:4px 9px; font-weight:700; }
         .rich-editor { min-height:118px; padding:10px 12px; outline:0; }
         .form-section { border:1px solid #e6ebf0; border-radius:18px; background:#fff; padding:22px; margin-bottom:18px; scroll-margin-top:120px; }
-        .section-meta { color:#6b778c; font-size:13px; margin:-6px 0 16px; }
+        .section-meta { color:#6b778c; font-size:12px; margin:-4px 0 12px; }
         .tour-form-nav { position:sticky; top:12px; z-index:10; background:rgba(244,246,248,.92); backdrop-filter:blur(8px); padding:10px 12px; border:1px solid #e6ebf0; border-radius:16px; margin-bottom:16px; }
         .tour-form-nav .nav { gap:8px; flex-wrap:wrap; }
         .tour-form-nav .nav-link { border:1px solid #d9e2ec; border-radius:999px; padding:7px 12px; color:#334155; font-weight:600; background:#fff; font-size:13px; }
@@ -38,8 +38,9 @@
         .summary-pills { display:flex; gap:8px; flex-wrap:wrap; }
         .summary-pill { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background:#f8fafc; border:1px solid #e2e8f0; color:#334155; font-size:12px; font-weight:600; }
         .subtle-card { border:1px dashed #d9e2ec; border-radius:14px; padding:14px 16px; background:#fbfdff; }
-        .live-summary { display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px; margin-top:14px; }
-        .live-summary-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px; }
+        .live-summary { display:grid; grid-template-columns:1.5fr 1fr; gap:10px; margin-top:12px; }
+        .live-summary-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:14px; }
+        .live-summary-card:last-child { display:none; }
         .live-summary-label { color:#64748b; font-size:12px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
         .live-summary-value { font-size:15px; font-weight:700; color:#0f172a; }
         .live-summary-sub { color:#64748b; font-size:13px; margin-top:4px; }
@@ -87,6 +88,8 @@
         .nav-head .title { font-size:13px; font-weight:700; color:#334155; }
         .nav-head .text-muted { font-size:12px; }
         .draft-status { font-size:12px; color:#64748b; }
+        .compact-links { display:flex; gap:8px; flex-wrap:wrap; }
+        .compact-links .btn { padding:8px 12px; }
         @media (max-width: 991px) {
             .sticky-action-bar { flex-direction:column; align-items:stretch; }
             .tour-form-nav { position:static; }
@@ -114,6 +117,8 @@ if ($departureRows === []) {
 $itineraryRows = old('itinerary_days') ?: ($formData['itinerary_days'] ?? []);
 $mediaRows = old('media') ?: ($formData['media'] ?? []);
 $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
+$includedRows = old('included_items') ?: ($formData['included_items'] ?? []);
+$excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
 ?>
 <?= view('admin/partials/app_start', ['adminSection' => $adminSection]) ?>
 <main class="admin-shell">
@@ -123,13 +128,9 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
                 <h1 class="h3 mb-1"><?= esc($pageTitle ?? 'Tour form') ?></h1>
                 <p class="text-muted mb-0"><?= esc($pageDesc ?? '') ?></p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="compact-links">
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Bookings</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
             </div>
         </div>
 
@@ -161,20 +162,18 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
                 <div class="summary-pills">
                     <span class="summary-pill">Type: <?= esc(ucfirst($tourType)) ?></span>
                     <span class="summary-pill">Status: <?= esc((string) $fv('status', 'draft')) ?></span>
-                    <span class="summary-pill">Max travelers: <?= esc((string) $fv('max_travelers', '15')) ?></span>
                 </div>
             </div>
             <div class="nav mt-3">
                 <a class="nav-link" href="#section-main">Main</a>
                 <a class="nav-link" href="#section-locations">Locations</a>
                 <a class="nav-link" href="#section-destinations">Destinations</a>
-                <a class="nav-link" href="#section-content-vi">Content VI</a>
-                <a class="nav-link" href="#section-content-en">Content EN</a>
+                <a class="nav-link" href="#section-content-vi">Content</a>
+                <a class="nav-link" href="#section-seo">SEO</a>
                 <a class="nav-link" href="#section-departure">Departure</a>
                 <a class="nav-link" href="#section-itinerary">Itinerary</a>
                 <a class="nav-link" href="#section-media">Media</a>
-                <a class="nav-link" href="#section-faq">FAQ</a>
-                <a class="nav-link" href="#section-seo">SEO</a>
+                <a class="nav-link" href="#section-inclusions">Price details</a>
             </div>
             <div class="draft-status mt-2" id="draftStatusText">Autosave local: chưa có cập nhật mới.</div>
         </div>
@@ -236,6 +235,11 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
                 <div class="col-md-2"><label>Max travelers</label><input type="number" min="0" name="max_travelers" class="form-control" value="<?= esc($fv('max_travelers', '15')) ?>"></div>
                 <div class="col-md-3"><label>Adult price</label><input type="number" min="0" name="base_price" class="form-control" value="<?= esc($fv('base_price')) ?>"></div>
                 <div class="col-md-3"><label>Sale price</label><input type="number" min="0" name="sale_price" class="form-control" value="<?= esc($fv('sale_price')) ?>"></div>
+                  <div class="col-md-3">
+                    <label>Phụ thu phòng đơn</label>
+                    <input type="number" min="0" name="single_room_supplement" class="form-control" value="<?= esc($fv('single_room_supplement')) ?>">
+                    <div class="help">Khoản phụ thu áp dụng khi khách yêu cầu ở phòng riêng trong suốt hành trình.</div>
+                  </div>
                 <div class="col-md-3">
                     <label>Child rate</label>
                     <input type="number" min="0" max="1" step="0.01" name="child_price_rate" class="form-control" value="<?= esc($fv('child_price_rate', '0.85')) ?>">
@@ -310,7 +314,7 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
             </div>
             </section>
 
-            <section id="section-destinations" class="form-section">
+            <section id="section-destinations" class="form-section is-collapsed">
             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
                 <div>
                     <h2 class="section-title">Destinations</h2>
@@ -323,7 +327,7 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
             </div>
             <div class="section-title-row">
                 <div class="section-count">Rows: <span id="destinationCountBadge"><?= esc((string) count($destinationsRows)) ?></span></div>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">▾</span><span>Collapse</span></button>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
             </div>
             <div class="accordion-content">
             <div id="destinationRows">
@@ -423,14 +427,42 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
             </div>
             </section>
 
-            <section id="section-departure" class="form-section">
+            <section id="section-seo" class="form-section">
+            <h2 class="section-title">SEO</h2>
+            <div class="section-meta">Meta title và meta description nên chốt ngay sau khi nhập title, slug và mô tả ngắn.</div>
+            <div class="lang-tabs" data-tab-group="seo">
+                <button type="button" class="lang-tab is-active" data-tab-target="seo-vi">SEO VI</button>
+                <button type="button" class="lang-tab" data-tab-target="seo-en">SEO EN</button>
+            </div>
+            <div class="lang-actions">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="copySeoViToEn">Copy SEO VI -> EN</button>
+            </div>
+            <div class="lang-panel is-active" data-tab-panel="seo-vi">
+                <div class="row g-3">
+                    <div class="col-md-12"><label>Meta title VI</label><input name="meta_title_vi" class="form-control" value="<?= esc($fv('meta_title_vi')) ?>"></div>
+                    <div class="col-md-12"><label>Meta description VI</label><textarea name="meta_description_vi" class="form-control"><?= esc($fv('meta_description_vi')) ?></textarea></div>
+                </div>
+            </div>
+            <div class="lang-panel" data-tab-panel="seo-en">
+                <div class="row g-3">
+                    <div class="col-md-12"><label>Meta title EN</label><input name="meta_title_en" class="form-control" value="<?= esc($fv('meta_title_en')) ?>"></div>
+                    <div class="col-md-12"><label>Meta description EN</label><textarea name="meta_description_en" class="form-control"><?= esc($fv('meta_description_en')) ?></textarea></div>
+                </div>
+            </div>
+            </section>
+
+            <section id="section-departure" class="form-section is-collapsed">
             <div class="section-title-row">
                 <div>
                     <h2 class="section-title">Departure dates</h2>
                     <div class="section-meta mb-0">Each bookable date is saved as one row. Use the generator for daily, weekly or monthly schedules, then adjust rows manually.</div>
                 </div>
-                <div class="section-count">Dates: <span id="departureCountBadge"><?= esc((string) count($departureRows)) ?></span></div>
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <div class="section-count">Dates: <span id="departureCountBadge"><?= esc((string) count($departureRows)) ?></span></div>
+                    <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
+                </div>
             </div>
+            <div class="accordion-content">
             <div class="departure-generator">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
@@ -483,14 +515,15 @@ $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
                 <?php endforeach; ?>
             </div>
             <button type="button" class="btn btn-outline-success" id="addDeparture">Add departure date</button>
+            </div>
             </section>
 
-            <section id="section-itinerary" class="form-section">
+            <section id="section-itinerary" class="form-section is-collapsed">
             <h2 class="section-title">Itinerary Days</h2>
             <div class="section-meta">Nhập từng ngày theo thứ tự. Mô tả dùng rich text ngắn để làm nổi bật điểm chính.</div>
             <div class="section-title-row">
                 <div class="section-count">Days: <span id="itineraryCountBadge"><?= esc((string) count($itineraryRows)) ?></span></div>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">▾</span><span>Collapse</span></button>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
             </div>
             <div class="accordion-content">
             <div class="itinerary-importer" id="itineraryImporter">
@@ -561,12 +594,12 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
             </div>
             </section>
 
-            <section id="section-media" class="form-section">
+            <section id="section-media" class="form-section is-collapsed">
             <h2 class="section-title">Media / Gallery</h2>
             <div class="section-meta">Ưu tiên `cover` cho tour card, `banner` cho hero, `gallery` cho phần trải nghiệm trong detail.</div>
             <div class="section-title-row">
                 <div class="section-count">Items: <span id="mediaCountBadge"><?= esc((string) count($mediaRows)) ?></span></div>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">▾</span><span>Collapse</span></button>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
             </div>
             <div class="accordion-content">
             <div id="mediaRows">
@@ -604,12 +637,84 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
             </div>
             </section>
 
-            <section id="section-faq" class="form-section">
+            <section id="section-inclusions" class="form-section is-collapsed">
+            <div class="section-title-row">
+                <h2 class="section-title mb-0">Price inclusions / exclusions</h2>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
+            </div>
+            <div class="section-meta">Quản lý từng dòng riêng cho phần giá bao gồm và không bao gồm. Cách này phù hợp hơn một đoạn text dài vì mỗi tour chỉ khác nhau ở vài mục.</div>
+            <div class="accordion-content">
+            <?php $inclusionSourceTours = array_values(array_filter((array) ($inclusionSourceTours ?? []), static fn($row): bool => is_array($row) && ! empty($row['id']))); ?>
+            <div class="row g-3 align-items-end mb-4">
+                <div class="col-lg-5">
+                    <label class="form-label">Copy price items from another tour</label>
+                    <select id="inclusionSourceTour" class="form-select">
+                        <option value="">-- Chọn tour nguồn --</option>
+                        <?php foreach ($inclusionSourceTours as $sourceTour): ?>
+                            <?php $includedCount = count((array) ($sourceTour['included'] ?? [])); ?>
+                            <?php $excludedCount = count((array) ($sourceTour['excluded'] ?? [])); ?>
+                            <option value="<?= esc((string) ($sourceTour['id'] ?? 0)) ?>"><?= esc((string) ($sourceTour['name'] ?? '')) ?><?= $includedCount + $excludedCount > 0 ? ' (' . $includedCount . '/' . $excludedCount . ')' : ' (chưa có dữ liệu)' ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-lg-7">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-copy-inclusions="included">Copy included</button>
+                        <button type="button" class="btn btn-outline-secondary" data-copy-inclusions="excluded">Copy excluded</button>
+                        <button type="button" class="btn btn-outline-primary" data-copy-inclusions="both">Copy both</button>
+                    </div>
+                    <div class="form-text mt-2">Dùng khi tour mới chỉ khác vài mục so với một tour đang có. Số trong ngoặc là `bao gồm/không bao gồm`.</div>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="section-title-row">
+                        <div class="section-count">Included: <span id="includedCountBadge"><?= esc((string) count($includedRows)) ?></span></div>
+                    </div>
+                    <div id="includedRows">
+                        <?php foreach (array_values($includedRows) as $index => $row): ?>
+                            <?php $row = is_array($row) ? $row : []; ?>
+                            <div class="repeat-item">
+                                <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                                <input type="hidden" name="included_items[<?= $index ?>][sort_order]" value="<?= esc((string) ($row['sort_order'] ?? $index)) ?>">
+                                <div class="row g-3">
+                                    <div class="col-md-6"><label>Label VI</label><input name="included_items[<?= $index ?>][label_vi]" class="form-control" value="<?= esc((string) ($row['label_vi'] ?? '')) ?>"></div>
+                                    <div class="col-md-6"><label>Label EN</label><input name="included_items[<?= $index ?>][label_en]" class="form-control" value="<?= esc((string) ($row['label_en'] ?? '')) ?>"></div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <button type="button" class="btn btn-outline-success" id="addIncludedItem">Add included item</button>
+                </div>
+                <div class="col-lg-6">
+                    <div class="section-title-row">
+                        <div class="section-count">Excluded: <span id="excludedCountBadge"><?= esc((string) count($excludedRows)) ?></span></div>
+                    </div>
+                    <div id="excludedRows">
+                        <?php foreach (array_values($excludedRows) as $index => $row): ?>
+                            <?php $row = is_array($row) ? $row : []; ?>
+                            <div class="repeat-item">
+                                <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                                <input type="hidden" name="excluded_items[<?= $index ?>][sort_order]" value="<?= esc((string) ($row['sort_order'] ?? $index)) ?>">
+                                <div class="row g-3">
+                                    <div class="col-md-6"><label>Label VI</label><input name="excluded_items[<?= $index ?>][label_vi]" class="form-control" value="<?= esc((string) ($row['label_vi'] ?? '')) ?>"></div>
+                                    <div class="col-md-6"><label>Label EN</label><input name="excluded_items[<?= $index ?>][label_en]" class="form-control" value="<?= esc((string) ($row['label_en'] ?? '')) ?>"></div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <button type="button" class="btn btn-outline-success" id="addExcludedItem">Add excluded item</button>
+                </div>
+            </div>
+            </div>
+            </section>
+
+            <section id="section-faq" class="form-section is-collapsed">
             <h2 class="section-title">FAQ</h2>
             <div class="section-meta">Chỉ giữ các câu hỏi thật sự lặp lại nhiều trong tư vấn để phần detail gọn hơn.</div>
             <div class="section-title-row">
                 <div class="section-count">Questions: <span id="faqCountBadge"><?= esc((string) count($faqRows)) ?></span></div>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">▾</span><span>Collapse</span></button>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
             </div>
             <div class="accordion-content">
             <div id="faqRows">
@@ -630,6 +735,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
             </div>
             </section>
 
+            <?php if (false): ?>
             <section id="section-seo" class="form-section">
             <h2 class="section-title">SEO</h2>
             <div class="section-meta">Meta riêng cho từng ngôn ngữ để không phụ thuộc vào phần content ở trên.</div>
@@ -653,6 +759,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                 </div>
             </div>
             </section>
+            <?php endif; ?>
 
             <div class="sticky-action-bar">
                 <div>
@@ -673,11 +780,14 @@ const countriesByParent = <?= json_encode($countriesByParent, JSON_UNESCAPED_UNI
 const provincesByRegion = <?= json_encode($domesticProvincesByRegion, JSON_UNESCAPED_UNICODE) ?>;
 const continents = <?= json_encode($continents, JSON_UNESCAPED_UNICODE) ?>;
 const regions = <?= json_encode($domesticRegions, JSON_UNESCAPED_UNICODE) ?>;
+const inclusionSourceTours = <?= json_encode($inclusionSourceTours ?? [], JSON_UNESCAPED_UNICODE) ?>;
 let destinationIndex = <?= count($destinationsRows) ?>;
 let departureIndex = <?= count($departureRows) ?>;
 let itineraryIndex = <?= count($itineraryRows) ?>;
 let mediaIndex = <?= count($mediaRows) ?>;
 let faqIndex = <?= count($faqRows) ?>;
+let includedIndex = <?= count($includedRows) ?>;
+let excludedIndex = <?= count($excludedRows) ?>;
 
 function fillCountries(row) {
   const continentSelect = row.querySelector('.js-continent-select');
@@ -1143,6 +1253,8 @@ function refreshSummaryMetrics() {
   const itineraryCount = countRows('#itineraryRows .repeat-item');
   const mediaCount = countRows('#mediaRows .repeat-item');
   const faqCount = countRows('#faqRows .repeat-item');
+  const includedCount = countRows('#includedRows .repeat-item');
+  const excludedCount = countRows('#excludedRows .repeat-item');
 
   document.getElementById('summaryName').textContent = nameValue;
   document.getElementById('summaryMeta').textContent = `${codeValue} · ${dayValue} ngày / ${nightValue} đêm`;
@@ -1160,6 +1272,10 @@ function refreshSummaryMetrics() {
   document.getElementById('itineraryCountBadge').textContent = itineraryCount;
   document.getElementById('mediaCountBadge').textContent = mediaCount;
   document.getElementById('faqCountBadge').textContent = faqCount;
+  const includedBadge = document.getElementById('includedCountBadge');
+  const excludedBadge = document.getElementById('excludedCountBadge');
+  if (includedBadge) includedBadge.textContent = includedCount;
+  if (excludedBadge) excludedBadge.textContent = excludedCount;
 
   updateSortOrders('#itineraryRows .itinerary-row', { renumberDays: true });
   updateSortOrders('#mediaRows .media-row');
@@ -1451,6 +1567,97 @@ document.getElementById('addMedia').addEventListener('click', () => {
   scheduleDraftSave();
 });
 
+function buildInclusionRowHtml(type, index, row = {}) {
+  const itemType = type === 'excluded' ? 'excluded' : 'included';
+  const labelVi = escapeHtml(row.label_vi || '');
+  const labelEn = escapeHtml(row.label_en || '');
+  const sortOrder = Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : index;
+
+  return `<button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+    <input type="hidden" name="${itemType}_items[${index}][sort_order]" value="${sortOrder}">
+    <div class="row g-3">
+      <div class="col-md-6"><label>Label VI</label><input name="${itemType}_items[${index}][label_vi]" class="form-control" value="${labelVi}"></div>
+      <div class="col-md-6"><label>Label EN</label><input name="${itemType}_items[${index}][label_en]" class="form-control" value="${labelEn}"></div>
+    </div>`;
+}
+
+function createInclusionRow(type, row = {}) {
+  const itemType = type === 'excluded' ? 'excluded' : 'included';
+  const index = itemType === 'excluded' ? excludedIndex++ : includedIndex++;
+  const div = document.createElement('div');
+  div.className = 'repeat-item';
+  div.innerHTML = buildInclusionRowHtml(itemType, index, row);
+  bindRemoveButtons(div);
+  return div;
+}
+
+function replaceInclusionRows(type, rows) {
+  const itemType = type === 'excluded' ? 'excluded' : 'included';
+  const container = document.getElementById(itemType === 'excluded' ? 'excludedRows' : 'includedRows');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const safeRows = Array.isArray(rows) && rows.length ? rows : [{ label_vi: '', label_en: '' }];
+  safeRows.forEach(row => {
+    container.appendChild(createInclusionRow(itemType, row || {}));
+  });
+  refreshSummaryMetrics();
+  scheduleDraftSave();
+}
+
+document.getElementById('addIncludedItem').addEventListener('click', () => {
+  const div = createInclusionRow('included');
+  document.getElementById('includedRows').appendChild(div);
+  refreshSummaryMetrics();
+  scheduleDraftSave();
+});
+
+document.getElementById('addExcludedItem').addEventListener('click', () => {
+  const div = createInclusionRow('excluded');
+  document.getElementById('excludedRows').appendChild(div);
+  refreshSummaryMetrics();
+  scheduleDraftSave();
+});
+
+document.querySelectorAll('[data-copy-inclusions]').forEach(button => {
+  button.addEventListener('click', () => {
+    const select = document.getElementById('inclusionSourceTour');
+    const sourceId = select?.value || '';
+    if (!sourceId) {
+      window.alert('Chọn tour nguồn trước.');
+      return;
+    }
+
+    const sourceTour = inclusionSourceTours.find(tour => String(tour.id) === String(sourceId));
+    if (!sourceTour) {
+      window.alert('Không đọc được dữ liệu từ tour nguồn.');
+      return;
+    }
+
+    if ((sourceTour.included || []).length === 0 && (sourceTour.excluded || []).length === 0) {
+      window.alert('Tour nguồn này chưa có dữ liệu bao gồm / không bao gồm theo cấu trúc mới để copy.');
+      return;
+    }
+
+    const mode = button.dataset.copyInclusions || 'both';
+    const shouldCopyIncluded = mode === 'included' || mode === 'both';
+    const shouldCopyExcluded = mode === 'excluded' || mode === 'both';
+    const confirmText = mode === 'both'
+      ? `Copy cả phần bao gồm và không bao gồm từ tour "${sourceTour.name}"?`
+      : `Copy phần ${mode === 'included' ? 'bao gồm' : 'không bao gồm'} từ tour "${sourceTour.name}"?`;
+
+    if (!window.confirm(confirmText)) return;
+
+    if (shouldCopyIncluded) {
+      replaceInclusionRows('included', sourceTour.included || []);
+    }
+
+    if (shouldCopyExcluded) {
+      replaceInclusionRows('excluded', sourceTour.excluded || []);
+    }
+  });
+});
+
 document.getElementById('addFaq').addEventListener('click', () => {
   const div = document.createElement('div');
   div.className = 'repeat-item';
@@ -1543,6 +1750,12 @@ function bindAccordions() {
       const collapsed = !section.classList.contains('is-collapsed');
       setAccordionState(section, collapsed);
     });
+
+    if (section?.classList.contains('is-collapsed')) {
+      setAccordionState(section, true);
+    } else if (section) {
+      setAccordionState(section, false);
+    }
   });
 }
 

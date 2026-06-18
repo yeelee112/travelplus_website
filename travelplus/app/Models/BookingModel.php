@@ -33,6 +33,8 @@ class BookingModel extends Model
         'adult_price',
         'child_price',
         'infant_price',
+        'single_room_requested',
+        'single_room_supplement_vnd',
         'subtotal_vnd',
         'discount_amount_vnd',
         'coupon_id',

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Data\LocalizedPathCatalog;
+use App\Services\SearchAnalyticsService;
 use App\Services\SeoService;
 use App\Services\TourCatalogService;
 
@@ -33,6 +34,17 @@ class SearchController extends BaseController
         $tourService = new TourCatalogService();
         $result = $tourService->searchTours($locale, $query, $departureFrom, $departureTo, 9, $page, $tourType !== '' ? $tourType : null, $promotionOnly);
         $fallbackTours = [];
+
+        (new SearchAnalyticsService())->track(
+            $this->request,
+            $query,
+            $departureFrom,
+            $departureTo,
+            $tourType,
+            $promotionOnly,
+            (int) ($result['total'] ?? 0),
+            session()->get('auth_user')
+        );
 
         if (((int) ($result['total'] ?? 0)) === 0) {
             $fallback = $tourService->getPagedTours($locale, 999, 1, $tourType !== '' ? $tourType : null, [], $promotionOnly);

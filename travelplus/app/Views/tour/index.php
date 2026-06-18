@@ -118,6 +118,33 @@ $heroMetaItems = array_values(array_filter([
     $departureFrom !== '' ? ['icon' => 'bi-airplane', 'label' => $departureFrom] : null,
     $destinationLabel !== '' ? ['icon' => 'bi-geo-alt', 'label' => $destinationLabel] : null,
 ]));
+$includedItems = array_values(array_filter((array) ($tour['inclusions']['included'] ?? []), static fn($item): bool => is_array($item) && trim((string) ($item['label'] ?? '')) !== ''));
+$excludedItems = array_values(array_filter((array) ($tour['inclusions']['excluded'] ?? []), static fn($item): bool => is_array($item) && trim((string) ($item['label'] ?? '')) !== ''));
+if ($includedItems === []) {
+    $includedItems = array_map(static fn(string $label): array => ['label' => $label], array_values(array_filter([
+        $t('tour.details.includeItem1'),
+        $t('tour.details.includeItem2'),
+        $t('tour.details.includeItem3'),
+        $t('tour.details.includeItem4'),
+        $t('tour.details.includeItem5'),
+        $t('tour.details.includeItem6'),
+        $t('tour.details.includeItem7'),
+        $t('tour.details.includeItem8'),
+    ], static fn(string $label): bool => trim($label) !== '')));
+}
+if ($excludedItems === []) {
+    $excludedItems = array_map(static fn(string $label): array => ['label' => $label], array_values(array_filter([
+        $t('tour.details.excludeItem1'),
+        $t('tour.details.excludeItem2'),
+        $t('tour.details.excludeItem3'),
+        $t('tour.details.excludeItem4'),
+        $t('tour.details.excludeItem5'),
+    ], static fn(string $label): bool => trim($label) !== '')));
+}
+$singleRoomSupplement = (float) ($tour['single_room_supplement'] ?? 0);
+$singleRoomSupplementLabel = $singleRoomSupplement > 0
+    ? number_format($singleRoomSupplement, 0, ',', '.') . 'đ'
+    : '';
 $reviewLabel = match (true) {
     $reviewSummary['overall'] >= 4.5 => $t('tour.reviewLabel.excellent'),
     $reviewSummary['overall'] >= 4.0 => $t('tour.reviewLabel.veryGood'),
@@ -206,6 +233,9 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                 <?php endif; ?>
                 <?php if ($departureLabel !== ''): ?>
                     <p><i class="bi bi-calendar-check" aria-hidden="true"></i><?= esc($departureLabel) ?></p>
+                <?php endif; ?>
+                <?php if ($singleRoomSupplementLabel !== ''): ?>
+                    <p><i class="bi bi-door-closed" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Single room supplement: ' : 'Phụ thu phòng đơn: ') ?><?= esc($singleRoomSupplementLabel) ?></p>
                 <?php endif; ?>
                 <button class="primary-btn1 two" <?= $hasBookableDepartures ? 'data-bs-toggle="modal" data-bs-target="#bookingModal"' : 'disabled' ?>>
                     <span><?= esc($hasBookableDepartures ? $t('tour.booking.bookNow') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
@@ -303,7 +333,7 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                     
             </div>
             <div class="modal-body">
-                <form action="<?= localized_url('booking/proceed') ?>" method="post" data-booking-proceed-form>
+                <form action="<?= localized_url('booking/proceed') ?>" method="post" data-booking-proceed-form data-single-room-supplement="<?= esc((string) (int) round($singleRoomSupplement), 'attr') ?>">
                     <?= csrf_field() ?>
                     <input type="hidden" name="tour_id" value="<?= esc((string) ($tour['id'] ?? 0)) ?>">
                     <input type="hidden" name="tour_title" value="<?= esc($tour['title']) ?>">
@@ -320,6 +350,7 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                     <input type="hidden" name="child_quantity" value="0" data-booking-quantity-hidden="child">
                     <input type="hidden" name="infant_quantity" value="0" data-booking-quantity-hidden="infant">
                     <input type="hidden" name="grand_total" value="<?= esc((string) $adultPrice) ?>" data-booking-grand-total-hidden>
+                    <input type="hidden" name="single_room_requested" value="0" data-booking-single-room-hidden>
                     <?php if ($departureOptions !== []): ?>
                     <div class="tour-departure-picker"
                         data-departure-selector
@@ -361,7 +392,20 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
 
                     <div class="additional-service-area booking-modal-travelers" data-max-travelers="<?= esc($maxTravelers) ?>" data-base-max-travelers="<?= esc($maxTravelers) ?>" data-duration-label="<?= esc($durationLabel, 'attr') ?>" data-departure-prefix="<?= esc($t('tour.booking.departurePrefix'), 'attr') ?>">
                         <div class="booking-modal-section-title">
-                            <h6><?= esc($t('tour.booking.travelersTitle')) ?></h6>
+                            <div class="booking-modal-section-title__main">
+                                <h6><?= esc($t('tour.booking.travelersTitle')) ?></h6>
+                                <button
+                                    type="button"
+                                    class="booking-modal-info-trigger"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="<?= esc($locale === 'en'
+                                        ? 'Adult >= 1, infant <= adult, and child + infant must not exceed 2 x adult.'
+                                        : 'Người lớn >= 1, em bé <= người lớn, và tổng trẻ em + em bé không vượt quá 2 x người lớn.', 'attr') ?>"
+                                    aria-label="<?= esc($locale === 'en' ? 'Traveler quantity rule' : 'Quy tắc số lượng khách', 'attr') ?>">
+                                    <i class="bi bi-info-circle"></i>
+                                </button>
+                            </div>
                             <sub data-booking-travelers-max-label>(<?= esc($t('tour.booking.travelersMax', [$maxTravelers])) ?>)</sub>
                         </div>
                         <ul class="service-list booking-service-list">
@@ -404,6 +448,19 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                             <strong class="booking-grand-total"><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?></strong>
                         </div>
                     </div>
+
+                    <?php if ($singleRoomSupplement > 0): ?>
+                        <div class="booking-modal-room-option">
+                            <label class="booking-modal-room-option__check">
+                                <input type="checkbox" value="1" data-booking-single-room-toggle>
+                                <span>
+                                    <strong><?= esc($locale === 'en' ? 'Request single room' : 'Yêu cầu phòng đơn') ?></strong>
+                                    <small><?= esc($locale === 'en' ? 'Apply surcharge when you want a private room during the whole trip.' : 'Áp dụng phụ thu khi khách cần ở phòng riêng trong suốt hành trình.') ?></small>
+                                </span>
+                            </label>
+                            <strong class="booking-modal-room-option__price"><?= esc($singleRoomSupplementLabel) ?></strong>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="btn-area booking-modal-actions">
                         <button class="primary-btn1 two" type="submit" <?= $hasBookableDepartures ? '' : 'disabled' ?>>
@@ -768,145 +825,44 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                     </div> -->
                     <div class="feature-list-area mb-60" id="tour-details">
                         <h4><?= esc($t('tour.details.title')) ?></h4>
-                        <div class="row gy-md-5 gy-4 justify-content-between">
-                            <div class="col-lg-5 col-md-6">
-                                <div class="single-feature-list">
-                                    <h5><?= esc($t('tour.details.includes')) ?></h5>
+                        <div class="row gy-4">
+                            <div class="col-12">
+                                <div class="single-feature-list single-feature-list--included">
+                                    <div class="single-feature-list__head">
+                                        <div class="single-feature-list__lead">
+                                            <span class="single-feature-list__eyebrow"><?= esc($locale === 'en' ? 'Included in tour price' : 'Đã gồm trong giá') ?></span>
+                                            <h5><?= esc($t('tour.details.includes')) ?></h5>
+                                        </div>
+                                        <small><?= esc((string) count($includedItems)) ?> <?= esc($locale === 'en' ? 'items' : 'mục') ?></small>
+                                    </div>
                                     <ul class="items-list two">
-                                        <li><svg width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">
-                                                </path>
-                                                <path
-                                                    d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
-                                                </path>
-                                            </svg><?= esc($t('tour.details.includeItem1')) ?></li>
-                                        <li><svg width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">
-                                                </path>
-                                                <path
-                                                    d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
-                                                </path>
-                                            </svg><?= esc($t('tour.details.includeItem2')) ?></li>
-                                        <li><svg width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">
-                                                </path>
-                                                <path
-                                                    d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
-                                                </path>
-                                            </svg><?= esc($t('tour.details.includeItem3')) ?></li>
-                                        <li><svg width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">
-                                                </path>
-                                                <path
-                                                    d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
-                                                </path>
-                                            </svg><?= esc($t('tour.details.includeItem4')) ?></li>
-                                        <li><svg width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">
-                                                </path>
-                                                <path
-                                                    d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
-                                                </path>
-                                            </svg><?= esc($t('tour.details.includeItem5')) ?></li>
-                                        <li><svg width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">
-                                                </path>
-                                                <path
-                                                    d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
-                                                </path>
-                                            </svg><?= esc($t('tour.details.includeItem6')) ?></li>
-                                        <li><svg width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">
-                                                </path>
-                                                <path
-                                                    d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
-                                                </path>
-                                            </svg><?= esc($t('tour.details.includeItem7')) ?></li>
-                                        <li><svg width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">
-                                                </path>
-                                                <path
-                                                    d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z">
-                                                </path>
-                                            </svg><?= esc($t('tour.details.includeItem8')) ?></li>
+                                        <?php foreach ($includedItems as $item): ?>
+                                            <li><span class="feature-item__icon"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z"></path>
+                                                    <path d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z"></path>
+                                                </svg></span><span class="feature-item__label"><?= esc((string) ($item['label'] ?? '')) ?></span></li>
+                                        <?php endforeach; ?>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-lg-5 col-md-6">
-                                <div class="single-feature-list">
-                                    <h5><?= esc($t('tour.details.excludes')) ?></h5>
+                            <div class="col-12">
+                                <div class="single-feature-list single-feature-list--excluded">
+                                    <div class="single-feature-list__head">
+                                        <div class="single-feature-list__lead">
+                                            <span class="single-feature-list__eyebrow"><?= esc($locale === 'en' ? 'Not included in tour price' : 'Chưa gồm trong giá') ?></span>
+                                            <h5><?= esc($t('tour.details.excludes')) ?></h5>
+                                        </div>
+                                        <small><?= esc((string) count($excludedItems)) ?> <?= esc($locale === 'en' ? 'items' : 'mục') ?></small>
+                                    </div>
                                     <ul class="items-list two">
-                                        <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <g>
-                                                    <path
-                                                        d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15C11.866 15 15 11.866 15 8ZM16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8Z">
-                                                    </path>
-                                                    <path
-                                                        d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
-                                                    </path>
-                                                </g>
-                                            </svg><?= esc($t('tour.details.excludeItem1')) ?></li>
-                                        <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <g>
-                                                    <path
-                                                        d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15C11.866 15 15 11.866 15 8ZM16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8Z">
-                                                    </path>
-                                                    <path
-                                                        d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
-                                                    </path>
-                                                </g>
-                                            </svg><?= esc($t('tour.details.excludeItem2')) ?></li>
-                                        <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <g>
-                                                    <path
-                                                        d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15C11.866 15 15 11.866 15 8ZM16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8Z">
-                                                    </path>
-                                                    <path
-                                                        d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
-                                                    </path>
-                                                </g>
-                                            </svg><?= esc($t('tour.details.excludeItem3')) ?></li>
-                                        <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <g>
-                                                    <path
-                                                        d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15C11.866 15 15 11.866 15 8ZM16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8Z">
-                                                    </path>
-                                                    <path
-                                                        d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
-                                                    </path>
-                                                </g>
-                                            </svg><?= esc($t('tour.details.excludeItem4')) ?></li>
-                                        <li><svg class="exclude" width="16" height="16" viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <g>
-                                                    <path
-                                                        d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15C11.866 15 15 11.866 15 8ZM16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8Z">
-                                                    </path>
-                                                    <path
-                                                        d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z">
-                                                    </path>
-                                                </g>
-                                            </svg><?= esc($t('tour.details.excludeItem5')) ?></li>
+                                        <?php foreach ($excludedItems as $item): ?>
+                                            <li><span class="feature-item__icon"><svg class="exclude" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                                    <g>
+                                                        <path d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15C11.866 15 15 11.866 15 8ZM16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8Z"></path>
+                                                        <path d="M6.00165 5.00036C5.8601 5.00368 5.72612 5.05514 5.62413 5.15703L5.1296 5.65267C4.89714 5.88495 4.92646 6.28828 5.19443 6.55662L6.67129 8.03561L5.19443 9.51394C4.92646 9.78219 4.89704 10.1856 5.1296 10.4184L5.62413 10.9136C5.8566 11.1458 6.2592 11.117 6.52753 10.8486L8.0044 9.36982L9.48126 10.8486C9.74978 11.117 10.1527 11.1458 10.3847 10.9136L10.8799 10.4184C11.1119 10.1857 11.0831 9.78228 10.8145 9.51394L9.33769 8.03561L10.8145 6.55662C11.0831 6.28828 11.1119 5.88495 10.8799 5.65267L10.3847 5.15703C10.1527 4.92429 9.74978 4.9537 9.48126 5.22241L8.0044 6.70084L6.52753 5.2225C6.37677 5.07109 6.18321 4.99594 6.00165 5.00036Z"></path>
+                                                    </g>
+                                                </svg></span><span class="feature-item__label"><?= esc((string) ($item['label'] ?? '')) ?></span></li>
+                                        <?php endforeach; ?>
                                     </ul>
                                 </div>
                             </div>
@@ -920,6 +876,14 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                     <div class="additional-info mb-60">
                         <h4><?= esc($t('tour.details.notes')) ?></h4>
                         <ul class="items-list two">
+                            <?php if ($singleRoomSupplementLabel !== ''): ?>
+                                <li><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z"></path>
+                                        <path d="M11.6947 6.45795L7.24644 10.9086C7.17556 10.9771 7.08572 11.0126 6.99596 11.0126C6.9494 11.0127 6.90328 11.0035 6.86027 10.9857C6.81727 10.9678 6.77822 10.9416 6.7454 10.9086L4.3038 8.46699C4.16436 8.32987 4.16436 8.10539 4.3038 7.96595L5.16652 7.10083C5.29892 6.96851 5.53524 6.96851 5.66764 7.10083L6.99596 8.42915L10.3309 5.09179C10.3638 5.05887 10.4028 5.03274 10.4457 5.01489C10.4887 4.99705 10.5347 4.98784 10.5812 4.98779C10.6757 4.98779 10.7656 5.02563 10.8317 5.09179L11.6944 5.95699C11.8341 6.09643 11.8341 6.32091 11.6947 6.45795Z"></path>
+                                    </svg>
+                                    <div class="content"><span><?= esc($locale === 'en' ? 'Single room supplement' : 'Phụ thu phòng đơn') ?></span> <?= esc($singleRoomSupplementLabel) ?></div>
+                                </li>
+                            <?php endif; ?>
                             <li><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15V16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16V15C11.866 15 15 11.866 15 8Z">

@@ -88,6 +88,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((element) => {
+            bootstrap.Tooltip.getOrCreateInstance(element);
+        });
+    }
+
     const formatVnd = (value) => `${new Intl.NumberFormat('vi-VN').format(value)}${messages.currencySuffix}`;
     const formatTemplate = (template, value) => String(template || '').replace('{0}', String(value));
 
@@ -220,6 +226,9 @@ document.addEventListener('DOMContentLoaded', function () {
         let maxTravelers = Number.parseInt(serviceArea.dataset.maxTravelers || '15', 10);
         const totalElement = serviceArea.querySelector('.booking-grand-total');
         const maxTravelersLabel = serviceArea.querySelector('[data-booking-travelers-max-label]');
+        const singleRoomToggle = bookingForm?.querySelector('[data-booking-single-room-toggle]');
+        const singleRoomHidden = bookingForm?.querySelector('[data-booking-single-room-hidden]');
+        const singleRoomSupplement = Number.parseInt(String(bookingForm?.dataset.singleRoomSupplement || '0'), 10) || 0;
 
         const getTotalTravelers = () =>
             serviceItems.reduce((sum, item) => {
@@ -227,6 +236,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 const value = Number.parseInt(input?.value || '0', 10);
                 return sum + (Number.isNaN(value) ? 0 : value);
             }, 0);
+
+        const getQuantityByType = (serviceType) => {
+            const item = serviceItems.find((serviceItem) => serviceItem.dataset.serviceType === serviceType);
+            const input = item?.querySelector('.quantity__input');
+
+            return Number.parseInt(input?.value || '0', 10) || 0;
+        };
+
+        const getInputByType = (serviceType) =>
+            serviceItems.find((serviceItem) => serviceItem.dataset.serviceType === serviceType)?.querySelector('.quantity__input') || null;
+
+        const clampTravelerMix = () => {
+            const adultInput = getInputByType('adult');
+            const childInput = getInputByType('child');
+            const infantInput = getInputByType('infant');
+
+            if (!(adultInput instanceof HTMLInputElement) || !(childInput instanceof HTMLInputElement) || !(infantInput instanceof HTMLInputElement)) {
+                return;
+            }
+
+            const adultQty = Math.max(1, Number.parseInt(adultInput.value || '1', 10) || 1);
+            let childQty = Math.max(0, Number.parseInt(childInput.value || '0', 10) || 0);
+            let infantQty = Math.max(0, Number.parseInt(infantInput.value || '0', 10) || 0);
+
+            if (infantQty > adultQty) {
+                infantQty = adultQty;
+            }
+
+            const maxDependentTravelers = adultQty * 2;
+            if ((childQty + infantQty) > maxDependentTravelers) {
+                childQty = Math.max(0, maxDependentTravelers - infantQty);
+            }
+
+            adultInput.value = String(adultQty);
+            childInput.value = String(childQty);
+            infantInput.value = String(infantQty);
+        };
 
         const updateTotals = () => {
             let grandTotal = 0;
@@ -247,6 +293,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             });
+
+            if (singleRoomHidden instanceof HTMLInputElement) {
+                singleRoomHidden.value = singleRoomToggle instanceof HTMLInputElement && singleRoomToggle.checked ? '1' : '0';
+            }
+
+            if (singleRoomToggle instanceof HTMLInputElement && singleRoomToggle.checked) {
+                grandTotal += singleRoomSupplement;
+            }
 
             if (totalElement) {
                 totalElement.textContent = formatVnd(grandTotal);
@@ -289,6 +343,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const currentValue = Number.parseInt(input.value || '0', 10) || 0;
                 setInputValue(input, currentValue);
             });
+
+            clampTravelerMix();
+            updateTotals();
         };
 
         const updateMaxTravelersLabel = () => {
@@ -298,13 +355,32 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         const setInputValue = (input, nextValue) => {
+            const serviceItem = input.closest('.booking-service-item');
+            const serviceType = serviceItem?.dataset.serviceType || '';
             const minValue = Number.parseInt(input.dataset.min || '0', 10) || 0;
             const currentValue = Number.parseInt(input.value || '0', 10) || 0;
             const totalWithoutCurrent = getTotalTravelers() - currentValue;
-            const maxAllowed = Math.max(minValue, maxTravelers - totalWithoutCurrent);
+            let maxAllowed = Math.max(minValue, maxTravelers - totalWithoutCurrent);
+            const adultQty = getQuantityByType('adult');
+            const childQty = getQuantityByType('child');
+            const infantQty = getQuantityByType('infant');
+
+            if (serviceType === 'child') {
+                maxAllowed = Math.min(maxAllowed, Math.max(0, (adultQty * 2) - infantQty));
+            }
+
+            if (serviceType === 'infant') {
+                maxAllowed = Math.min(maxAllowed, adultQty, Math.max(0, (adultQty * 2) - childQty));
+            }
+
             const normalizedValue = Math.max(minValue, Math.min(nextValue, maxAllowed));
 
             input.value = String(normalizedValue);
+
+            if (serviceType === 'adult') {
+                clampTravelerMix();
+            }
+
             updateTotals();
         };
 
@@ -359,6 +435,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateTotals();
         updateMaxTravelersLabel();
+
+        if (singleRoomToggle instanceof HTMLInputElement) {
+            singleRoomToggle.addEventListener('change', () => {
+                if (singleRoomHidden instanceof HTMLInputElement) {
+                    singleRoomHidden.value = singleRoomToggle.checked ? '1' : '0';
+                }
+                updateTotals();
+            });
+        }
     });
 
     const bookingProceedForm = document.querySelector('[data-booking-proceed-form]');

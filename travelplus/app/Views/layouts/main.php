@@ -31,6 +31,9 @@ $showAiChatbox = ! in_array($firstSegment, ['admin', 'api'], true);
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
 $isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
+if (str_starts_with($requestHost, 'demo.') || in_array($firstSegment, ['account', 'auth', 'booking'], true)) {
+    $metaRobots = 'noindex,nofollow,max-image-preview:large';
+}
 $hasMinifiedStyle = is_file($publicPath . DIRECTORY_SEPARATOR . 'assets/css/style.min.css');
 $styleAsset = (! $isLocalRequest && $hasMinifiedStyle)
     ? 'assets/css/style.min.css'

@@ -35,6 +35,7 @@ $routes->GET('tim-kiem-tour', 'SearchController::tours');
 $routes->GET('tour-he', 'SummerTours::index');
 
 $routes->GET('admin', 'Admin\Dashboard::index');
+$routes->GET('admin/analytics', 'Admin\Analytics::index');
 $routes->GET('admin/bookings', 'Admin\Bookings::index');
 $routes->GET('admin/bookings/export', 'Admin\Bookings::exportCsv');
 $routes->GET('admin/bookings/(:num)', 'Admin\Bookings::show/$1');
@@ -44,6 +45,7 @@ $routes->GET('admin/tours/create', 'Admin\Tours::create');
 $routes->POST('admin/tours', 'Admin\Tours::store');
 $routes->GET('admin/tours/(:num)/edit', 'Admin\Tours::edit/$1');
 $routes->POST('admin/tours/(:num)', 'Admin\Tours::update/$1');
+$routes->POST('admin/tours/(:num)/quick-update', 'Admin\Tours::quickUpdate/$1');
 $routes->POST('admin/tours/(:num)/delete', 'Admin\Tours::delete/$1');
 $routes->GET('admin/blogs', 'Admin\Blogs::index');
 $routes->GET('admin/blogs/create', 'Admin\Blogs::create');

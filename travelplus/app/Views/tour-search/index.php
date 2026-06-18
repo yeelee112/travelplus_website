@@ -25,9 +25,14 @@ $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args,
             <span><i class="bi bi-search" aria-hidden="true"></i></span>
             <h3><?= esc($t('search.noResultsTitle')) ?></h3>
             <p><?= esc($t('search.noResultsDesc')) ?></p>
-            <a href="<?= esc(\App\Data\LocalizedPathCatalog::url('contact', $locale ?? (service('request')->getLocale() === 'en' ? 'en' : 'vi'))) ?>" class="primary-btn1 two">
-                <span><?= esc($t('search.customTourCta')) ?></span>
-                <span><?= esc($t('search.customTourCta')) ?></span>
+            <a href="<?= esc(\App\Data\LocalizedPathCatalog::url('contact', $locale ?? (service('request')->getLocale() === 'en' ? 'en' : 'vi'))) ?>" class="travelplus-search-empty__cta">
+                <span class="travelplus-search-empty__cta-label">
+                    <i class="bi bi-stars" aria-hidden="true"></i>
+                    <span><?= esc($t('search.customTourCta')) ?></span>
+                </span>
+                <span class="travelplus-search-empty__cta-effect" aria-hidden="true">
+                    <span></span>
+                </span>
             </a>
         </div>
     </div>

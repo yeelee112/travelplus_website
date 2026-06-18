@@ -12,19 +12,76 @@ class Tours extends BaseAdminController
             return $redirect;
         }
 
-        $tours = db_connect()->table('tours t')
-            ->select('t.id, t.tour_type, t.status, t.base_price, t.view_count, t.updated_at, COALESCE(tt_vi.name, tt_en.name, CONCAT("Tour #", t.id)) AS name')
+        $db = db_connect();
+        $tours = $db->table('tours t')
+            ->select('t.id, t.tour_type, t.status, t.base_price, t.sale_price, t.view_count, t.updated_at, COALESCE(tt_vi.name, tt_en.name, CONCAT("Tour #", t.id)) AS name')
             ->join('tour_translations tt_vi', 'tt_vi.tour_id = t.id AND tt_vi.locale = "vi"', 'left')
             ->join('tour_translations tt_en', 'tt_en.tour_id = t.id AND tt_en.locale = "en"', 'left')
             ->orderBy('t.updated_at', 'DESC')
             ->get()
             ->getResultArray();
 
+        $tourIds = array_values(array_filter(array_map(static fn(array $tour): int => (int) ($tour['id'] ?? 0), $tours)));
+        $departuresByTour = $this->getDeparturesForIndex($db, $tourIds);
+
+        foreach ($tours as &$tour) {
+            $tourId = (int) ($tour['id'] ?? 0);
+            $tour['departures'] = $departuresByTour[$tourId] ?? [];
+            $tour['next_departure'] = $tour['departures'][0] ?? null;
+        }
+        unset($tour);
+
         return view('admin/tours/index', [
             'tours' => $tours,
             'success' => session()->getFlashdata('success'),
             'error' => session()->getFlashdata('error'),
         ]);
+    }
+
+    public function quickUpdate(int $tourId)
+    {
+        if ($redirect = $this->requireAdmin()) {
+            return $redirect;
+        }
+
+        if ($this->loadTourFormData($tourId) === null) {
+            return redirect()->to(site_url('admin/tours'))->with('error', 'Không tìm thấy tour.');
+        }
+
+        $rules = [
+            'base_price' => 'permit_empty|decimal',
+            'sale_price' => 'permit_empty|decimal',
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->to(site_url('admin/tours'))->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $post = $this->request->getPost();
+        $departureErrors = $this->validateDepartureRows($post);
+        if ($departureErrors !== []) {
+            return redirect()->to(site_url('admin/tours'))->with('error', implode(' ', array_values($departureErrors)));
+        }
+
+        $db = db_connect();
+        $now = date('Y-m-d H:i:s');
+        $fields = $db->getFieldNames('tours');
+        $data = array_intersect_key([
+            'base_price' => $this->nullableInt($post['base_price'] ?? null),
+            'sale_price' => $this->nullableInt($post['sale_price'] ?? null),
+            'updated_at' => $now,
+        ], array_flip($fields));
+
+        $db->transStart();
+        $db->table('tours')->where('id', $tourId)->update($data);
+        $this->replaceTourDepartures($db, $tourId, $post, $now);
+        $db->transComplete();
+
+        if (! $db->transStatus()) {
+            return redirect()->to(site_url('admin/tours'))->with('error', 'Không thể cập nhật nhanh tour lúc này.');
+        }
+
+        return redirect()->to(site_url('admin/tours'))->with('success', 'Đã cập nhật nhanh tour #' . $tourId . '.');
     }
 
     public function create()
@@ -147,9 +204,82 @@ class Tours extends BaseAdminController
             'countriesByParent' => $countriesByParent,
             'domesticRegions' => $domesticRegions,
             'domesticProvincesByRegion' => $domesticProvincesByRegion,
+            'inclusionSourceTours' => $this->getInclusionSourceTours(isset($viewData['tourId']) ? (int) ($viewData['tourId'] ?? 0) : 0),
             'errors' => session()->getFlashdata('errors') ?? [],
             'success' => session()->getFlashdata('success'),
         ]));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getInclusionSourceTours(int $excludeTourId = 0): array
+    {
+        $db = db_connect();
+
+        if (! $db->tableExists('tour_inclusions') || ! $db->tableExists('tour_inclusion_translations')) {
+            return [];
+        }
+
+        $tourQuery = $db->table('tours t')
+            ->select('t.id, COALESCE(tt_vi.name, tt_en.name, CONCAT("Tour #", t.id)) AS name')
+            ->join('tour_translations tt_vi', 'tt_vi.tour_id = t.id AND tt_vi.locale = "vi"', 'left')
+            ->join('tour_translations tt_en', 'tt_en.tour_id = t.id AND tt_en.locale = "en"', 'left');
+
+        if ($excludeTourId > 0) {
+            $tourQuery->where('t.id !=', $excludeTourId);
+        }
+
+        $tours = $tourQuery
+            ->orderBy('name', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        if ($tours === []) {
+            return [];
+        }
+
+        $tourIds = array_map(static fn(array $row): int => (int) $row['id'], $tours);
+        $inclusionRows = $db->table('tour_inclusions ti')
+            ->select('ti.tour_id, ti.type, ti.sort_order, vi.label AS label_vi, en.label AS label_en')
+            ->join('tour_inclusion_translations vi', 'vi.tour_inclusion_id = ti.id AND vi.locale = "vi"', 'left')
+            ->join('tour_inclusion_translations en', 'en.tour_inclusion_id = ti.id AND en.locale = "en"', 'left')
+            ->whereIn('ti.tour_id', $tourIds)
+            ->orderBy('ti.tour_id', 'ASC')
+            ->orderBy('ti.type', 'ASC')
+            ->orderBy('ti.sort_order', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $grouped = [];
+        foreach ($inclusionRows as $row) {
+            $tourId = (int) ($row['tour_id'] ?? 0);
+            if (! isset($grouped[$tourId])) {
+                $grouped[$tourId] = ['included' => [], 'excluded' => []];
+            }
+
+            $target = ($row['type'] ?? 'included') === 'excluded' ? 'excluded' : 'included';
+            $grouped[$tourId][$target][] = [
+                'label_vi' => (string) ($row['label_vi'] ?? ''),
+                'label_en' => (string) ($row['label_en'] ?? ''),
+                'sort_order' => (int) ($row['sort_order'] ?? 0),
+            ];
+        }
+
+        $result = [];
+        foreach ($tours as $tour) {
+            $tourId = (int) ($tour['id'] ?? 0);
+            $data = $grouped[$tourId] ?? ['included' => [], 'excluded' => []];
+
+            $result[] = [
+                'id' => $tourId,
+                'name' => (string) ($tour['name'] ?? ('Tour #' . $tourId)),
+                'included' => $data['included'],
+                'excluded' => $data['excluded'],
+            ];
+        }
+
+        return $result;
     }
 
     private function deleteTourRelations($db, int $tourId): void
@@ -164,6 +294,15 @@ class Tours extends BaseAdminController
 
         if ($db->tableExists('tour_departures')) {
             $db->table('tour_departures')->where('tour_id', $tourId)->delete();
+        }
+
+        if ($db->tableExists('tour_inclusions')) {
+            $inclusionIds = $db->table('tour_inclusions')->select('id')->where('tour_id', $tourId)->get()->getResultArray();
+            $ids = array_map(static fn(array $row): int => (int) $row['id'], $inclusionIds);
+            if ($ids !== [] && $db->tableExists('tour_inclusion_translations')) {
+                $db->table('tour_inclusion_translations')->whereIn('tour_inclusion_id', $ids)->delete();
+            }
+            $db->table('tour_inclusions')->where('tour_id', $tourId)->delete();
         }
 
         if ($db->tableExists('tour_media')) {
@@ -310,6 +449,7 @@ class Tours extends BaseAdminController
         $this->replaceTourTranslations($db, $tourId, $post);
         $this->replaceTourDestinations($db, $tourId, $post);
         $this->replaceTourDepartures($db, $tourId, $post, $now);
+        $this->replaceTourInclusions($db, $tourId, $post, $now);
         $this->replaceTourMedia($db, $tourId, $post, $now);
         $this->replaceTourItinerary($db, $tourId, $post, $now);
         $this->replaceTourFaqs($db, $tourId, $post, $now);
@@ -365,6 +505,7 @@ class Tours extends BaseAdminController
             'max_travelers' => $this->nullableInt($post['max_travelers'] ?? null),
             'base_price' => $this->nullableInt($post['base_price'] ?? null),
             'sale_price' => $this->nullableInt($post['sale_price'] ?? null),
+            'single_room_supplement' => $this->nullableInt($post['single_room_supplement'] ?? null),
             'child_price_rate' => $this->normalizeTravelerPriceRate($post['child_price_rate'] ?? null, 0.85),
             'infant_price_rate' => $this->normalizeTravelerPriceRate($post['infant_price_rate'] ?? null, 0.25),
             'currency' => 'VND',
@@ -485,6 +626,60 @@ class Tours extends BaseAdminController
 
         $db->table('tour_media')->where('tour_id', $tourId)->delete();
         $this->insertTourMedia($db, $tourId, $post, $now);
+    }
+
+    private function replaceTourInclusions($db, int $tourId, array $post, string $now): void
+    {
+        if (! $db->tableExists('tour_inclusions') || ! $db->tableExists('tour_inclusion_translations')) {
+            return;
+        }
+
+        $inclusionIds = $db->table('tour_inclusions')->select('id')->where('tour_id', $tourId)->get()->getResultArray();
+        $ids = array_map(static fn(array $row): int => (int) $row['id'], $inclusionIds);
+
+        if ($ids !== []) {
+            $db->table('tour_inclusion_translations')->whereIn('tour_inclusion_id', $ids)->delete();
+            $db->table('tour_inclusions')->where('tour_id', $tourId)->delete();
+        }
+
+        $groupedRows = [
+            'included' => array_values(array_filter((array) ($post['included_items'] ?? []), static fn($row) => is_array($row))),
+            'excluded' => array_values(array_filter((array) ($post['excluded_items'] ?? []), static fn($row) => is_array($row))),
+        ];
+
+        foreach ($groupedRows as $type => $rows) {
+            foreach ($rows as $index => $row) {
+                $labelVi = trim(strip_tags((string) ($row['label_vi'] ?? '')));
+                $labelEn = trim(strip_tags((string) ($row['label_en'] ?? '')));
+
+                if ($labelVi === '' && $labelEn === '') {
+                    continue;
+                }
+
+                $db->table('tour_inclusions')->insert([
+                    'tour_id' => $tourId,
+                    'type' => $type,
+                    'icon' => trim((string) ($row['icon'] ?? '')) ?: null,
+                    'sort_order' => (int) ($row['sort_order'] ?? $index),
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+
+                $inclusionId = (int) $db->insertID();
+
+                $db->table('tour_inclusion_translations')->insert([
+                    'tour_inclusion_id' => $inclusionId,
+                    'locale' => 'vi',
+                    'label' => $labelVi !== '' ? $labelVi : $labelEn,
+                ]);
+
+                $db->table('tour_inclusion_translations')->insert([
+                    'tour_inclusion_id' => $inclusionId,
+                    'locale' => 'en',
+                    'label' => $labelEn !== '' ? $labelEn : $labelVi,
+                ]);
+            }
+        }
     }
 
     private function insertTourMedia($db, int $tourId, array $post, string $now): void
@@ -667,6 +862,36 @@ class Tours extends BaseAdminController
         }
     }
 
+    /**
+     * @param array<int, int> $tourIds
+     * @return array<int, array<int, array<string, mixed>>>
+     */
+    private function getDeparturesForIndex($db, array $tourIds): array
+    {
+        if ($tourIds === [] || ! $db->tableExists('tour_departures')) {
+            return [];
+        }
+
+        $rows = $db->table('tour_departures')
+            ->select('tour_id, departure_date, available_slots, price, price_up, status')
+            ->whereIn('tour_id', $tourIds)
+            ->orderBy('tour_id', 'ASC')
+            ->orderBy('departure_date', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            $tourId = (int) ($row['tour_id'] ?? 0);
+            if ($tourId <= 0) {
+                continue;
+            }
+            $grouped[$tourId][] = $row;
+        }
+
+        return $grouped;
+    }
+
     private function loadTourFormData(int $tourId): ?array
     {
         $db = db_connect();
@@ -741,6 +966,36 @@ class Tours extends BaseAdminController
             ->get()
             ->getResultArray();
 
+        $includedItems = [];
+        $excludedItems = [];
+        if ($db->tableExists('tour_inclusions') && $db->tableExists('tour_inclusion_translations')) {
+            $inclusions = $db->table('tour_inclusions ti')
+                ->select('ti.type, ti.icon, ti.sort_order, vi.label AS label_vi, en.label AS label_en')
+                ->join('tour_inclusion_translations vi', 'vi.tour_inclusion_id = ti.id AND vi.locale = "vi"', 'left')
+                ->join('tour_inclusion_translations en', 'en.tour_inclusion_id = ti.id AND en.locale = "en"', 'left')
+                ->where('ti.tour_id', $tourId)
+                ->orderBy('ti.type', 'ASC')
+                ->orderBy('ti.sort_order', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            foreach ($inclusions as $row) {
+                $item = [
+                    'label_vi' => (string) ($row['label_vi'] ?? ''),
+                    'label_en' => (string) ($row['label_en'] ?? ''),
+                    'icon' => (string) ($row['icon'] ?? ''),
+                    'sort_order' => (int) ($row['sort_order'] ?? 0),
+                ];
+
+                if (($row['type'] ?? 'included') === 'excluded') {
+                    $excludedItems[] = $item;
+                    continue;
+                }
+
+                $includedItems[] = $item;
+            }
+        }
+
         return [
             'tour_type' => $tour['tour_type'] ?? 'outbound',
             'category_id' => $tour['category_id'] ?? '',
@@ -752,6 +1007,7 @@ class Tours extends BaseAdminController
             'min_travelers' => $tour['min_travelers'] ?? '',
             'base_price' => $tour['base_price'] ?? '',
             'sale_price' => $tour['sale_price'] ?? '',
+            'single_room_supplement' => $tour['single_room_supplement'] ?? '',
             'child_price_rate' => $tour['child_price_rate'] ?? '0.85',
             'infant_price_rate' => $tour['infant_price_rate'] ?? '0.25',
             'thumbnail' => $tour['thumbnail'] ?? '',
@@ -791,6 +1047,8 @@ class Tours extends BaseAdminController
             'itinerary_days' => $itinerary !== [] ? $itinerary : [$this->defaultItineraryRow()],
             'media' => $media !== [] ? $media : [$this->defaultMediaRow()],
             'faqs' => $faqs !== [] ? $faqs : [$this->defaultFaqRow()],
+            'included_items' => $includedItems !== [] ? $includedItems : [$this->defaultInclusionRow()],
+            'excluded_items' => $excludedItems !== [] ? $excludedItems : [$this->defaultInclusionRow()],
         ];
     }
 
@@ -811,6 +1069,8 @@ class Tours extends BaseAdminController
             'itinerary_days' => [$this->defaultItineraryRow()],
             'media' => [$this->defaultMediaRow()],
             'faqs' => [$this->defaultFaqRow()],
+            'included_items' => [$this->defaultInclusionRow()],
+            'excluded_items' => [$this->defaultInclusionRow()],
         ];
     }
 
@@ -822,6 +1082,16 @@ class Tours extends BaseAdminController
             'price' => '',
             'price_up' => '',
             'status' => 'open',
+        ];
+    }
+
+    private function defaultInclusionRow(): array
+    {
+        return [
+            'label_vi' => '',
+            'label_en' => '',
+            'icon' => '',
+            'sort_order' => 0,
         ];
     }
 

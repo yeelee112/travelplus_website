@@ -9,6 +9,7 @@ use App\Models\UserModel;
 use App\Services\BookingNotificationService;
 use App\Services\PayPalSandboxService;
 use App\Services\PromotionCodeService;
+use App\Services\VietnamPhoneService;
 use App\Services\VnpayGatewayService;
 use App\Services\VietQrService;
 
@@ -31,7 +32,7 @@ class BookingController extends BaseController
         if (! $this->validate($rules)) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Thong tin booking chua hop le.',
+                'message' => 'Thông tin booking chưa hợp lệ.',
                 'errors' => $this->validator->getErrors(),
             ]);
         }
@@ -40,6 +41,14 @@ class BookingController extends BaseController
         $childQty = (int) $this->request->getPost('child_quantity');
         $infantQty = (int) $this->request->getPost('infant_quantity');
         $departureDate = trim((string) $this->request->getPost('departure_date'));
+        $singleRoomRequested = (string) $this->request->getPost('single_room_requested') === '1';
+
+        if (! $this->isValidTravelerMix($adultQty, $childQty, $infantQty)) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok' => false,
+                'message' => $this->travelerMixErrorMessage($adultQty, $childQty, $infantQty),
+            ]);
+        }
 
         try {
             $pendingBooking = $this->buildPendingBookingSnapshot(
@@ -48,6 +57,7 @@ class BookingController extends BaseController
                 $adultQty,
                 $childQty,
                 $infantQty,
+                $singleRoomRequested,
                 trim((string) $this->request->getPost('tour_link'))
             );
         } catch (\RuntimeException $exception) {
@@ -240,7 +250,7 @@ class BookingController extends BaseController
         if ($pendingBooking === null) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Khong tim thay thong tin booking de thanh toan.',
+                'message' => 'Không tìm thấy thông tin booking để thanh toán.',
             ]);
         }
 
@@ -250,7 +260,7 @@ class BookingController extends BaseController
         if ($paymentPlan === null || $paymentMethod !== 'paypal') {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Thong tin thanh toan khong hop le.',
+                'message' => 'Thông tin thanh toán không hợp lệ.',
             ]);
         }
 
@@ -340,7 +350,7 @@ class BookingController extends BaseController
         if ($pendingBooking === null) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Khong tim thay thong tin booking de thanh toan.',
+                'message' => 'Không tìm thấy thông tin booking để thanh toán.',
             ]);
         }
 
@@ -350,7 +360,7 @@ class BookingController extends BaseController
         if ($paymentPlan === null || $paymentMethod !== 'vietqr') {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Phuong thuc thanh toan khong hop le.',
+                'message' => 'Phương thức thanh toán không hợp lệ.',
             ]);
         }
 
@@ -439,7 +449,7 @@ class BookingController extends BaseController
         if ($pendingBooking === null) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Khong tim thay thong tin booking de thanh toan.',
+                'message' => 'Không tìm thấy thông tin booking để thanh toán.',
             ]);
         }
 
@@ -449,7 +459,7 @@ class BookingController extends BaseController
         if ($paymentPlan === null || $paymentMethod !== 'vnpay') {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Phuong thuc thanh toan khong hop le.',
+                'message' => 'Phương thức thanh toán không hợp lệ.',
             ]);
         }
 
@@ -539,7 +549,7 @@ class BookingController extends BaseController
         if (! is_array($vietQrCheckout) || empty($vietQrCheckout['booking_code'])) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Khong tim thay giao dich VietQR de hoan tat.',
+                'message' => 'Không tìm thấy giao dịch VietQR để hoàn tất.',
             ]);
         }
 
@@ -550,7 +560,7 @@ class BookingController extends BaseController
         if (! is_array($booking)) {
             return $this->response->setStatusCode(404)->setJSON([
                 'ok' => false,
-                'message' => 'Khong tim thay booking de cap nhat.',
+                'message' => 'Không tìm thấy booking để cập nhật.',
             ]);
         }
 
@@ -585,7 +595,7 @@ class BookingController extends BaseController
         $paypalCheckout = session()->get('paypal_checkout');
 
         if ($orderId === '' || ! is_array($paypalCheckout)) {
-            session()->setFlashdata('checkout_error', 'Khong tim thay giao dich PayPal de xac nhan.');
+            session()->setFlashdata('checkout_error', 'Không tìm thấy giao dịch PayPal để xác nhận.');
             return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
         }
 
@@ -594,7 +604,7 @@ class BookingController extends BaseController
         $booking = $bookingCode !== '' ? $bookingModel->where('booking_code', $bookingCode)->first() : null;
 
         if (! is_array($booking)) {
-            session()->setFlashdata('checkout_error', 'Khong tim thay booking de cap nhat thanh toan.');
+            session()->setFlashdata('checkout_error', 'Không tìm thấy booking để cập nhật thanh toán.');
             return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
         }
 
@@ -672,7 +682,7 @@ class BookingController extends BaseController
 
         session()->remove('paypal_checkout');
         session()->remove('current_booking_code');
-        session()->setFlashdata('checkout_error', 'Ban da huy giao dich PayPal.');
+        session()->setFlashdata('checkout_error', 'Bạn đã hủy giao dịch PayPal.');
 
         return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
     }
@@ -684,7 +694,7 @@ class BookingController extends BaseController
         $result = $vnpay->validateReturnData($this->request->getGet(), $locale);
 
         if (! $result['is_valid']) {
-            session()->setFlashdata('checkout_error', 'Chu ky xac thuc VNPAY khong hop le.');
+            session()->setFlashdata('checkout_error', 'Chữ ký xác thực VNPAY không hợp lệ.');
             return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
         }
 
@@ -692,7 +702,7 @@ class BookingController extends BaseController
         $booking = $bookingModel->where('booking_code', $result['txn_ref'])->first();
 
         if (! is_array($booking)) {
-            session()->setFlashdata('checkout_error', 'Khong tim thay booking de cap nhat thanh toan.');
+            session()->setFlashdata('checkout_error', 'Không tìm thấy booking để cập nhật thanh toán.');
             return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
         }
 
@@ -708,7 +718,7 @@ class BookingController extends BaseController
         }
 
         if ((float) ($booking['amount_due_vnd'] ?? 0) !== (float) $result['amount_vnd']) {
-            session()->setFlashdata('checkout_error', 'So tien giao dich VNPAY khong khop voi booking.');
+            session()->setFlashdata('checkout_error', 'Số tiền giao dịch VNPAY không khớp với booking.');
             return redirect()->to(LocalizedPathCatalog::url('booking.checkout'));
         }
 
@@ -818,14 +828,39 @@ class BookingController extends BaseController
     {
         return $this->request->getLocale() === 'en'
             ? 'The booking request could not be processed. Please check your selection or contact Travel Plus.'
-            : 'Khong the xu ly yeu cau booking luc nay. Vui long kiem tra lai lua chon hoac lien he Travel Plus.';
+            : 'Không thể xử lý yêu cầu booking lúc này. Vui lòng kiểm tra lại lựa chọn hoặc liên hệ Travel Plus.';
+    }
+
+    private function travelerMixErrorMessage(int $adultQty, int $childQty, int $infantQty): string
+    {
+        if ($this->request->getLocale() === 'en') {
+            if ($adultQty < 1) {
+                return 'At least 1 adult is required.';
+            }
+
+            if ($infantQty > $adultQty) {
+                return 'Infants cannot exceed the number of adults.';
+            }
+
+            return 'Child and infant travelers cannot exceed 2 times the number of adults.';
+        }
+
+        if ($adultQty < 1) {
+            return 'Cần ít nhất 1 người lớn.';
+        }
+
+        if ($infantQty > $adultQty) {
+            return 'Số lượng em bé không được vượt quá số lượng người lớn.';
+        }
+
+        return 'Tổng số trẻ em và em bé không được vượt quá 2 lần số lượng người lớn.';
     }
 
     private function paymentRequestErrorMessage(): string
     {
         return $this->request->getLocale() === 'en'
             ? 'The payment request could not be processed right now. Please try again or contact Travel Plus.'
-            : 'Khong the xu ly thanh toan luc nay. Vui long thu lai hoac lien he Travel Plus.';
+            : 'Không thể xử lý thanh toán lúc này. Vui lòng thử lại hoặc liên hệ Travel Plus.';
     }
 
     private function getPendingBooking(): ?array
@@ -844,6 +879,7 @@ class BookingController extends BaseController
         int $adultQty,
         int $childQty,
         int $infantQty,
+        bool $singleRoomRequested = false,
         string $postedTourLink = ''
     ): array {
         $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
@@ -851,13 +887,17 @@ class BookingController extends BaseController
 
         foreach (['tours', 'tour_translations'] as $table) {
             if (! $db->tableExists($table)) {
-                throw new \RuntimeException('Du lieu tour chua san sang de dat cho.');
+                throw new \RuntimeException('Dữ liệu tour chưa sẵn sàng để đặt chỗ.');
             }
         }
 
         $totalTravelers = $adultQty + $childQty + $infantQty;
         if ($totalTravelers <= 0) {
-            throw new \RuntimeException('So luong khach khong hop le.');
+            throw new \RuntimeException('Số lượng khách không hợp lệ.');
+        }
+
+        if (! $this->isValidTravelerMix($adultQty, $childQty, $infantQty)) {
+            throw new \RuntimeException('Số lượng trẻ em/em bé vượt quá giới hạn cho phép.');
         }
 
         $tourFields = $db->getFieldNames('tours');
@@ -872,7 +912,7 @@ class BookingController extends BaseController
             'COALESCE(tt.slug, tt_vi.slug, CONCAT("tour-", t.id)) AS tour_slug',
         ];
 
-        foreach (['max_travelers', 'base_price', 'sale_price', 'currency', 'child_price_rate', 'infant_price_rate'] as $field) {
+        foreach (['max_travelers', 'base_price', 'sale_price', 'currency', 'child_price_rate', 'infant_price_rate', 'single_room_supplement'] as $field) {
             if ($has($field)) {
                 $select[] = 't.' . $field;
             }
@@ -889,7 +929,7 @@ class BookingController extends BaseController
             ->getRowArray();
 
         if (! is_array($tour)) {
-            throw new \RuntimeException('Tour khong ton tai hoac chua duoc cong bo.');
+            throw new \RuntimeException('Tour không tồn tại hoặc chưa được công bố.');
         }
 
         $departure = $this->resolveDepartureRow($db, $tourId, $departureDate);
@@ -904,7 +944,7 @@ class BookingController extends BaseController
         }
 
         if ($adultPrice <= 0) {
-            throw new \RuntimeException('Tour chua co gia hop le de dat cho.');
+            throw new \RuntimeException('Tour chưa có giá hợp lệ để đặt chỗ.');
         }
 
         $maxTravelers = (int) ($tour['max_travelers'] ?? self::DEFAULT_MAX_TRAVELERS);
@@ -916,14 +956,16 @@ class BookingController extends BaseController
         }
 
         if ($totalTravelers > $maxTravelers) {
-            throw new \RuntimeException('So luong khach vuot qua so cho con nhan.');
+            throw new \RuntimeException('Số lượng khách vượt quá số chỗ còn nhận.');
         }
 
         $childRate = $this->normalizeTravelerPriceRate($tour['child_price_rate'] ?? null, self::DEFAULT_CHILD_PRICE_RATE);
         $infantRate = $this->normalizeTravelerPriceRate($tour['infant_price_rate'] ?? null, self::DEFAULT_INFANT_PRICE_RATE);
         $childPrice = round($adultPrice * $childRate, 0);
         $infantPrice = round($adultPrice * $infantRate, 0);
-        $subtotal = ($adultQty * $adultPrice) + ($childQty * $childPrice) + ($infantQty * $infantPrice);
+        $eligibleSubtotal = ($adultQty * $adultPrice) + ($childQty * $childPrice) + ($infantQty * $infantPrice);
+        $singleRoomSupplement = $singleRoomRequested ? max(0, (float) ($tour['single_room_supplement'] ?? 0)) : 0.0;
+        $subtotal = $eligibleSubtotal + $singleRoomSupplement;
         $departureValue = (string) ($departure['departure_date'] ?? '');
 
         return [
@@ -944,6 +986,9 @@ class BookingController extends BaseController
             'adult_price' => $adultPrice,
             'child_price' => $childPrice,
             'infant_price' => $infantPrice,
+            'single_room_requested' => $singleRoomRequested,
+            'single_room_supplement_vnd' => $singleRoomSupplement,
+            'coupon_eligible_subtotal_vnd' => $eligibleSubtotal,
             'subtotal_vnd' => $subtotal,
             'discount_amount_vnd' => 0.0,
             'coupon_id' => null,
@@ -972,6 +1017,19 @@ class BookingController extends BaseController
         return $rate;
     }
 
+    private function isValidTravelerMix(int $adultQty, int $childQty, int $infantQty): bool
+    {
+        if ($adultQty < 1 || $childQty < 0 || $infantQty < 0) {
+            return false;
+        }
+
+        if ($infantQty > $adultQty) {
+            return false;
+        }
+
+        return ($childQty + $infantQty) <= ($adultQty * 2);
+    }
+
     private function resolveDepartureRow($db, int $tourId, string $departureDate): array
     {
         if (! $db->tableExists('tour_departures')) {
@@ -979,7 +1037,7 @@ class BookingController extends BaseController
         }
 
         if ($departureDate === '') {
-            throw new \RuntimeException('Vui long chon ngay khoi hanh.');
+            throw new \RuntimeException('Vui lòng chọn ngày khởi hành.');
         }
 
         $builder = $db->table('tour_departures')
@@ -995,7 +1053,7 @@ class BookingController extends BaseController
             ->getRowArray();
 
         if (! is_array($row)) {
-            throw new \RuntimeException('Ngay khoi hanh khong hop le hoac da het cho.');
+            throw new \RuntimeException('Ngày khởi hành không hợp lệ hoặc đã hết chỗ.');
         }
 
         return $row;
@@ -1097,7 +1155,7 @@ class BookingController extends BaseController
         $locale = $this->request->getLocale();
         $fullName = trim((string) $this->request->getPost('full_name'));
         $email = strtolower(trim((string) $this->request->getPost('email')));
-        $phone = trim((string) $this->request->getPost('phone'));
+        $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
         $note = trim((string) $this->request->getPost('note'));
 
         if ($fullName === '' || $email === '' || $phone === '') {
@@ -1111,6 +1169,15 @@ class BookingController extends BaseController
             return [
                 'data' => [],
                 'error' => lang('Frontend.checkout.invalidEmail', [], $locale),
+            ];
+        }
+
+        if (! VietnamPhoneService::isValid($phone)) {
+            return [
+                'data' => [],
+                'error' => $locale === 'en'
+                    ? 'Please enter a valid Vietnamese phone number.'
+                    : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.',
             ];
         }
 
@@ -1160,6 +1227,8 @@ class BookingController extends BaseController
             'adult_price' => (float) ($pendingBooking['adult_price'] ?? 0),
             'child_price' => (float) ($pendingBooking['child_price'] ?? 0),
             'infant_price' => (float) ($pendingBooking['infant_price'] ?? 0),
+            'single_room_requested' => ! empty($pendingBooking['single_room_requested']) ? 1 : 0,
+            'single_room_supplement_vnd' => (float) ($pendingBooking['single_room_supplement_vnd'] ?? 0),
             'subtotal_vnd' => (float) ($pendingBooking['subtotal_vnd'] ?? $pendingBooking['grand_total'] ?? 0),
             'discount_amount_vnd' => (float) ($pendingBooking['discount_amount_vnd'] ?? 0),
             'coupon_id' => (int) ($pendingBooking['coupon_id'] ?? 0) ?: null,
@@ -1183,7 +1252,7 @@ class BookingController extends BaseController
         }
 
         if (! is_array($booking)) {
-            throw new \RuntimeException('Khong the tao booking.');
+            throw new \RuntimeException('Không thể tạo booking.');
         }
 
         session()->set('current_booking_code', (string) $booking['booking_code']);

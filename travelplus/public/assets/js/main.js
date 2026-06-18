@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
      HELPER
   ===================================================== */
@@ -585,7 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
       noResults: locale === "en" ? "No results found" : "Không tìm thấy điểm đến",
       error: locale === "en" ? "Error loading data" : "Không tải được dữ liệu",
     };
-    suggestionCopy.searchFor = locale === "en" ? "Search with this keyword" : "TÃ¬m theo tá»« khÃ³a Ä‘Ã£ nháº­p";
+    suggestionCopy.searchFor = locale === "en" ? "Search with this keyword" : "Tìm theo từ khóa đã nhập";
     const popularSuggestions = locale === "en"
       ? [
           { type: "popular", name: "Japan", subtitle: "Tokyo, Osaka, Kyoto" },

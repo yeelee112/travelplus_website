@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Models\UserModel;
 use App\Services\AuthSessionControlService;
 use App\Services\RememberLoginService;
+use App\Services\VietnamPhoneService;
 
 class Users extends BaseAdminController
 {
@@ -71,12 +72,12 @@ class Users extends BaseAdminController
         $email = strtolower(trim((string) $this->request->getPost('email')));
         $username = trim((string) $this->request->getPost('username'));
         $fullName = trim((string) $this->request->getPost('full_name'));
-        $phone = trim((string) $this->request->getPost('phone'));
+        $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
         $status = trim((string) $this->request->getPost('status'));
         $password = (string) $this->request->getPost('password');
         $isAdmin = $this->request->getPost('is_admin') ? 1 : 0;
 
-        $errors = $this->validateUserPayload($userModel, $fullName, $email, $username, $status, $password, null);
+        $errors = $this->validateUserPayload($userModel, $fullName, $email, $username, $phone, $status, $password, null);
         if ($errors !== []) {
             return redirect()->back()->withInput()->with('errors', $errors);
         }
@@ -142,12 +143,12 @@ class Users extends BaseAdminController
         $email = strtolower(trim((string) $this->request->getPost('email')));
         $username = trim((string) $this->request->getPost('username'));
         $fullName = trim((string) $this->request->getPost('full_name'));
-        $phone = trim((string) $this->request->getPost('phone'));
+        $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
         $status = trim((string) $this->request->getPost('status'));
         $newPassword = (string) $this->request->getPost('new_password');
         $isAdmin = $this->request->getPost('is_admin') ? 1 : 0;
 
-        $errors = $this->validateUserPayload($userModel, $fullName, $email, $username, $status, $newPassword, $userId, true);
+        $errors = $this->validateUserPayload($userModel, $fullName, $email, $username, $phone, $status, $newPassword, $userId, true);
         if ($errors !== []) {
             return redirect()->back()->withInput()->with('errors', $errors);
         }
@@ -186,6 +187,7 @@ class Users extends BaseAdminController
         string $fullName,
         string $email,
         string $username,
+        string $phone,
         string $status,
         string $password,
         ?int $ignoreUserId = null,
@@ -204,6 +206,9 @@ class Users extends BaseAdminController
         }
         if (! in_array($status, ['active', 'inactive'], true)) {
             $errors[] = 'Trạng thái không hợp lệ.';
+        }
+        if ($phone !== '' && ! VietnamPhoneService::isValid($phone)) {
+            $errors[] = 'Số điện thoại Việt Nam không hợp lệ.';
         }
         if ((! $passwordOptional && strlen($password) < 6) || ($passwordOptional && $password !== '' && strlen($password) < 6)) {
             $errors[] = 'Mật khẩu phải có ít nhất 6 ký tự.';

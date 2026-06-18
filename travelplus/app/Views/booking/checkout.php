@@ -15,6 +15,9 @@ $subtotalAmount = (float) ($booking['subtotal_vnd'] ?? $grandTotal);
 $discountAmount = (float) ($booking['discount_amount_vnd'] ?? 0);
 $couponCode = trim((string) ($booking['coupon_code'] ?? ''));
 $couponName = trim((string) ($booking['coupon_name'] ?? ''));
+$singleRoomRequested = ! empty($booking['single_room_requested']);
+$singleRoomSupplementAmount = max(0, (float) ($booking['single_room_supplement_vnd'] ?? 0));
+$baseTourSubtotalAmount = max(0, (float) ($booking['coupon_eligible_subtotal_vnd'] ?? ($subtotalAmount - $singleRoomSupplementAmount)));
 $depositRate = 0.10;
 $depositAmount = $grandTotal * $depositRate;
 $checkoutNotice = trim((string) ($checkoutNotice ?? ''));
@@ -65,6 +68,11 @@ $couponUi = $locale === 'en'
         'none' => 'Chưa áp dụng mã',
         'hint' => 'Nhập mã để hệ thống cập nhật ngay số tiền cần thanh toán.',
     ];
+$singleRoomLabel = $locale === 'en' ? 'Single room supplement' : 'Phụ thu phòng đơn';
+$tourPriceLabel = $locale === 'en' ? 'Tour price' : 'Giá tour';
+$singleRoomValueLabel = $locale === 'en'
+    ? ($singleRoomRequested ? 'Requested' : 'Not requested')
+    : ($singleRoomRequested ? 'Có yêu cầu' : 'Không yêu cầu');
 ?>
 <style>
 .checkout-payment-options.is-highlighted {
@@ -239,6 +247,12 @@ $couponUi = $locale === 'en'
                                             <span><?= esc($t('checkout.priceInfant', [$infantQuantity])) ?></span>
                                             <strong><?= esc($formatCurrency((float) ($booking['infant_price'] ?? 0) * $infantQuantity)) ?></strong>
                                         </div>
+                                        <?php if ($singleRoomSupplementAmount > 0): ?>
+                                            <div class="price-breakdown-row">
+                                                <span><?= esc($singleRoomLabel) ?></span>
+                                                <strong data-single-room-amount><?= esc($formatCurrency($singleRoomSupplementAmount)) ?></strong>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
 
                                     <div class="checkout-coupon-row">
@@ -359,15 +373,27 @@ $couponUi = $locale === 'en'
                                                     <span><?= esc($t('checkout.travelers')) ?></span>
                                                     <strong><?= esc($travelerSummary) ?></strong>
                                                 </div>
+                                                <?php if ($singleRoomSupplementAmount > 0): ?>
+                                                    <div class="checkout-summary-meta-row">
+                                                        <span><?= esc($singleRoomLabel) ?></span>
+                                                        <strong><?= esc($singleRoomValueLabel) ?></strong>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="checkout-summary-group">
                                             <div class="checkout-summary-section-title">Thanh toán</div>
                                             <div class="checkout-summary-pricing">
                                                 <div class="checkout-summary-price-row">
-                                                    <span><?= esc($couponUi['subtotal']) ?></span>
-                                                    <strong data-subtotal-amount><?= esc($formatCurrency($subtotalAmount)) ?></strong>
+                                                    <span><?= esc($tourPriceLabel) ?></span>
+                                                    <strong data-base-subtotal-amount><?= esc($formatCurrency($baseTourSubtotalAmount)) ?></strong>
                                                 </div>
+                                                <?php if ($singleRoomSupplementAmount > 0): ?>
+                                                    <div class="checkout-summary-price-row" data-single-room-row>
+                                                        <span><?= esc($singleRoomLabel) ?></span>
+                                                        <strong data-single-room-amount><?= esc($formatCurrency($singleRoomSupplementAmount)) ?></strong>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div class="checkout-summary-price-row">
                                                     <span><?= esc($couponUi['discount']) ?></span>
                                                     <strong data-discount-amount>-<?= esc($formatCurrency($discountAmount)) ?></strong>
@@ -435,6 +461,12 @@ $couponUi = $locale === 'en'
                                     <span><?= esc($couponUi['current']) ?></span>
                                     <strong data-coupon-current-finish><?= esc($couponCode !== '' ? ($couponName !== '' ? $couponName . ' (' . $couponCode . ')' : $couponCode) : $couponUi['none']) ?></strong>
                                 </div>
+                                <?php if ($singleRoomSupplementAmount > 0): ?>
+                                    <div class="checkout-finish-item" data-single-room-row>
+                                        <span><?= esc($singleRoomLabel) ?></span>
+                                        <strong data-single-room-amount><?= esc($formatCurrency($singleRoomSupplementAmount)) ?></strong>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="checkout-finish-item">
                                     <span><?= esc($t('checkout.total')) ?></span>
                                     <strong data-grand-total><?= esc($formatCurrency($grandTotal)) ?></strong>
@@ -490,10 +522,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const planPreviewDepositOutputs = Array.from(root.querySelectorAll('[data-plan-preview="deposit"]'));
     const paymentMethodOutputs = Array.from(root.querySelectorAll('[data-payment-method-output]'));
     const grandTotalOutputs = Array.from(root.querySelectorAll('[data-grand-total]'));
-    const subtotalOutputs = Array.from(root.querySelectorAll('[data-subtotal-amount]'));
+    const baseSubtotalOutputs = Array.from(root.querySelectorAll('[data-base-subtotal-amount]'));
+    const singleRoomOutputs = Array.from(root.querySelectorAll('[data-single-room-amount]'));
     const discountOutputs = Array.from(root.querySelectorAll('[data-discount-amount]'));
-    const subtotalRow = root.querySelector('[data-subtotal-row]');
-    const discountRow = root.querySelector('[data-discount-row]');
+    const singleRoomRows = Array.from(root.querySelectorAll('[data-single-room-row]'));
     const errorBox = root.querySelector('[data-step-error]');
     const termsCheckbox = root.querySelector('[data-agree-terms]');
     const vietQrBox = root.querySelector('[data-vietqr-box]');
@@ -533,6 +565,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const csrfTokenName = window.CSRF_TOKEN_NAME || document.querySelector('meta[name="csrf-token-name"]')?.content || '';
     const csrfToken = window.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content || '';
     const pricingState = {
+        baseSubtotal: <?= json_encode($baseTourSubtotalAmount) ?>,
+        singleRoomSupplement: <?= json_encode($singleRoomSupplementAmount) ?>,
         subtotal: <?= json_encode($subtotalAmount) ?>,
         discount: <?= json_encode($discountAmount) ?>,
         grandTotal: <?= json_encode($grandTotal) ?>,
@@ -714,6 +748,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const renderPricing = function () {
         recalcPricingState();
+        pricingState.baseSubtotal = Math.max(0, (Number(pricingState.subtotal) || 0) - (Number(pricingState.singleRoomSupplement) || 0));
 
         planPreviewFullOutputs.forEach(function (output) {
             output.textContent = formatCurrency(Number(pricingState.grandTotal) || 0);
@@ -727,12 +762,20 @@ document.addEventListener('DOMContentLoaded', function () {
             output.textContent = formatCurrency(Number(pricingState.grandTotal) || 0);
         });
 
-        subtotalOutputs.forEach(function (output) {
-            output.textContent = formatCurrency(Number(pricingState.subtotal) || 0);
+        baseSubtotalOutputs.forEach(function (output) {
+            output.textContent = formatCurrency(Number(pricingState.baseSubtotal) || 0);
+        });
+
+        singleRoomOutputs.forEach(function (output) {
+            output.textContent = formatCurrency(Number(pricingState.singleRoomSupplement) || 0);
         });
 
         discountOutputs.forEach(function (output) {
             output.textContent = '-' + formatCurrency(Number(pricingState.discount) || 0);
+        });
+
+        singleRoomRows.forEach(function (row) {
+            row.hidden = (Number(pricingState.singleRoomSupplement) || 0) <= 0;
         });
 
         updatePaymentPlan();

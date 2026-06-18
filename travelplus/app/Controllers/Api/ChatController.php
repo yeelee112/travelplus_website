@@ -43,7 +43,7 @@ class ChatController extends BaseController
             return $this->response->setStatusCode(429)->setJSON([
                 'message' => $locale === 'en'
                     ? 'You are sending messages too quickly. Please try again in a moment.'
-                    : 'Ban dang gui tin nhan qua nhanh. Vui long thu lai sau it phut.',
+                    : 'Bạn đang gửi tin nhắn quá nhanh. Vui lòng thử lại sau ít phút.',
             ]);
         }
 
