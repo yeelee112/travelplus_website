@@ -41,6 +41,7 @@ $styleAsset = (! $isLocalRequest && $hasMinifiedStyle)
     : 'assets/css/style.css';
 $styleVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . $styleAsset) ?: time();
 $mainJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/main.js') ?: time();
+$faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/icon/favicon.svg') ?: time();
 ?>
 <!doctype html>
 <html lang="<?= esc($currentLocale) ?>">
@@ -53,6 +54,8 @@ $mainJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/main.
 <meta name="googlebot" content="<?= esc($metaRobots) ?>">
 <meta name="application-name" content="<?= esc($siteName) ?>">
 <meta name="theme-color" content="#0aa7df">
+<link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/icon/favicon.svg?v=' . $faviconVersion) ?>">
+<link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/icon/favicon.svg?v=' . $faviconVersion) ?>">
 <meta name="csrf-token-name" content="<?= esc(csrf_token()) ?>">
 <meta name="csrf-token" content="<?= esc(csrf_hash()) ?>">
 <link rel="canonical" href="<?= esc($canonicalUrl) ?>">

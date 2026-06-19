@@ -838,22 +838,14 @@ class BookingController extends BaseController
                 return 'At least 1 adult is required.';
             }
 
-            if ($infantQty > $adultQty) {
-                return 'Infants cannot exceed the number of adults.';
-            }
-
-            return 'Child and infant travelers cannot exceed 2 times the number of adults.';
+            return 'Each adult can accompany at most 01 child or infant.';
         }
 
         if ($adultQty < 1) {
             return 'Cần ít nhất 1 người lớn.';
         }
 
-        if ($infantQty > $adultQty) {
-            return 'Số lượng em bé không được vượt quá số lượng người lớn.';
-        }
-
-        return 'Tổng số trẻ em và em bé không được vượt quá 2 lần số lượng người lớn.';
+        return 'Mỗi người lớn chỉ được đi kèm tối đa 01 em bé/trẻ em.';
     }
 
     private function paymentRequestErrorMessage(): string
@@ -1023,11 +1015,7 @@ class BookingController extends BaseController
             return false;
         }
 
-        if ($infantQty > $adultQty) {
-            return false;
-        }
-
-        return ($childQty + $infantQty) <= ($adultQty * 2);
+        return ($childQty + $infantQty) <= $adultQty;
     }
 
     private function resolveDepartureRow($db, int $tourId, string $departureDate): array

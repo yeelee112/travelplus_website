@@ -1,4 +1,4 @@
-﻿<?= $this->extend('layouts/main') ?>
+<?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
 <?php
@@ -363,7 +363,7 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                             <strong data-departure-current-label><?= esc($departureLabel) ?></strong>
                             <i class="bi bi-chevron-down" aria-hidden="true"></i>
                         </button>
-                        <div class="tour-departure-menu" data-departure-menu>
+                        <div class="tour-departure-menu<?= count($departureOptions) === 1 ? ' tour-departure-menu--single' : '' ?>" data-departure-menu>
                             <?php foreach ($departureOptions as $index => $departureOption): ?>
                                 <?php $timestamp = strtotime((string) $departureOption['date']); ?>
                                 <button type="button" class="tour-departure-option<?= $index === 0 ? ' is-active' : '' ?>" data-departure-option data-departure-date="<?= esc((string) $departureOption['date']) ?>">
@@ -400,8 +400,8 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="<?= esc($locale === 'en'
-                                        ? 'Adult >= 1, infant <= adult, and child + infant must not exceed 2 x adult.'
-                                        : 'Người lớn >= 1, em bé <= người lớn, và tổng trẻ em + em bé không vượt quá 2 x người lớn.', 'attr') ?>"
+                                        ? 'Each adult can accompany at most 01 child/infant. Child/infant shares a bed with a parent at the current tour price.'
+                                        : 'Mỗi người lớn chỉ được đi kèm tối đa 01 em bé/trẻ em. Em bé/trẻ em ngủ chung với phụ huynh nếu tính theo giá tour hiện tại.', 'attr') ?>"
                                     aria-label="<?= esc($locale === 'en' ? 'Traveler quantity rule' : 'Quy tắc số lượng khách', 'attr') ?>">
                                     <i class="bi bi-info-circle"></i>
                                 </button>

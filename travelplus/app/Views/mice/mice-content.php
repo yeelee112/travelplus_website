@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $locale = service('request')->getLocale() ?: 'vi';
 $contentLocale = $locale ?? (service('request')->getLocale() === 'en' ? 'en' : 'vi');
 $contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $contentLocale);

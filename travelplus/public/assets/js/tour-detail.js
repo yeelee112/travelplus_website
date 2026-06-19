@@ -260,12 +260,9 @@ document.addEventListener('DOMContentLoaded', function () {
             let childQty = Math.max(0, Number.parseInt(childInput.value || '0', 10) || 0);
             let infantQty = Math.max(0, Number.parseInt(infantInput.value || '0', 10) || 0);
 
-            if (infantQty > adultQty) {
-                infantQty = adultQty;
-            }
-
-            const maxDependentTravelers = adultQty * 2;
+            const maxDependentTravelers = adultQty;
             if ((childQty + infantQty) > maxDependentTravelers) {
+                infantQty = Math.min(infantQty, maxDependentTravelers);
                 childQty = Math.max(0, maxDependentTravelers - infantQty);
             }
 
@@ -366,11 +363,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const infantQty = getQuantityByType('infant');
 
             if (serviceType === 'child') {
-                maxAllowed = Math.min(maxAllowed, Math.max(0, (adultQty * 2) - infantQty));
+                maxAllowed = Math.min(maxAllowed, Math.max(0, adultQty - infantQty));
             }
 
             if (serviceType === 'infant') {
-                maxAllowed = Math.min(maxAllowed, adultQty, Math.max(0, (adultQty * 2) - childQty));
+                maxAllowed = Math.min(maxAllowed, Math.max(0, adultQty - childQty));
             }
 
             const normalizedValue = Math.max(minValue, Math.min(nextValue, maxAllowed));

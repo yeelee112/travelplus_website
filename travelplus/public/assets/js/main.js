@@ -366,17 +366,49 @@
       infant: qs('[data-summary="infant"]', box),
     };
 
+    const getQuantityName = (field) => field.name.replace("_quantity", "");
+
+    const getQuantityInput = (quantityName) =>
+      countInputs.find((field) => getQuantityName(field) === quantityName) || null;
+
+    const getQuantityValue = (quantityName) => {
+      const field = getQuantityInput(quantityName);
+      const value = Number.parseInt(field?.value || "0", 10);
+      return Number.isNaN(value) ? 0 : value;
+    };
+
     const getTotalTravelers = () =>
       countInputs.reduce((sum, field) => {
         const value = Number.parseInt(field.value, 10);
         return sum + (Number.isNaN(value) ? 0 : value);
       }, 0);
 
+    const clampTravelerMix = () => {
+      const adultInput = getQuantityInput("adult");
+      const childInput = getQuantityInput("child");
+      const infantInput = getQuantityInput("infant");
+
+      if (!adultInput || !childInput || !infantInput) return;
+
+      const adultValue = Math.max(1, Number.parseInt(adultInput.value || "1", 10) || 1);
+      let childValue = Math.max(0, Number.parseInt(childInput.value || "0", 10) || 0);
+      let infantValue = Math.max(0, Number.parseInt(infantInput.value || "0", 10) || 0);
+
+      if (childValue + infantValue > adultValue) {
+        infantValue = Math.min(infantValue, adultValue);
+        childValue = Math.max(0, adultValue - infantValue);
+      }
+
+      adultInput.value = String(adultValue);
+      childInput.value = String(childValue);
+      infantInput.value = String(infantValue);
+    };
+
     const updateTravelerSummary = () => {
       if (countInputs.length === 0) return;
 
       countInputs.forEach((field) => {
-        const quantityName = field.name.replace("_quantity", "");
+        const quantityName = getQuantityName(field);
         const summaryTarget = summaryCounts[quantityName];
 
         if (!summaryTarget) return;
@@ -425,6 +457,7 @@
 
         const currentValue = Number.parseInt(quantityInput.value, 10) || 0;
         const minValue = Number.parseInt(quantityInput.dataset.min ?? "0", 10) || 0;
+        const quantityName = getQuantityName(quantityInput);
         let nextValue = button.classList.contains("guest-quantity__minus")
           ? Math.max(minValue, currentValue - 1)
           : currentValue + 1;
@@ -432,10 +465,20 @@
         if (button.classList.contains("guest-quantity__plus")) {
           const totalWithoutCurrent = getTotalTravelers() - currentValue;
           nextValue = Math.min(nextValue, maxTravelers - totalWithoutCurrent);
+
+          if (quantityName === "child") {
+            nextValue = Math.min(nextValue, Math.max(0, getQuantityValue("adult") - getQuantityValue("infant")));
+          }
+
+          if (quantityName === "infant") {
+            nextValue = Math.min(nextValue, Math.max(0, getQuantityValue("adult") - getQuantityValue("child")));
+          }
+
           nextValue = Math.max(minValue, nextValue);
         }
 
         quantityInput.value = String(nextValue);
+        clampTravelerMix();
         updateTravelerSummary();
       });
     });
@@ -455,17 +498,28 @@
         }
 
         const totalWithoutCurrent = getTotalTravelers() - (Number.parseInt(field.value, 10) || 0);
-        const maxAllowedForField = Math.max(minValue, maxTravelers - totalWithoutCurrent);
+        const quantityName = getQuantityName(field);
+        let maxAllowedForField = Math.max(minValue, maxTravelers - totalWithoutCurrent);
+
+        if (quantityName === "child") {
+          maxAllowedForField = Math.min(maxAllowedForField, Math.max(0, getQuantityValue("adult") - getQuantityValue("infant")));
+        }
+
+        if (quantityName === "infant") {
+          maxAllowedForField = Math.min(maxAllowedForField, Math.max(0, getQuantityValue("adult") - getQuantityValue("child")));
+        }
 
         if (currentValue > maxAllowedForField) {
           currentValue = maxAllowedForField;
         }
 
         field.value = String(currentValue);
+        clampTravelerMix();
         updateTravelerSummary();
       });
     });
 
+    clampTravelerMix();
     updateTravelerSummary();
   });
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
 $currentAbsoluteUrl = (string) service('request')->getUri();
 $isEnglish = $locale === 'en';
