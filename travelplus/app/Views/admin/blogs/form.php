@@ -116,48 +116,48 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                     <div class="small text-muted" id="draftRestoreTime"></div>
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearDraftButton">Xóa draft</button>
-                    <button type="button" class="btn btn-sm btn-primary" id="restoreDraftButton">Khôi phục draft</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearDraftButton">Xóa nháp</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="restoreDraftButton">Khôi phục nháp</button>
                 </div>
             </div>
         </div>
 
         <div class="blog-form-nav">
             <div class="nav-head">
-                <div class="title">Quick navigation</div>
+                <div class="title">Điều hướng nhanh</div>
                 <div class="summary-pills">
-                    <span class="summary-pill">Status: <?= esc((string) $fv('status', 'published')) ?></span>
-                    <span class="summary-pill">Featured: <?= (int) $fv('is_featured') === 1 ? 'Yes' : 'No' ?></span>
-                    <span class="summary-pill">Author: <?= esc($fv('author_name', 'Travel Plus')) ?></span>
+                    <span class="summary-pill">Trạng thái: <?= esc($fv('status', 'published') === 'published' ? 'Đã xuất bản' : 'Bản nháp') ?></span>
+                    <span class="summary-pill">Nổi bật: <?= (int) $fv('is_featured') === 1 ? 'Có' : 'Không' ?></span>
+                    <span class="summary-pill">Tác giả: <?= esc($fv('author_name', 'Travel Plus')) ?></span>
                 </div>
             </div>
             <div class="nav">
-                <a class="nav-link" href="#section-main">Main</a>
-                <a class="nav-link" href="#section-media">Media</a>
-                <a class="nav-link" href="#section-content">Content</a>
-                <a class="nav-link" href="#section-actions">Save</a>
+                <a class="nav-link" href="#section-main">Thông tin chính</a>
+                <a class="nav-link" href="#section-media">Hình ảnh</a>
+                <a class="nav-link" href="#section-content">Nội dung</a>
+                <a class="nav-link" href="#section-actions">Lưu</a>
             </div>
-            <div class="draft-status" id="draftStatusText">Autosave local: chưa có cập nhật mới.</div>
+            <div class="draft-status" id="draftStatusText">Tự lưu cục bộ: chưa có cập nhật mới.</div>
         </div>
 
         <div class="live-summary">
             <div class="live-summary-card">
-                <div class="live-summary-label">Live summary</div>
+                <div class="live-summary-label">Tóm tắt nhanh</div>
                 <div class="live-summary-value" id="summaryTitle"><?= esc($fv('title_vi', 'Chưa có tiêu đề')) ?></div>
                 <div class="live-summary-sub" id="summarySlug"><?= esc($fv('slug_vi', 'chua-co-slug')) ?></div>
             </div>
             <div class="live-summary-card">
-                <div class="live-summary-label">Publication</div>
-                <div class="live-summary-value" id="summaryStatus"><?= esc(ucfirst((string) $fv('status', 'published'))) ?></div>
+                <div class="live-summary-label">Xuất bản</div>
+                <div class="live-summary-value" id="summaryStatus"><?= esc($fv('status', 'published') === 'published' ? 'Đã xuất bản' : 'Bản nháp') ?></div>
                 <div class="live-summary-sub" id="summaryPublishedAt"><?= esc($fv('published_at', 'Chưa có lịch')) ?></div>
             </div>
             <div class="live-summary-card">
-                <div class="live-summary-label">Assets</div>
+                <div class="live-summary-label">Tài nguyên</div>
                 <div class="metric-list">
-                    <div class="metric-box"><span class="num" id="metricViLength">0</span><span class="lbl">VI chars</span></div>
-                    <div class="metric-box"><span class="num" id="metricEnLength">0</span><span class="lbl">EN chars</span></div>
-                    <div class="metric-box"><span class="num" id="metricImages"><?= ($thumbnail !== '' ? 1 : 0) + ($coverImage !== '' ? 1 : 0) + ($featuredImage !== '' ? 1 : 0) ?></span><span class="lbl">Header images</span></div>
-                    <div class="metric-box"><span class="num" id="metricSeo">0</span><span class="lbl">SEO filled</span></div>
+                    <div class="metric-box"><span class="num" id="metricViLength">0</span><span class="lbl">Ký tự VI</span></div>
+                    <div class="metric-box"><span class="num" id="metricEnLength">0</span><span class="lbl">Ký tự EN</span></div>
+                    <div class="metric-box"><span class="num" id="metricImages"><?= ($thumbnail !== '' ? 1 : 0) + ($coverImage !== '' ? 1 : 0) + ($featuredImage !== '' ? 1 : 0) ?></span><span class="lbl">Ảnh đầu trang</span></div>
+                    <div class="metric-box"><span class="num" id="metricSeo">0</span><span class="lbl">SEO đã nhập</span></div>
                 </div>
             </div>
         </div>
@@ -166,45 +166,45 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
             <?= csrf_field() ?>
 
             <section id="section-main" class="form-section">
-                <h2 class="section-title">Main Info</h2>
+                <h2 class="section-title">Thông tin chính</h2>
                 <div class="section-meta">Thông tin nền của bài viết: category, author, trạng thái và thời điểm xuất bản.</div>
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label>Category</label>
-                        <input name="category" list="blogCategoryOptions" class="form-control" value="<?= esc($fv('category', 'Cảm hứng du lịch')) ?>" placeholder="Chọn hoặc nhập category" required>
+                        <label>Danh mục</label>
+                        <input name="category" list="blogCategoryOptions" class="form-control" value="<?= esc($fv('category', 'Cảm hứng du lịch')) ?>" placeholder="Chọn hoặc nhập danh mục" required>
                         <datalist id="blogCategoryOptions">
                             <?php foreach ($categoryOptions as $categoryOption): ?>
                                 <option value="<?= esc($categoryOption) ?>"></option>
                             <?php endforeach; ?>
                         </datalist>
-                        <div class="help mt-1">Gõ để lọc category có sẵn hoặc nhập category mới.</div>
+                        <div class="help mt-1">Gõ để lọc danh mục có sẵn hoặc nhập danh mục mới.</div>
                     </div>
                     <div class="col-md-4">
-                        <label>Author</label>
+                        <label>Tác giả</label>
                         <input name="author_name" class="form-control" value="<?= esc($fv('author_name', 'Travel Plus')) ?>" required>
                     </div>
                     <div class="col-md-2">
-                        <label>Status</label>
+                        <label>Trạng thái</label>
                         <select name="status" class="form-select">
-                            <option value="draft" <?= $fv('status') === 'draft' ? 'selected' : '' ?>>Draft</option>
-                            <option value="published" <?= $fv('status', 'published') === 'published' ? 'selected' : '' ?>>Published</option>
+                            <option value="draft" <?= $fv('status') === 'draft' ? 'selected' : '' ?>>Bản nháp</option>
+                            <option value="published" <?= $fv('status', 'published') === 'published' ? 'selected' : '' ?>>Đã xuất bản</option>
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <label class="form-check">
                             <input class="form-check-input" type="checkbox" name="is_featured" value="1" <?= (int) $fv('is_featured') === 1 ? 'checked' : '' ?>>
-                            <span class="form-check-label">Featured</span>
+                            <span class="form-check-label">Bài nổi bật</span>
                         </label>
                     </div>
                     <div class="col-md-4">
-                        <label>Published at</label>
+                        <label>Thời điểm xuất bản</label>
                         <input type="datetime-local" name="published_at" class="form-control" value="<?= esc($fv('published_at')) ?>">
                     </div>
                 </div>
             </section>
 
             <section id="section-media" class="form-section">
-                <h2 class="section-title">Media</h2>
+                <h2 class="section-title">Hình ảnh</h2>
                 <div class="section-meta">Ảnh chính dùng cho card, banner và các điểm nhấn featured.</div>
                 <div class="preview-grid">
                     <div>
@@ -217,41 +217,41 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                         </div>
                     </div>
                     <div>
-                        <label>Cover image</label>
+                        <label>Ảnh cover</label>
                         <input type="file" name="cover_file" class="form-control js-image-input" data-preview="#previewCover" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
                         <input type="hidden" name="current_cover_image" value="<?= esc($coverImage) ?>">
                         <div class="preview-card mt-2">
-                            <img id="previewCover" src="<?= $coverImage !== '' ? esc(base_url($coverImage)) : '' ?>" alt="Cover preview" style="<?= $coverImage !== '' ? '' : 'display:none' ?>">
-                            <div class="help mt-2 js-preview-empty" style="<?= $coverImage !== '' ? 'display:none' : '' ?>">Chưa có cover image.</div>
+                            <img id="previewCover" src="<?= $coverImage !== '' ? esc(base_url($coverImage)) : '' ?>" alt="Xem trước ảnh cover" style="<?= $coverImage !== '' ? '' : 'display:none' ?>">
+                            <div class="help mt-2 js-preview-empty" style="<?= $coverImage !== '' ? 'display:none' : '' ?>">Chưa có ảnh cover.</div>
                         </div>
                     </div>
                     <div>
-                        <label>Featured image</label>
+                        <label>Ảnh nổi bật</label>
                         <input type="file" name="featured_file" class="form-control js-image-input" data-preview="#previewFeatured" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
                         <input type="hidden" name="current_featured_image" value="<?= esc($featuredImage) ?>">
                         <div class="preview-card mt-2">
-                            <img id="previewFeatured" src="<?= $featuredImage !== '' ? esc(base_url($featuredImage)) : '' ?>" alt="Featured preview" style="<?= $featuredImage !== '' ? '' : 'display:none' ?>">
-                            <div class="help mt-2 js-preview-empty" style="<?= $featuredImage !== '' ? 'display:none' : '' ?>">Chưa có featured image.</div>
+                            <img id="previewFeatured" src="<?= $featuredImage !== '' ? esc(base_url($featuredImage)) : '' ?>" alt="Xem trước ảnh nổi bật" style="<?= $featuredImage !== '' ? '' : 'display:none' ?>">
+                            <div class="help mt-2 js-preview-empty" style="<?= $featuredImage !== '' ? 'display:none' : '' ?>">Chưa có ảnh nổi bật.</div>
                         </div>
                     </div>
                 </div>
             </section>
 
             <section id="section-content" class="form-section">
-                <h2 class="section-title">Content</h2>
+                <h2 class="section-title">Nội dung</h2>
                 <div class="section-meta">Biên tập nội dung theo 2 ngôn ngữ trong cùng một khối để thao tác ngắn và rõ hơn.</div>
                 <div class="lang-tabs" data-tab-group="content">
                     <button type="button" class="lang-tab is-active" data-tab-target="content-vi">Tiếng Việt</button>
                     <button type="button" class="lang-tab" data-tab-target="content-en">English</button>
                 </div>
                 <div class="lang-actions">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="copyMetaViToEn">Copy VI -> EN</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="copyMetaViToEn">Sao chép VI sang EN</button>
                 </div>
 
                 <div class="lang-card lang-panel is-active" data-tab-panel="content-vi">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label>Title VI</label>
+                            <label>Tiêu đề VI</label>
                             <input name="title_vi" id="title_vi" class="form-control" value="<?= esc($fv('title_vi')) ?>" required>
                         </div>
                         <div class="col-md-6">
@@ -259,7 +259,7 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                             <input name="slug_vi" id="slug_vi" class="form-control" value="<?= esc($fv('slug_vi')) ?>" required>
                         </div>
                         <div class="col-md-12">
-                            <label>Excerpt VI</label>
+                            <label>Mô tả ngắn VI</label>
                             <textarea name="excerpt_vi" class="form-control"><?= esc($fv('excerpt_vi')) ?></textarea>
                         </div>
                         <div class="col-md-6">
@@ -284,11 +284,11 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                                 <button type="button" data-command="italic">I</button>
                                 <button type="button" data-command="formatBlock" data-value="h2">H2</button>
                                 <button type="button" data-command="formatBlock" data-value="h3">H3</button>
-                                <button type="button" data-command="insertUnorderedList">List</button>
+                                <button type="button" data-command="insertUnorderedList">Danh sách</button>
                                 <button type="button" data-command="insertOrderedList">1. 2. 3.</button>
-                                <button type="button" data-command="formatBlock" data-value="blockquote">Quote</button>
+                                <button type="button" data-command="formatBlock" data-value="blockquote">Trích dẫn</button>
                                 <button type="button" data-command="createLink">Link</button>
-                                <button type="button" data-command="removeFormat">Clear</button>
+                                <button type="button" data-command="removeFormat">Xóa định dạng</button>
                             </div>
                             <div class="editor-area js-editor" contenteditable="true" data-placeholder="Viết nội dung blog tiếng Việt ở đây..."></div>
                         </div>
@@ -302,7 +302,7 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                 <div class="lang-card lang-panel" data-tab-panel="content-en">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label>Title EN</label>
+                            <label>Tiêu đề EN</label>
                             <input name="title_en" id="title_en" class="form-control" value="<?= esc($fv('title_en')) ?>">
                         </div>
                         <div class="col-md-6">
@@ -310,7 +310,7 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                             <input name="slug_en" id="slug_en" class="form-control" value="<?= esc($fv('slug_en')) ?>">
                         </div>
                         <div class="col-md-12">
-                            <label>Excerpt EN</label>
+                            <label>Mô tả ngắn EN</label>
                             <textarea name="excerpt_en" class="form-control"><?= esc($fv('excerpt_en')) ?></textarea>
                         </div>
                         <div class="col-md-6">
@@ -335,16 +335,16 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                                 <button type="button" data-command="italic">I</button>
                                 <button type="button" data-command="formatBlock" data-value="h2">H2</button>
                                 <button type="button" data-command="formatBlock" data-value="h3">H3</button>
-                                <button type="button" data-command="insertUnorderedList">List</button>
+                                <button type="button" data-command="insertUnorderedList">Danh sách</button>
                                 <button type="button" data-command="insertOrderedList">1. 2. 3.</button>
-                                <button type="button" data-command="formatBlock" data-value="blockquote">Quote</button>
+                                <button type="button" data-command="formatBlock" data-value="blockquote">Trích dẫn</button>
                                 <button type="button" data-command="createLink">Link</button>
-                                <button type="button" data-command="removeFormat">Clear</button>
+                                <button type="button" data-command="removeFormat">Xóa định dạng</button>
                             </div>
                             <div class="editor-area js-editor" contenteditable="true" data-placeholder="Write the English blog content here..."></div>
                         </div>
                         <div class="editor-actions">
-                            <button type="button" class="btn btn-outline-primary btn-sm js-editor-upload">Insert image</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm js-editor-upload">Chèn ảnh</button>
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="copyViToEn">Copy toàn bộ từ VI sang EN</button>
                         </div>
                     </div>
@@ -353,7 +353,7 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
 
             <div id="section-actions" class="sticky-action-bar">
                 <div>
-                    <div class="fw-semibold"><?= $blogId ? 'Editing blog #' . (int) $blogId : 'Creating new blog' ?></div>
+                    <div class="fw-semibold"><?= $blogId ? 'Đang sửa blog #' . (int) $blogId : 'Tạo blog mới' ?></div>
                     <div class="meta">Kiểm tra lại title, slug, ảnh đại diện và content song ngữ trước khi lưu.</div>
                 </div>
                 <div class="d-flex justify-content-end gap-2">
@@ -557,7 +557,7 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
 
         document.getElementById('summaryTitle').textContent = title;
         document.getElementById('summarySlug').textContent = slug;
-        document.getElementById('summaryStatus').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        document.getElementById('summaryStatus').textContent = status === 'published' ? 'Đã xuất bản' : 'Bản nháp';
         document.getElementById('summaryPublishedAt').textContent = publishedAt;
         document.getElementById('metricViLength').textContent = String(contentVi.replace(/<[^>]+>/g, '').trim().length);
         document.getElementById('metricEnLength').textContent = String(contentEn.replace(/<[^>]+>/g, '').trim().length);
@@ -578,7 +578,7 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
         try {
             localStorage.setItem(draftStorageKey, JSON.stringify(serializeFormDraft()));
             const status = document.getElementById('draftStatusText');
-            if (status) status.textContent = 'Autosave local: ' + new Date().toLocaleTimeString('vi-VN');
+            if (status) status.textContent = 'Tự lưu cục bộ: ' + new Date().toLocaleTimeString('vi-VN');
         } catch (error) {
             console.warn('Draft save failed', error);
         }

@@ -147,8 +147,8 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                     <div class="small text-muted" id="draftRestoreTime"></div>
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearDraftButton">Clear</button>
-                    <button type="button" class="btn btn-sm btn-primary" id="restoreDraftButton">Restore draft</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearDraftButton">Xóa nháp</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="restoreDraftButton">Khôi phục nháp</button>
                 </div>
             </div>
         </div>
@@ -156,49 +156,49 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
         <div class="tour-form-nav">
             <div class="nav-head">
                 <div>
-                    <div class="title">Quick navigation</div>
-                    <div class="text-muted">Nhảy nhanh giữa các section.</div>
+                    <div class="title">Điều hướng nhanh</div>
+                    <div class="text-muted">Nhảy nhanh giữa các nhóm thông tin.</div>
                 </div>
                 <div class="summary-pills">
-                    <span class="summary-pill">Type: <?= esc(ucfirst($tourType)) ?></span>
-                    <span class="summary-pill">Status: <?= esc((string) $fv('status', 'draft')) ?></span>
+                    <span class="summary-pill">Loại tour: <?= esc(ucfirst($tourType)) ?></span>
+                    <span class="summary-pill">Trạng thái: <?= esc((string) $fv('status', 'draft')) ?></span>
                 </div>
             </div>
             <div class="nav mt-3">
-                <a class="nav-link" href="#section-main">Main</a>
-                <a class="nav-link" href="#section-locations">Locations</a>
-                <a class="nav-link" href="#section-destinations">Destinations</a>
-                <a class="nav-link" href="#section-content-vi">Content</a>
+                <a class="nav-link" href="#section-main">Thông tin chính</a>
+                <a class="nav-link" href="#section-locations">Điểm đi/đến</a>
+                <a class="nav-link" href="#section-destinations">Điểm đến</a>
+                <a class="nav-link" href="#section-content-vi">Nội dung</a>
                 <a class="nav-link" href="#section-seo">SEO</a>
-                <a class="nav-link" href="#section-departure">Departure</a>
-                <a class="nav-link" href="#section-itinerary">Itinerary</a>
-                <a class="nav-link" href="#section-media">Media</a>
-                <a class="nav-link" href="#section-inclusions">Price details</a>
+                <a class="nav-link" href="#section-departure">Khởi hành</a>
+                <a class="nav-link" href="#section-itinerary">Lịch trình</a>
+                <a class="nav-link" href="#section-media">Hình ảnh</a>
+                <a class="nav-link" href="#section-inclusions">Chi tiết giá</a>
             </div>
-            <div class="draft-status mt-2" id="draftStatusText">Autosave local: chưa có cập nhật mới.</div>
+            <div class="draft-status mt-2" id="draftStatusText">Tự lưu cục bộ: chưa có cập nhật mới.</div>
         </div>
 
         <div class="live-summary mb-3">
             <div class="live-summary-card">
-                <div class="live-summary-label">Live summary</div>
+                <div class="live-summary-label">Tóm tắt nhanh</div>
                 <div class="live-summary-value" id="summaryName"><?= esc($fv('name_vi', 'Chưa có tên tour')) ?></div>
                 <div class="live-summary-sub" id="summaryMeta">
-                    <?= esc($fv('code', 'No code')) ?> · <?= esc((string) $fv('duration_days', '5')) ?> ngày / <?= esc((string) $fv('duration_nights', '4')) ?> đêm
+                    <?= esc($fv('code', 'Chưa có mã')) ?> · <?= esc((string) $fv('duration_days', '5')) ?> ngày / <?= esc((string) $fv('duration_nights', '4')) ?> đêm
                 </div>
             </div>
             <div class="live-summary-card">
-                <div class="live-summary-label">Sales snapshot</div>
+                <div class="live-summary-label">Thông tin bán</div>
                 <div class="live-summary-value" id="summaryPrice"><?= esc($fv('base_price') !== '' ? number_format((int) $fv('base_price'), 0, ',', '.') . ' đ' : 'Chưa có giá') ?></div>
                 <div class="live-summary-sub" id="summaryStatus"><?= esc(ucfirst((string) $fv('status', 'draft'))) ?> · <?= esc(ucfirst($tourType)) ?></div>
             </div>
             <div class="live-summary-card">
-                <div class="live-summary-label">Structure</div>
+                <div class="live-summary-label">Cấu trúc nội dung</div>
                 <div class="metric-list">
-                    <div class="metric-box"><span class="num" id="metricDestinations"><?= esc((string) count($destinationsRows)) ?></span><span class="lbl">Destinations</span></div>
-                    <div class="metric-box"><span class="num" id="metricDepartures"><?= esc((string) count($departureRows)) ?></span><span class="lbl">Departures</span></div>
-                    <div class="metric-box"><span class="num" id="metricItinerary"><?= esc((string) count($itineraryRows)) ?></span><span class="lbl">Itinerary days</span></div>
-                    <div class="metric-box"><span class="num" id="metricMedia"><?= esc((string) count($mediaRows)) ?></span><span class="lbl">Media items</span></div>
-                    <div class="metric-box"><span class="num" id="metricFaq"><?= esc((string) count($faqRows)) ?></span><span class="lbl">FAQs</span></div>
+                    <div class="metric-box"><span class="num" id="metricDestinations"><?= esc((string) count($destinationsRows)) ?></span><span class="lbl">Điểm đến</span></div>
+                    <div class="metric-box"><span class="num" id="metricDepartures"><?= esc((string) count($departureRows)) ?></span><span class="lbl">Lịch khởi hành</span></div>
+                    <div class="metric-box"><span class="num" id="metricItinerary"><?= esc((string) count($itineraryRows)) ?></span><span class="lbl">Ngày lịch trình</span></div>
+                    <div class="metric-box"><span class="num" id="metricMedia"><?= esc((string) count($mediaRows)) ?></span><span class="lbl">Hình ảnh</span></div>
+                    <div class="metric-box"><span class="num" id="metricFaq"><?= esc((string) count($faqRows)) ?></span><span class="lbl">FAQ</span></div>
                 </div>
             </div>
         </div>
@@ -206,20 +206,20 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
         <form method="post" action="<?= esc($formAction) ?>" enctype="multipart/form-data" id="tourForm">
             <?= csrf_field() ?>
             <section id="section-main" class="form-section">
-            <h2 class="section-title">Main Info</h2>
+            <h2 class="section-title">Thông tin chính</h2>
             <div class="section-meta">Thông tin nền của tour, giá cơ bản, trạng thái hiển thị và giới hạn khách.</div>
             <div class="row g-3">
                 <div class="col-md-3">
-                    <label>Tour type</label>
+                    <label>Loại tour</label>
                     <select name="tour_type" class="form-select" required>
-                        <option value="outbound" <?= $tourType === 'outbound' ? 'selected' : '' ?>>Outbound</option>
-                        <option value="inbound" <?= $tourType === 'inbound' ? 'selected' : '' ?>>Inbound</option>
+                        <option value="outbound" <?= $tourType === 'outbound' ? 'selected' : '' ?>>Tour nước ngoài</option>
+                        <option value="inbound" <?= $tourType === 'inbound' ? 'selected' : '' ?>>Tour trong nước</option>
                     </select>
                 </div>
                 <div class="col-md-5">
-                    <label>Category</label>
+                    <label>Danh mục</label>
                     <select name="category_id" class="form-select" required>
-                        <option value="">-- Choose category --</option>
+                        <option value="">-- Chọn danh mục --</option>
                         <?php foreach ($categories as $category): ?>
                             <option value="<?= esc($category['id']) ?>" <?= (string) $fv('category_id') === (string) $category['id'] ? 'selected' : '' ?>>
                                 #<?= esc($category['id']) ?> - <?= esc($category['name']) ?> (<?= esc($category['type']) ?>)
@@ -227,63 +227,63 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-2"><label>Code</label><input name="code" class="form-control" value="<?= esc($fv('code')) ?>"></div>
+                <div class="col-md-2"><label>Mã tour</label><input name="code" class="form-control" value="<?= esc($fv('code')) ?>"></div>
                 <div class="col-md-2"><label>SKU</label><input name="sku" class="form-control" value="<?= esc($fv('sku')) ?>"></div>
-                <div class="col-md-2"><label>Days</label><input type="number" min="1" name="duration_days" class="form-control" value="<?= esc($fv('duration_days', '5')) ?>" required></div>
-                <div class="col-md-2"><label>Nights</label><input type="number" min="0" name="duration_nights" class="form-control" value="<?= esc($fv('duration_nights', '4')) ?>" required></div>
-                <div class="col-md-2"><label>Min travelers</label><input type="number" min="0" name="min_travelers" class="form-control" value="<?= esc($fv('min_travelers')) ?>"></div>
-                <div class="col-md-2"><label>Max travelers</label><input type="number" min="0" name="max_travelers" class="form-control" value="<?= esc($fv('max_travelers', '15')) ?>"></div>
-                <div class="col-md-3"><label>Adult price</label><input type="number" min="0" name="base_price" class="form-control" value="<?= esc($fv('base_price')) ?>"></div>
-                <div class="col-md-3"><label>Sale price</label><input type="number" min="0" name="sale_price" class="form-control" value="<?= esc($fv('sale_price')) ?>"></div>
+                <div class="col-md-2"><label>Số ngày</label><input type="number" min="1" name="duration_days" class="form-control" value="<?= esc($fv('duration_days', '5')) ?>" required></div>
+                <div class="col-md-2"><label>Số đêm</label><input type="number" min="0" name="duration_nights" class="form-control" value="<?= esc($fv('duration_nights', '4')) ?>" required></div>
+                <div class="col-md-2"><label>Số khách tối thiểu</label><input type="number" min="0" name="min_travelers" class="form-control" value="<?= esc($fv('min_travelers')) ?>"></div>
+                <div class="col-md-2"><label>Số khách tối đa</label><input type="number" min="0" name="max_travelers" class="form-control" value="<?= esc($fv('max_travelers', '15')) ?>"></div>
+                <div class="col-md-3"><label>Giá người lớn</label><input type="number" min="0" name="base_price" class="form-control" value="<?= esc($fv('base_price')) ?>"></div>
+                <div class="col-md-3"><label>Giá khuyến mãi</label><input type="number" min="0" name="sale_price" class="form-control" value="<?= esc($fv('sale_price')) ?>"></div>
                   <div class="col-md-3">
                     <label>Phụ thu phòng đơn</label>
                     <input type="number" min="0" name="single_room_supplement" class="form-control" value="<?= esc($fv('single_room_supplement')) ?>">
                     <div class="help">Khoản phụ thu áp dụng khi khách yêu cầu ở phòng riêng trong suốt hành trình.</div>
                   </div>
                 <div class="col-md-3">
-                    <label>Child rate</label>
+                    <label>Tỷ lệ giá trẻ em</label>
                     <input type="number" min="0" max="1" step="0.01" name="child_price_rate" class="form-control" value="<?= esc($fv('child_price_rate', '0.85')) ?>">
-                    <div class="help">0.85 = 85% adult price</div>
+                    <div class="help">0.85 = 85% giá người lớn</div>
                 </div>
                 <div class="col-md-3">
-                    <label>Infant rate</label>
+                    <label>Tỷ lệ giá em bé</label>
                     <input type="number" min="0" max="1" step="0.01" name="infant_price_rate" class="form-control" value="<?= esc($fv('infant_price_rate', '0.25')) ?>">
-                    <div class="help">0.25 = 25% adult price</div>
+                    <div class="help">0.25 = 25% giá người lớn</div>
                 </div>
-                <div class="col-md-6"><label>Thumbnail</label><input name="thumbnail" class="form-control" value="<?= esc($fv('thumbnail')) ?>"></div>
+                <div class="col-md-6"><label>Ảnh đại diện</label><input name="thumbnail" class="form-control" value="<?= esc($fv('thumbnail')) ?>"></div>
                 <div class="col-md-3">
-                    <label>Status</label>
+                    <label>Trạng thái</label>
                     <select name="status" class="form-select">
-                        <option value="draft" <?= $fv('status', 'draft') === 'draft' ? 'selected' : '' ?>>Draft</option>
-                        <option value="published" <?= $fv('status') === 'published' ? 'selected' : '' ?>>Published</option>
+                        <option value="draft" <?= $fv('status', 'draft') === 'draft' ? 'selected' : '' ?>>Bản nháp</option>
+                        <option value="published" <?= $fv('status') === 'published' ? 'selected' : '' ?>>Đã xuất bản</option>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
                     <label class="form-check">
                         <input type="checkbox" name="is_featured" value="1" class="form-check-input" <?= (int) $fv('is_featured') === 1 ? 'checked' : '' ?>>
-                        <span class="form-check-label">Featured tour</span>
+                        <span class="form-check-label">Tour nổi bật</span>
                     </label>
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
                     <label class="form-check">
                         <input type="checkbox" name="is_promotion" value="1" class="form-check-input" <?= (int) $fv('is_promotion') === 1 ? 'checked' : '' ?>>
-                        <span class="form-check-label">Show in home promotion</span>
+                        <span class="form-check-label">Hiển thị ở khuyến mãi trang chủ</span>
                     </label>
                 </div>
-                <div class="col-md-3"><label>Promotion badge</label><input name="promotion_badge" class="form-control" value="<?= esc($fv('promotion_badge', 'Tour khuyến mãi')) ?>"></div>
-                <div class="col-md-3"><label>Promotion ends at</label><input type="datetime-local" name="promotion_ends_at" class="form-control" value="<?= esc($fv('promotion_ends_at')) ?>"></div>
-                <div class="col-md-3"><label>Promotion sort</label><input type="number" name="promotion_sort" class="form-control" value="<?= esc($fv('promotion_sort', '0')) ?>"></div>
+                <div class="col-md-3"><label>Nhãn khuyến mãi</label><input name="promotion_badge" class="form-control" value="<?= esc($fv('promotion_badge', 'Tour khuyến mãi')) ?>"></div>
+                <div class="col-md-3"><label>Thời điểm kết thúc ưu đãi</label><input type="datetime-local" name="promotion_ends_at" class="form-control" value="<?= esc($fv('promotion_ends_at')) ?>"></div>
+                <div class="col-md-3"><label>Thứ tự khuyến mãi</label><input type="number" name="promotion_sort" class="form-control" value="<?= esc($fv('promotion_sort', '0')) ?>"></div>
             </div>
             </section>
 
             <section id="section-locations" class="form-section">
-            <h2 class="section-title">Locations</h2>
+            <h2 class="section-title">Điểm đi và điểm đến chính</h2>
             <div class="section-meta">Điểm khởi hành và điểm đến chính dùng cho phân loại, breadcrumb và filter.</div>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label>Departure location</label>
+                    <label>Điểm đón / khởi hành</label>
                     <select name="departure_location_id" class="form-select" required>
-                        <option value="">-- Choose departure --</option>
+                        <option value="">-- Chọn điểm đón --</option>
                         <?php foreach ($locations as $location): ?>
                             <option value="<?= esc($location['id']) ?>" <?= (string) $fv('departure_location_id') === (string) $location['id'] ? 'selected' : '' ?>>
                                 #<?= esc($location['id']) ?> - <?= esc($location['name']) ?> (<?= esc($location['type']) ?>)
@@ -292,17 +292,17 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label>Primary destination</label>
+                    <label>Điểm đến chính</label>
                     <select name="primary_destination_id" class="form-select">
-                        <option value="">-- Optional --</option>
-                        <optgroup label="Outbound countries" data-tour-type="outbound">
+                        <option value="">-- Không bắt buộc --</option>
+                        <optgroup label="Quốc gia cho tour nước ngoài" data-tour-type="outbound">
                             <?php foreach ($countries as $country): ?>
                                 <option value="<?= esc($country['id']) ?>" data-tour-type="outbound" <?= (string) $fv('primary_destination_id') === (string) $country['id'] ? 'selected' : '' ?>>
                                     #<?= esc($country['id']) ?> - <?= esc($country['name']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </optgroup>
-                        <optgroup label="Domestic provinces" data-tour-type="inbound">
+                        <optgroup label="Tỉnh/thành cho tour trong nước" data-tour-type="inbound">
                             <?php foreach ($provinces as $province): ?>
                                 <option value="<?= esc($province['id']) ?>" data-tour-type="inbound" <?= (string) $fv('primary_destination_id') === (string) $province['id'] ? 'selected' : '' ?>>
                                     #<?= esc($province['id']) ?> - <?= esc($province['name']) ?>
@@ -317,112 +317,112 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             <section id="section-destinations" class="form-section is-collapsed">
             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
                 <div>
-                    <h2 class="section-title">Destinations</h2>
-                    <div class="section-meta mb-0">Outbound: Continent - Country. Inbound: Region - Province/City.</div>
+                    <h2 class="section-title">Danh sách điểm đến</h2>
+                    <div class="section-meta mb-0">Tour nước ngoài: châu lục - quốc gia. Tour trong nước: vùng - tỉnh/thành.</div>
                 </div>
                 <div class="subtle-card">
-                    <div class="fw-semibold small mb-1">Tip</div>
-                    <div class="small text-muted">Tour đi nhiều điểm nên thêm đủ tất cả điểm đến ở đây trước khi nhập itinerary.</div>
+                    <div class="fw-semibold small mb-1">Gợi ý</div>
+                    <div class="small text-muted">Tour đi nhiều điểm nên thêm đủ tất cả điểm đến ở đây trước khi nhập lịch trình.</div>
                 </div>
             </div>
             <div class="section-title-row">
-                <div class="section-count">Rows: <span id="destinationCountBadge"><?= esc((string) count($destinationsRows)) ?></span></div>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
+                <div class="section-count">Số dòng: <span id="destinationCountBadge"><?= esc((string) count($destinationsRows)) ?></span></div>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">&#9662;</span><span>Thu gọn</span></button>
             </div>
             <div class="accordion-content">
             <div id="destinationRows">
                 <?php foreach (array_values($destinationsRows) as $index => $row): ?>
                     <?php $row = is_array($row) ? $row : []; ?>
                     <div class="repeat-item destination-row<?= ! empty($row['new_country_name_vi']) ? ' is-new-country' : '' ?><?= ! empty($row['new_province_name_vi']) ? ' is-new-province' : '' ?>">
-                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                         <div class="row g-3 js-outbound-fields">
                             <div class="col-md-4">
-                                <label>Continent</label>
+                                <label>Châu lục</label>
                                 <select name="destinations[<?= $index ?>][continent_id]" class="form-select js-continent-select">
-                                    <option value="">-- Choose continent --</option>
+                                    <option value="">-- Chọn châu lục --</option>
                                     <?php foreach ($continents as $continent): ?>
                                         <option value="<?= esc($continent['id']) ?>" <?= (string) ($row['continent_id'] ?? '') === (string) $continent['id'] ? 'selected' : '' ?>><?= esc($continent['name']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label>Country</label>
+                                <label>Quốc gia</label>
                                 <select name="destinations[<?= $index ?>][country_id]" class="form-select js-country-select" data-selected="<?= esc((string) ($row['country_id'] ?? '')) ?>">
-                                    <option value="">-- Choose existing country --</option>
+                                    <option value="">-- Chọn quốc gia có sẵn --</option>
                                 </select>
                             </div>
-                            <div class="col-md-4"><label>Or create country</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-country">Create new country</button></div>
+                            <div class="col-md-4"><label>Hoặc tạo quốc gia</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-country">Tạo quốc gia mới</button></div>
                         </div>
                         <div class="row g-3 js-inbound-fields d-none">
                             <div class="col-md-4">
-                                <label>Region</label>
+                                <label>Vùng miền</label>
                                 <select name="destinations[<?= $index ?>][region_key]" class="form-select js-region-select">
-                                    <option value="">-- Choose region --</option>
+                                    <option value="">-- Chọn vùng miền --</option>
                                     <?php foreach ($domesticRegions as $region): ?>
                                         <option value="<?= esc($region['key']) ?>" <?= (string) ($row['region_key'] ?? '') === (string) $region['key'] ? 'selected' : '' ?>><?= esc($region['name']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label>Province / City</label>
+                                <label>Tỉnh / thành phố</label>
                                 <select name="destinations[<?= $index ?>][province_id]" class="form-select js-province-select" data-selected="<?= esc((string) ($row['province_id'] ?? '')) ?>">
-                                    <option value="">-- Choose province/city --</option>
+                                    <option value="">-- Chọn tỉnh/thành --</option>
                                 </select>
                             </div>
-                            <div class="col-md-4"><label>Or create province/city</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-province">Create new province/city</button></div>
+                            <div class="col-md-4"><label>Hoặc tạo tỉnh/thành</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-province">Tạo tỉnh/thành mới</button></div>
                         </div>
                         <div class="row g-3 mt-1 new-province-fields">
-                            <div class="col-md-3"><input name="destinations[<?= $index ?>][new_province_name_vi]" class="form-control" value="<?= esc((string) ($row['new_province_name_vi'] ?? '')) ?>" placeholder="Province/city name VI"></div>
+                            <div class="col-md-3"><input name="destinations[<?= $index ?>][new_province_name_vi]" class="form-control" value="<?= esc((string) ($row['new_province_name_vi'] ?? '')) ?>" placeholder="Tên tỉnh/thành tiếng Việt"></div>
                             <div class="col-md-3"><input name="destinations[<?= $index ?>][new_province_slug_vi]" class="form-control" value="<?= esc((string) ($row['new_province_slug_vi'] ?? '')) ?>" placeholder="slug vi"></div>
-                            <div class="col-md-3"><input name="destinations[<?= $index ?>][new_province_name_en]" class="form-control" value="<?= esc((string) ($row['new_province_name_en'] ?? '')) ?>" placeholder="Province/city name EN"></div>
+                            <div class="col-md-3"><input name="destinations[<?= $index ?>][new_province_name_en]" class="form-control" value="<?= esc((string) ($row['new_province_name_en'] ?? '')) ?>" placeholder="Tên tỉnh/thành tiếng Anh"></div>
                             <div class="col-md-2"><input name="destinations[<?= $index ?>][new_province_slug_en]" class="form-control" value="<?= esc((string) ($row['new_province_slug_en'] ?? '')) ?>" placeholder="slug en"></div>
                             <div class="col-md-1"><input name="destinations[<?= $index ?>][new_province_code]" class="form-control" value="<?= esc((string) ($row['new_province_code'] ?? '')) ?>" placeholder="DN"></div>
                         </div>
                         <div class="row g-3 mt-1 new-country-fields">
-                            <div class="col-md-3"><input name="destinations[<?= $index ?>][new_country_name_vi]" class="form-control" value="<?= esc((string) ($row['new_country_name_vi'] ?? '')) ?>" placeholder="Country name VI"></div>
+                            <div class="col-md-3"><input name="destinations[<?= $index ?>][new_country_name_vi]" class="form-control" value="<?= esc((string) ($row['new_country_name_vi'] ?? '')) ?>" placeholder="Tên quốc gia tiếng Việt"></div>
                             <div class="col-md-3"><input name="destinations[<?= $index ?>][new_country_slug_vi]" class="form-control" value="<?= esc((string) ($row['new_country_slug_vi'] ?? '')) ?>" placeholder="slug vi"></div>
-                            <div class="col-md-3"><input name="destinations[<?= $index ?>][new_country_name_en]" class="form-control" value="<?= esc((string) ($row['new_country_name_en'] ?? '')) ?>" placeholder="Country name EN"></div>
+                            <div class="col-md-3"><input name="destinations[<?= $index ?>][new_country_name_en]" class="form-control" value="<?= esc((string) ($row['new_country_name_en'] ?? '')) ?>" placeholder="Tên quốc gia tiếng Anh"></div>
                             <div class="col-md-2"><input name="destinations[<?= $index ?>][new_country_slug_en]" class="form-control" value="<?= esc((string) ($row['new_country_slug_en'] ?? '')) ?>" placeholder="slug en"></div>
                             <div class="col-md-1"><input name="destinations[<?= $index ?>][new_country_code]" class="form-control" value="<?= esc((string) ($row['new_country_code'] ?? '')) ?>" placeholder="CA"></div>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="btn btn-outline-success" id="addDestination">Add destination</button>
+            <button type="button" class="btn btn-outline-success" id="addDestination">Thêm điểm đến</button>
             </div>
             </section>
 
             <section id="section-content-vi" class="form-section">
             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-2">
                 <div>
-                    <h2 class="section-title">Content</h2>
+                    <h2 class="section-title">Nội dung tour</h2>
                     <div class="section-meta mb-0">Nhập nội dung theo từng ngôn ngữ, nhưng thao tác trong cùng một block để đỡ cuộn dài.</div>
                 </div>
-                <div class="subtle-card small text-muted">VI nên chốt trước. EN có thể bổ sung sau nhưng nên có `Name` và `Slug` nếu cần SEO.</div>
+                <div class="subtle-card small text-muted">Nên chốt nội dung tiếng Việt trước. Tiếng Anh có thể bổ sung sau, nhưng nên có tên và slug nếu cần SEO.</div>
             </div>
             <div class="lang-tabs" data-tab-group="content">
                 <button type="button" class="lang-tab is-active" data-tab-target="content-vi">Tiếng Việt</button>
                 <button type="button" class="lang-tab" data-tab-target="content-en">English</button>
             </div>
             <div class="lang-actions">
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="copyContentViToEn">Copy VI -> EN</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="copyContentViToEn">Sao chép VI sang EN</button>
             </div>
             <div class="lang-panel is-active" data-tab-panel="content-vi">
                 <div class="row g-3">
-                    <div class="col-md-6"><label>Name VI</label><input name="name_vi" id="name_vi" class="form-control" value="<?= esc($fv('name_vi')) ?>" required></div>
-                    <div class="col-md-6"><label>Slug VI</label><input name="slug_vi" id="slug_vi" class="form-control" value="<?= esc($fv('slug_vi')) ?>"></div>
-                    <div class="col-md-12"><label>Short description VI</label><textarea name="short_description_vi" class="form-control"><?= esc($fv('short_description_vi')) ?></textarea></div>
-                    <div class="col-md-6"><label>Overview VI</label><textarea name="overview_vi" class="form-control"><?= esc($fv('overview_vi')) ?></textarea></div>
-                    <div class="col-md-6"><label>Description VI</label><textarea name="description_vi" class="form-control"><?= esc($fv('description_vi')) ?></textarea></div>
+                    <div class="col-md-6"><label>Tên tour tiếng Việt</label><input name="name_vi" id="name_vi" class="form-control" value="<?= esc($fv('name_vi')) ?>" required></div>
+                    <div class="col-md-6"><label>Slug tiếng Việt</label><input name="slug_vi" id="slug_vi" class="form-control" value="<?= esc($fv('slug_vi')) ?>"></div>
+                    <div class="col-md-12"><label>Mô tả ngắn tiếng Việt</label><textarea name="short_description_vi" class="form-control"><?= esc($fv('short_description_vi')) ?></textarea></div>
+                    <div class="col-md-6"><label>Tổng quan tiếng Việt</label><textarea name="overview_vi" class="form-control"><?= esc($fv('overview_vi')) ?></textarea></div>
+                    <div class="col-md-6"><label>Mô tả chi tiết tiếng Việt</label><textarea name="description_vi" class="form-control"><?= esc($fv('description_vi')) ?></textarea></div>
                 </div>
             </div>
             <div class="lang-panel" data-tab-panel="content-en">
                 <div class="row g-3">
-                    <div class="col-md-6"><label>Name EN</label><input name="name_en" id="name_en" class="form-control" value="<?= esc($fv('name_en')) ?>"></div>
-                    <div class="col-md-6"><label>Slug EN</label><input name="slug_en" id="slug_en" class="form-control" value="<?= esc($fv('slug_en')) ?>"></div>
-                    <div class="col-md-12"><label>Short description EN</label><textarea name="short_description_en" class="form-control"><?= esc($fv('short_description_en')) ?></textarea></div>
-                    <div class="col-md-6"><label>Overview EN</label><textarea name="overview_en" class="form-control"><?= esc($fv('overview_en')) ?></textarea></div>
-                    <div class="col-md-6"><label>Description EN</label><textarea name="description_en" class="form-control"><?= esc($fv('description_en')) ?></textarea></div>
+                    <div class="col-md-6"><label>Tên tour tiếng Anh</label><input name="name_en" id="name_en" class="form-control" value="<?= esc($fv('name_en')) ?>"></div>
+                    <div class="col-md-6"><label>Slug tiếng Anh</label><input name="slug_en" id="slug_en" class="form-control" value="<?= esc($fv('slug_en')) ?>"></div>
+                    <div class="col-md-12"><label>Mô tả ngắn tiếng Anh</label><textarea name="short_description_en" class="form-control"><?= esc($fv('short_description_en')) ?></textarea></div>
+                    <div class="col-md-6"><label>Tổng quan tiếng Anh</label><textarea name="overview_en" class="form-control"><?= esc($fv('overview_en')) ?></textarea></div>
+                    <div class="col-md-6"><label>Mô tả chi tiết tiếng Anh</label><textarea name="description_en" class="form-control"><?= esc($fv('description_en')) ?></textarea></div>
                 </div>
             </div>
             </section>
@@ -435,7 +435,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 <button type="button" class="lang-tab" data-tab-target="seo-en">SEO EN</button>
             </div>
             <div class="lang-actions">
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="copySeoViToEn">Copy SEO VI -> EN</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="copySeoViToEn">Sao chép SEO VI sang EN</button>
             </div>
             <div class="lang-panel is-active" data-tab-panel="seo-vi">
                 <div class="row g-3">
@@ -454,76 +454,76 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             <section id="section-departure" class="form-section is-collapsed">
             <div class="section-title-row">
                 <div>
-                    <h2 class="section-title">Departure dates</h2>
-                    <div class="section-meta mb-0">Each bookable date is saved as one row. Use the generator for daily, weekly or monthly schedules, then adjust rows manually.</div>
+                    <h2 class="section-title">Ngày khởi hành</h2>
+                    <div class="section-meta mb-0">Mỗi ngày có thể đặt tour được lưu thành một dòng. Có thể tạo nhanh theo ngày, tuần hoặc tháng rồi chỉnh lại thủ công.</div>
                 </div>
                 <div class="d-flex gap-2 align-items-center flex-wrap">
-                    <div class="section-count">Dates: <span id="departureCountBadge"><?= esc((string) count($departureRows)) ?></span></div>
-                    <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
+                    <div class="section-count">Số ngày: <span id="departureCountBadge"><?= esc((string) count($departureRows)) ?></span></div>
+                    <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">&#9662;</span><span>Thu gọn</span></button>
                 </div>
             </div>
             <div class="accordion-content">
             <div class="departure-generator">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label>Repeat type</label>
+                        <label>Kiểu lặp</label>
                         <select class="form-select" id="departureRepeatType">
-                            <option value="once">Date range every day</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
+                            <option value="once">Mỗi ngày trong khoảng</option>
+                            <option value="weekly">Theo tuần</option>
+                            <option value="monthly">Theo tháng</option>
                         </select>
                     </div>
-                    <div class="col-md-3"><label>Start date</label><input type="date" class="form-control" id="departureRepeatStart"></div>
-                    <div class="col-md-3"><label>End date</label><input type="date" class="form-control" id="departureRepeatEnd"></div>
-                    <div class="col-md-3"><label>Slots</label><input type="number" min="0" class="form-control" id="departureRepeatSlots" value="<?= esc((string) $fv('max_travelers', '15')) ?>"></div>
+                    <div class="col-md-3"><label>Ngày bắt đầu</label><input type="date" class="form-control" id="departureRepeatStart"></div>
+                    <div class="col-md-3"><label>Ngày kết thúc</label><input type="date" class="form-control" id="departureRepeatEnd"></div>
+                    <div class="col-md-3"><label>Số chỗ</label><input type="number" min="0" class="form-control" id="departureRepeatSlots" value="<?= esc((string) $fv('max_travelers', '15')) ?>"></div>
                     <div class="col-md-12" id="departureWeeklyOptions">
-                        <label>Weekly weekdays</label>
+                        <label>Ngày trong tuần</label>
                         <div class="weekday-list">
-                            <label><input type="checkbox" value="1"> Mon</label>
-                            <label><input type="checkbox" value="2"> Tue</label>
-                            <label><input type="checkbox" value="3"> Wed</label>
-                            <label><input type="checkbox" value="4"> Thu</label>
-                            <label><input type="checkbox" value="5"> Fri</label>
-                            <label><input type="checkbox" value="6" checked> Sat</label>
-                            <label><input type="checkbox" value="0"> Sun</label>
+                            <label><input type="checkbox" value="1"> Thứ 2</label>
+                            <label><input type="checkbox" value="2"> Thứ 3</label>
+                            <label><input type="checkbox" value="3"> Thứ 4</label>
+                            <label><input type="checkbox" value="4"> Thứ 5</label>
+                            <label><input type="checkbox" value="5"> Thứ 6</label>
+                            <label><input type="checkbox" value="6" checked> Thứ 7</label>
+                            <label><input type="checkbox" value="0"> Chủ nhật</label>
                         </div>
                     </div>
                     <div class="col-md-3 d-none" id="departureMonthlyOptions">
-                        <label>Day of month</label>
+                        <label>Ngày trong tháng</label>
                         <input type="number" min="1" max="31" class="form-control" id="departureRepeatMonthDay" value="1">
                     </div>
-                    <div class="col-md-3"><label>Price</label><input type="number" min="0" class="form-control" id="departureRepeatPrice" value="<?= esc((string) $fv('sale_price', $fv('base_price'))) ?>"></div>
-                    <div class="col-md-3"><label>Price up</label><input type="number" min="0" class="form-control" id="departureRepeatPriceUp"></div>
-                    <div class="col-md-3"><label>Status</label><select class="form-select" id="departureRepeatStatus"><option value="open">Open</option><option value="closed">Closed</option></select></div>
-                    <div class="col-md-3"><button type="button" class="btn btn-outline-primary w-100" id="generateDepartures">Generate dates</button></div>
+                    <div class="col-md-3"><label>Giá bán</label><input type="number" min="0" class="form-control" id="departureRepeatPrice" value="<?= esc((string) $fv('sale_price', $fv('base_price'))) ?>"></div>
+                    <div class="col-md-3"><label>Giá tăng thêm</label><input type="number" min="0" class="form-control" id="departureRepeatPriceUp"></div>
+                    <div class="col-md-3"><label>Trạng thái</label><select class="form-select" id="departureRepeatStatus"><option value="open">Đang mở</option><option value="closed">Đã đóng</option></select></div>
+                    <div class="col-md-3"><button type="button" class="btn btn-outline-primary w-100" id="generateDepartures">Tạo ngày</button></div>
                 </div>
-                <div class="help mt-2">Generating dates will add missing rows only. Existing rows with the same date stay unchanged.</div>
+                <div class="help mt-2">Tạo ngày chỉ thêm các ngày còn thiếu. Dòng đã có cùng ngày sẽ được giữ nguyên.</div>
             </div>
             <div id="departureRows">
                 <?php foreach (array_values($departureRows) as $index => $row): ?>
                     <?php $row = is_array($row) ? $row : []; ?>
                     <div class="repeat-item departure-row">
-                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                         <div class="row g-3">
-                            <div class="col-md-3"><label>Date</label><input type="date" name="departures[<?= $index ?>][departure_date]" class="form-control js-departure-date" value="<?= esc((string) ($row['departure_date'] ?? '')) ?>"></div>
-                            <div class="col-md-2"><label>Slots</label><input type="number" min="0" name="departures[<?= $index ?>][available_slots]" class="form-control" value="<?= esc((string) ($row['available_slots'] ?? '')) ?>"></div>
-                            <div class="col-md-3"><label>Price</label><input type="number" min="0" name="departures[<?= $index ?>][price]" class="form-control" value="<?= esc((string) ($row['price'] ?? '')) ?>"></div>
-                            <div class="col-md-2"><label>Price up</label><input type="number" min="0" name="departures[<?= $index ?>][price_up]" class="form-control" value="<?= esc((string) ($row['price_up'] ?? '')) ?>"></div>
-                            <div class="col-md-2"><label>Status</label><select name="departures[<?= $index ?>][status]" class="form-select"><option value="open" <?= ($row['status'] ?? 'open') === 'open' ? 'selected' : '' ?>>Open</option><option value="closed" <?= ($row['status'] ?? '') === 'closed' ? 'selected' : '' ?>>Closed</option></select></div>
+                            <div class="col-md-3"><label>Ngày</label><input type="date" name="departures[<?= $index ?>][departure_date]" class="form-control js-departure-date" value="<?= esc((string) ($row['departure_date'] ?? '')) ?>"></div>
+                            <div class="col-md-2"><label>Số chỗ</label><input type="number" min="0" name="departures[<?= $index ?>][available_slots]" class="form-control" value="<?= esc((string) ($row['available_slots'] ?? '')) ?>"></div>
+                            <div class="col-md-3"><label>Giá bán</label><input type="number" min="0" name="departures[<?= $index ?>][price]" class="form-control" value="<?= esc((string) ($row['price'] ?? '')) ?>"></div>
+                            <div class="col-md-2"><label>Giá tăng thêm</label><input type="number" min="0" name="departures[<?= $index ?>][price_up]" class="form-control" value="<?= esc((string) ($row['price_up'] ?? '')) ?>"></div>
+                            <div class="col-md-2"><label>Trạng thái</label><select name="departures[<?= $index ?>][status]" class="form-select"><option value="open" <?= ($row['status'] ?? 'open') === 'open' ? 'selected' : '' ?>>Đang mở</option><option value="closed" <?= ($row['status'] ?? '') === 'closed' ? 'selected' : '' ?>>Đã đóng</option></select></div>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="btn btn-outline-success" id="addDeparture">Add departure date</button>
+            <button type="button" class="btn btn-outline-success" id="addDeparture">Thêm ngày khởi hành</button>
             </div>
             </section>
 
             <section id="section-itinerary" class="form-section is-collapsed">
-            <h2 class="section-title">Itinerary Days</h2>
+            <h2 class="section-title">Lịch trình từng ngày</h2>
             <div class="section-meta">Nhập từng ngày theo thứ tự. Mô tả dùng rich text ngắn để làm nổi bật điểm chính.</div>
             <div class="section-title-row">
-                <div class="section-count">Days: <span id="itineraryCountBadge"><?= esc((string) count($itineraryRows)) ?></span></div>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
+                <div class="section-count">Số ngày: <span id="itineraryCountBadge"><?= esc((string) count($itineraryRows)) ?></span></div>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">&#9662;</span><span>Thu gọn</span></button>
             </div>
             <div class="accordion-content">
             <div class="itinerary-importer" id="itineraryImporter">
@@ -532,7 +532,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                         <h3 class="itinerary-importer__title">Import lịch trình từ Word</h3>
                         <p class="itinerary-importer__hint">Copy toàn bộ lịch trình từ file Word rồi dán vào đây. Hệ thống sẽ tự tách theo mẫu "Ngày 1:", "NGÀY 01 -" hoặc "Day 1:".</p>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearItineraryImport">Clear</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearItineraryImport">Xóa nội dung dán</button>
                 </div>
                 <textarea class="form-control" id="itineraryImportText" placeholder="Ví dụ:
 Ngày 1: TPHCM - PARIS
@@ -553,35 +553,35 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                     <?php $row = is_array($row) ? $row : []; ?>
                     <div class="repeat-item itinerary-row is-sortable" draggable="false">
                         <button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Duplicate</button>
-                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Nhân bản</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                         <input type="hidden" name="itinerary_days[<?= $index ?>][sort_order]" class="js-sort-order" value="<?= esc((string) ($row['sort_order'] ?? $index)) ?>">
                         <div class="row g-3">
-                            <div class="col-md-2"><label>Day</label><input type="number" min="1" name="itinerary_days[<?= $index ?>][day_number]" class="form-control" value="<?= esc((string) ($row['day_number'] ?? ($index + 1))) ?>"></div>
-                            <div class="col-md-5"><label>Title VI</label><input name="itinerary_days[<?= $index ?>][title_vi]" class="form-control" value="<?= esc((string) ($row['title_vi'] ?? '')) ?>"></div>
-                            <div class="col-md-5"><label>Title EN</label><input name="itinerary_days[<?= $index ?>][title_en]" class="form-control" value="<?= esc((string) ($row['title_en'] ?? '')) ?>"></div>
+                            <div class="col-md-2"><label>Ngày thứ</label><input type="number" min="1" name="itinerary_days[<?= $index ?>][day_number]" class="form-control" value="<?= esc((string) ($row['day_number'] ?? ($index + 1))) ?>"></div>
+                            <div class="col-md-5"><label>Tiêu đề VI</label><input name="itinerary_days[<?= $index ?>][title_vi]" class="form-control" value="<?= esc((string) ($row['title_vi'] ?? '')) ?>"></div>
+                            <div class="col-md-5"><label>Tiêu đề EN</label><input name="itinerary_days[<?= $index ?>][title_en]" class="form-control" value="<?= esc((string) ($row['title_en'] ?? '')) ?>"></div>
                             <div class="col-md-6">
-                                <label>Description VI</label>
+                                <label>Mô tả VI</label>
                                 <textarea name="itinerary_days[<?= $index ?>][description_vi]" class="form-control d-none js-rich-source"><?= esc((string) ($row['description_vi'] ?? '')) ?></textarea>
                                 <div class="rich-editor-wrap js-rich-wrap">
                                     <div class="rich-editor-toolbar">
                                         <button type="button" data-command="bold">B</button>
                                         <button type="button" data-command="italic">I</button>
-                                        <button type="button" data-command="insertUnorderedList">List</button>
-                                        <button type="button" data-command="removeFormat">Clear</button>
+                                        <button type="button" data-command="insertUnorderedList">Danh sách</button>
+                                        <button type="button" data-command="removeFormat">Xóa định dạng</button>
                                     </div>
                                     <div class="rich-editor js-rich-editor" contenteditable="true"><?= (string) ($row['description_vi'] ?? '') ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label>Description EN</label>
+                                <label>Mô tả EN</label>
                                 <textarea name="itinerary_days[<?= $index ?>][description_en]" class="form-control d-none js-rich-source"><?= esc((string) ($row['description_en'] ?? '')) ?></textarea>
                                 <div class="rich-editor-wrap js-rich-wrap">
                                     <div class="rich-editor-toolbar">
                                         <button type="button" data-command="bold">B</button>
                                         <button type="button" data-command="italic">I</button>
-                                        <button type="button" data-command="insertUnorderedList">List</button>
-                                        <button type="button" data-command="removeFormat">Clear</button>
+                                        <button type="button" data-command="insertUnorderedList">Danh sách</button>
+                                        <button type="button" data-command="removeFormat">Xóa định dạng</button>
                                     </div>
                                     <div class="rich-editor js-rich-editor" contenteditable="true"><?= (string) ($row['description_en'] ?? '') ?></div>
                                 </div>
@@ -590,16 +590,16 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                     </div>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="btn btn-outline-success" id="addItinerary">Add day</button>
+            <button type="button" class="btn btn-outline-success" id="addItinerary">Thêm ngày</button>
             </div>
             </section>
 
             <section id="section-media" class="form-section is-collapsed">
-            <h2 class="section-title">Media / Gallery</h2>
+            <h2 class="section-title">Hình ảnh / Gallery</h2>
             <div class="section-meta">Ưu tiên `cover` cho tour card, `banner` cho hero, `gallery` cho phần trải nghiệm trong detail.</div>
             <div class="section-title-row">
-                <div class="section-count">Items: <span id="mediaCountBadge"><?= esc((string) count($mediaRows)) ?></span></div>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
+                <div class="section-count">Số ảnh: <span id="mediaCountBadge"><?= esc((string) count($mediaRows)) ?></span></div>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">&#9662;</span><span>Thu gọn</span></button>
             </div>
             <div class="accordion-content">
             <div id="mediaRows">
@@ -607,11 +607,11 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                     <?php $row = is_array($row) ? $row : []; ?>
                     <div class="repeat-item media-row is-sortable" draggable="false">
                         <button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button>
-                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                         <div class="row g-3">
-                            <div class="col-md-3"><label>Type</label><select name="media[<?= $index ?>][type]" class="form-select"><option value="banner" <?= ($row['type'] ?? '') === 'banner' ? 'selected' : '' ?>>Banner</option><option value="cover" <?= ($row['type'] ?? '') === 'cover' ? 'selected' : '' ?>>Cover</option><option value="gallery" <?= ($row['type'] ?? 'gallery') === 'gallery' ? 'selected' : '' ?>>Gallery</option><option value="video" <?= ($row['type'] ?? '') === 'video' ? 'selected' : '' ?>>Video</option></select></div>
-                            <div class="col-md-5"><label>Upload image</label><input type="file" name="media_files[]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
-                            <div class="col-md-4"><label>Title / Alt text</label><input name="media[<?= $index ?>][alt_text]" class="form-control" value="<?= esc((string) ($row['alt_text'] ?? '')) ?>"></div>
+                            <div class="col-md-3"><label>Loại ảnh</label><select name="media[<?= $index ?>][type]" class="form-select"><option value="banner" <?= ($row['type'] ?? '') === 'banner' ? 'selected' : '' ?>>Banner</option><option value="cover" <?= ($row['type'] ?? '') === 'cover' ? 'selected' : '' ?>>Cover</option><option value="gallery" <?= ($row['type'] ?? 'gallery') === 'gallery' ? 'selected' : '' ?>>Gallery</option><option value="video" <?= ($row['type'] ?? '') === 'video' ? 'selected' : '' ?>>Video</option></select></div>
+                            <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
+                            <div class="col-md-4"><label>Tiêu đề / Alt text</label><input name="media[<?= $index ?>][alt_text]" class="form-control" value="<?= esc((string) ($row['alt_text'] ?? '')) ?>"></div>
                             <input type="hidden" name="media[<?= $index ?>][file_path]" value="<?= esc((string) ($row['file_path'] ?? '')) ?>">
                             <input type="hidden" name="media[<?= $index ?>][sort_order]" class="js-sort-order" value="<?= esc((string) ($row['sort_order'] ?? $index)) ?>">
                             <div class="col-12">
@@ -619,13 +619,13 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                                     <img
                                         class="js-media-preview-img"
                                         src="<?= ! empty($row['file_path']) ? esc(base_url((string) $row['file_path'])) : '' ?>"
-                                        alt="Preview"
+                                        alt="Xem trước"
                                         style="<?= empty($row['file_path']) ? 'display:none' : '' ?>"
                                     >
                                     <div class="media-preview-meta">
-                                        <div class="fw-semibold text-dark">Preview</div>
+                                        <div class="fw-semibold text-dark">Xem trước</div>
                                         <div class="js-media-preview-empty" style="<?= ! empty($row['file_path']) ? 'display:none' : '' ?>">Chưa có ảnh được chọn.</div>
-                                        <?php if (! empty($row['file_path'])): ?><div>Current: <?= esc((string) $row['file_path']) ?></div><?php endif; ?>
+                                        <?php if (! empty($row['file_path'])): ?><div>Ảnh hiện tại: <?= esc((string) $row['file_path']) ?></div><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -633,21 +633,21 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                     </div>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="btn btn-outline-success" id="addMedia">Add media</button>
+            <button type="button" class="btn btn-outline-success" id="addMedia">Thêm hình ảnh</button>
             </div>
             </section>
 
             <section id="section-inclusions" class="form-section is-collapsed">
             <div class="section-title-row">
-                <h2 class="section-title mb-0">Price inclusions / exclusions</h2>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
+                <h2 class="section-title mb-0">Giá bao gồm / không bao gồm</h2>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">&#9662;</span><span>Thu gọn</span></button>
             </div>
             <div class="section-meta">Quản lý từng dòng riêng cho phần giá bao gồm và không bao gồm. Cách này phù hợp hơn một đoạn text dài vì mỗi tour chỉ khác nhau ở vài mục.</div>
             <div class="accordion-content">
             <?php $inclusionSourceTours = array_values(array_filter((array) ($inclusionSourceTours ?? []), static fn($row): bool => is_array($row) && ! empty($row['id']))); ?>
             <div class="row g-3 align-items-end mb-4">
                 <div class="col-lg-5">
-                    <label class="form-label">Copy price items from another tour</label>
+                    <label class="form-label">Sao chép hạng mục giá từ tour khác</label>
                     <select id="inclusionSourceTour" class="form-select">
                         <option value="">-- Chọn tour nguồn --</option>
                         <?php foreach ($inclusionSourceTours as $sourceTour): ?>
@@ -659,9 +659,9 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                 </div>
                 <div class="col-lg-7">
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-outline-secondary" data-copy-inclusions="included">Copy included</button>
-                        <button type="button" class="btn btn-outline-secondary" data-copy-inclusions="excluded">Copy excluded</button>
-                        <button type="button" class="btn btn-outline-primary" data-copy-inclusions="both">Copy both</button>
+                        <button type="button" class="btn btn-outline-secondary" data-copy-inclusions="included">Copy phần bao gồm</button>
+                        <button type="button" class="btn btn-outline-secondary" data-copy-inclusions="excluded">Copy phần không bao gồm</button>
+                        <button type="button" class="btn btn-outline-primary" data-copy-inclusions="both">Copy cả hai phần</button>
                     </div>
                     <div class="form-text mt-2">Dùng khi tour mới chỉ khác vài mục so với một tour đang có. Số trong ngoặc là `bao gồm/không bao gồm`.</div>
                 </div>
@@ -669,41 +669,41 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
             <div class="row g-4">
                 <div class="col-lg-6">
                     <div class="section-title-row">
-                        <div class="section-count">Included: <span id="includedCountBadge"><?= esc((string) count($includedRows)) ?></span></div>
+                        <div class="section-count">Bao gồm: <span id="includedCountBadge"><?= esc((string) count($includedRows)) ?></span></div>
                     </div>
                     <div id="includedRows">
                         <?php foreach (array_values($includedRows) as $index => $row): ?>
                             <?php $row = is_array($row) ? $row : []; ?>
                             <div class="repeat-item">
-                                <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                                 <input type="hidden" name="included_items[<?= $index ?>][sort_order]" value="<?= esc((string) ($row['sort_order'] ?? $index)) ?>">
                                 <div class="row g-3">
-                                    <div class="col-md-6"><label>Label VI</label><input name="included_items[<?= $index ?>][label_vi]" class="form-control" value="<?= esc((string) ($row['label_vi'] ?? '')) ?>"></div>
-                                    <div class="col-md-6"><label>Label EN</label><input name="included_items[<?= $index ?>][label_en]" class="form-control" value="<?= esc((string) ($row['label_en'] ?? '')) ?>"></div>
+                                    <div class="col-md-6"><label>Nội dung VI</label><input name="included_items[<?= $index ?>][label_vi]" class="form-control" value="<?= esc((string) ($row['label_vi'] ?? '')) ?>"></div>
+                                    <div class="col-md-6"><label>Nội dung EN</label><input name="included_items[<?= $index ?>][label_en]" class="form-control" value="<?= esc((string) ($row['label_en'] ?? '')) ?>"></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" class="btn btn-outline-success" id="addIncludedItem">Add included item</button>
+                    <button type="button" class="btn btn-outline-success" id="addIncludedItem">Thêm mục bao gồm</button>
                 </div>
                 <div class="col-lg-6">
                     <div class="section-title-row">
-                        <div class="section-count">Excluded: <span id="excludedCountBadge"><?= esc((string) count($excludedRows)) ?></span></div>
+                        <div class="section-count">Không bao gồm: <span id="excludedCountBadge"><?= esc((string) count($excludedRows)) ?></span></div>
                     </div>
                     <div id="excludedRows">
                         <?php foreach (array_values($excludedRows) as $index => $row): ?>
                             <?php $row = is_array($row) ? $row : []; ?>
                             <div class="repeat-item">
-                                <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                                 <input type="hidden" name="excluded_items[<?= $index ?>][sort_order]" value="<?= esc((string) ($row['sort_order'] ?? $index)) ?>">
                                 <div class="row g-3">
-                                    <div class="col-md-6"><label>Label VI</label><input name="excluded_items[<?= $index ?>][label_vi]" class="form-control" value="<?= esc((string) ($row['label_vi'] ?? '')) ?>"></div>
-                                    <div class="col-md-6"><label>Label EN</label><input name="excluded_items[<?= $index ?>][label_en]" class="form-control" value="<?= esc((string) ($row['label_en'] ?? '')) ?>"></div>
+                                    <div class="col-md-6"><label>Nội dung VI</label><input name="excluded_items[<?= $index ?>][label_vi]" class="form-control" value="<?= esc((string) ($row['label_vi'] ?? '')) ?>"></div>
+                                    <div class="col-md-6"><label>Nội dung EN</label><input name="excluded_items[<?= $index ?>][label_en]" class="form-control" value="<?= esc((string) ($row['label_en'] ?? '')) ?>"></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" class="btn btn-outline-success" id="addExcludedItem">Add excluded item</button>
+                    <button type="button" class="btn btn-outline-success" id="addExcludedItem">Thêm mục không bao gồm</button>
                 </div>
             </div>
             </div>
@@ -713,25 +713,25 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
             <h2 class="section-title">FAQ</h2>
             <div class="section-meta">Chỉ giữ các câu hỏi thật sự lặp lại nhiều trong tư vấn để phần detail gọn hơn.</div>
             <div class="section-title-row">
-                <div class="section-count">Questions: <span id="faqCountBadge"><?= esc((string) count($faqRows)) ?></span></div>
-                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">â–¾</span><span>Collapse</span></button>
+                <div class="section-count">Câu hỏi: <span id="faqCountBadge"><?= esc((string) count($faqRows)) ?></span></div>
+                <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">&#9662;</span><span>Thu gọn</span></button>
             </div>
             <div class="accordion-content">
             <div id="faqRows">
                 <?php foreach (array_values($faqRows) as $index => $row): ?>
                     <?php $row = is_array($row) ? $row : []; ?>
                     <div class="repeat-item">
-                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                         <div class="row g-3">
-                            <div class="col-md-6"><label>Question VI</label><input name="faqs[<?= $index ?>][question_vi]" class="form-control" value="<?= esc((string) ($row['question_vi'] ?? '')) ?>"></div>
-                            <div class="col-md-6"><label>Question EN</label><input name="faqs[<?= $index ?>][question_en]" class="form-control" value="<?= esc((string) ($row['question_en'] ?? '')) ?>"></div>
-                            <div class="col-md-6"><label>Answer VI</label><textarea name="faqs[<?= $index ?>][answer_vi]" class="form-control"><?= esc((string) ($row['answer_vi'] ?? '')) ?></textarea></div>
-                            <div class="col-md-6"><label>Answer EN</label><textarea name="faqs[<?= $index ?>][answer_en]" class="form-control"><?= esc((string) ($row['answer_en'] ?? '')) ?></textarea></div>
+                            <div class="col-md-6"><label>Câu hỏi VI</label><input name="faqs[<?= $index ?>][question_vi]" class="form-control" value="<?= esc((string) ($row['question_vi'] ?? '')) ?>"></div>
+                            <div class="col-md-6"><label>Câu hỏi EN</label><input name="faqs[<?= $index ?>][question_en]" class="form-control" value="<?= esc((string) ($row['question_en'] ?? '')) ?>"></div>
+                            <div class="col-md-6"><label>Câu trả lời VI</label><textarea name="faqs[<?= $index ?>][answer_vi]" class="form-control"><?= esc((string) ($row['answer_vi'] ?? '')) ?></textarea></div>
+                            <div class="col-md-6"><label>Câu trả lời EN</label><textarea name="faqs[<?= $index ?>][answer_en]" class="form-control"><?= esc((string) ($row['answer_en'] ?? '')) ?></textarea></div>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="btn btn-outline-success" id="addFaq">Add FAQ</button>
+            <button type="button" class="btn btn-outline-success" id="addFaq">Thêm FAQ</button>
             </div>
             </section>
 
@@ -744,18 +744,18 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                 <button type="button" class="lang-tab" data-tab-target="seo-en">SEO EN</button>
             </div>
             <div class="lang-actions">
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="copySeoViToEn">Copy SEO VI -> EN</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="copySeoViToEn">Sao chép SEO VI sang EN</button>
             </div>
             <div class="lang-panel is-active" data-tab-panel="seo-vi">
                 <div class="row g-3">
-                    <div class="col-md-12"><label>Meta title VI</label><input name="meta_title_vi" class="form-control" value="<?= esc($fv('meta_title_vi')) ?>"></div>
-                    <div class="col-md-12"><label>Meta description VI</label><textarea name="meta_description_vi" class="form-control"><?= esc($fv('meta_description_vi')) ?></textarea></div>
+                    <div class="col-md-12"><label>Meta title tiếng Việt</label><input name="meta_title_vi" class="form-control" value="<?= esc($fv('meta_title_vi')) ?>"></div>
+                    <div class="col-md-12"><label>Meta description tiếng Việt</label><textarea name="meta_description_vi" class="form-control"><?= esc($fv('meta_description_vi')) ?></textarea></div>
                 </div>
             </div>
             <div class="lang-panel" data-tab-panel="seo-en">
                 <div class="row g-3">
-                    <div class="col-md-12"><label>Meta title EN</label><input name="meta_title_en" class="form-control" value="<?= esc($fv('meta_title_en')) ?>"></div>
-                    <div class="col-md-12"><label>Meta description EN</label><textarea name="meta_description_en" class="form-control"><?= esc($fv('meta_description_en')) ?></textarea></div>
+                    <div class="col-md-12"><label>Meta title tiếng Anh</label><input name="meta_title_en" class="form-control" value="<?= esc($fv('meta_title_en')) ?>"></div>
+                    <div class="col-md-12"><label>Meta description tiếng Anh</label><textarea name="meta_description_en" class="form-control"><?= esc($fv('meta_description_en')) ?></textarea></div>
                 </div>
             </div>
             </section>
@@ -795,7 +795,7 @@ function fillCountries(row) {
   const selected = countrySelect?.dataset.selected || '';
   const countries = countriesByParent[continentSelect?.value] || [];
   if (!countrySelect) return;
-  countrySelect.innerHTML = '<option value="">-- Choose existing country --</option>';
+  countrySelect.innerHTML = '<option value="">-- Chọn quốc gia có sẵn --</option>';
   countries.forEach(country => {
     const option = document.createElement('option');
     option.value = country.id;
@@ -811,7 +811,7 @@ function fillProvinces(row) {
   const selected = provinceSelect?.dataset.selected || '';
   const provinces = provincesByRegion[regionSelect?.value] || [];
   if (!provinceSelect) return;
-  provinceSelect.innerHTML = '<option value="">-- Choose province/city --</option>';
+  provinceSelect.innerHTML = '<option value="">-- Chọn tỉnh/thành --</option>';
   provinces.forEach(province => {
     const option = document.createElement('option');
     option.value = province.id;
@@ -867,13 +867,13 @@ function departureRowTemplate(index, values = {}) {
   const priceUp = values.price_up || '';
   const status = values.status || 'open';
 
-  return `<button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+  return `<button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
     <div class="row g-3">
-      <div class="col-md-3"><label>Date</label><input type="date" name="departures[${index}][departure_date]" class="form-control js-departure-date" value="${date}"></div>
-      <div class="col-md-2"><label>Slots</label><input type="number" min="0" name="departures[${index}][available_slots]" class="form-control" value="${slots}"></div>
-      <div class="col-md-3"><label>Price</label><input type="number" min="0" name="departures[${index}][price]" class="form-control" value="${price}"></div>
-      <div class="col-md-2"><label>Price up</label><input type="number" min="0" name="departures[${index}][price_up]" class="form-control" value="${priceUp}"></div>
-      <div class="col-md-2"><label>Status</label><select name="departures[${index}][status]" class="form-select"><option value="open" ${status === 'open' ? 'selected' : ''}>Open</option><option value="closed" ${status === 'closed' ? 'selected' : ''}>Closed</option></select></div>
+      <div class="col-md-3"><label>Ngày</label><input type="date" name="departures[${index}][departure_date]" class="form-control js-departure-date" value="${date}"></div>
+      <div class="col-md-2"><label>Số chỗ</label><input type="number" min="0" name="departures[${index}][available_slots]" class="form-control" value="${slots}"></div>
+      <div class="col-md-3"><label>Giá bán</label><input type="number" min="0" name="departures[${index}][price]" class="form-control" value="${price}"></div>
+      <div class="col-md-2"><label>Giá tăng thêm</label><input type="number" min="0" name="departures[${index}][price_up]" class="form-control" value="${priceUp}"></div>
+      <div class="col-md-2"><label>Trạng thái</label><select name="departures[${index}][status]" class="form-select"><option value="open" ${status === 'open' ? 'selected' : ''}>Đang mở</option><option value="closed" ${status === 'closed' ? 'selected' : ''}>Đã đóng</option></select></div>
     </div>`;
 }
 
@@ -1167,7 +1167,7 @@ function saveDraft() {
   try {
     localStorage.setItem(draftStorageKey, JSON.stringify(serializeFormDraft()));
     const status = document.getElementById('draftStatusText');
-    if (status) status.textContent = 'Autosave local: ' + new Date().toLocaleTimeString('vi-VN');
+    if (status) status.textContent = 'Tự lưu cục bộ: ' + new Date().toLocaleTimeString('vi-VN');
   } catch (error) {
     console.warn('Draft save failed', error);
   }
@@ -1240,10 +1240,11 @@ function formatPrice(value) {
 }
 
 function refreshSummaryMetrics() {
-  const tourTypeLabel = (document.querySelector('[name="tour_type"]')?.value || 'outbound') === 'inbound' ? 'Inbound' : 'Outbound';
-  const statusLabel = document.querySelector('[name="status"]')?.value || 'draft';
+  const tourTypeLabel = (document.querySelector('[name="tour_type"]')?.value || 'outbound') === 'inbound' ? 'Tour trong nước' : 'Tour nước ngoài';
+  const statusValue = document.querySelector('[name="status"]')?.value || 'draft';
+  const statusLabel = statusValue === 'published' ? 'Đã xuất bản' : 'Bản nháp';
   const nameValue = document.getElementById('name_vi')?.value.trim() || 'Chưa có tên tour';
-  const codeValue = document.querySelector('[name="code"]')?.value.trim() || 'No code';
+  const codeValue = document.querySelector('[name="code"]')?.value.trim() || 'Chưa có mã';
   const dayValue = document.querySelector('[name="duration_days"]')?.value || '0';
   const nightValue = document.querySelector('[name="duration_nights"]')?.value || '0';
   const priceValue = document.querySelector('[name="base_price"]')?.value || '';
@@ -1259,7 +1260,7 @@ function refreshSummaryMetrics() {
   document.getElementById('summaryName').textContent = nameValue;
   document.getElementById('summaryMeta').textContent = `${codeValue} · ${dayValue} ngày / ${nightValue} đêm`;
   document.getElementById('summaryPrice').textContent = formatPrice(priceValue);
-  document.getElementById('summaryStatus').textContent = `${statusLabel.charAt(0).toUpperCase()}${statusLabel.slice(1)} · ${tourTypeLabel}`;
+  document.getElementById('summaryStatus').textContent = `${statusLabel} · ${tourTypeLabel}`;
 
   document.getElementById('metricDestinations').textContent = destinationCount;
   document.getElementById('metricDepartures').textContent = departureCount;
@@ -1309,28 +1310,28 @@ document.getElementById('addDestination').addEventListener('click', () => {
   const wrapper = document.createElement('div');
   wrapper.className = 'repeat-item destination-row';
   wrapper.innerHTML = `
-    <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+    <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
     <div class="row g-3 js-outbound-fields">
-      <div class="col-md-4"><label>Continent</label><select name="destinations[${destinationIndex}][continent_id]" class="form-select js-continent-select"><option value="">-- Choose continent --</option>${continents.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
-      <div class="col-md-4"><label>Country</label><select name="destinations[${destinationIndex}][country_id]" class="form-select js-country-select"><option value="">-- Choose existing country --</option></select></div>
-      <div class="col-md-4"><label>Or create country</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-country">Create new country</button></div>
+      <div class="col-md-4"><label>Châu lục</label><select name="destinations[${destinationIndex}][continent_id]" class="form-select js-continent-select"><option value="">-- Chọn châu lục --</option>${continents.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+      <div class="col-md-4"><label>Quốc gia</label><select name="destinations[${destinationIndex}][country_id]" class="form-select js-country-select"><option value="">-- Chọn quốc gia có sẵn --</option></select></div>
+      <div class="col-md-4"><label>Hoặc tạo quốc gia</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-country">Tạo quốc gia mới</button></div>
     </div>
     <div class="row g-3 js-inbound-fields d-none">
-      <div class="col-md-4"><label>Region</label><select name="destinations[${destinationIndex}][region_key]" class="form-select js-region-select"><option value="">-- Choose region --</option>${regions.map(r => `<option value="${r.key}">${r.name}</option>`).join('')}</select></div>
-      <div class="col-md-4"><label>Province / City</label><select name="destinations[${destinationIndex}][province_id]" class="form-select js-province-select"><option value="">-- Choose province/city --</option></select></div>
-      <div class="col-md-4"><label>Or create province/city</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-province">Create new province/city</button></div>
+      <div class="col-md-4"><label>Vùng miền</label><select name="destinations[${destinationIndex}][region_key]" class="form-select js-region-select"><option value="">-- Chọn vùng miền --</option>${regions.map(r => `<option value="${r.key}">${r.name}</option>`).join('')}</select></div>
+      <div class="col-md-4"><label>Tỉnh / thành phố</label><select name="destinations[${destinationIndex}][province_id]" class="form-select js-province-select"><option value="">-- Chọn tỉnh/thành --</option></select></div>
+      <div class="col-md-4"><label>Hoặc tạo tỉnh/thành</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-province">Tạo tỉnh/thành mới</button></div>
     </div>
     <div class="row g-3 mt-1 new-province-fields">
-      <div class="col-md-3"><input name="destinations[${destinationIndex}][new_province_name_vi]" class="form-control" placeholder="Province/city name VI"></div>
+      <div class="col-md-3"><input name="destinations[${destinationIndex}][new_province_name_vi]" class="form-control" placeholder="Tên tỉnh/thành tiếng Việt"></div>
       <div class="col-md-3"><input name="destinations[${destinationIndex}][new_province_slug_vi]" class="form-control" placeholder="slug vi"></div>
-      <div class="col-md-3"><input name="destinations[${destinationIndex}][new_province_name_en]" class="form-control" placeholder="Province/city name EN"></div>
+      <div class="col-md-3"><input name="destinations[${destinationIndex}][new_province_name_en]" class="form-control" placeholder="Tên tỉnh/thành tiếng Anh"></div>
       <div class="col-md-2"><input name="destinations[${destinationIndex}][new_province_slug_en]" class="form-control" placeholder="slug en"></div>
       <div class="col-md-1"><input name="destinations[${destinationIndex}][new_province_code]" class="form-control" placeholder="DN"></div>
     </div>
     <div class="row g-3 mt-1 new-country-fields">
-      <div class="col-md-3"><input name="destinations[${destinationIndex}][new_country_name_vi]" class="form-control" placeholder="Country name VI"></div>
+      <div class="col-md-3"><input name="destinations[${destinationIndex}][new_country_name_vi]" class="form-control" placeholder="Tên quốc gia tiếng Việt"></div>
       <div class="col-md-3"><input name="destinations[${destinationIndex}][new_country_slug_vi]" class="form-control" placeholder="slug vi"></div>
-      <div class="col-md-3"><input name="destinations[${destinationIndex}][new_country_name_en]" class="form-control" placeholder="Country name EN"></div>
+      <div class="col-md-3"><input name="destinations[${destinationIndex}][new_country_name_en]" class="form-control" placeholder="Tên quốc gia tiếng Anh"></div>
       <div class="col-md-2"><input name="destinations[${destinationIndex}][new_country_slug_en]" class="form-control" placeholder="slug en"></div>
       <div class="col-md-1"><input name="destinations[${destinationIndex}][new_country_code]" class="form-control" placeholder="CA"></div>
     </div>`;
@@ -1346,13 +1347,13 @@ document.getElementById('addItinerary').addEventListener('click', () => {
   const div = document.createElement('div');
   div.className = 'repeat-item itinerary-row is-sortable';
   div.setAttribute('draggable', 'false');
-  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Duplicate</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button><input type="hidden" name="itinerary_days[${itineraryIndex}][sort_order]" class="js-sort-order" value="${itineraryIndex}">
+  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Nhân bản</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button><input type="hidden" name="itinerary_days[${itineraryIndex}][sort_order]" class="js-sort-order" value="${itineraryIndex}">
     <div class="row g-3">
-      <div class="col-md-2"><label>Day</label><input type="number" min="1" name="itinerary_days[${itineraryIndex}][day_number]" class="form-control" value="${itineraryIndex + 1}"></div>
-      <div class="col-md-5"><label>Title VI</label><input name="itinerary_days[${itineraryIndex}][title_vi]" class="form-control"></div>
-      <div class="col-md-5"><label>Title EN</label><input name="itinerary_days[${itineraryIndex}][title_en]" class="form-control"></div>
-      <div class="col-md-6"><label>Description VI</label><textarea name="itinerary_days[${itineraryIndex}][description_vi]" class="form-control d-none js-rich-source"></textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">List</button><button type="button" data-command="removeFormat">Clear</button></div><div class="rich-editor js-rich-editor" contenteditable="true"></div></div></div>
-      <div class="col-md-6"><label>Description EN</label><textarea name="itinerary_days[${itineraryIndex}][description_en]" class="form-control d-none js-rich-source"></textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">List</button><button type="button" data-command="removeFormat">Clear</button></div><div class="rich-editor js-rich-editor" contenteditable="true"></div></div></div>
+      <div class="col-md-2"><label>Ngày thứ</label><input type="number" min="1" name="itinerary_days[${itineraryIndex}][day_number]" class="form-control" value="${itineraryIndex + 1}"></div>
+      <div class="col-md-5"><label>Tiêu đề VI</label><input name="itinerary_days[${itineraryIndex}][title_vi]" class="form-control"></div>
+      <div class="col-md-5"><label>Tiêu đề EN</label><input name="itinerary_days[${itineraryIndex}][title_en]" class="form-control"></div>
+      <div class="col-md-6"><label>Mô tả VI</label><textarea name="itinerary_days[${itineraryIndex}][description_vi]" class="form-control d-none js-rich-source"></textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">Danh sách</button><button type="button" data-command="removeFormat">Xóa định dạng</button></div><div class="rich-editor js-rich-editor" contenteditable="true"></div></div></div>
+      <div class="col-md-6"><label>Mô tả EN</label><textarea name="itinerary_days[${itineraryIndex}][description_en]" class="form-control d-none js-rich-source"></textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">Danh sách</button><button type="button" data-command="removeFormat">Xóa định dạng</button></div><div class="rich-editor js-rich-editor" contenteditable="true"></div></div></div>
     </div>`;
   document.getElementById('itineraryRows').appendChild(div);
   bindRemoveButtons(div);
@@ -1481,13 +1482,13 @@ function appendImportedItineraryRow(data = {}) {
   const div = document.createElement('div');
   div.className = 'repeat-item itinerary-row is-sortable';
   div.setAttribute('draggable', 'false');
-  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Duplicate</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button><input type="hidden" name="itinerary_days[${itineraryIndex}][sort_order]" class="js-sort-order" value="${itineraryIndex}">
+  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-secondary repeat-duplicate js-duplicate-itinerary">Nhân bản</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button><input type="hidden" name="itinerary_days[${itineraryIndex}][sort_order]" class="js-sort-order" value="${itineraryIndex}">
     <div class="row g-3">
-      <div class="col-md-2"><label>Day</label><input type="number" min="1" name="itinerary_days[${itineraryIndex}][day_number]" class="form-control" value="${escapeHtml(data.day_number || (itineraryIndex + 1))}"></div>
-      <div class="col-md-5"><label>Title VI</label><input name="itinerary_days[${itineraryIndex}][title_vi]" class="form-control" value="${escapeHtml(data.title_vi || '')}"></div>
-      <div class="col-md-5"><label>Title EN</label><input name="itinerary_days[${itineraryIndex}][title_en]" class="form-control" value="${escapeHtml(data.title_en || '')}"></div>
-      <div class="col-md-6"><label>Description VI</label><textarea name="itinerary_days[${itineraryIndex}][description_vi]" class="form-control d-none js-rich-source">${escapeHtml(data.description_vi || '')}</textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">List</button><button type="button" data-command="removeFormat">Clear</button></div><div class="rich-editor js-rich-editor" contenteditable="true">${data.description_vi || ''}</div></div></div>
-      <div class="col-md-6"><label>Description EN</label><textarea name="itinerary_days[${itineraryIndex}][description_en]" class="form-control d-none js-rich-source">${escapeHtml(data.description_en || '')}</textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">List</button><button type="button" data-command="removeFormat">Clear</button></div><div class="rich-editor js-rich-editor" contenteditable="true">${data.description_en || ''}</div></div></div>
+      <div class="col-md-2"><label>Ngày thứ</label><input type="number" min="1" name="itinerary_days[${itineraryIndex}][day_number]" class="form-control" value="${escapeHtml(data.day_number || (itineraryIndex + 1))}"></div>
+      <div class="col-md-5"><label>Tiêu đề VI</label><input name="itinerary_days[${itineraryIndex}][title_vi]" class="form-control" value="${escapeHtml(data.title_vi || '')}"></div>
+      <div class="col-md-5"><label>Tiêu đề EN</label><input name="itinerary_days[${itineraryIndex}][title_en]" class="form-control" value="${escapeHtml(data.title_en || '')}"></div>
+      <div class="col-md-6"><label>Mô tả VI</label><textarea name="itinerary_days[${itineraryIndex}][description_vi]" class="form-control d-none js-rich-source">${escapeHtml(data.description_vi || '')}</textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">Danh sách</button><button type="button" data-command="removeFormat">Xóa định dạng</button></div><div class="rich-editor js-rich-editor" contenteditable="true">${data.description_vi || ''}</div></div></div>
+      <div class="col-md-6"><label>Mô tả EN</label><textarea name="itinerary_days[${itineraryIndex}][description_en]" class="form-control d-none js-rich-source">${escapeHtml(data.description_en || '')}</textarea><div class="rich-editor-wrap js-rich-wrap"><div class="rich-editor-toolbar"><button type="button" data-command="bold">B</button><button type="button" data-command="italic">I</button><button type="button" data-command="insertUnorderedList">Danh sách</button><button type="button" data-command="removeFormat">Xóa định dạng</button></div><div class="rich-editor js-rich-editor" contenteditable="true">${data.description_en || ''}</div></div></div>
     </div>`;
   document.getElementById('itineraryRows').appendChild(div);
   bindRemoveButtons(div);
@@ -1550,14 +1551,14 @@ document.getElementById('addMedia').addEventListener('click', () => {
   const div = document.createElement('div');
   div.className = 'repeat-item media-row is-sortable';
   div.setAttribute('draggable', 'false');
-  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
     <div class="row g-3">
-      <div class="col-md-3"><label>Type</label><select name="media[${mediaIndex}][type]" class="form-select"><option value="banner">Banner</option><option value="cover">Cover</option><option value="gallery" selected>Gallery</option><option value="video">Video</option></select></div>
-      <div class="col-md-5"><label>Upload image</label><input type="file" name="media_files[]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
-      <div class="col-md-4"><label>Title / Alt text</label><input name="media[${mediaIndex}][alt_text]" class="form-control"></div>
+      <div class="col-md-3"><label>Loại ảnh</label><select name="media[${mediaIndex}][type]" class="form-select"><option value="banner">Banner</option><option value="cover">Cover</option><option value="gallery" selected>Gallery</option><option value="video">Video</option></select></div>
+      <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
+      <div class="col-md-4"><label>Tiêu đề / Alt text</label><input name="media[${mediaIndex}][alt_text]" class="form-control"></div>
       <input type="hidden" name="media[${mediaIndex}][file_path]" value="">
       <input type="hidden" name="media[${mediaIndex}][sort_order]" class="js-sort-order" value="${mediaIndex}">
-      <div class="col-12"><div class="media-preview"><img class="js-media-preview-img" src="" alt="Preview" style="display:none"><div class="media-preview-meta"><div class="fw-semibold text-dark">Preview</div><div class="js-media-preview-empty">Chưa có ảnh được chọn.</div></div></div></div>
+      <div class="col-12"><div class="media-preview"><img class="js-media-preview-img" src="" alt="Xem trước" style="display:none"><div class="media-preview-meta"><div class="fw-semibold text-dark">Xem trước</div><div class="js-media-preview-empty">Chưa có ảnh được chọn.</div></div></div></div>
     </div>`;
   document.getElementById('mediaRows').appendChild(div);
   bindRemoveButtons(div);
@@ -1573,11 +1574,11 @@ function buildInclusionRowHtml(type, index, row = {}) {
   const labelEn = escapeHtml(row.label_en || '');
   const sortOrder = Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : index;
 
-  return `<button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+  return `<button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
     <input type="hidden" name="${itemType}_items[${index}][sort_order]" value="${sortOrder}">
     <div class="row g-3">
-      <div class="col-md-6"><label>Label VI</label><input name="${itemType}_items[${index}][label_vi]" class="form-control" value="${labelVi}"></div>
-      <div class="col-md-6"><label>Label EN</label><input name="${itemType}_items[${index}][label_en]" class="form-control" value="${labelEn}"></div>
+      <div class="col-md-6"><label>Nội dung VI</label><input name="${itemType}_items[${index}][label_vi]" class="form-control" value="${labelVi}"></div>
+      <div class="col-md-6"><label>Nội dung EN</label><input name="${itemType}_items[${index}][label_en]" class="form-control" value="${labelEn}"></div>
     </div>`;
 }
 
@@ -1661,12 +1662,12 @@ document.querySelectorAll('[data-copy-inclusions]').forEach(button => {
 document.getElementById('addFaq').addEventListener('click', () => {
   const div = document.createElement('div');
   div.className = 'repeat-item';
-  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Remove</button>
+  div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
     <div class="row g-3">
-      <div class="col-md-6"><label>Question VI</label><input name="faqs[${faqIndex}][question_vi]" class="form-control"></div>
-      <div class="col-md-6"><label>Question EN</label><input name="faqs[${faqIndex}][question_en]" class="form-control"></div>
-      <div class="col-md-6"><label>Answer VI</label><textarea name="faqs[${faqIndex}][answer_vi]" class="form-control"></textarea></div>
-      <div class="col-md-6"><label>Answer EN</label><textarea name="faqs[${faqIndex}][answer_en]" class="form-control"></textarea></div>
+      <div class="col-md-6"><label>Câu hỏi VI</label><input name="faqs[${faqIndex}][question_vi]" class="form-control"></div>
+      <div class="col-md-6"><label>Câu hỏi EN</label><input name="faqs[${faqIndex}][question_en]" class="form-control"></div>
+      <div class="col-md-6"><label>Câu trả lời VI</label><textarea name="faqs[${faqIndex}][answer_vi]" class="form-control"></textarea></div>
+      <div class="col-md-6"><label>Câu trả lời EN</label><textarea name="faqs[${faqIndex}][answer_en]" class="form-control"></textarea></div>
     </div>`;
   document.getElementById('faqRows').appendChild(div);
   bindRemoveButtons(div);
@@ -1716,7 +1717,7 @@ function setAccordionState(section, collapsed) {
   if (!content || !toggle) return;
 
   section.classList.toggle('is-collapsed', collapsed);
-  toggle.querySelector('span:last-child').textContent = collapsed ? 'Expand' : 'Collapse';
+  toggle.querySelector('span:last-child').textContent = collapsed ? 'Mở rộng' : 'Thu gọn';
 
   if (collapsed) {
     content.style.maxHeight = content.scrollHeight + 'px';

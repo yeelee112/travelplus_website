@@ -20,6 +20,7 @@ class TourModel extends Model
         'promotion_badge',
         'promotion_ends_at',
         'promotion_sort',
+        'single_room_supplement',
         'child_price_rate',
         'infant_price_rate',
         'status'

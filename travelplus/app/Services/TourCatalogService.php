@@ -705,14 +705,17 @@ class TourCatalogService
                 $promotionEndsAtIso = $timestamp === false ? $promotionEndsAt : date(DATE_ATOM, $timestamp);
             }
 
-            $locationName = (string) ($row['continent_name'] ?? 'International');
+            $title = TextEncodingService::repairNullable($row['title'] ?? ('Tour #' . $id));
+            $destinationName = TextEncodingService::repairNullable($row['destination_name'] ?? '');
+            $locationName = TextEncodingService::repairNullable($row['continent_name'] ?? 'International');
+            $departureLocationName = TextEncodingService::repairNullable($row['departure_location_name'] ?? '');
             $locationLink = !empty($row['continent_slug']) ? localized_url((string) $row['continent_slug']) : '#';
 
             if ($tourType === 'inbound' && $destinationId > 0) {
                 $region = $domesticRegionService->getRegionByProvinceId(service('request')->getLocale(), $destinationId);
 
                 if ($region !== null) {
-                    $locationName = (string) $region['name'];
+                    $locationName = TextEncodingService::repairNullable($region['name'] ?? '');
                     $locationLink = localized_url('tour-trong-nuoc/' . $region['slug']);
                 }
             }
@@ -725,13 +728,13 @@ class TourCatalogService
             $destinationMeta = $this->buildDestinationSummary(
                 $tourType,
                 $tourDestinations[$id] ?? [],
-                trim((string) ($row['destination_name'] ?? '')),
+                trim($destinationName),
                 trim((string) $locationName)
             );
 
             $cards[] = [
                 'id'        => $id,
-                'title'     => (string) ($row['title'] ?? ('Tour #' . $id)),
+                'title'     => $title,
                 'slug'      => $tourSlug,
                 'tour_type' => $tourType,
                 'link'      => $tourLink,
@@ -740,13 +743,13 @@ class TourCatalogService
                 'badge'     => !empty($row['is_featured']) ? 'Hot Sale!' : null,
                 'promotion' => [
                     'is_active' => !empty($row['is_promotion']),
-                    'badge' => trim((string) ($row['promotion_badge'] ?? '')),
+                    'badge' => TextEncodingService::repairNullable($row['promotion_badge'] ?? ''),
                     'ends_at' => $promotionEndsAt,
                     'ends_at_iso' => $promotionEndsAtIso,
                     'sort' => (int) ($row['promotion_sort'] ?? 0),
                 ],
                 'destination_id' => $destinationId,
-                'destination_name' => trim((string) ($row['destination_name'] ?? '')),
+                'destination_name' => trim($destinationName),
                 'destination_slug' => trim((string) ($row['destination_slug'] ?? '')),
                 'destination_summary' => $destinationMeta['summary'],
                 'destination_summary_full' => $destinationMeta['full'],
@@ -754,7 +757,7 @@ class TourCatalogService
                 'continent' => $locationName,
                 'continent_slug' => (string) ($row['continent_slug'] ?? ''),
                 'continent_link' => $locationLink,
-                'departure_from' => trim((string) ($row['departure_location_name'] ?? '')),
+                'departure_from' => trim($departureLocationName),
                 'region_slug' => $tourType === 'inbound' ? (string) ($region['slug'] ?? '') : '',
                 'departure' => $this->formatDate((string) ($row['departure_date'] ?? '')),
                 'duration'  => [
@@ -814,9 +817,9 @@ class TourCatalogService
             $grouped[$tourId][] = [
                 'location_code' => trim((string) ($row['location_code'] ?? '')),
                 'location_type' => trim((string) ($row['location_type'] ?? '')),
-                'location_name' => trim((string) ($row['location_name'] ?? '')),
+                'location_name' => TextEncodingService::repairNullable($row['location_name'] ?? ''),
                 'parent_type' => trim((string) ($row['parent_type'] ?? '')),
-                'parent_name' => trim((string) ($row['parent_name'] ?? '')),
+                'parent_name' => TextEncodingService::repairNullable($row['parent_name'] ?? ''),
             ];
         }
 
@@ -835,9 +838,9 @@ class TourCatalogService
         foreach ($destinations as $destination) {
             $locationCode = strtoupper(trim((string) ($destination['location_code'] ?? '')));
             $locationType = (string) ($destination['location_type'] ?? '');
-            $locationName = trim((string) ($destination['location_name'] ?? ''));
+            $locationName = TextEncodingService::repairNullable($destination['location_name'] ?? '');
             $parentType = (string) ($destination['parent_type'] ?? '');
-            $parentName = trim((string) ($destination['parent_name'] ?? ''));
+            $parentName = TextEncodingService::repairNullable($destination['parent_name'] ?? '');
 
             if (
                 $tourType === 'inbound'
@@ -1043,11 +1046,11 @@ class TourCatalogService
         }
 
         $detail = $tour;
-        $detail['meta_title'] = (string) ($translation['meta_title'] ?? $fallbackTranslation['meta_title'] ?? '');
-        $detail['meta_description'] = (string) ($translation['meta_description'] ?? $fallbackTranslation['meta_description'] ?? '');
-        $detail['short_description'] = (string) ($translation['short_description'] ?? $fallbackTranslation['short_description'] ?? '');
-        $detail['overview'] = (string) ($translation['overview'] ?? $fallbackTranslation['overview'] ?? '');
-        $detail['description'] = (string) ($translation['description'] ?? $fallbackTranslation['description'] ?? '');
+        $detail['meta_title'] = TextEncodingService::repairNullable($translation['meta_title'] ?? $fallbackTranslation['meta_title'] ?? '');
+        $detail['meta_description'] = TextEncodingService::repairNullable($translation['meta_description'] ?? $fallbackTranslation['meta_description'] ?? '');
+        $detail['short_description'] = TextEncodingService::repairNullable($translation['short_description'] ?? $fallbackTranslation['short_description'] ?? '');
+        $detail['overview'] = TextEncodingService::repairNullableHtml($translation['overview'] ?? $fallbackTranslation['overview'] ?? '');
+        $detail['description'] = TextEncodingService::repairNullableHtml($translation['description'] ?? $fallbackTranslation['description'] ?? '');
         $detail['max_travelers'] = (int) ($tourRow['max_travelers'] ?? 15);
         $detail['child_price_rate'] = $this->normalizeTravelerPriceRate($tourRow['child_price_rate'] ?? null, self::DEFAULT_CHILD_PRICE_RATE);
         $detail['infant_price_rate'] = $this->normalizeTravelerPriceRate($tourRow['infant_price_rate'] ?? null, self::DEFAULT_INFANT_PRICE_RATE);
@@ -1151,7 +1154,7 @@ class TourCatalogService
 
         foreach ($rows as $row) {
             $type = ($row['type'] ?? 'included') === 'excluded' ? 'excluded' : 'included';
-            $label = trim((string) ($row['label'] ?? ''));
+            $label = TextEncodingService::repairNullable($row['label'] ?? '');
 
             if ($label === '') {
                 continue;
@@ -1183,7 +1186,7 @@ class TourCatalogService
             'type' => (string) ($row['type'] ?? 'gallery'),
             'file_path' => (string) ($row['file_path'] ?? ''),
             'url' => $this->resolveImage((string) ($row['file_path'] ?? '')),
-            'alt_text' => (string) ($row['alt_text'] ?? ''),
+            'alt_text' => TextEncodingService::repairNullable($row['alt_text'] ?? ''),
         ], $rows);
     }
 
@@ -1193,7 +1196,7 @@ class TourCatalogService
             return [];
         }
 
-        return $this->db->table('tour_itinerary_days tid')
+        $rows = $this->db->table('tour_itinerary_days tid')
             ->select('tid.day_number, tid.meals, tid.hotel_name, tid.transport_summary, COALESCE(tidt.title, tidt_vi.title) AS title, COALESCE(tidt.description, tidt_vi.description) AS description')
             ->join('tour_itinerary_day_translations tidt', 'tidt.itinerary_day_id = tid.id AND tidt.locale = ' . $this->db->escape($locale), 'left')
             ->join('tour_itinerary_day_translations tidt_vi', 'tidt_vi.itinerary_day_id = tid.id AND tidt_vi.locale = "vi"', 'left')
@@ -1202,6 +1205,15 @@ class TourCatalogService
             ->orderBy('tid.day_number', 'ASC')
             ->get()
             ->getResultArray();
+
+        return array_map(static fn(array $row): array => [
+            'day_number' => (int) ($row['day_number'] ?? 0),
+            'meals' => TextEncodingService::repairNullable($row['meals'] ?? ''),
+            'hotel_name' => TextEncodingService::repairNullable($row['hotel_name'] ?? ''),
+            'transport_summary' => TextEncodingService::repairNullable($row['transport_summary'] ?? ''),
+            'title' => TextEncodingService::repairNullable($row['title'] ?? ''),
+            'description' => TextEncodingService::repairNullableHtml($row['description'] ?? ''),
+        ], $rows);
     }
 
     private function getTourFaqs(int $tourId, string $locale): array
@@ -1210,7 +1222,7 @@ class TourCatalogService
             return [];
         }
 
-        return $this->db->table('tour_faqs tf')
+        $rows = $this->db->table('tour_faqs tf')
             ->select('COALESCE(tft.question, tft_vi.question) AS question, COALESCE(tft.answer, tft_vi.answer) AS answer')
             ->join('tour_faq_translations tft', 'tft.faq_id = tf.id AND tft.locale = ' . $this->db->escape($locale), 'left')
             ->join('tour_faq_translations tft_vi', 'tft_vi.faq_id = tf.id AND tft_vi.locale = "vi"', 'left')
@@ -1220,6 +1232,11 @@ class TourCatalogService
             ->orderBy('tf.id', 'ASC')
             ->get()
             ->getResultArray();
+
+        return array_map(static fn(array $row): array => [
+            'question' => TextEncodingService::repairNullable($row['question'] ?? ''),
+            'answer' => TextEncodingService::repairNullableHtml($row['answer'] ?? ''),
+        ], $rows);
     }
 
     private function firstMediaByTypes(array $media, array $types): ?array

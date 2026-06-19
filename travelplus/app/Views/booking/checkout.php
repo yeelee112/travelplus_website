@@ -81,6 +81,18 @@ $singleRoomValueLabel = $locale === 'en'
     border-radius: 18px;
     transition: outline-color 0.25s ease;
 }
+
+@media (max-width: 767px) {
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option.is-selected::after {
+        display: none;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option.is-selected {
+        border-color: #0b3d91;
+        background: #f2f8ff;
+        box-shadow: inset 0 0 0 1px rgba(11, 61, 145, 0.2), 0 10px 22px rgba(11, 61, 145, 0.12);
+    }
+}
 </style>
 <div class="container pt-100 pb-100 checkout-stepper-page" data-checkout-stepper data-coupon-apply-url="<?= esc(\App\Data\LocalizedPathCatalog::url('booking.applyCoupon', $locale)) ?>">
     <div class="row g-4">
@@ -528,6 +540,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const singleRoomRows = Array.from(root.querySelectorAll('[data-single-room-row]'));
     const errorBox = root.querySelector('[data-step-error]');
     const termsCheckbox = root.querySelector('[data-agree-terms]');
+    const bookingSummaryCard = root.querySelector('.checkout-booking-summary');
     const vietQrBox = root.querySelector('[data-vietqr-box]');
     const priceBreakdown = root.querySelector('[data-price-breakdown]');
     const breakdownToggle = root.querySelector('[data-price-breakdown-toggle]');
@@ -1432,6 +1445,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             event.preventDefault();
             await submitCouponCode(couponInput.value.trim());
+        });
+    }
+
+    if (termsCheckbox && bookingSummaryCard) {
+        termsCheckbox.addEventListener('change', function () {
+            if (!termsCheckbox.checked || !window.matchMedia('(max-width: 767px)').matches) {
+                return;
+            }
+
+            window.setTimeout(function () {
+                bookingSummaryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 120);
         });
     }
 
