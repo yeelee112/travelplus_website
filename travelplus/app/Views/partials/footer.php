@@ -131,6 +131,11 @@ $socialLinks = [
                         <?php foreach ($infoLinks as $link): ?>
                             <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
                         <?php endforeach; ?>
+                        <li>
+                            <button type="button" class="travelplus-footer__cookie-button" data-cookie-settings>
+                                <?= esc($locale === 'en' ? 'Cookie preferences' : 'Tùy chọn cookie') ?>
+                            </button>
+                        </li>
                     </ul>
                 </nav>
             </div>

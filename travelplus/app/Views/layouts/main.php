@@ -28,6 +28,7 @@ $bodyClass = $requestPath === '' || ($currentLocale === 'en' && $requestPath ===
     : 'is-inner-page';
 $isContactPage = $requestPath === 'contact' || str_ends_with($requestPath, '/contact');
 $showAiChatbox = ! in_array($firstSegment, ['admin', 'api'], true);
+$showCookieConsent = ! in_array($firstSegment, ['admin', 'api'], true);
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
 $isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
@@ -126,6 +127,9 @@ $mainJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/main.
 <?= $this->include('partials/footer') ?>
 <?php if ($showAiChatbox): ?>
 <?= $this->include('partials/ai-chatbox') ?>
+<?php endif; ?>
+<?php if ($showCookieConsent): ?>
+<?= $this->include('partials/cookie-consent') ?>
 <?php endif; ?>
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

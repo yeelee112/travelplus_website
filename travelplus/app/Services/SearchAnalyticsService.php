@@ -27,6 +27,10 @@ class SearchAnalyticsService
         int $resultsTotal,
         ?array $authUser = null
     ): void {
+        if (! (new CookieConsentService())->allowsAnalytics($request)) {
+            return;
+        }
+
         if (! $this->db->tableExists('analytics_search_queries')) {
             return;
         }

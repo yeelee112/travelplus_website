@@ -21,6 +21,10 @@ class AnalyticsTrackingService
 
     public function track(RequestInterface $request, string $controllerClass, ?array $authUser = null): void
     {
+        if (! (new CookieConsentService())->allowsAnalytics($request)) {
+            return;
+        }
+
         if (! $this->shouldTrack($request, $controllerClass)) {
             return;
         }
