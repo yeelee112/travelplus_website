@@ -91,6 +91,7 @@ class ContentSecurityPolicy extends BaseConfig
         'https://region1.google-analytics.com',
         'https://www.googletagmanager.com',
         'https://www.google.com',
+        'https://www.google.com.vn',
         'https://www.gstatic.com',
     ];
 
@@ -125,6 +126,7 @@ class ContentSecurityPolicy extends BaseConfig
         'https://analytics.google.com',
         'https://www.googletagmanager.com',
         'https://www.google.com',
+        'https://www.google.com.vn',
         'https://www.gstatic.com',
     ];
 
