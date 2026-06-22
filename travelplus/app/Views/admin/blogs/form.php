@@ -44,12 +44,18 @@
         .editor-toolbar { display:flex; gap:8px; flex-wrap:wrap; padding:12px; border-bottom:1px solid #e8edf3; background:#f8fafc; }
         .editor-toolbar button { border:1px solid #ccd7e3; background:#fff; border-radius:10px; padding:8px 12px; font-size:14px; }
         .editor-toolbar button:hover { background:#f3f7fb; }
+        .editor-toolbar-spacer { flex:1 1 auto; }
+        .editor-mode-button.is-active { background:#172033; border-color:#172033; color:#fff; }
         .editor-area { min-height:380px; padding:18px; outline:none; line-height:1.75; }
         .editor-area:empty:before { content:attr(data-placeholder); color:#94a3b8; }
         .editor-area img { max-width:100%; height:auto; border-radius:14px; margin:10px 0; display:block; }
         .editor-area figure { margin:18px 0; }
         .editor-area figcaption { font-size:13px; color:#64748b; margin-top:8px; text-align:center; }
         .editor-area blockquote { border-left:4px solid #0ea5e9; padding-left:14px; color:#334155; margin:18px 0; }
+        .editor-code { display:none; width:100%; min-height:380px; padding:18px; border:0; outline:none; resize:vertical; color:#0f172a; background:#fbfdff; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size:13px; line-height:1.65; }
+        .editor-shell.is-code-mode .editor-area { display:none; }
+        .editor-shell.is-code-mode .editor-code { display:block; }
+        .editor-shell.is-code-mode [data-command] { opacity:.45; pointer-events:none; }
         .editor-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
         .editor-note { margin-top:10px; font-size:13px; color:#64748b; }
         .preview-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
@@ -289,8 +295,12 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                                 <button type="button" data-command="formatBlock" data-value="blockquote">Trích dẫn</button>
                                 <button type="button" data-command="createLink">Link</button>
                                 <button type="button" data-command="removeFormat">Xóa định dạng</button>
+                                <span class="editor-toolbar-spacer"></span>
+                                <button type="button" class="editor-mode-button is-active" data-editor-mode="preview">Preview</button>
+                                <button type="button" class="editor-mode-button" data-editor-mode="code">Code</button>
                             </div>
                             <div class="editor-area js-editor" contenteditable="true" data-placeholder="Viết nội dung blog tiếng Việt ở đây..."></div>
+                            <textarea class="editor-code js-editor-code" spellcheck="false" aria-label="HTML code VI"></textarea>
                         </div>
                         <div class="editor-actions">
                             <button type="button" class="btn btn-outline-primary btn-sm js-editor-upload">Chèn ảnh</button>
@@ -340,8 +350,12 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                                 <button type="button" data-command="formatBlock" data-value="blockquote">Trích dẫn</button>
                                 <button type="button" data-command="createLink">Link</button>
                                 <button type="button" data-command="removeFormat">Xóa định dạng</button>
+                                <span class="editor-toolbar-spacer"></span>
+                                <button type="button" class="editor-mode-button is-active" data-editor-mode="preview">Preview</button>
+                                <button type="button" class="editor-mode-button" data-editor-mode="code">Code</button>
                             </div>
                             <div class="editor-area js-editor" contenteditable="true" data-placeholder="Write the English blog content here..."></div>
+                            <textarea class="editor-code js-editor-code" spellcheck="false" aria-label="HTML code EN"></textarea>
                         </div>
                         <div class="editor-actions">
                             <button type="button" class="btn btn-outline-primary btn-sm js-editor-upload">Chèn ảnh</button>
@@ -404,14 +418,51 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
     function syncEditor(shell) {
         const source = shell.parentElement.querySelector('.js-editor-source');
         const editor = shell.querySelector('.js-editor');
+        const code = shell.querySelector('.js-editor-code');
+        if (!source || !editor) return;
+
+        if (shell.classList.contains('is-code-mode') && code) {
+            source.value = code.value.trim();
+            return;
+        }
+
         source.value = editor.innerHTML.trim();
+        if (code) code.value = source.value;
+    }
+
+    function setEditorMode(shell, mode) {
+        const source = shell.parentElement.querySelector('.js-editor-source');
+        const editor = shell.querySelector('.js-editor');
+        const code = shell.querySelector('.js-editor-code');
+        if (!source || !editor || !code) return;
+
+        if (mode === 'code') {
+            syncEditor(shell);
+            code.value = source.value;
+            shell.classList.add('is-code-mode');
+            code.focus();
+        } else {
+            source.value = code.value.trim();
+            editor.innerHTML = source.value;
+            shell.classList.remove('is-code-mode');
+            editor.focus();
+        }
+
+        shell.querySelectorAll('[data-editor-mode]').forEach((button) => {
+            button.classList.toggle('is-active', button.dataset.editorMode === mode);
+        });
+
+        refreshSummary();
+        scheduleDraftSave();
     }
 
     function bindEditor(shell) {
         const source = shell.parentElement.querySelector('.js-editor-source');
         const editor = shell.querySelector('.js-editor');
+        const code = shell.querySelector('.js-editor-code');
 
         editor.innerHTML = source.value || '';
+        if (code) code.value = source.value || '';
         editor.addEventListener('input', () => {
             syncEditor(shell);
             refreshSummary();
@@ -426,6 +477,7 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
 
         shell.querySelectorAll('[data-command]').forEach((button) => {
             button.addEventListener('click', () => {
+                if (shell.classList.contains('is-code-mode')) return;
                 restoreRange(editor);
 
                 if (button.dataset.command === 'createLink') {
@@ -446,7 +498,20 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
             });
         });
 
+        code?.addEventListener('input', () => {
+            syncEditor(shell);
+            refreshSummary();
+            scheduleDraftSave();
+        });
+
+        shell.querySelectorAll('[data-editor-mode]').forEach((button) => {
+            button.addEventListener('click', () => setEditorMode(shell, button.dataset.editorMode || 'preview'));
+        });
+
         shell.parentElement.querySelector('.js-editor-upload').addEventListener('click', () => {
+            if (shell.classList.contains('is-code-mode')) {
+                setEditorMode(shell, 'preview');
+            }
             activeEditor = editor;
             restoreRange(editor);
             imagePicker.click();
@@ -458,7 +523,11 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
         const safeAlt = altText.replace(/"/g, '&quot;');
         const figureHtml = `<figure><img src="${url}" alt="${safeAlt}" loading="lazy">${altText ? `<figcaption>${altText}</figcaption>` : ''}</figure><p><br></p>`;
         document.execCommand('insertHTML', false, figureHtml);
-        editor.closest('.js-editor-shell').parentElement.querySelector('.js-editor-source').value = editor.innerHTML.trim();
+        const shell = editor.closest('.js-editor-shell');
+        const html = editor.innerHTML.trim();
+        shell.parentElement.querySelector('.js-editor-source').value = html;
+        const code = shell.querySelector('.js-editor-code');
+        if (code) code.value = html;
         refreshSummary();
         scheduleDraftSave();
     }
@@ -627,7 +696,13 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
             document.querySelectorAll('.js-editor-shell').forEach(shell => {
                 const source = shell.parentElement.querySelector('.js-editor-source');
                 const editor = shell.querySelector('.js-editor');
+                const code = shell.querySelector('.js-editor-code');
                 if (source && editor) editor.innerHTML = source.value || '';
+                if (source && code) code.value = source.value || '';
+                shell.classList.remove('is-code-mode');
+                shell.querySelectorAll('[data-editor-mode]').forEach((button) => {
+                    button.classList.toggle('is-active', button.dataset.editorMode === 'preview');
+                });
             });
             refreshSummary();
             bar.classList.add('d-none');
@@ -680,6 +755,9 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
         if (editors.length < 2 || sources.length < 2) return;
         editors[1].innerHTML = editors[0].innerHTML;
         sources[1].value = editors[0].innerHTML.trim();
+        const enShell = editors[1].closest('.js-editor-shell');
+        const enCode = enShell?.querySelector('.js-editor-code');
+        if (enCode) enCode.value = sources[1].value;
         activateTab(document.querySelector('[data-tab-group="content"]'), 'content-en');
         refreshSummary();
         scheduleDraftSave();
