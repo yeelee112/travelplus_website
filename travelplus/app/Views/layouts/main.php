@@ -32,6 +32,7 @@ $showCookieConsent = ! in_array($firstSegment, ['admin', 'api'], true);
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
 $isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
+$googleAnalyticsId = 'G-Q5QE8JM3TS';
 if (str_starts_with($requestHost, 'demo.') || in_array($firstSegment, ['account', 'auth', 'booking'], true)) {
     $metaRobots = 'noindex,nofollow,max-image-preview:large';
 }
@@ -58,6 +59,15 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/icon/favicon.svg?v=' . $faviconVersion) ?>">
 <meta name="csrf-token-name" content="<?= esc(csrf_token()) ?>">
 <meta name="csrf-token" content="<?= esc(csrf_hash()) ?>">
+<?php if (! $isLocalRequest && $googleAnalyticsId !== ''): ?>
+<script async src="https://www.googletagmanager.com/gtag/js?id=<?= esc($googleAnalyticsId, 'url') ?>"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '<?= esc($googleAnalyticsId) ?>');
+</script>
+<?php endif; ?>
 <link rel="canonical" href="<?= esc($canonicalUrl) ?>">
 <?php if (! empty($paginationLinks['prev'])): ?>
 <link rel="prev" href="<?= esc((string) $paginationLinks['prev']) ?>">
