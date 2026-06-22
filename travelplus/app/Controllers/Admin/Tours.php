@@ -206,6 +206,9 @@ class Tours extends BaseAdminController
             'domesticRegions' => $domesticRegions,
             'domesticProvincesByRegion' => $domesticProvincesByRegion,
             'inclusionSourceTours' => $this->getInclusionSourceTours(isset($viewData['tourId']) ? (int) ($viewData['tourId'] ?? 0) : 0),
+            'mediaUploadLimitBytes' => $this->mediaUploadLimitBytes(),
+            'mediaUploadLimitMb' => $this->mediaUploadLimitMb(),
+            'postMaxBytes' => $this->iniSizeToBytes((string) ini_get('post_max_size')),
             'errors' => session()->getFlashdata('errors') ?? [],
             'success' => session()->getFlashdata('success'),
         ]));
@@ -410,6 +413,12 @@ class Tours extends BaseAdminController
     private function saveTour(?int $tourId = null)
     {
         $isUpdate = $tourId !== null;
+
+        $payloadLimitError = $this->validatePostPayloadSize();
+        if ($payloadLimitError !== null) {
+            return redirect()->back()->withInput()->with('errors', [$payloadLimitError]);
+        }
+
         $rules = [
             'category_id' => 'required|is_natural_no_zero',
             'departure_location_id' => 'required|is_natural_no_zero',
@@ -429,6 +438,11 @@ class Tours extends BaseAdminController
         $departureErrors = $this->validateDepartureRows($post);
         if ($departureErrors !== []) {
             return redirect()->back()->withInput()->with('errors', $departureErrors);
+        }
+
+        $mediaErrors = $this->validateTourMediaUploads();
+        if ($mediaErrors !== []) {
+            return redirect()->back()->withInput()->with('errors', $mediaErrors);
         }
 
         $db = db_connect();
@@ -1346,8 +1360,8 @@ class Tours extends BaseAdminController
             return '';
         }
 
-        if ($file->getSizeByUnit('mb') > 5) {
-            log_message('error', 'Tour media upload rejected for tour #' . $tourId . ': file is larger than 5MB');
+        if ($file->getSize() > $this->mediaUploadLimitBytes()) {
+            log_message('error', 'Tour media upload rejected for tour #' . $tourId . ': file is larger than ' . $this->mediaUploadLimitMb() . 'MB');
             return '';
         }
 
@@ -1373,6 +1387,110 @@ class Tours extends BaseAdminController
         }
 
         return $relativeDir . '/' . $fileName;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function validateTourMediaUploads(): array
+    {
+        $uploadedFiles = $this->request->getFiles();
+        $mediaFiles = is_array($uploadedFiles['media_files'] ?? null) ? $uploadedFiles['media_files'] : [];
+        $errors = [];
+        $limitMb = $this->mediaUploadLimitMb();
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+        foreach ($mediaFiles as $index => $file) {
+            if (! is_object($file)) {
+                continue;
+            }
+
+            $rowNumber = ((int) $index) + 1;
+            $errorCode = method_exists($file, 'getError') ? (int) $file->getError() : UPLOAD_ERR_OK;
+
+            if ($errorCode === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+
+            if ($errorCode !== UPLOAD_ERR_OK || ! $file->isValid()) {
+                $errors[] = 'Ảnh #' . $rowNumber . ' không tải lên được. File phải nhỏ hơn ' . $limitMb . 'MB và tổng form không vượt quá giới hạn hosting.';
+                continue;
+            }
+
+            $extension = strtolower($file->getClientExtension());
+            $mimeType = $file->getMimeType();
+
+            if (! in_array($extension, $allowedExtensions, true) || ! in_array($mimeType, $allowedMimeTypes, true)) {
+                $errors[] = 'Ảnh #' . $rowNumber . ' không đúng định dạng. Chỉ nhận JPG, PNG hoặc WebP.';
+            }
+
+            if ($file->getSize() > $this->mediaUploadLimitBytes()) {
+                $errors[] = 'Ảnh #' . $rowNumber . ' vượt quá ' . $limitMb . 'MB.';
+            }
+        }
+
+        return $errors;
+    }
+
+    private function validatePostPayloadSize(): ?string
+    {
+        $contentLength = (int) ($this->request->getServer('CONTENT_LENGTH') ?? 0);
+        $postMaxBytes = $this->iniSizeToBytes((string) ini_get('post_max_size'));
+
+        if ($contentLength > 0 && $postMaxBytes > 0 && $contentLength > $postMaxBytes) {
+            return 'Form quá nặng nên hosting đã từ chối trước khi lưu. Tổng dữ liệu gửi lên phải nhỏ hơn ' . $this->formatBytes($postMaxBytes) . '.';
+        }
+
+        return null;
+    }
+
+    private function mediaUploadLimitBytes(): int
+    {
+        $appLimit = 5 * 1024 * 1024;
+        $serverLimit = $this->iniSizeToBytes((string) ini_get('upload_max_filesize'));
+
+        if ($serverLimit <= 0) {
+            return $appLimit;
+        }
+
+        return min($appLimit, $serverLimit);
+    }
+
+    private function mediaUploadLimitMb(): int
+    {
+        return max(1, (int) floor($this->mediaUploadLimitBytes() / 1024 / 1024));
+    }
+
+    private function iniSizeToBytes(string $value): int
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return 0;
+        }
+
+        $unit = strtolower(substr($value, -1));
+        $number = (float) $value;
+
+        return match ($unit) {
+            'g' => (int) ($number * 1024 * 1024 * 1024),
+            'm' => (int) ($number * 1024 * 1024),
+            'k' => (int) ($number * 1024),
+            default => (int) $number,
+        };
+    }
+
+    private function formatBytes(int $bytes): string
+    {
+        if ($bytes >= 1024 * 1024) {
+            return (int) floor($bytes / 1024 / 1024) . 'MB';
+        }
+
+        if ($bytes >= 1024) {
+            return (int) floor($bytes / 1024) . 'KB';
+        }
+
+        return $bytes . ' bytes';
     }
 
     private function sanitizeRichHtml(string $html): string

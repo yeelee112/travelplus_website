@@ -85,6 +85,7 @@ class ContentSecurityPolicy extends BaseConfig
     public $imageSrc = [
         'self',
         'data:',
+        'blob:',
         'https://flagcdn.com',
         'https://ui-avatars.com',
         'https://www.google-analytics.com',

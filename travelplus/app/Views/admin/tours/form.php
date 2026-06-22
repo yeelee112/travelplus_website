@@ -116,6 +116,9 @@ if ($departureRows === []) {
 }
 $itineraryRows = old('itinerary_days') ?: ($formData['itinerary_days'] ?? []);
 $mediaRows = old('media') ?: ($formData['media'] ?? []);
+$mediaUploadLimitMb = (int) ($mediaUploadLimitMb ?? 2);
+$mediaUploadLimitBytes = (int) ($mediaUploadLimitBytes ?? ($mediaUploadLimitMb * 1024 * 1024));
+$postMaxBytes = (int) ($postMaxBytes ?? 0);
 $faqRows = old('faqs') ?: ($formData['faqs'] ?? []);
 $includedRows = old('included_items') ?: ($formData['included_items'] ?? []);
 $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
@@ -610,7 +613,11 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                         <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                         <div class="row g-3">
                             <div class="col-md-3"><label>Loại ảnh</label><select name="media[<?= $index ?>][type]" class="form-select"><option value="banner" <?= ($row['type'] ?? '') === 'banner' ? 'selected' : '' ?>>Banner</option><option value="cover" <?= ($row['type'] ?? '') === 'cover' ? 'selected' : '' ?>>Cover</option><option value="gallery" <?= ($row['type'] ?? 'gallery') === 'gallery' ? 'selected' : '' ?>>Gallery</option><option value="video" <?= ($row['type'] ?? '') === 'video' ? 'selected' : '' ?>>Video</option></select></div>
-                            <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[<?= $index ?>]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
+                            <div class="col-md-5">
+                                <label>Tải ảnh lên</label>
+                                <input type="file" name="media_files[<?= $index ?>]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                                <div class="help">JPG, PNG hoặc WebP. Tối đa <?= esc((string) $mediaUploadLimitMb) ?>MB/ảnh.</div>
+                            </div>
                             <div class="col-md-4"><label>Tiêu đề / Alt text</label><input name="media[<?= $index ?>][alt_text]" class="form-control" value="<?= esc((string) ($row['alt_text'] ?? '')) ?>"></div>
                             <input type="hidden" name="media[<?= $index ?>][file_path]" value="<?= esc((string) ($row['file_path'] ?? '')) ?>">
                             <input type="hidden" name="media[<?= $index ?>][sort_order]" class="js-sort-order" value="<?= esc((string) ($row['sort_order'] ?? $index)) ?>">
@@ -781,6 +788,10 @@ const provincesByRegion = <?= json_encode($domesticProvincesByRegion, JSON_UNESC
 const continents = <?= json_encode($continents, JSON_UNESCAPED_UNICODE) ?>;
 const regions = <?= json_encode($domesticRegions, JSON_UNESCAPED_UNICODE) ?>;
 const inclusionSourceTours = <?= json_encode($inclusionSourceTours ?? [], JSON_UNESCAPED_UNICODE) ?>;
+const mediaUploadLimitBytes = <?= (int) $mediaUploadLimitBytes ?>;
+const mediaUploadLimitMb = <?= (int) $mediaUploadLimitMb ?>;
+const postMaxBytes = <?= (int) $postMaxBytes ?>;
+const csrfTokenName = <?= json_encode(csrf_token()) ?>;
 let destinationIndex = <?= count($destinationsRows) ?>;
 let departureIndex = <?= count($departureRows) ?>;
 let itineraryIndex = <?= count($itineraryRows) ?>;
@@ -1153,7 +1164,7 @@ function bindSortableList(containerSelector, itemSelector, options = {}) {
 function serializeFormDraft() {
   const data = {};
   new FormData(document.getElementById('tourForm')).forEach((value, key) => {
-    if (value instanceof File || key === 'media_files[]') return;
+    if (value instanceof File || key === csrfTokenName || key.startsWith('media_files[')) return;
     data[key] = String(value);
   });
   return {
@@ -1181,6 +1192,7 @@ function scheduleDraftSave() {
 function applyDraft(payload) {
   if (!payload?.data) return;
   Object.entries(payload.data).forEach(([name, value]) => {
+    if (name === csrfTokenName || name.startsWith('media_files[')) return;
     const elements = document.querySelectorAll(`[name="${CSS.escape(name)}"]`);
     elements.forEach(element => {
       if (!(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement)) return;
@@ -1299,8 +1311,35 @@ bindSortableList('#mediaRows', '.media-row');
 document.querySelector('[name="status"]')?.addEventListener('change', () => { refreshSummaryMetrics(); scheduleDraftSave(); });
 document.getElementById('tourForm').addEventListener('input', scheduleDraftSave);
 document.getElementById('tourForm').addEventListener('change', scheduleDraftSave);
-document.getElementById('tourForm').addEventListener('submit', () => {
+function validateUploadSizesBeforeSubmit() {
+  const files = Array.from(document.querySelectorAll('.js-media-file')).flatMap(input => Array.from(input.files || []));
+  const errors = [];
+  const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+
+  files.forEach((file, index) => {
+    if (file.size > mediaUploadLimitBytes) {
+      errors.push(`Ảnh #${index + 1} vượt quá ${mediaUploadLimitMb}MB.`);
+    }
+  });
+
+  if (postMaxBytes > 0 && totalBytes > postMaxBytes * 0.85) {
+    errors.push('Tổng dung lượng ảnh quá lớn so với giới hạn hosting. Hãy giảm số ảnh hoặc nén ảnh trước khi lưu.');
+  }
+
+  if (errors.length) {
+    window.alert(errors.join('\n'));
+    return false;
+  }
+
+  return true;
+}
+
+document.getElementById('tourForm').addEventListener('submit', event => {
   document.querySelectorAll('.js-rich-wrap').forEach(syncRichEditor);
+  if (!validateUploadSizesBeforeSubmit()) {
+    event.preventDefault();
+    return;
+  }
   localStorage.removeItem(draftStorageKey);
 });
 refreshSummaryMetrics();
@@ -1554,7 +1593,7 @@ document.getElementById('addMedia').addEventListener('click', () => {
   div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
     <div class="row g-3">
       <div class="col-md-3"><label>Loại ảnh</label><select name="media[${mediaIndex}][type]" class="form-select"><option value="banner">Banner</option><option value="cover">Cover</option><option value="gallery" selected>Gallery</option><option value="video">Video</option></select></div>
-      <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[${mediaIndex}]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
+      <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[${mediaIndex}]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"><div class="help">JPG, PNG hoặc WebP. Tối đa <?= esc((string) $mediaUploadLimitMb) ?>MB/ảnh.</div></div>
       <div class="col-md-4"><label>Tiêu đề / Alt text</label><input name="media[${mediaIndex}][alt_text]" class="form-control"></div>
       <input type="hidden" name="media[${mediaIndex}][file_path]" value="">
       <input type="hidden" name="media[${mediaIndex}][sort_order]" class="js-sort-order" value="${mediaIndex}">
