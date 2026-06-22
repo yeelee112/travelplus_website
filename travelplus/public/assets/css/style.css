@@ -8787,7 +8787,8 @@ body.home-search-layer-open .tp-ai-chatbox {z-index: 12;
 .tour-list-filter .home-search-date__value {color: var(--title-color);
     font-size: 15px;
     font-weight: 800;
-    line-height: 1;}
+    line-height: 1;
+    text-transform: none;}
 .tour-list-filter .home-search-date__trigger::after {right: 15px;
     top: 50%;
     transform: translateY(-55%) rotate(45deg);}
@@ -8833,13 +8834,12 @@ body.home-search-layer-open .tp-ai-chatbox {z-index: 12;
 .tour-list-filter > .container {padding-left: 12px;
         padding-right: 12px;}
 .tour-list-filter__mobile-toggle {position: fixed;
-        left: 50%;
-        right: auto;
+        left: 12px;
+        right: 12px;
         bottom: calc(16px + env(safe-area-inset-bottom));
-        transform: translateX(-50%);
         z-index: 1030;
-        display: inline-flex;
-        width: min(184px, calc(100vw - 132px));
+        display: flex;
+        width: auto;
         min-height: 50px;
         align-items: center;
         justify-content: center;
@@ -8847,12 +8847,12 @@ body.home-search-layer-open .tp-ai-chatbox {z-index: 12;
         border: 0;
         border-radius: 999px;
         padding: 12px 16px;
-        background: linear-gradient(135deg, #009cde 0%, #12b6e8 100%);
+        background: linear-gradient(135deg, var(--red-color) 0%, #c90d14 100%);
         color: #fff;
         font-family: var(--font-main);
         font-size: 15px;
         font-weight: 900;
-        box-shadow: 0 16px 34px rgba(var(--primary-color1-opc), 0.36);}
+        box-shadow: 0 16px 34px rgba(246, 20, 24, 0.34);}
 .tour-list-filter__mobile-toggle i {font-size: 17px;}
 .tour-list-filter__mobile-toggle.is-active {background: var(--title-color);}
 .tour-list-filter__panel {position: fixed;
@@ -8867,14 +8867,25 @@ body.home-search-layer-open .tp-ai-chatbox {z-index: 12;
         padding: 16px;
         box-shadow: 0 22px 64px rgba(15, 23, 42, 0.22);}
 .tour-list-filter__panel.is-open {display: grid;}
+.tour-list-filter__panel:has(.home-search-date__panel:not([hidden])) {overflow: visible;}
 .tour-list-filter__copy h2 {font-size: 20px;}
 .tour-list-filter__form {grid-template-columns: 1fr;}
+.tour-list-filter .home-search-date__panel {top: auto;
+        bottom: calc(100% + 8px);
+        z-index: 1032;
+        width: 100%;}
+.tour-list-filter .home-search-date__selection {grid-template-columns: repeat(2, minmax(0, 1fr));}
+.tour-list-filter .home-search-date__selection-item {min-width: 0;
+        padding: 10px;}
+.tour-list-filter .home-search-date__calendar {max-height: min(64vh, 430px);
+        overflow: auto;}
 .tour-list-filter__actions {display: grid;
         grid-template-columns: 1fr auto;
         height: auto;}
-body:has(.tour-list-filter) .tp-ai-chatbox {bottom: calc(16px + env(safe-area-inset-bottom));}
+body:has(.tour-list-filter) .travelplus-search-page {padding-bottom: calc(82px + env(safe-area-inset-bottom));}
+body:has(.tour-list-filter) .tp-ai-chatbox {bottom: calc(82px + env(safe-area-inset-bottom));}
 body:has(.tour-list-filter) .progress-wrap {right: 12px;
-        bottom: calc(16px + env(safe-area-inset-bottom));}
+        bottom: calc(82px + env(safe-area-inset-bottom));}
 body:has(.tour-list-filter__panel.is-open) .tp-ai-chatbox {opacity: 0;
         visibility: hidden;
         pointer-events: none;}
