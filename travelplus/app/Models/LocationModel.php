@@ -8,7 +8,8 @@ use Throwable;
 class LocationModel extends Model
 {
     protected $table = 'locations';
-    private const MENU_CACHE_TTL = 3600;
+    private const MENU_CACHE_TTL = 300;
+    private const MENU_CACHE_VERSION = 3;
     private static array $megaMenuCache = [];
 
     public function findTranslatedLocationBySlug(
@@ -67,7 +68,7 @@ class LocationModel extends Model
             return self::$megaMenuCache[$locale];
         }
 
-        $cacheKey = 'location_mega_menu_' . $locale;
+        $cacheKey = 'location_mega_menu_v' . self::MENU_CACHE_VERSION . '_' . $locale;
         $cached = cache()->get($cacheKey);
         if (is_array($cached)) {
             self::$megaMenuCache[$locale] = $cached;
@@ -76,11 +77,25 @@ class LocationModel extends Model
         }
 
         try {
+            $primaryLocale = $this->db->escape($locale);
+            $fallbackLocale = $this->db->escape($locale === 'en' ? 'vi' : 'en');
+
             $rows = $this->db->table('locations l')
-                ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
-                ->join('location_translations lt', 'lt.location_id = l.id')
-                ->where('lt.locale', $locale)
+                ->select(
+                    'l.id, l.parent_id, l.type, l.code,' .
+                    'COALESCE(NULLIF(primary_lt.name, ""), fallback_lt.name, "") AS name,' .
+                    'COALESCE(NULLIF(primary_lt.slug, ""), fallback_lt.slug, "") AS slug',
+                    false
+                )
+                ->join('location_translations primary_lt', 'primary_lt.location_id = l.id AND primary_lt.locale = ' . $primaryLocale, 'left')
+                ->join('location_translations fallback_lt', 'fallback_lt.location_id = l.id AND fallback_lt.locale = ' . $fallbackLocale, 'left')
+                ->whereIn('l.type', ['continent', 'country'])
+                ->groupStart()
+                    ->where('primary_lt.id IS NOT NULL', null, false)
+                    ->orWhere('fallback_lt.id IS NOT NULL', null, false)
+                ->groupEnd()
                 ->orderBy('l.parent_id', 'ASC')
+                ->orderBy('name', 'ASC')
                 ->get()
                 ->getResultArray();
         } catch (Throwable $exception) {

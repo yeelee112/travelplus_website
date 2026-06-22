@@ -475,6 +475,8 @@ class Tours extends BaseAdminController
             return redirect()->back()->withInput()->with('errors', ['Không thể lưu tour. Vui lòng kiểm tra dữ liệu.']);
         }
 
+        $this->clearNavigationCaches();
+
         $currentTour = $db->table('tours')->select('thumbnail')->where('id', $tourId)->get()->getRowArray() ?: [];
         $currentThumbnail = trim((string) ($currentTour['thumbnail'] ?? ''));
         if ($oldThumbnail !== '' && $oldThumbnail !== $currentThumbnail) {
@@ -1291,6 +1293,8 @@ class Tours extends BaseAdminController
             'slug' => $slugEn,
         ]);
 
+        $this->clearNavigationCaches();
+
         return $locationId;
     }
 
@@ -1332,7 +1336,19 @@ class Tours extends BaseAdminController
             'slug' => $slugEn,
         ]);
 
+        $this->clearNavigationCaches();
+
         return $locationId;
+    }
+
+    private function clearNavigationCaches(): void
+    {
+        foreach (['vi', 'en'] as $locale) {
+            cache()->delete('location_mega_menu_' . $locale);
+            cache()->delete('location_mega_menu_v2_' . $locale);
+            cache()->delete('location_mega_menu_v3_' . $locale);
+            cache()->delete('domestic_region_menu_' . $locale);
+        }
     }
 
     private function getVietnamCountryId($db): int

@@ -252,10 +252,23 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
                                         <i class="bi bi-plus dropdown-icon"></i>
                                         <ul class="none">
                                             <?php foreach ($continent['countries'] as $country): ?>
+                                                <?php
+                                                    $flagCode = strtolower((string) ($country['code'] ?? ''));
+                                                    $countryName = trim((string) ($country['name'] ?? ''));
+                                                    if ($countryName === '') {
+                                                        $countryName = trim(str_replace('-', ' ', (string) ($country['slug'] ?? '')));
+                                                    }
+                                                    if ($countryName === '') {
+                                                        $countryName = trim(str_replace('-', ' ', strtoupper($flagCode)));
+                                                    }
+                                                    if ($countryName !== '' && function_exists('mb_convert_case')) {
+                                                        $countryName = mb_convert_case($countryName, MB_CASE_TITLE, 'UTF-8');
+                                                    }
+                                                ?>
                                                 <li>
                                                     <a href="<?= localized_url($continent['slug'] . '/' . $country['slug']) ?>">
-                                                        <img src="https://flagcdn.com/w20/<?= strtolower($country['code']) ?>.png" alt="<?= esc($country['name']) ?>" loading="lazy" decoding="async" width="20" height="15">
-                                                        <?= esc($country['name']) ?>
+                                                        <img src="https://flagcdn.com/w20/<?= esc($flagCode) ?>.png" alt="<?= esc($country['name']) ?>" loading="lazy" decoding="async" width="20" height="15">
+                                                        <?= esc($countryName) ?>
                                                     </a>
                                                 </li>
                                             <?php endforeach; ?>
