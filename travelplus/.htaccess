@@ -10,6 +10,9 @@ Options -Indexes
     RewriteCond %{THE_REQUEST} \s/+public/?([^\s?]*) [NC]
     RewriteRule ^public/?(.*)$ /$1 [R=301,L,NE]
 
+    RewriteCond %{REQUEST_URI} %[89A-Fa-f][0-9A-Fa-f] [NC]
+    RewriteRule ^ - [F,L]
+
     RewriteRule ^(?:app|build|database|scripts|tests|vendor|writable)(?:/|$) - [F,L]
     RewriteRule ^(?:spark|preload\.php|phpunit\.xml\.dist|README\.md|LICENSE|DATABASE_.*\.md|tour_detail_schema_update\.sql|travelplus\.zip)$ - [F,L]
 

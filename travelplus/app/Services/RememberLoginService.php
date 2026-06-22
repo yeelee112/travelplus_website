@@ -3,18 +3,21 @@
 namespace App\Services;
 
 use App\Models\UserModel;
+use Throwable;
 
 class RememberLoginService
 {
     private const COOKIE_NAME = 'travelplus_remember';
     private const LIFETIME_SECONDS = 2592000; // 30 days
+    private static ?bool $tokenTableExists = null;
 
     public function issue(array $user): void
     {
-        $db = db_connect();
-        if (! $db->tableExists('user_remember_tokens')) {
+        if (! $this->hasTokenTable()) {
             return;
         }
+
+        $db = db_connect();
 
         $this->clearAllForUser((int) ($user['id'] ?? 0));
 
@@ -49,15 +52,16 @@ class RememberLoginService
 
     public function restoreUser(): ?array
     {
-        $db = db_connect();
-        if (! $db->tableExists('user_remember_tokens')) {
-            return null;
-        }
-
         $rawCookie = (string) service('request')->getCookie(self::COOKIE_NAME);
         if ($rawCookie === '' || ! str_contains($rawCookie, ':')) {
             return null;
         }
+
+        if (! $this->hasTokenTable()) {
+            return null;
+        }
+
+        $db = db_connect();
 
         [$selector, $validator] = explode(':', $rawCookie, 2);
         $selector = trim($selector);
@@ -151,11 +155,11 @@ class RememberLoginService
             return;
         }
 
-        $db = db_connect();
-        if (! $db->tableExists('user_remember_tokens')) {
+        if (! $this->hasTokenTable()) {
             return;
         }
 
+        $db = db_connect();
         $db->table('user_remember_tokens')->where('user_id', $userId)->delete();
     }
 
@@ -165,11 +169,27 @@ class RememberLoginService
             return;
         }
 
-        $db = db_connect();
-        if (! $db->tableExists('user_remember_tokens')) {
+        if (! $this->hasTokenTable()) {
             return;
         }
 
+        $db = db_connect();
         $db->table('user_remember_tokens')->where('selector', $selector)->delete();
+    }
+
+    private function hasTokenTable(): bool
+    {
+        if (self::$tokenTableExists !== null) {
+            return self::$tokenTableExists;
+        }
+
+        try {
+            self::$tokenTableExists = db_connect()->tableExists('user_remember_tokens');
+        } catch (Throwable $exception) {
+            log_message('error', 'Remember login table check failed: ' . $exception->getMessage());
+            self::$tokenTableExists = false;
+        }
+
+        return self::$tokenTableExists;
     }
 }

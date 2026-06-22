@@ -3,12 +3,26 @@
 namespace App\Services;
 
 use App\Models\UserModel;
+use Throwable;
 
 class AuthSessionControlService
 {
+    private static ?bool $sessionVersionSupported = null;
+
     public function isSupported(): bool
     {
-        return db_connect()->fieldExists('auth_session_version', 'users');
+        if (self::$sessionVersionSupported !== null) {
+            return self::$sessionVersionSupported;
+        }
+
+        try {
+            self::$sessionVersionSupported = db_connect()->fieldExists('auth_session_version', 'users');
+        } catch (Throwable $exception) {
+            log_message('error', 'Auth session support check failed: ' . $exception->getMessage());
+            self::$sessionVersionSupported = false;
+        }
+
+        return self::$sessionVersionSupported;
     }
 
     public function buildSessionVersion(array $user): int
