@@ -32,7 +32,7 @@ $showCookieConsent = ! in_array($firstSegment, ['admin', 'api'], true);
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
 $isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
-$googleAnalyticsId = 'G-Q5QE8JM3TS';
+$googleAnalyticsId = 'G-W2FBGJD5YK';
 if (str_starts_with($requestHost, 'demo.') || in_array($firstSegment, ['account', 'auth', 'booking'], true)) {
     $metaRobots = 'noindex,nofollow,max-image-preview:large';
 }
