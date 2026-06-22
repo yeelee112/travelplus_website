@@ -230,10 +230,51 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Bắc Mỹ', 'en' => 'North America'],
                         'continent_slug' => 'bac-my',
                         'destination_slug' => 'my',
-                        'image' => 'assets/images/gallery-3.jpg',
+                        'image' => 'assets/images/destination/us.jpg',
                     ],
+                    [
+                        'kind' => 'outbound_country',
+                        'title' => ['vi' => 'Canada', 'en' => 'Canada'],
+                        'subtitle' => ['vi' => 'Bắc Mỹ', 'en' => 'North America'],
+                        'continent_slug' => 'bac-my',
+                        'destination_slug' => 'canada',
+                        'image' => 'assets/images/destination/canada.jpg',
+                    ],
+                    [
+                        'kind' => 'outbound_country',
+                        'title' => ['vi' => 'Mexico', 'en' => 'Mexico'],
+                        'subtitle' => ['vi' => 'Bắc Mỹ', 'en' => 'North America'],
+                        'continent_slug' => 'bac-my',
+                        'destination_slug' => 'mexico',
+                        'image' => 'assets/images/destination/mexico.webp',
+                    ]
                 ],
             ],
+            [
+                'key' => 'chau-dai-duong',
+                'label' => [
+                    'vi' => 'Châu Đại Dương',
+                    'en' => 'Oceania',
+                ],
+                'items' => [
+                    [
+                        'kind' => 'outbound_country',
+                        'title' => ['vi' => 'Úc', 'en' => 'Australia'],
+                        'subtitle' => ['vi' => 'Châu Đại Dương', 'en' => 'Oceania'],
+                        'continent_slug' => 'chau-dai-duong',
+                        'destination_slug' => 'australia',
+                        'image' => 'assets/images/destination/australia.jpg',
+                    ],
+                    [
+                        'kind' => 'outbound_country',
+                        'title' => ['vi' => 'New Zealand', 'en' => 'New Zealand'],
+                        'subtitle' => ['vi' => 'Châu Đại Dương', 'en' => 'Oceania'],
+                        'continent_slug' => 'chau-dai-duong',
+                        'destination_slug' => 'new-zealand',
+                        'image' => 'assets/images/destination/new-zealand.png',
+                    ]
+                ],
+            ]
         ];
     }
 }
