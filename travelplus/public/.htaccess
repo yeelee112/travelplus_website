@@ -53,6 +53,10 @@ Options -Indexes
 	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
 	# RewriteBase /
 
+	# Block percent-encoded non-ASCII spam URLs before CodeIgniter handles them.
+	RewriteCond %{THE_REQUEST} \s/+[^\s?]*%[89A-Fa-f][0-9A-Fa-f] [NC]
+	RewriteRule ^ - [F,L]
+
 	# Redirect Trailing Slashes...
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_URI} (.+)/$
@@ -62,6 +66,11 @@ Options -Indexes
 	RewriteCond %{HTTPS} !=on
 	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
 	RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
+
+	# Missing static uploads should be plain 404s, not routed through CodeIgniter.
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^uploads/.+\.(?:avif|webp|png|jpe?g|gif|svg|ico|pdf|docx?|xlsx?)$ - [R=404,L,NC]
 
 	# Checks to see if the user is attempting to access a valid file,
 	# such as an image or css document, if this isn't true it sends the

@@ -12,6 +12,7 @@ use App\Services\AdminAccessService;
 use App\Services\AnalyticsTrackingService;
 use App\Services\AuthSessionControlService;
 use App\Services\RememberLoginService;
+use Throwable;
 
 /**
  * BaseController provides a convenient place for loading components
@@ -68,10 +69,14 @@ abstract class BaseController extends Controller
         $domesticMenu = [];
 
         if ($usesSiteNavigation) {
-            $locationModel = new LocationModel();
-            $menu = $locationModel->getMegaMenu($locale);
-            $domesticRegionService = new DomesticRegionService();
-            $domesticMenu = $domesticRegionService->getMenu($locale);
+            try {
+                $locationModel = new LocationModel();
+                $menu = $locationModel->getMegaMenu($locale);
+                $domesticRegionService = new DomesticRegionService();
+                $domesticMenu = $domesticRegionService->getMenu($locale);
+            } catch (Throwable $exception) {
+                log_message('error', 'Site navigation load failed: ' . $exception->getMessage());
+            }
         }
 
         $isAdminUser = (new AdminAccessService())->isAdmin(is_array($authUser) ? $authUser : null);

@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Services\DomesticRegionService;
+use Throwable;
 
 class Tours extends BaseAdminController
 {
@@ -684,8 +685,9 @@ class Tours extends BaseAdminController
 
     private function insertTourMedia($db, int $tourId, array $post, string $now): void
     {
-        $mediaFiles = $this->request->getFileMultiple('media_files') ?? [];
-        $mediaRows = array_values(array_filter((array) ($post['media'] ?? []), static fn($row) => is_array($row)));
+        $uploadedFiles = $this->request->getFiles();
+        $mediaFiles = is_array($uploadedFiles['media_files'] ?? null) ? $uploadedFiles['media_files'] : [];
+        $mediaRows = array_filter((array) ($post['media'] ?? []), static fn($row) => is_array($row));
 
         foreach ($mediaRows as $index => $row) {
             $filePath = trim((string) ($row['file_path'] ?? ''));
@@ -694,6 +696,8 @@ class Tours extends BaseAdminController
 
             if ($file && $file->isValid() && ! $file->hasMoved()) {
                 $filePath = $this->storeTourMediaFile($tourId, $type, $file);
+            } elseif ($file && $file->getError() !== UPLOAD_ERR_NO_FILE) {
+                log_message('error', 'Tour media upload failed for tour #' . $tourId . ': ' . $file->getErrorString());
             }
 
             if ($filePath === '') {
@@ -1338,10 +1342,12 @@ class Tours extends BaseAdminController
         $mimeType = $file->getMimeType();
 
         if (! in_array($extension, $allowedExtensions, true) || ! in_array($mimeType, $allowedMimeTypes, true)) {
+            log_message('error', 'Tour media upload rejected for tour #' . $tourId . ': invalid type ' . $extension . ' / ' . $mimeType);
             return '';
         }
 
         if ($file->getSizeByUnit('mb') > 5) {
+            log_message('error', 'Tour media upload rejected for tour #' . $tourId . ': file is larger than 5MB');
             return '';
         }
 
@@ -1349,12 +1355,22 @@ class Tours extends BaseAdminController
         $relativeDir = 'uploads/tours/' . $tourId . '/' . $safeType;
         $absoluteDir = FCPATH . $relativeDir;
 
-        if (! is_dir($absoluteDir)) {
-            mkdir($absoluteDir, 0755, true);
-        }
+        try {
+            if (! is_dir($absoluteDir)) {
+                mkdir($absoluteDir, 0755, true);
+            }
 
-        $fileName = 'tour-' . $tourId . '-' . $safeType . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
-        $file->move($absoluteDir, $fileName);
+            $fileName = 'tour-' . $tourId . '-' . $safeType . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
+            if (! $file->move($absoluteDir, $fileName)) {
+                log_message('error', 'Tour media upload failed for tour #' . $tourId . ': could not move file to ' . $absoluteDir);
+
+                return '';
+            }
+        } catch (Throwable $exception) {
+            log_message('error', 'Tour media upload failed for tour #' . $tourId . ': ' . $exception->getMessage());
+
+            return '';
+        }
 
         return $relativeDir . '/' . $fileName;
     }

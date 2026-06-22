@@ -3,9 +3,14 @@
 namespace App\Services;
 
 use Config\Database;
+use Throwable;
 
 class DomesticRegionService
 {
+    private const MENU_CACHE_TTL = 3600;
+
+    private static array $menuCache = [];
+
     private array $regionDefinitions = [
         'vi' => [
             'north' => ['name' => 'Miền Bắc', 'slug' => 'mien-bac'],
@@ -158,27 +163,47 @@ class DomesticRegionService
 
     public function getMenu(string $locale = 'vi'): array
     {
+        $locale = $locale === 'en' ? 'en' : 'vi';
+        if (isset(self::$menuCache[$locale])) {
+            return self::$menuCache[$locale];
+        }
+
+        $cacheKey = 'domestic_region_menu_' . $locale;
+        $cached = cache()->get($cacheKey);
+        if (is_array($cached)) {
+            self::$menuCache[$locale] = $cached;
+
+            return $cached;
+        }
+
         $regions = $this->baseRegions($locale);
 
-        foreach ($this->getVietnamProvinces($locale) as $province) {
-            $regionKey = $this->resolveRegionKeyByProvinceCode((string) ($province['code'] ?? ''));
+        try {
+            foreach ($this->getVietnamProvinces($locale) as $province) {
+                $regionKey = $this->resolveRegionKeyByProvinceCode((string) ($province['code'] ?? ''));
 
-            if ($regionKey === null || !isset($regions[$regionKey])) {
-                continue;
+                if ($regionKey === null || !isset($regions[$regionKey])) {
+                    continue;
+                }
+
+                $regions[$regionKey]['provinces'][] = [
+                    'id' => (int) $province['id'],
+                    'name' => (string) $province['name'],
+                    'slug' => (string) $province['slug'],
+                    'code' => (string) $province['code'],
+                    'link' => localized_url('tour-trong-nuoc/' . $regions[$regionKey]['slug'] . '/' . $province['slug']),
+                ];
             }
-
-            $regions[$regionKey]['provinces'][] = [
-                'id' => (int) $province['id'],
-                'name' => (string) $province['name'],
-                'slug' => (string) $province['slug'],
-                'code' => (string) $province['code'],
-                'link' => localized_url('tour-trong-nuoc/' . $regions[$regionKey]['slug'] . '/' . $province['slug']),
-            ];
+        } catch (Throwable $exception) {
+            log_message('error', 'Domestic region menu load failed: ' . $exception->getMessage());
         }
 
         foreach ($regions as $key => $region) {
             $regions[$key]['link'] = localized_url('tour-trong-nuoc/' . $region['slug']);
         }
+
+        cache()->save($cacheKey, $regions, self::MENU_CACHE_TTL);
+        self::$menuCache[$locale] = $regions;
 
         return $regions;
     }

@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use Throwable;
 
 class LocationModel extends Model
 {
     protected $table = 'locations';
+    private const MENU_CACHE_TTL = 3600;
+    private static array $megaMenuCache = [];
 
     public function findTranslatedLocationBySlug(
         string $locale,
@@ -54,17 +57,34 @@ class LocationModel extends Model
 
     public function getMegaMenu(string $locale = 'vi'): array
     {
-        if (!$this->db->tableExists('locations') || !$this->db->tableExists('location_translations')) {
-            return [];
+        $locale = $locale === 'en' ? 'en' : 'vi';
+
+        if (isset(self::$megaMenuCache[$locale])) {
+            return self::$megaMenuCache[$locale];
         }
 
-        $rows = $this->db->table('locations l')
-            ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
-            ->join('location_translations lt', 'lt.location_id = l.id')
-            ->where('lt.locale', $locale)
-            ->orderBy('l.parent_id', 'ASC')
-            ->get()
-            ->getResultArray();
+        $cacheKey = 'location_mega_menu_' . $locale;
+        $cached = cache()->get($cacheKey);
+        if (is_array($cached)) {
+            self::$megaMenuCache[$locale] = $cached;
+
+            return $cached;
+        }
+
+        try {
+            $rows = $this->db->table('locations l')
+                ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
+                ->join('location_translations lt', 'lt.location_id = l.id')
+                ->where('lt.locale', $locale)
+                ->orderBy('l.parent_id', 'ASC')
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            log_message('error', 'Mega menu load failed: ' . $exception->getMessage());
+            self::$megaMenuCache[$locale] = [];
+
+            return [];
+        }
 
         $menu = [];
 
@@ -80,6 +100,9 @@ class LocationModel extends Model
                 $menu[$row['parent_id']]['countries'][] = $row;
             }
         }
+
+        cache()->save($cacheKey, $menu, self::MENU_CACHE_TTL);
+        self::$megaMenuCache[$locale] = $menu;
 
         return $menu;
     }

@@ -610,7 +610,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                         <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                         <div class="row g-3">
                             <div class="col-md-3"><label>Loại ảnh</label><select name="media[<?= $index ?>][type]" class="form-select"><option value="banner" <?= ($row['type'] ?? '') === 'banner' ? 'selected' : '' ?>>Banner</option><option value="cover" <?= ($row['type'] ?? '') === 'cover' ? 'selected' : '' ?>>Cover</option><option value="gallery" <?= ($row['type'] ?? 'gallery') === 'gallery' ? 'selected' : '' ?>>Gallery</option><option value="video" <?= ($row['type'] ?? '') === 'video' ? 'selected' : '' ?>>Video</option></select></div>
-                            <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
+                            <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[<?= $index ?>]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
                             <div class="col-md-4"><label>Tiêu đề / Alt text</label><input name="media[<?= $index ?>][alt_text]" class="form-control" value="<?= esc((string) ($row['alt_text'] ?? '')) ?>"></div>
                             <input type="hidden" name="media[<?= $index ?>][file_path]" value="<?= esc((string) ($row['file_path'] ?? '')) ?>">
                             <input type="hidden" name="media[<?= $index ?>][sort_order]" class="js-sort-order" value="<?= esc((string) ($row['sort_order'] ?? $index)) ?>">
@@ -1554,7 +1554,7 @@ document.getElementById('addMedia').addEventListener('click', () => {
   div.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary repeat-drag js-drag-handle" title="Kéo để sắp xếp">↕</button><button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
     <div class="row g-3">
       <div class="col-md-3"><label>Loại ảnh</label><select name="media[${mediaIndex}][type]" class="form-select"><option value="banner">Banner</option><option value="cover">Cover</option><option value="gallery" selected>Gallery</option><option value="video">Video</option></select></div>
-      <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
+      <div class="col-md-5"><label>Tải ảnh lên</label><input type="file" name="media_files[${mediaIndex}]" class="form-control js-media-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></div>
       <div class="col-md-4"><label>Tiêu đề / Alt text</label><input name="media[${mediaIndex}][alt_text]" class="form-control"></div>
       <input type="hidden" name="media[${mediaIndex}][file_path]" value="">
       <input type="hidden" name="media[${mediaIndex}][sort_order]" class="js-sort-order" value="${mediaIndex}">
