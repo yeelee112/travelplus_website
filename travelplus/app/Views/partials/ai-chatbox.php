@@ -394,6 +394,7 @@ $chatUi = $currentLocale === 'en'
                 body: JSON.stringify({
                     locale,
                     message,
+                    page_url: window.location.href,
                     history
                 })
             });

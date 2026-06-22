@@ -39,6 +39,8 @@ class ChatController extends BaseController
             ]);
         }
 
+        $this->logChatEntry('user', $locale, $message, $payload);
+
         if (! $this->passesRateLimit()) {
             return $this->response->setStatusCode(429)->setJSON([
                 'message' => $locale === 'en'
@@ -97,6 +99,10 @@ class ChatController extends BaseController
                 $response['debug'] = $result['debug_meta'];
             }
 
+            $this->logChatEntry('assistant', $locale, (string) $result['message'], $payload, [
+                'sources_count' => is_array($result['sources'] ?? null) ? count($result['sources']) : 0,
+            ]);
+
             return $this->response->setJSON($response);
         } catch (RuntimeException $exception) {
             log_message('error', 'AI chat request failed: ' . $exception->getMessage());
@@ -134,5 +140,56 @@ class ChatController extends BaseController
         $session->set('ai_chat_rate_hits', $hits);
 
         return true;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function logChatEntry(string $role, string $locale, string $message, array $payload, array $extra = []): void
+    {
+        $directory = rtrim(WRITEPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'ai-chat';
+
+        if (! is_dir($directory) && ! mkdir($directory, 0775, true) && ! is_dir($directory)) {
+            log_message('error', 'Unable to create AI chat log directory: ' . $directory);
+            return;
+        }
+
+        $session = session();
+        $pageUrl = trim((string) ($payload['page_url'] ?? $payload['url'] ?? ''));
+        $entry = [
+            'timestamp' => date('c'),
+            'role' => $role,
+            'locale' => $locale,
+            'message' => $message,
+            'session_id' => session_id(),
+            'ip_address' => $this->request->getIPAddress(),
+            'user_agent' => mb_substr((string) $this->request->getUserAgent(), 0, 500),
+            'page_url' => $pageUrl,
+            'history_count' => is_array($payload['history'] ?? null) ? count($payload['history']) : 0,
+        ];
+
+        $customerContext = $session->get('user');
+        if (is_array($customerContext)) {
+            $entry['customer'] = [
+                'id' => $customerContext['id'] ?? null,
+                'email' => $customerContext['email'] ?? null,
+                'name' => $customerContext['full_name'] ?? null,
+            ];
+        }
+
+        if ($extra !== []) {
+            $entry += $extra;
+        }
+
+        $json = json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            log_message('error', 'Unable to encode AI chat log entry.');
+            return;
+        }
+
+        $file = $directory . DIRECTORY_SEPARATOR . date('Y-m-d') . '.jsonl';
+        if (file_put_contents($file, $json . PHP_EOL, FILE_APPEND | LOCK_EX) === false) {
+            log_message('error', 'Unable to write AI chat log file: ' . $file);
+        }
     }
 }
