@@ -7,6 +7,7 @@ use App\Data\LocalizedPathCatalog;
 use App\Services\BlogService;
 use App\Services\SeoService;
 use App\Services\TourCatalogService;
+use Throwable;
 
 class Home extends BaseController
 {
@@ -20,11 +21,11 @@ class Home extends BaseController
         $canonicalUrl = localized_url('/');
         $searchUrl = LocalizedPathCatalog::url('search', $locale) . '?q={search_term_string}';
         $metaDesc = $t('home.metaDesc');
-        $featuredTours = $tourService->getFeaturedTours($locale, 6);
-        $promotionalTours = $tourService->getPromotionalTours($locale, 4);
+        $featuredTours = $this->safeSection('featured tours', static fn(): array => $tourService->getFeaturedTours($locale, 6));
+        $promotionalTours = $this->safeSection('promotional tours', static fn(): array => $tourService->getPromotionalTours($locale, 4));
         $featuredDestinations = $this->getCuratedFeaturedDestinations($locale);
-        $homeTours = $tourService->getHomeTours($locale, 6);
-        $homeBlogs = $blogService->getHomeBlogs($locale, 3);
+        $homeTours = $this->safeSection('home tours', static fn(): array => $tourService->getHomeTours($locale, 6));
+        $homeBlogs = $this->safeSection('home blogs', static fn(): array => $blogService->getHomeBlogs($locale, 3));
 
         return view('home/index', [
             'featuredTours' => $featuredTours,
@@ -53,6 +54,22 @@ class Home extends BaseController
                 $seo->itemListSchema($t('blog.listTitle'), $canonicalUrl, $homeBlogs, 'BlogPosting'),
             ],
         ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function safeSection(string $name, callable $callback): array
+    {
+        try {
+            $result = $callback();
+
+            return is_array($result) ? $result : [];
+        } catch (Throwable $exception) {
+            log_message('error', 'Home section failed [' . $name . ']: ' . $exception->getMessage());
+
+            return [];
+        }
     }
 
     /**

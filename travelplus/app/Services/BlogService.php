@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use CodeIgniter\Database\BaseConnection;
+use Throwable;
 
 class BlogService
 {
     private BaseConnection $db;
+    private static ?bool $tablesReady = null;
 
     public function __construct()
     {
@@ -15,7 +17,18 @@ class BlogService
 
     public function hasTables(): bool
     {
-        return $this->db->tableExists('blogs') && $this->db->tableExists('blog_translations');
+        if (self::$tablesReady !== null) {
+            return self::$tablesReady;
+        }
+
+        try {
+            self::$tablesReady = $this->db->tableExists('blogs') && $this->db->tableExists('blog_translations');
+        } catch (Throwable $exception) {
+            log_message('error', 'Blog table check failed: ' . $exception->getMessage());
+            self::$tablesReady = false;
+        }
+
+        return self::$tablesReady;
     }
 
     /**

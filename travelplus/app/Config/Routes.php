@@ -23,6 +23,7 @@ $routes->POST('api/ai-chat', 'Api\ChatController::message');
 $routes->GET('ve-chung-toi', 'AboutUs::index');
 $routes->GET('cam-hung-du-lich', 'Blog::index');
 $routes->GET('cam-hung-du-lich/(:segment)', 'Blog::show/$1');
+$routes->GET('bai-viet/(:segment)', 'Blog::show/$1');
 $routes->GET('dich-vu-visa', 'Visa::index');
 $routes->GET('dich-vu-mice', 'Mice::index');
 $routes->GET('dich-vu-ve-may-bay', 'Services::airlineTickets');

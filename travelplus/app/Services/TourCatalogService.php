@@ -7,6 +7,7 @@ use App\Data\FeaturedDestinationImageMap;
 use App\Data\TourCard;
 use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\BaseConnection;
+use Throwable;
 
 class TourCatalogService
 {
@@ -14,6 +15,9 @@ class TourCatalogService
     private const DEFAULT_INFANT_PRICE_RATE = 0.25;
 
     private BaseConnection $db;
+    private static array $tableExistsCache = [];
+    private static array $fieldExistsCache = [];
+    private static ?bool $tourCatalogSchemaReady = null;
 
     public function __construct()
     {
@@ -35,14 +39,14 @@ class TourCatalogService
      */
     public function getPromotionalTours(string $locale = 'vi', int $limit = 4): array
     {
-        if (!$this->hasSchemaForTourCatalog() || !$this->db->fieldExists('is_promotion', 'tours')) {
+        if (!$this->hasSchemaForTourCatalog() || !$this->fieldExists('is_promotion', 'tours')) {
             return [];
         }
 
         $builder = $this->baseToursBuilder($locale)
             ->where('t.is_promotion', 1);
 
-        if ($this->db->fieldExists('promotion_ends_at', 'tours')) {
+        if ($this->fieldExists('promotion_ends_at', 'tours')) {
             $builder->groupStart()
                 ->where('t.promotion_ends_at IS NULL', null, false)
                 ->orWhere('t.promotion_ends_at >=', date('Y-m-d H:i:s'))
@@ -71,7 +75,7 @@ class TourCatalogService
         $groupBy = 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug, t.is_promotion';
 
         foreach (['promotion_badge', 'promotion_ends_at', 'promotion_sort'] as $field) {
-            if ($this->db->fieldExists($field, 'tours')) {
+            if ($this->fieldExists($field, 'tours')) {
                 $select[] = 't.' . $field;
                 $groupBy .= ', t.' . $field;
             }
@@ -80,11 +84,11 @@ class TourCatalogService
         $builder->select(implode(',', $select), false)
             ->groupBy($groupBy);
 
-        if ($this->db->fieldExists('promotion_sort', 'tours')) {
+        if ($this->fieldExists('promotion_sort', 'tours')) {
             $builder->orderBy('t.promotion_sort', 'ASC');
         }
 
-        if ($this->db->fieldExists('promotion_ends_at', 'tours')) {
+        if ($this->fieldExists('promotion_ends_at', 'tours')) {
             $builder->orderBy('t.promotion_ends_at IS NULL', 'ASC', false)
                 ->orderBy('t.promotion_ends_at', 'ASC');
         }
@@ -387,24 +391,30 @@ class TourCatalogService
             return $this->fallbackTours($offset, $limit);
         }
 
-        $rows = $this->baseToursBuilder($locale, $tourType, $locationFilter, $featuredOnly)
-            ->select(
-                't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
-                'tt.name AS title, tt.slug AS slug,' .
-                'MIN(dl.id) AS destination_id,' .
-                'MIN(dltn.name) AS destination_name,' .
-                'MIN(dltn.slug) AS destination_slug,' .
-                'MIN(td.departure_date) AS departure_date,' .
-                'MIN(t.base_price) AS min_price,' .
-                'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
-                'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug,' .
-                'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name'
-            )
-            ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug')
-            ->orderBy($this->getSortField(), 'DESC')
-            ->limit($limit, $offset)
-            ->get()
-            ->getResultArray();
+        try {
+            $rows = $this->baseToursBuilder($locale, $tourType, $locationFilter, $featuredOnly)
+                ->select(
+                    't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
+                    'tt.name AS title, tt.slug AS slug,' .
+                    'MIN(dl.id) AS destination_id,' .
+                    'MIN(dltn.name) AS destination_name,' .
+                    'MIN(dltn.slug) AS destination_slug,' .
+                    'MIN(td.departure_date) AS departure_date,' .
+                    'MIN(t.base_price) AS min_price,' .
+                    'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
+                    'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug,' .
+                    'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name'
+                )
+                ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug')
+                ->orderBy($this->getSortField(), 'DESC')
+                ->limit($limit, $offset)
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            log_message('error', 'Tour catalog fetch failed: ' . $exception->getMessage());
+
+            return $this->fallbackTours($offset, $limit);
+        }
 
         if (empty($rows)) {
             return $this->fallbackTours($offset, $limit);
@@ -440,14 +450,14 @@ class TourCatalogService
             $builder->where('t.tour_type', $tourType);
         }
 
-        if ($featuredOnly && $this->db->fieldExists('is_featured', 'tours')) {
+        if ($featuredOnly && $this->fieldExists('is_featured', 'tours')) {
             $builder->where('t.is_featured', 1);
         }
 
-        if ($promotionOnly && $this->db->fieldExists('is_promotion', 'tours')) {
+        if ($promotionOnly && $this->fieldExists('is_promotion', 'tours')) {
             $builder->where('t.is_promotion', 1);
 
-            if ($this->db->fieldExists('promotion_ends_at', 'tours')) {
+            if ($this->fieldExists('promotion_ends_at', 'tours')) {
                 $builder->groupStart()
                     ->where('t.promotion_ends_at IS NULL', null, false)
                     ->orWhere('t.promotion_ends_at >=', date('Y-m-d H:i:s'))
@@ -630,7 +640,7 @@ class TourCatalogService
 
     private function getSortField(): string
     {
-        if ($this->db->fieldExists('created_at', 'tours')) {
+        if ($this->fieldExists('created_at', 'tours')) {
             return 't.created_at';
         }
 
@@ -660,12 +670,51 @@ class TourCatalogService
 
     private function hasSchemaForTourCatalog(): bool
     {
-        return $this->db->tableExists('tours')
-            && $this->db->tableExists('tour_translations')
-            && $this->db->tableExists('tour_departures')
-            && $this->db->tableExists('tour_destinations')
-            && $this->db->tableExists('locations')
-            && $this->db->tableExists('location_translations');
+        if (self::$tourCatalogSchemaReady !== null) {
+            return self::$tourCatalogSchemaReady;
+        }
+
+        self::$tourCatalogSchemaReady = $this->tableExists('tours')
+            && $this->tableExists('tour_translations')
+            && $this->tableExists('tour_departures')
+            && $this->tableExists('tour_destinations')
+            && $this->tableExists('locations')
+            && $this->tableExists('location_translations');
+
+        return self::$tourCatalogSchemaReady;
+    }
+
+    private function tableExists(string $table): bool
+    {
+        if (array_key_exists($table, self::$tableExistsCache)) {
+            return self::$tableExistsCache[$table];
+        }
+
+        try {
+            self::$tableExistsCache[$table] = $this->db->tableExists($table);
+        } catch (Throwable $exception) {
+            log_message('error', 'Tour catalog table check failed for ' . $table . ': ' . $exception->getMessage());
+            self::$tableExistsCache[$table] = false;
+        }
+
+        return self::$tableExistsCache[$table];
+    }
+
+    private function fieldExists(string $field, string $table): bool
+    {
+        $key = $table . '.' . $field;
+        if (array_key_exists($key, self::$fieldExistsCache)) {
+            return self::$fieldExistsCache[$key];
+        }
+
+        try {
+            self::$fieldExistsCache[$key] = $this->db->fieldExists($field, $table);
+        } catch (Throwable $exception) {
+            log_message('error', 'Tour catalog field check failed for ' . $key . ': ' . $exception->getMessage());
+            self::$fieldExistsCache[$key] = false;
+        }
+
+        return self::$fieldExistsCache[$key];
     }
 
     /**
@@ -785,7 +834,7 @@ class TourCatalogService
     private function fetchTourDestinations(array $tourIds, string $locale): array
     {
         $tourIds = array_values(array_filter(array_unique(array_map('intval', $tourIds))));
-        if ($tourIds === [] || ! $this->db->tableExists('tour_destinations')) {
+        if ($tourIds === [] || ! $this->tableExists('tour_destinations')) {
             return [];
         }
 
@@ -990,7 +1039,7 @@ class TourCatalogService
 
     private function getTourCoverPath(int $tourId, string $fallback = ''): string
     {
-        if ($tourId <= 0 || !$this->db->tableExists('tour_media')) {
+        if ($tourId <= 0 || !$this->tableExists('tour_media')) {
             return $fallback;
         }
 
@@ -1009,7 +1058,7 @@ class TourCatalogService
 
     private function getTourBannerPath(int $tourId, string $fallback = ''): string
     {
-        if ($tourId <= 0 || !$this->db->tableExists('tour_media')) {
+        if ($tourId <= 0 || !$this->tableExists('tour_media')) {
             return $fallback;
         }
 
@@ -1100,7 +1149,7 @@ class TourCatalogService
 
     private function getTourDepartures(int $tourId): array
     {
-        if (!$this->db->tableExists('tour_departures')) {
+        if (!$this->tableExists('tour_departures')) {
             return [];
         }
 
@@ -1129,7 +1178,7 @@ class TourCatalogService
 
     private function getTourInclusions(int $tourId, string $locale): array
     {
-        if (! $this->db->tableExists('tour_inclusions') || ! $this->db->tableExists('tour_inclusion_translations')) {
+        if (! $this->tableExists('tour_inclusions') || ! $this->tableExists('tour_inclusion_translations')) {
             return [
                 'included' => [],
                 'excluded' => [],
@@ -1171,7 +1220,7 @@ class TourCatalogService
 
     private function getTourMedia(int $tourId): array
     {
-        if (!$this->db->tableExists('tour_media')) {
+        if (!$this->tableExists('tour_media')) {
             return [];
         }
 
@@ -1192,7 +1241,7 @@ class TourCatalogService
 
     private function getTourItineraryDays(int $tourId, string $locale): array
     {
-        if (!$this->db->tableExists('tour_itinerary_days') || !$this->db->tableExists('tour_itinerary_day_translations')) {
+        if (!$this->tableExists('tour_itinerary_days') || !$this->tableExists('tour_itinerary_day_translations')) {
             return [];
         }
 
@@ -1218,7 +1267,7 @@ class TourCatalogService
 
     private function getTourFaqs(int $tourId, string $locale): array
     {
-        if (!$this->db->tableExists('tour_faqs') || !$this->db->tableExists('tour_faq_translations')) {
+        if (!$this->tableExists('tour_faqs') || !$this->tableExists('tour_faq_translations')) {
             return [];
         }
 
@@ -1260,7 +1309,7 @@ class TourCatalogService
             'value' => 0.0,
         ];
 
-        if (!$this->db->tableExists('tour_reviews')) {
+        if (!$this->tableExists('tour_reviews')) {
             return $empty;
         }
 
@@ -1286,7 +1335,7 @@ class TourCatalogService
 
     private function getTourReviews(int $tourId, int $limit = 10): array
     {
-        if (!$this->db->tableExists('tour_reviews')) {
+        if (!$this->tableExists('tour_reviews')) {
             return [];
         }
 

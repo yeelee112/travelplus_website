@@ -17,40 +17,44 @@ class LocationModel extends Model
         ?string $type = null,
         ?int $parentId = null
     ): ?array {
-        if (!$this->db->tableExists('locations') || !$this->db->tableExists('location_translations')) {
+        try {
+            $builder = $this->db->table('locations l')
+                ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
+                ->join('location_translations lt', 'lt.location_id = l.id AND lt.locale = ' . $this->db->escape($locale), 'inner')
+                ->where('lt.slug', $slug);
+
+            if ($type !== null) {
+                $builder->where('l.type', $type);
+            }
+
+            if ($parentId !== null) {
+                $builder->where('l.parent_id', $parentId);
+            }
+
+            $row = $builder->get()->getRowArray();
+        } catch (Throwable $exception) {
+            log_message('error', 'Location slug lookup failed: ' . $exception->getMessage());
+
             return null;
         }
-
-        $builder = $this->db->table('locations l')
-            ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
-            ->join('location_translations lt', 'lt.location_id = l.id AND lt.locale = ' . $this->db->escape($locale), 'inner')
-            ->where('lt.slug', $slug);
-
-        if ($type !== null) {
-            $builder->where('l.type', $type);
-        }
-
-        if ($parentId !== null) {
-            $builder->where('l.parent_id', $parentId);
-        }
-
-        $row = $builder->get()->getRowArray();
 
         return is_array($row) ? $row : null;
     }
 
     public function findTranslatedLocationById(string $locale, int $id): ?array
     {
-        if (!$this->db->tableExists('locations') || !$this->db->tableExists('location_translations')) {
+        try {
+            $row = $this->db->table('locations l')
+                ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
+                ->join('location_translations lt', 'lt.location_id = l.id AND lt.locale = ' . $this->db->escape($locale), 'inner')
+                ->where('l.id', $id)
+                ->get()
+                ->getRowArray();
+        } catch (Throwable $exception) {
+            log_message('error', 'Location id lookup failed: ' . $exception->getMessage());
+
             return null;
         }
-
-        $row = $this->db->table('locations l')
-            ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
-            ->join('location_translations lt', 'lt.location_id = l.id AND lt.locale = ' . $this->db->escape($locale), 'inner')
-            ->where('l.id', $id)
-            ->get()
-            ->getRowArray();
 
         return is_array($row) ? $row : null;
     }
