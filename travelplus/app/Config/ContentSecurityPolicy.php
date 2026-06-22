@@ -59,6 +59,7 @@ class ContentSecurityPolicy extends BaseConfig
         'unsafe-inline',
         'https://cdn.jsdelivr.net',
         'https://cdnjs.cloudflare.com',
+        'https://www.googletagmanager.com',
         'https://www.google.com',
         'https://www.gstatic.com',
     ];
@@ -86,6 +87,9 @@ class ContentSecurityPolicy extends BaseConfig
         'data:',
         'https://flagcdn.com',
         'https://ui-avatars.com',
+        'https://www.google-analytics.com',
+        'https://region1.google-analytics.com',
+        'https://www.googletagmanager.com',
         'https://www.google.com',
         'https://www.gstatic.com',
     ];
@@ -116,6 +120,10 @@ class ContentSecurityPolicy extends BaseConfig
         'self',
         'https://cdn.jsdelivr.net',
         'https://cdnjs.cloudflare.com',
+        'https://www.google-analytics.com',
+        'https://region1.google-analytics.com',
+        'https://analytics.google.com',
+        'https://www.googletagmanager.com',
         'https://www.google.com',
         'https://www.gstatic.com',
     ];
