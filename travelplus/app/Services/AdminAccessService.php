@@ -4,6 +4,8 @@ namespace App\Services;
 
 class AdminAccessService
 {
+    private static ?bool $usersTableHasIsAdmin = null;
+
     /**
      * @param array<string, mixed>|null $authUser
      */
@@ -56,8 +58,14 @@ class AdminAccessService
 
     private function usersTableHasIsAdmin(): bool
     {
+        if (self::$usersTableHasIsAdmin !== null) {
+            return self::$usersTableHasIsAdmin;
+        }
+
         $db = db_connect();
 
-        return $db->tableExists('users') && $db->fieldExists('is_admin', 'users');
+        self::$usersTableHasIsAdmin = $db->tableExists('users') && $db->fieldExists('is_admin', 'users');
+
+        return self::$usersTableHasIsAdmin;
     }
 }

@@ -62,10 +62,18 @@ abstract class BaseController extends Controller
             }
         }
 
-        $locationModel = new LocationModel();
-        $menu = $locationModel->getMegaMenu($locale);
-        $domesticRegionService = new DomesticRegionService();
-        $domesticMenu = $domesticRegionService->getMenu($locale);
+        $path = '/' . trim((string) $request->getUri()->getPath(), '/');
+        $usesSiteNavigation = ! preg_match('#^/(admin|api)(/|$)#i', $path);
+        $menu = [];
+        $domesticMenu = [];
+
+        if ($usesSiteNavigation) {
+            $locationModel = new LocationModel();
+            $menu = $locationModel->getMegaMenu($locale);
+            $domesticRegionService = new DomesticRegionService();
+            $domesticMenu = $domesticRegionService->getMenu($locale);
+        }
+
         $isAdminUser = (new AdminAccessService())->isAdmin(is_array($authUser) ? $authUser : null);
 
         service('renderer')->setVar('menu', $menu);

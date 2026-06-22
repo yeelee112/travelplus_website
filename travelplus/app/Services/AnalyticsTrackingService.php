@@ -12,12 +12,8 @@ class AnalyticsTrackingService
     private const LAST_SEEN_KEY = 'analytics_last_seen_at';
     private const VISIT_TIMEOUT_SECONDS = 1800;
 
-    private BaseConnection $db;
-
-    public function __construct()
-    {
-        $this->db = db_connect();
-    }
+    private ?BaseConnection $db = null;
+    private static ?bool $analyticsTablesReady = null;
 
     public function track(RequestInterface $request, string $controllerClass, ?array $authUser = null): void
     {
@@ -55,7 +51,7 @@ class AnalyticsTrackingService
 
         if ($needNewVisit) {
             $visitToken = bin2hex(random_bytes(12));
-            $this->db->table('analytics_visits')->insert([
+            $this->db()->table('analytics_visits')->insert([
                 'visit_token' => $visitToken,
                 'visitor_token' => $visitorToken,
                 'user_id' => $userId,
@@ -72,7 +68,7 @@ class AnalyticsTrackingService
                 'updated_at' => $now,
             ]);
         } else {
-            $this->db->table('analytics_visits')
+            $this->db()->table('analytics_visits')
                 ->set('pageviews', 'COALESCE(pageviews, 0) + 1', false)
                 ->set([
                     'user_id' => $userId,
@@ -85,7 +81,7 @@ class AnalyticsTrackingService
                 ->update();
         }
 
-        $visitRow = $this->db->table('analytics_visits')
+        $visitRow = $this->db()->table('analytics_visits')
             ->select('id')
             ->where('visit_token', $visitToken)
             ->get()
@@ -96,7 +92,7 @@ class AnalyticsTrackingService
             return;
         }
 
-        $this->db->table('analytics_page_views')->insert([
+        $this->db()->table('analytics_page_views')->insert([
             'visit_id' => $visitId,
             'visitor_token' => $visitorToken,
             'user_id' => $userId,
@@ -149,8 +145,14 @@ class AnalyticsTrackingService
 
     private function isAnalyticsReady(): bool
     {
-        return $this->db->tableExists('analytics_visits')
-            && $this->db->tableExists('analytics_page_views');
+        if (self::$analyticsTablesReady !== null) {
+            return self::$analyticsTablesReady;
+        }
+
+        self::$analyticsTablesReady = $this->db()->tableExists('analytics_visits')
+            && $this->db()->tableExists('analytics_page_views');
+
+        return self::$analyticsTablesReady;
     }
 
     private function visitExists(string $visitToken): bool
@@ -159,7 +161,7 @@ class AnalyticsTrackingService
             return false;
         }
 
-        return $this->db->table('analytics_visits')
+        return $this->db()->table('analytics_visits')
             ->select('id')
             ->where('visit_token', $visitToken)
             ->limit(1)
@@ -207,5 +209,14 @@ class AnalyticsTrackingService
         }
 
         return $path === '/' ? 'home' : 'page';
+    }
+
+    private function db(): BaseConnection
+    {
+        if ($this->db === null) {
+            $this->db = db_connect();
+        }
+
+        return $this->db;
     }
 }
