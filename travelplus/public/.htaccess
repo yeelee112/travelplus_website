@@ -57,6 +57,12 @@ Options -Indexes
 	RewriteCond %{THE_REQUEST} \s/+[^\s?]*%[89A-Fa-f][0-9A-Fa-f] [NC]
 	RewriteRule ^ - [F,L]
 
+	# Block encoded/raw angle brackets and fake search paths used by spam bots.
+	RewriteCond %{THE_REQUEST} (?:%3C|%3E|[<>]) [NC]
+	RewriteRule ^ - [F,L]
+
+	RewriteRule ^tim/ - [F,L,NC]
+
 	# Redirect Trailing Slashes...
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_URI} (.+)/$

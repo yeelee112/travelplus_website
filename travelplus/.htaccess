@@ -13,6 +13,11 @@ Options -Indexes
     RewriteCond %{THE_REQUEST} \s/+[^\s?]*%[89A-Fa-f][0-9A-Fa-f] [NC]
     RewriteRule ^ - [F,L]
 
+    RewriteCond %{THE_REQUEST} (?:%3C|%3E|[<>]) [NC]
+    RewriteRule ^ - [F,L]
+
+    RewriteRule ^tim/ - [F,L,NC]
+
     RewriteRule ^(?:app|build|database|scripts|tests|vendor|writable)(?:/|$) - [F,L]
     RewriteRule ^(?:spark|preload\.php|phpunit\.xml\.dist|README\.md|LICENSE|DATABASE_.*\.md|tour_detail_schema_update\.sql|travelplus\.zip)$ - [F,L]
 
