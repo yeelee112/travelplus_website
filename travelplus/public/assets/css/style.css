@@ -11377,8 +11377,8 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     z-index: 1;}
 .summer-landing-page a {text-decoration: none;}
 .summer-flash-bar {padding: 18px 0 0;}
-.summer-flash-bar__inner {display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+.summer-flash-bar__inner {display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     align-items: center;
     padding: 16px 18px;
@@ -11399,12 +11399,15 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     white-space: nowrap;
     box-shadow: 0 12px 28px rgba(134, 20, 18, 0.18);}
 .summer-flash-bar__inner > strong {color: var(--title-color);
+    flex: 1 1 280px;
+    min-width: 240px;
     font-size: 16px;
     line-height: 1.5;
     font-weight: 850;}
 .summer-flash-bar__points {display: flex;
+    flex: 1 1 420px;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 8px;}
 .summer-flash-bar__points span {display: inline-flex;
     min-height: 30px;
@@ -11415,7 +11418,8 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     background: rgba(243, 252, 255, 0.92);
     color: #0f8fac;
     font-size: 12px;
-    font-weight: 850;}
+    font-weight: 850;
+    white-space: normal;}
 .summer-btn {display: inline-flex;
     min-height: 52px;
     align-items: center;
@@ -12529,8 +12533,7 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
         transform: translateY(-2px);}
 }
 @media (max-width: 1199px) {
-    .summer-flash-bar__inner {grid-template-columns: 1fr;
-        align-items: start;}
+    .summer-flash-bar__inner {align-items: start;}
     .summer-flash-bar__points {justify-content: start;}
     .summer-hero__summary, .summer-editorial__layout {grid-template-columns: 1fr;}
     .summer-hero__teasers {grid-template-columns: repeat(2, minmax(0, 1fr));}
@@ -12559,8 +12562,11 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 }
 @media (max-width: 767px) {
     .summer-flash-bar__inner {padding: 16px;}
-    .summer-flash-bar__inner > strong {font-size: 15px;}
-    .summer-flash-bar__points {display: grid;}
+    .summer-flash-bar__inner > strong {flex-basis: 100%;
+        min-width: 0;
+        font-size: 15px;}
+    .summer-flash-bar__points {display: grid;
+        flex-basis: 100%;}
     .summer-hero {padding: 18px 0 24px;}
     .summer-hero__banner-shell {border-radius: 22px;}
     .summer-hero__copy {gap: 16px;
