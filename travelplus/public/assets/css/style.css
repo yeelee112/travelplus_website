@@ -12376,9 +12376,11 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .summer-buckets {padding: 44px 0 0;}
 .summer-buckets__grid {display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;}
+    gap: 20px;
+    align-items: start;}
 .summer-bucket {display: grid;
     gap: 16px;
+    align-self: start;
     padding: 24px;
     border: 1px solid rgba(22, 191, 226, 0.18);
     border-radius: 22px;
@@ -12392,11 +12394,19 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     line-height: 1.08;
     font-weight: 900;}
 .summer-bucket__list {display: grid;
-    gap: 12px;}
+    gap: 12px;
+    max-height: min(680px, 72vh);
+    overflow-y: auto;
+    padding-right: 4px;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;}
+.summer-bucket__list::-webkit-scrollbar {width: 6px;}
+.summer-bucket__list::-webkit-scrollbar-thumb {border-radius: 999px;
+    background: rgba(15, 143, 172, 0.28);}
 .summer-bucket__item {position: relative;
     display: block;
     overflow: hidden;
-    min-height: 170px;
+    min-height: 150px;
     border: 1px solid rgba(var(--primary-color1-opc), 0.1);
     border-radius: 18px;
     background:
