@@ -5440,8 +5440,8 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
 }
 .pagination-area {display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 15px;
+    justify-content: center;
+    gap: 10px;
     flex-wrap: wrap}
 @media (max-width:767px) {.pagination-area {gap: 10px}
 }
@@ -5450,51 +5450,62 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 15px}
+    gap: 8px}
 .pagination-area .paginations .page-item a {color: var(--text-color);
     font-family: var(--font-main);
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 800;
     line-height: 1;
-    width: 40px;
-    height: 40px;
-    border-radius: 10%;
-    border: 1px solid var(--borders-color);
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid #d7edf6;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 38, 61, .06);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: .2s}
+    transition: color .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease}
 @media (max-width:576px) {.pagination-area .paginations .page-item a {width: 30px;
         height: 30px;
         font-size: 12px}
 }
 .pagination-area .paginations .page-item a:hover, .pagination-area .paginations .page-item.active a {background-color: var(--primary-color1);
-    color: var(--white-color)}
-.pagination-area .paginations-button a {min-width: 88px;
-    max-width: 88px;
-    height: 40px;
-    border-radius: 10%;
-    border: 1px solid var(--borders-color);
+    border-color: var(--primary-color1);
+    color: var(--white-color);
+    box-shadow: 0 14px 28px rgba(var(--primary-color1-opc), .22);
+    transform: translateY(-1px)}
+.pagination-area .paginations-button:empty {display: none;}
+.pagination-area .paginations-button a {min-width: 92px;
+    height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid #d7edf6;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 38, 61, .06);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
     color: var(--title-color);
     font-family: var(--font-main);
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 800;
     line-height: 1;
-    transition: .7s}
+    transition: color .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease}
 @media (max-width:576px) {.pagination-area .paginations-button a {min-width: 65px;
-        max-width: 65px;
-        height: 40px;
+        height: 36px;
+        padding: 0 14px;
         font-size: 14px}
 }
 .pagination-area .paginations-button a svg {fill: none;
     stroke: var(--title-color);
     transition: .5s}
 .pagination-area .paginations-button a:hover {color: var(--white-color);
-    box-shadow: inset 0 0 0 10em var(--primary-color1)}
+    border-color: var(--primary-color1);
+    background-color: var(--primary-color1);
+    box-shadow: 0 14px 28px rgba(var(--primary-color1-opc), .22);
+    transform: translateY(-1px)}
 .pagination-area .paginations-button a:hover svg {stroke: var(--white-color)}
 .comment-area .comment {margin: 0;
     padding: 0;
@@ -7963,9 +7974,20 @@ body.modal-open .tp-ai-chatbox {display: none;}
     padding: 10px;
     border-color: #bde8f7;
     border-radius: 8px;}
-.booking-modal .tour-departure-option {min-height: 50px;
-    padding: 10px 11px;
+.booking-modal .tour-departure-option {min-height: 54px;
+    grid-template-columns: minmax(58px, .62fr) minmax(112px, 1fr);
+    gap: 3px 10px;
+    align-content: center;
+    padding: 10px 13px;
     border-radius: 8px;}
+.booking-modal .tour-departure-option strong {font-size: 18px;
+    line-height: 1.08;}
+.booking-modal .tour-departure-option small {font-size: 10px;}
+.booking-modal .tour-departure-option em {font-size: 16px;
+    font-weight: 850;
+    line-height: 1.08;
+    max-width: 100%;
+    white-space: nowrap;}
 .booking-modal .tour-departure-meta {margin: 8px 0 0;
     color: rgba(var(--title-color-opc), .6);
     font-size: 13px;}
@@ -13869,6 +13891,28 @@ header.style-1.two.site-header-modern .main-menu .mega-menu .menu-single-item > 
         padding-right: 0;}
 .package-details-page.tour-detail-content .customer-rating-area .rating-wrapper {grid-template-columns: 1fr;
         gap: 20px;}
+.package-details-page.tour-detail-content .customer-rating-area .rating-wrapper .progress-list {display: grid;
+        gap: 18px;
+        width: 100%;}
+.package-details-page.tour-detail-content .customer-rating-area .rating-wrapper .progress-list .single-progress {display: grid;
+        grid-template-columns: minmax(86px, .7fr) minmax(0, 1fr) auto;
+        gap: 8px 12px;
+        align-items: center;
+        margin-bottom: 0;}
+.package-details-page.tour-detail-content .customer-rating-area .rating-wrapper .progress-list .single-progress > span {min-width: 0;
+        color: var(--title-color);
+        font-size: 14px;
+        line-height: 1.25;}
+.package-details-page.tour-detail-content .customer-rating-area .rating-wrapper .progress-list .single-progress .rating-progress-bar-wrap {display: grid;
+        grid-column: 2 / 4;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        min-width: 0;}
+.package-details-page.tour-detail-content .customer-rating-area .rating-wrapper .progress-list .single-progress .rating-progress-bar-wrap .rating-progress-bar {width: 100%;
+        min-width: 0;}
+.package-details-page.tour-detail-content .customer-rating-area .rating-wrapper .progress-list .single-progress .rating-progress-bar-wrap .data-per {min-width: 40px;
+        text-align: right;}
 .package-details-page.tour-detail-content .package-info-wrap .package-info-list {grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;}
 .package-details-page.tour-detail-content .package-details-warpper .tour-plan-wrap .accordion .accordion-item .accordion-body, .package-details-page.tour-detail-content .package-details-warpper .faq-wrap .accordion .accordion-item .accordion-body {padding-left: 0;}
