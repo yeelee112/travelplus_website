@@ -94,6 +94,96 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    const anchorNavScroller = document.querySelector('.tour-detail-anchor-nav__scroller');
+    if (anchorNavScroller) {
+        const anchorLinks = Array.from(anchorNavScroller.querySelectorAll('a[href^="#"]'));
+        const anchorTargets = anchorLinks
+            .map((link) => {
+                const id = decodeURIComponent(link.getAttribute('href') || '').slice(1);
+                const section = id ? document.getElementById(id) : null;
+
+                return section ? { id, link, section } : null;
+            })
+            .filter(Boolean);
+
+        let activeAnchorId = '';
+
+        const centerActiveAnchor = (link) => {
+            if (!window.matchMedia('(max-width: 767px)').matches) {
+                return;
+            }
+
+            const scrollerRect = anchorNavScroller.getBoundingClientRect();
+            const linkRect = link.getBoundingClientRect();
+            const targetLeft = anchorNavScroller.scrollLeft
+                + linkRect.left
+                - scrollerRect.left
+                - ((scrollerRect.width - linkRect.width) / 2);
+
+            anchorNavScroller.scrollTo({
+                left: Math.max(0, targetLeft),
+                behavior: 'smooth',
+            });
+        };
+
+        const setActiveAnchor = (id) => {
+            if (!id || id === activeAnchorId) {
+                return;
+            }
+
+            activeAnchorId = id;
+            anchorTargets.forEach(({ id: targetId, link }) => {
+                const isActive = targetId === id;
+                link.classList.toggle('is-active', isActive);
+
+                if (isActive) {
+                    link.setAttribute('aria-current', 'true');
+                    centerActiveAnchor(link);
+                } else {
+                    link.removeAttribute('aria-current');
+                }
+            });
+        };
+
+        const updateActiveAnchorFromScroll = () => {
+            const navHeight = document.querySelector('.tour-detail-anchor-nav')?.offsetHeight || 0;
+            const marker = navHeight + Math.round(window.innerHeight * 0.28);
+            let current = anchorTargets[0]?.id || '';
+
+            anchorTargets.forEach(({ id, section }) => {
+                if (section.getBoundingClientRect().top <= marker) {
+                    current = id;
+                }
+            });
+
+            setActiveAnchor(current);
+        };
+
+        let scrollTicking = false;
+        const requestAnchorUpdate = () => {
+            if (scrollTicking) {
+                return;
+            }
+
+            scrollTicking = true;
+            window.requestAnimationFrame(() => {
+                updateActiveAnchorFromScroll();
+                scrollTicking = false;
+            });
+        };
+
+        anchorLinks.forEach((link) => {
+            link.addEventListener('click', () => {
+                const id = decodeURIComponent(link.getAttribute('href') || '').slice(1);
+                setActiveAnchor(id);
+            });
+        });
+
+        window.addEventListener('scroll', requestAnchorUpdate, { passive: true });
+        window.addEventListener('resize', requestAnchorUpdate);
+        updateActiveAnchorFromScroll();
+    }
+
     const formatVnd = (value) => `${new Intl.NumberFormat('vi-VN').format(value)}${messages.currencySuffix}`;
     const formatTemplate = (template, value) => String(template || '').replace('{0}', String(value));
 

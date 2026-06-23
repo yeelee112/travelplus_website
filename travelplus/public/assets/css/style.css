@@ -7263,6 +7263,10 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
     line-height: 1;}
 .tour-detail-anchor-nav a:hover {background: rgba(var(--primary-color1-opc), .12);
     color: var(--primary-color1);}
+.tour-detail-anchor-nav a.is-active, .tour-detail-anchor-nav a[aria-current="true"] {background: rgba(var(--primary-color1-opc), .14);
+    color: var(--primary-color1);
+    font-weight: 900;
+    box-shadow: inset 0 0 0 1px rgba(var(--primary-color1-opc), .24);}
 .tour-detail-content {padding-top: 72px;
     background: linear-gradient(180deg, #f5fcff 0%, #fff 36%);}
 .tour-detail-content .package-details-warpper > div[id], .tour-detail-content .customer-rating-area, .tour-detail-content .package-details-sidebar .pricing-and-booking-area, .tour-detail-content .package-details-sidebar .customize-package-banner-wrap {scroll-margin-top: 88px;

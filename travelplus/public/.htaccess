@@ -63,6 +63,10 @@ Options -Indexes
 
 	RewriteRule ^tim/ - [F,L,NC]
 
+	# Legacy paths from the old site should not hit CodeIgniter catch-all routes.
+	RewriteRule ^timthumb/ - [G,L,NC]
+	RewriteRule ^nhom-san-pham/ - [G,L,NC]
+
 	# Redirect Trailing Slashes...
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_URI} (.+)/$

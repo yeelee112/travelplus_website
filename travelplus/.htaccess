@@ -18,6 +18,9 @@ Options -Indexes
 
     RewriteRule ^tim/ - [F,L,NC]
 
+    RewriteRule ^timthumb/ - [G,L,NC]
+    RewriteRule ^nhom-san-pham/ - [G,L,NC]
+
     RewriteRule ^(?:app|build|database|scripts|tests|vendor|writable)(?:/|$) - [F,L]
     RewriteRule ^(?:spark|preload\.php|phpunit\.xml\.dist|README\.md|LICENSE|DATABASE_.*\.md|tour_detail_schema_update\.sql|travelplus\.zip)$ - [F,L]
 
