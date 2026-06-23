@@ -8,15 +8,18 @@ use App\Services\TourCatalogService;
 
 class SummerTours extends BaseController
 {
+    private const LANDING_TOUR_LIMIT = 24;
+    private const BUCKET_TOUR_LIMIT = 8;
+
     public function index()
     {
         $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
         $tourService = new TourCatalogService();
         $seo = new SeoService();
 
-        $promotionalTours = $tourService->getPromotionalTours($locale, 6);
-        $featuredTours = $tourService->getFeaturedTours($locale, 8);
-        $homeTours = $tourService->getHomeTours($locale, 8);
+        $promotionalTours = $tourService->getPromotionalTours($locale, self::LANDING_TOUR_LIMIT);
+        $featuredTours = $tourService->getFeaturedTours($locale, self::LANDING_TOUR_LIMIT);
+        $homeTours = $tourService->getHomeTours($locale, self::LANDING_TOUR_LIMIT);
 
         $summerHighlights = $promotionalTours !== [] ? $promotionalTours : $featuredTours;
         if ($summerHighlights === []) {
@@ -28,8 +31,8 @@ class SummerTours extends BaseController
         $landingBackdropImage = base_url('assets/images/landing/summer/Background_Landing_W1920xH5000px.webp');
         $heroImage = $landingBannerImage;
 
-        $featuredCollection = array_slice($featuredTours !== [] ? $featuredTours : $homeTours, 0, 6);
-        $promoCollection = array_slice($summerHighlights, 0, 6);
+        $featuredCollection = array_slice($featuredTours !== [] ? $featuredTours : $homeTours, 0, self::LANDING_TOUR_LIMIT);
+        $promoCollection = array_slice($summerHighlights, 0, self::LANDING_TOUR_LIMIT);
         $flashMeta = $this->buildFlashMeta($promoCollection, $featuredCollection, $locale);
 
         $domesticTours = array_values(array_filter(
@@ -260,8 +263,8 @@ class SummerTours extends BaseController
             'primaryTour' => $primaryTour,
             'promoCollection' => $promoCollection,
             'featuredCollection' => $featuredCollection,
-            'domesticTours' => array_slice($domesticTours, 0, 3),
-            'outboundTours' => array_slice($outboundTours, 0, 3),
+            'domesticTours' => array_slice($domesticTours, 0, self::BUCKET_TOUR_LIMIT),
+            'outboundTours' => array_slice($outboundTours, 0, self::BUCKET_TOUR_LIMIT),
             'searchUrl' => $searchUrl,
             'contactUrl' => $contactUrl,
             'privacyUrl' => $privacyUrl,
