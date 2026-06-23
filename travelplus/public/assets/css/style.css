@@ -7424,11 +7424,21 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
     color: rgba(var(--title-color-opc), .72);
     font-weight: 700;}
 .tour-detail-content .package-details-sidebar .pricing-and-booking-area .primary-btn1 {width: 100%;
-    justify-content: center;}
+    justify-content: center;
+    height: 50px;
+    min-height: 0;
+    padding: 0 22px;
+    box-sizing: border-box;}
 .tour-detail-content .package-details-sidebar .pricing-and-booking-area .primary-btn1.transparent {margin-top: 10px;
     border: 1px solid #bde8f7;
     background: #fff;
     color: var(--primary-color1);}
+.tour-detail-content .package-details-sidebar .pricing-and-booking-area .primary-btn1.transparent:hover,
+.tour-detail-content .package-details-sidebar .pricing-and-booking-area .primary-btn1.transparent:focus-visible {border-color: var(--primary-color1);
+    background: #fff;
+    color: var(--primary-color1);}
+.tour-detail-content .package-details-sidebar .pricing-and-booking-area .primary-btn1.transparent:hover svg,
+.tour-detail-content .package-details-sidebar .pricing-and-booking-area .primary-btn1.transparent:focus-visible svg {fill: var(--primary-color1);}
 .tour-detail-content .package-details-sidebar .pricing-and-booking-area > span {display: flex;
     align-items: flex-start;
     gap: 8px;
