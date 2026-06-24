@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Data\FeaturedDestinationCatalog;
 use App\Data\LocalizedPathCatalog;
 use App\Models\LocationModel;
 use App\Services\SeoService;
@@ -18,7 +19,7 @@ class LocationController extends BaseController
     public function continent($locale, $continentSlug)
     {
         $locationModel = new LocationModel();
-        $continent = $locationModel->findTranslatedLocationBySlug($locale, $continentSlug, 'continent');
+        $continent = $this->findLocationByRoutedSlug($locationModel, $locale, $continentSlug, 'continent');
 
         if ($continent === null) {
             throw PageNotFoundException::forPageNotFound();
@@ -30,13 +31,13 @@ class LocationController extends BaseController
     public function country($locale, $continentSlug, $countrySlug)
     {
         $locationModel = new LocationModel();
-        $continent = $locationModel->findTranslatedLocationBySlug($locale, $continentSlug, 'continent');
+        $continent = $this->findLocationByRoutedSlug($locationModel, $locale, $continentSlug, 'continent');
 
         if ($continent === null) {
             throw PageNotFoundException::forPageNotFound();
         }
 
-        $country = $locationModel->findTranslatedLocationBySlug($locale, $countrySlug, 'country', (int) $continent['id']);
+        $country = $this->findLocationByRoutedSlug($locationModel, $locale, $countrySlug, 'country', (int) $continent['id']);
 
         if ($country === null) {
             throw PageNotFoundException::forPageNotFound();
@@ -48,13 +49,13 @@ class LocationController extends BaseController
     public function province($locale, $continentSlug, $countrySlug, $provinceSlug)
     {
         $locationModel = new LocationModel();
-        $continent = $locationModel->findTranslatedLocationBySlug($locale, $continentSlug, 'continent');
+        $continent = $this->findLocationByRoutedSlug($locationModel, $locale, $continentSlug, 'continent');
 
         if ($continent === null) {
             throw PageNotFoundException::forPageNotFound();
         }
 
-        $country = $locationModel->findTranslatedLocationBySlug($locale, $countrySlug, 'country', (int) $continent['id']);
+        $country = $this->findLocationByRoutedSlug($locationModel, $locale, $countrySlug, 'country', (int) $continent['id']);
 
         if ($country === null) {
             throw PageNotFoundException::forPageNotFound();
@@ -67,6 +68,119 @@ class LocationController extends BaseController
         }
 
         return $this->renderLocationTourList($locale, [$continent, $country, $province], $province);
+    }
+
+    private function findLocationByRoutedSlug(
+        LocationModel $locationModel,
+        string $locale,
+        string $slug,
+        string $type,
+        ?int $parentId = null
+    ): ?array {
+        $location = $locationModel->findTranslatedLocationBySlug($locale, $slug, $type, $parentId);
+
+        if ($location !== null) {
+            return $location;
+        }
+
+        $fallback = $this->findFeaturedLocationSlugFallback($slug, $type, $locale);
+
+        if ($fallback === null) {
+            return null;
+        }
+
+        $sourceLocation = $locationModel->findTranslatedLocationBySlug('vi', $fallback['slug'], $type, $parentId);
+
+        if ($sourceLocation === null) {
+            return [
+                'id' => 0,
+                'parent_id' => $parentId,
+                'type' => $type,
+                'code' => '',
+                'name' => $fallback['name'] !== '' ? $fallback['name'] : $slug,
+                'slug' => $slug,
+            ];
+        }
+
+        $targetLocation = $locationModel->findTranslatedLocationById($locale, (int) $sourceLocation['id']);
+
+        if ($targetLocation !== null) {
+            return $targetLocation;
+        }
+
+        $sourceLocation['slug'] = $slug;
+
+        if ($fallback['name'] !== '') {
+            $sourceLocation['name'] = $fallback['name'];
+        }
+
+        return $sourceLocation;
+    }
+
+    /**
+     * @return array{slug: string, name: string}|null
+     */
+    private function findFeaturedLocationSlugFallback(string $slug, string $type, string $locale): ?array
+    {
+        foreach (FeaturedDestinationCatalog::getAll() as $tab) {
+            if ($type === 'continent') {
+                foreach ((array) ($tab['items'] ?? []) as $item) {
+                    if (($item['kind'] ?? '') !== 'outbound_country') {
+                        continue;
+                    }
+
+                    $slugs = $item['continent_slug'] ?? null;
+
+                    if (is_array($slugs) && (string) ($slugs[$locale] ?? '') === $slug) {
+                        return [
+                            'slug' => trim((string) ($slugs['vi'] ?? '')),
+                            'name' => $this->translateCatalogValue($tab['label'] ?? '', $locale),
+                        ];
+                    }
+                }
+
+                continue;
+            }
+
+            if ($type !== 'country') {
+                continue;
+            }
+
+            foreach ((array) ($tab['items'] ?? []) as $item) {
+                if (($item['kind'] ?? '') !== 'outbound_country') {
+                    continue;
+                }
+
+                $slugs = $item['destination_slug'] ?? null;
+
+                if (is_array($slugs) && (string) ($slugs[$locale] ?? '') === $slug) {
+                    return [
+                        'slug' => trim((string) ($slugs['vi'] ?? '')),
+                        'name' => $this->translateCatalogValue($item['title'] ?? '', $locale),
+                    ];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function translateCatalogValue($value, string $locale): string
+    {
+        if (is_array($value)) {
+            $translated = trim((string) ($value[$locale] ?? ''));
+
+            if ($translated !== '') {
+                return $translated;
+            }
+
+            return trim((string) ($value['vi'] ?? ''));
+        }
+
+        return trim((string) $value);
     }
 
     private function renderLocationTourList(string $locale, array $locations, array $activeLocation): string

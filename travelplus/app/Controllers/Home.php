@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Data\FeaturedDestinationCatalog;
 use App\Data\LocalizedPathCatalog;
 use App\Services\BlogService;
+use App\Services\DomesticRegionService;
 use App\Services\SeoService;
 use App\Services\TourCatalogService;
 use Throwable;
@@ -114,10 +115,25 @@ class Home extends BaseController
     private function buildFeaturedDestinationLink(array $item, string $locale): string
     {
         $kind = (string) ($item['kind'] ?? '');
-        $destinationSlug = trim((string) ($item['destination_slug'] ?? ''));
+        $destinationSlug = $this->resolveFeaturedDestinationSlug($item['destination_slug'] ?? '', $locale);
 
         if ($kind === 'outbound_country') {
-            $continentSlug = trim((string) ($item['continent_slug'] ?? ''));
+            $continentSlug = $this->resolveFeaturedDestinationSlug($item['continent_slug'] ?? '', $locale);
+
+            if ($locale !== 'vi') {
+                $continentSlugVi = $this->resolveFeaturedDestinationSlug($item['continent_slug'] ?? '', 'vi');
+                $destinationSlugVi = $this->resolveFeaturedDestinationSlug($item['destination_slug'] ?? '', 'vi');
+                $localizedSlugs = $this->resolveOutboundDestinationSlugs(
+                    $continentSlugVi,
+                    $destinationSlugVi,
+                    $locale
+                );
+
+                if ($localizedSlugs !== null) {
+                    $continentSlug = $localizedSlugs['continent_slug'];
+                    $destinationSlug = $localizedSlugs['destination_slug'];
+                }
+            }
 
             if ($continentSlug !== '' && $destinationSlug !== '') {
                 return localized_url($continentSlug . '/' . $destinationSlug);
@@ -125,7 +141,32 @@ class Home extends BaseController
         }
 
         if ($kind === 'domestic_province') {
-            $regionSlug = trim((string) ($item['region_slug'] ?? ''));
+            $regionSlug = $this->resolveFeaturedDestinationSlug($item['region_slug'] ?? '', $locale);
+
+            if ($locale !== 'vi') {
+                $regionSlugVi = $this->resolveFeaturedDestinationSlug($item['region_slug'] ?? '', 'vi');
+                $destinationSlugVi = $this->resolveFeaturedDestinationSlug($item['destination_slug'] ?? '', 'vi');
+                $translatedSegments = (new DomesticRegionService())->translatePathSegments(
+                    [
+                        'tour-trong-nuoc',
+                        $regionSlugVi,
+                        $destinationSlugVi,
+                    ],
+                    'vi',
+                    $locale
+                );
+
+                $translatedRegionSlug = (string) ($translatedSegments[1] ?? '');
+                $translatedDestinationSlug = (string) ($translatedSegments[2] ?? '');
+
+                if ($translatedRegionSlug !== '' && $translatedRegionSlug !== $regionSlugVi) {
+                    $regionSlug = $translatedRegionSlug;
+                }
+
+                if ($translatedDestinationSlug !== '' && $translatedDestinationSlug !== $destinationSlugVi) {
+                    $destinationSlug = $translatedDestinationSlug;
+                }
+            }
 
             if ($regionSlug !== '' && $destinationSlug !== '') {
                 return localized_url('tour-trong-nuoc/' . $regionSlug . '/' . $destinationSlug);
@@ -133,6 +174,78 @@ class Home extends BaseController
         }
 
         return LocalizedPathCatalog::url('search', $locale);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function resolveFeaturedDestinationSlug($value, string $locale): string
+    {
+        if (is_array($value)) {
+            $localized = trim((string) ($value[$locale] ?? ''));
+
+            if ($localized !== '') {
+                return $localized;
+            }
+
+            return trim((string) ($value['vi'] ?? ''));
+        }
+
+        return trim((string) $value);
+    }
+
+    /**
+     * @return array{continent_slug: string, destination_slug: string}|null
+     */
+    private function resolveOutboundDestinationSlugs(string $continentSlugVi, string $destinationSlugVi, string $locale): ?array
+    {
+        $continentSlugVi = trim($continentSlugVi);
+        $destinationSlugVi = trim($destinationSlugVi);
+
+        if ($continentSlugVi === '' || $destinationSlugVi === '') {
+            return null;
+        }
+
+        try {
+            $db = db_connect();
+            $row = $db->table('locations country')
+                ->select(
+                    'continent_target.slug AS continent_slug,' .
+                    'country_target.slug AS destination_slug',
+                    false
+                )
+                ->join('locations continent', 'continent.id = country.parent_id AND continent.type = "continent"', 'inner')
+                ->join('location_translations continent_source', 'continent_source.location_id = continent.id AND continent_source.locale = "vi"', 'inner')
+                ->join('location_translations country_source', 'country_source.location_id = country.id AND country_source.locale = "vi"', 'inner')
+                ->join('location_translations continent_target', 'continent_target.location_id = continent.id AND continent_target.locale = ' . $db->escape($locale), 'left')
+                ->join('location_translations country_target', 'country_target.location_id = country.id AND country_target.locale = ' . $db->escape($locale), 'left')
+                ->where('country.type', 'country')
+                ->where('continent_source.slug', $continentSlugVi)
+                ->where('country_source.slug', $destinationSlugVi)
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+        } catch (Throwable $exception) {
+            log_message('error', 'Featured destination slug translation failed: ' . $exception->getMessage());
+
+            return null;
+        }
+
+        if (! is_array($row)) {
+            return null;
+        }
+
+        $continentSlug = trim((string) ($row['continent_slug'] ?? ''));
+        $destinationSlug = trim((string) ($row['destination_slug'] ?? ''));
+
+        if ($continentSlug === '' || $destinationSlug === '') {
+            return null;
+        }
+
+        return [
+            'continent_slug' => $continentSlug,
+            'destination_slug' => $destinationSlug,
+        ];
     }
 
     /**
