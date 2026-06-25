@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\LocalizedPathCatalog;
 use RuntimeException;
 
 class GeminiWebsiteChatService
@@ -34,6 +35,19 @@ class GeminiWebsiteChatService
     {
         if (! $this->isConfigured()) {
             throw new RuntimeException('AI provider credentials are missing.');
+        }
+
+        $directResponse = $this->buildDirectConsultationResponse($locale, $message);
+        if ($directResponse !== null) {
+            return [
+                'message' => $directResponse['message'],
+                'sources' => $directResponse['sources'],
+                'debug_meta' => [
+                    'branch' => 'direct_consultation',
+                    'intent' => $directResponse['intent'],
+                    'source_count' => count($directResponse['sources']),
+                ],
+            ];
         }
 
         $referenceFacts = $this->knowledgeService->getReferenceFacts($locale, $message, $chatState);
@@ -202,6 +216,10 @@ class GeminiWebsiteChatService
             $languageRule,
             'The structured facts below are trusted website data. Use only these facts. Do not invent details.',
             'Answer naturally, concisely, and directly for the user intent.',
+            'Act like a Travel Plus consultation agent, not a documentation summarizer.',
+            'For service requests such as visa, hotel, transport, MICE, or custom tours, first confirm Travel Plus can help, then ask 2 to 4 missing details needed to advise or hand off to sales.',
+            'If the facts do not exactly match the user request, say that clearly and offer the closest option or a custom consultation instead of pretending it matches.',
+            'End consultation-style answers with a soft next step such as asking for phone/email or preferred travel date when relevant.',
             'If the user asks about itinerary highlights or destinations, summarize the meaningful places and experiences from the facts instead of repeating operational lines like airport procedures, breakfast, or hotel checkout.',
             'If structured facts intent is "highlights", explain what makes the selected tour notable. Do not answer by listing alternative tours.',
             'If multiple tours are listed, keep the answer easy to scan.',
@@ -239,6 +257,9 @@ class GeminiWebsiteChatService
             'Only answer using the provided website context. Do not invent policies, prices, schedules, or service details.',
             'If the provided context clearly contains relevant information, answer directly and confidently from that context.',
             'Only say that the website data does not currently confirm the answer when none of the provided context is relevant.',
+            'Act like a Travel Plus consultation agent. Do not just summarize the page.',
+            'When the user asks for advice, ask for the minimum missing details needed to continue: travel date, number of guests, budget, destination, visa purpose, hotel standard, or phone/email depending on the request.',
+            'If the website context is broad but not specific enough, say what is known and ask a focused follow-up question.',
             'Keep answers concise and practical. When relevant, mention the most relevant page links from the provided context.',
             'Write in plain text. Do not use markdown bold, markdown bullet markers, raw URLs, or citation markers like [1].',
             'Conversation history:',
@@ -274,6 +295,7 @@ class GeminiWebsiteChatService
             $languageRule,
             'This question is eligible for external reference knowledge.',
             'You may use general knowledge beyond the website when needed.',
+            'Act like a Travel Plus consultation agent. Keep the answer useful for a customer who may need a callback.',
             'Start the answer with exactly this label in the correct language:',
             $locale === 'en'
                 ? 'Reference information outside website data:'
@@ -290,6 +312,156 @@ class GeminiWebsiteChatService
             'Latest user question:',
             trim($message),
         ]));
+    }
+
+    /**
+     * @return array{message: string, sources: list<array{title: string, url: string}>, intent: string}|null
+     */
+    private function buildDirectConsultationResponse(string $locale, string $message): ?array
+    {
+        if ($this->looksLikeContactRequest($message)) {
+            return [
+                'message' => $locale === 'en'
+                    ? "You can send your request on the Contact page, or leave your phone number here so Travel Plus can call back.\n\nTo advise faster, please share: your destination or service need, expected travel date, number of guests and your phone/email."
+                    : "Anh/chị có thể gửi yêu cầu ở trang Liên hệ, hoặc để lại số điện thoại ngay tại đây để Travel Plus gọi lại tư vấn.\n\nĐể tư vấn nhanh hơn, anh/chị cho em xin: nhu cầu/điểm đến, thời gian dự kiến, số lượng khách và số điện thoại hoặc email.",
+                'sources' => [[
+                    'title' => $locale === 'en' ? 'Contact Travel Plus' : 'Liên hệ Travel Plus',
+                    'url' => LocalizedPathCatalog::url('contact', $locale),
+                ]],
+                'intent' => 'contact_request',
+            ];
+        }
+
+        if ($this->looksLikeVisaConsultationRequest($message)) {
+            $destination = $this->extractVisaDestination($message);
+            $destinationText = $destination !== ''
+                ? ($locale === 'en' ? ' for ' . $destination : ' đi ' . $destination)
+                : '';
+
+            return [
+                'message' => $locale === 'en'
+                    ? "Travel Plus can advise on visa documents{$destinationText}. To check the right file, please share: visa purpose, expected travel date, number of applicants, passport nationality and where the applicant is currently living.\n\nIf you leave your phone number, Travel Plus can call back to review the case faster."
+                    : "Travel Plus có thể tư vấn hồ sơ visa{$destinationText}. Để kiểm tra đúng trường hợp, anh/chị cho em xin thêm: mục đích đi, ngày dự kiến đi, số người làm visa, quốc tịch hộ chiếu và hiện đang sinh sống ở đâu.\n\nNếu anh/chị để lại số điện thoại, Travel Plus có thể gọi lại để rà hồ sơ nhanh hơn.",
+                'sources' => [[
+                    'title' => $locale === 'en' ? 'Visa service' : 'Dịch vụ visa',
+                    'url' => LocalizedPathCatalog::url('service.visa', $locale),
+                ]],
+                'intent' => 'visa_consultation',
+            ];
+        }
+
+        if ($this->looksLikeHotelConsultationRequest($message)) {
+            return [
+                'message' => $locale === 'en'
+                    ? "Travel Plus can help suggest hotels that fit the trip context. For a family stay near the beach, please share: check-in/check-out dates, preferred budget per night, hotel star level, room setup and whether you prefer My Khe/An Thuong or another area.\n\nWith 3 adults and 1 child, the team can check options such as a family room, connecting rooms or one double plus one extra bed depending on hotel policy."
+                    : "Travel Plus có thể tư vấn khách sạn phù hợp với bối cảnh chuyến đi. Với gia đình ở gần biển, anh/chị cho em xin thêm: ngày nhận/trả phòng, ngân sách mỗi đêm, tiêu chuẩn sao mong muốn, cấu hình phòng và muốn ở khu Mỹ Khê/An Thượng hay khu vực khác.\n\nVới 3 người lớn + 1 bé, đội ngũ có thể kiểm tra phương án phòng gia đình, phòng nối cửa hoặc 1 phòng đôi kèm extra bed tùy chính sách khách sạn.",
+                'sources' => [[
+                    'title' => $locale === 'en' ? 'Hotel service' : 'Dịch vụ khách sạn',
+                    'url' => LocalizedPathCatalog::url('service.hotels', $locale),
+                ]],
+                'intent' => 'hotel_consultation',
+            ];
+        }
+
+        if ($this->looksLikeTourConsultationRequest($message)) {
+            return [
+                'message' => $locale === 'en'
+                    ? "Travel Plus can advise a suitable tour or tailor-made itinerary. To match the trip properly, please share: destination, expected travel date, number of guests, preferred trip length and approximate budget.\n\nIf the website does not have an exact matching tour, Travel Plus can suggest the closest option or prepare a custom itinerary."
+                    : "Travel Plus có thể tư vấn tour phù hợp hoặc thiết kế lịch trình riêng. Để khớp đúng nhu cầu, anh/chị cho em xin thêm: điểm đến, ngày đi dự kiến, số lượng khách, số ngày muốn đi và ngân sách khoảng bao nhiêu.\n\nNếu website chưa có tour khớp đúng 100%, Travel Plus có thể gợi ý tour gần nhất hoặc thiết kế lịch trình riêng.",
+                'sources' => [[
+                    'title' => $locale === 'en' ? 'Tour search' : 'Tìm kiếm tour',
+                    'url' => LocalizedPathCatalog::url('search', $locale),
+                ]],
+                'intent' => 'tour_consultation',
+            ];
+        }
+
+        return null;
+    }
+
+    private function normalizeIntentText(string $text): string
+    {
+        $text = mb_strtolower(trim($text));
+        $converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+        $text = is_string($converted) && $converted !== '' ? $converted : $text;
+
+        return preg_replace('/[^a-z0-9\s]+/i', ' ', $text) ?? '';
+    }
+
+    private function looksLikeContactRequest(string $message): bool
+    {
+        $text = $this->normalizeIntentText($message);
+
+        foreach ([
+            'lien he',
+            'hotline',
+            'so dien thoai',
+            'sdt',
+            'phone',
+            'email',
+            'goi lai',
+            'contact',
+            'tu van cho toi biet',
+        ] as $needle) {
+            if (str_contains($text, $needle)) {
+                return true;
+            }
+        }
+
+        return preg_match('/\b(dau|cho|co)\s+.*\b(lien he|sdt|so dien thoai)\b/u', $text) === 1;
+    }
+
+    private function looksLikeVisaConsultationRequest(string $message): bool
+    {
+        $text = $this->normalizeIntentText($message);
+
+        return str_contains($text, 'visa')
+            && preg_match('/\b(tu van|xin|lam|ho tro|can|muon|di)\b/u', $text) === 1
+            && ! $this->looksLikeVisaSpecificFactRequest($message)
+            && ! $this->looksLikeContactRequest($message);
+    }
+
+    private function looksLikeVisaSpecificFactRequest(string $message): bool
+    {
+        $text = $this->normalizeIntentText($message);
+
+        return str_contains($text, 'visa')
+            && (
+                $this->looksLikeCostQuestion($message)
+                || preg_match('/\b(bao lau|may ngay|thoi gian|xu ly|ket qua|phi|gia|cost|fee|price)\b/u', $text) === 1
+            );
+    }
+
+    private function looksLikeHotelConsultationRequest(string $message): bool
+    {
+        $text = $this->normalizeIntentText($message);
+
+        return preg_match('/\b(khach san|hotel|resort|luu tru|dat phong)\b/u', $text) === 1
+            && preg_match('/\b(tu van|gan bien|gia dinh|nguoi lon|tre em|phong|budget|ngan sach)\b/u', $text) === 1
+            && ! $this->looksLikeContactRequest($message);
+    }
+
+    private function looksLikeTourConsultationRequest(string $message): bool
+    {
+        $text = $this->normalizeIntentText($message);
+
+        return preg_match('/\b(tu van|goi y|can|muon)\b/u', $text) === 1
+            && preg_match('/\b(tour|du lich|lich trinh|hanh trinh)\b/u', $text) === 1
+            && ! $this->looksLikeVisaConsultationRequest($message)
+            && ! $this->looksLikeHotelConsultationRequest($message)
+            && ! $this->looksLikeContactRequest($message);
+    }
+
+    private function extractVisaDestination(string $message): string
+    {
+        if (preg_match('/visa\s+(?:đi|di|du lịch|du lich|công tác|cong tac)?\s*([^\n,.;!?]+)/iu', $message, $matches) !== 1) {
+            return '';
+        }
+
+        $destination = trim((string) ($matches[1] ?? ''));
+        $destination = preg_replace('/\s{2,}/u', ' ', $destination) ?? $destination;
+
+        return mb_substr($destination, 0, 40);
     }
 
     private function normalizeChatMessage(string $text): string
@@ -538,8 +710,8 @@ class GeminiWebsiteChatService
 
             if ($intent === 'visa_cost') {
                 return $locale === 'en'
-                    ? 'Travel Plus has not published a fixed visa service fee on the website. The final cost depends on the destination, visa type, consular fees, service scope and the applicant profile.'
-                    : 'Travel Plus chưa công bố mức phí dịch vụ visa cố định trên website. Chi phí cuối cùng phụ thuộc vào điểm đến, loại visa, phí lãnh sự, phạm vi hỗ trợ và hồ sơ của từng khách.';
+                    ? "Travel Plus has not published a fixed visa service fee on the website. The final cost depends on the destination, visa type, consular fees, service scope and the applicant profile.\n\nPlease share the destination, visa purpose, number of applicants and expected travel date so Travel Plus can advise a more accurate estimate."
+                    : "Travel Plus chưa công bố mức phí dịch vụ visa cố định trên website. Chi phí cuối cùng phụ thuộc vào điểm đến, loại visa, phí lãnh sự, phạm vi hỗ trợ và hồ sơ của từng khách.\n\nAnh/chị cho em xin điểm đến, mục đích xin visa, số người làm visa và ngày đi dự kiến để Travel Plus tư vấn mức phí sát hơn.";
             }
 
             $lines[] = $locale === 'en'
@@ -667,9 +839,13 @@ class GeminiWebsiteChatService
 
             if ($type === 'custom_tour_support') {
                 $customTour = is_array($facts['custom_tour'] ?? null) ? $facts['custom_tour'] : [];
-                return trim(((string) ($customTour['summary'] ?? ($locale === 'en'
+                $summaryText = trim(((string) ($customTour['summary'] ?? ($locale === 'en'
                     ? 'Travel Plus supports custom tour requests.'
                     : 'Travel Plus có hỗ trợ tạo tour theo yêu cầu.'))));
+
+                return $summaryText . "\n\n" . ($locale === 'en'
+                    ? 'Please share destination, travel date, number of guests, trip length and approximate budget so Travel Plus can advise the right itinerary.'
+                    : 'Anh/chị cho em xin điểm đến, ngày đi, số lượng khách, số ngày và ngân sách dự kiến để Travel Plus tư vấn lịch trình phù hợp.');
             }
 
             $service = is_array($facts['service'] ?? null) ? $facts['service'] : [];
@@ -694,6 +870,13 @@ class GeminiWebsiteChatService
                     }
                     $summary[] = $line;
                 }
+            }
+
+            if ($type === 'hotel_service') {
+                $summary[] = '';
+                $summary[] = $locale === 'en'
+                    ? 'To suggest the right hotel, please share check-in/check-out dates, number of guests, preferred area, room setup and budget per night.'
+                    : 'Để gợi ý đúng khách sạn, anh/chị cho em xin ngày nhận/trả phòng, số lượng khách, khu vực muốn ở, cấu hình phòng và ngân sách mỗi đêm.';
             }
 
             return trim(implode("\n", $summary));
