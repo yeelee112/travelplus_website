@@ -37,7 +37,7 @@ class GeminiWebsiteChatService
             throw new RuntimeException('AI provider credentials are missing.');
         }
 
-        $directResponse = $this->buildDirectConsultationResponse($locale, $message);
+        $directResponse = $this->buildDirectConsultationResponse($locale, $message, $history);
         if ($directResponse !== null) {
             return [
                 'message' => $directResponse['message'],
@@ -317,7 +317,7 @@ class GeminiWebsiteChatService
     /**
      * @return array{message: string, sources: list<array{title: string, url: string}>, intent: string}|null
      */
-    private function buildDirectConsultationResponse(string $locale, string $message): ?array
+    private function buildDirectConsultationResponse(string $locale, string $message, array $history = []): ?array
     {
         if ($this->looksLikeContactRequest($message)) {
             return [
@@ -360,6 +360,47 @@ class GeminiWebsiteChatService
                     'url' => LocalizedPathCatalog::url('service.hotels', $locale),
                 ]],
                 'intent' => 'hotel_consultation',
+            ];
+        }
+
+        if ($this->looksLikeItinerarySuggestionRequest($message)) {
+            $destination = $this->inferTripDestination($message, $history);
+            $itinerary = $this->buildDomesticShortTripSuggestion($locale, $destination);
+            $internationalItinerary = $itinerary === null
+                ? $this->buildInternationalTripSuggestion($locale, $destination)
+                : null;
+
+            if ($itinerary !== null) {
+                return [
+                    'message' => $itinerary,
+                    'sources' => [[
+                        'title' => $locale === 'en' ? 'Tour search' : 'Tìm kiếm tour',
+                        'url' => LocalizedPathCatalog::url('search', $locale),
+                    ]],
+                    'intent' => 'itinerary_suggestion',
+                ];
+            }
+
+            if ($internationalItinerary !== null) {
+                return [
+                    'message' => $internationalItinerary,
+                    'sources' => [[
+                        'title' => $locale === 'en' ? 'Tour search' : 'Tìm kiếm tour',
+                        'url' => LocalizedPathCatalog::url('search', $locale),
+                    ]],
+                    'intent' => 'international_itinerary_suggestion',
+                ];
+            }
+
+            return [
+                'message' => $locale === 'en'
+                    ? "Travel Plus can suggest a 3-day itinerary, but I need the destination first. Please share where you want to go, travel date, number of guests and approximate budget."
+                    : "Travel Plus có thể gợi ý lịch trình 3 ngày, nhưng em cần biết rõ điểm đến trước. Anh/chị cho em xin điểm muốn đi, ngày đi, số khách và ngân sách dự kiến.",
+                'sources' => [[
+                    'title' => $locale === 'en' ? 'Contact Travel Plus' : 'Liên hệ Travel Plus',
+                    'url' => LocalizedPathCatalog::url('contact', $locale),
+                ]],
+                'intent' => 'itinerary_suggestion_needs_destination',
             ];
         }
 
@@ -450,6 +491,188 @@ class GeminiWebsiteChatService
             && ! $this->looksLikeVisaConsultationRequest($message)
             && ! $this->looksLikeHotelConsultationRequest($message)
             && ! $this->looksLikeContactRequest($message);
+    }
+
+    private function looksLikeItinerarySuggestionRequest(string $message): bool
+    {
+        $text = $this->normalizeIntentText($message);
+
+        return preg_match('/\b(de xuat|goi y|lich trinh|diem den|tu len|tu de xuat)\b/u', $text) === 1
+            && preg_match('/\b(ngay|dem|xuat phat|tu tphcm|tu tp hcm|tu sai gon|from)\b/u', $text) === 1
+            && ! $this->looksLikeVisaConsultationRequest($message)
+            && ! $this->looksLikeHotelConsultationRequest($message)
+            && ! $this->looksLikeContactRequest($message);
+    }
+
+    /**
+     * @param list<array{role: string, text: string}> $history
+     */
+    private function inferTripDestination(string $message, array $history): string
+    {
+        $haystack = $message;
+
+        foreach (array_reverse(array_slice($history, -6)) as $item) {
+            $text = trim((string) ($item['text'] ?? ''));
+
+            if ($text !== '') {
+                $haystack .= "\n" . $text;
+            }
+        }
+
+        $normalized = $this->normalizeIntentText($haystack);
+
+        if (preg_match('/\b(da nang|danang)\b/u', $normalized) === 1) {
+            return 'da nang';
+        }
+
+        if (preg_match('/\b(ha noi|hanoi)\b/u', $normalized) === 1) {
+            return 'ha noi';
+        }
+
+        if (preg_match('/\b(nha trang|nhatrang)\b/u', $normalized) === 1) {
+            return 'nha trang';
+        }
+
+        if (preg_match('/\b(da lat|dalat)\b/u', $normalized) === 1) {
+            return 'da lat';
+        }
+
+        if (preg_match('/\b(phu quoc|phuquoc)\b/u', $normalized) === 1) {
+            return 'phu quoc';
+        }
+
+        if (preg_match('/\b(sa pa|sapa)\b/u', $normalized) === 1) {
+            return 'sa pa';
+        }
+
+        if (preg_match('/\b(phap|france)\b/u', $normalized) === 1) {
+            return 'france';
+        }
+
+        if (preg_match('/\b(nhat ban|japan)\b/u', $normalized) === 1) {
+            return 'japan';
+        }
+
+        if (preg_match('/\b(han quoc|korea|south korea)\b/u', $normalized) === 1) {
+            return 'south korea';
+        }
+
+        if (preg_match('/\b(thai lan|thailand|bangkok)\b/u', $normalized) === 1) {
+            return 'thailand';
+        }
+
+        if (preg_match('/\b(singapore)\b/u', $normalized) === 1) {
+            return 'singapore';
+        }
+
+        if (preg_match('/\b(uc|australia)\b/u', $normalized) === 1) {
+            return 'australia';
+        }
+
+        if (preg_match('/\b(new zealand)\b/u', $normalized) === 1) {
+            return 'new zealand';
+        }
+
+        if (preg_match('/\b(my|usa|united states|hoa ky)\b/u', $normalized) === 1) {
+            return 'usa';
+        }
+
+        return '';
+    }
+
+    private function buildDomesticShortTripSuggestion(string $locale, string $destination): ?string
+    {
+        $suggestions = [
+            'da nang' => [
+                'vi' => "Với lịch trình Đà Nẵng 3 ngày 2 đêm, xuất phát từ TP.HCM, Travel Plus có thể gợi ý nhẹ nhàng như sau:\n\nNgày 1: Bay TP.HCM - Đà Nẵng, nhận phòng, nghỉ biển Mỹ Khê, đi bán đảo Sơn Trà hoặc chùa Linh Ứng, tối ăn hải sản/khu biển.\nNgày 2: Đi Bà Nà Hills - Cầu Vàng cả ngày. Nếu muốn nhẹ hơn thì chọn Ngũ Hành Sơn kết hợp phố cổ Hội An buổi chiều tối.\nNgày 3: Đi chợ Hàn hoặc cafe ven sông Hàn, mua đặc sản rồi bay về TP.HCM.\n\nĐể Travel Plus tính phương án sát hơn, anh/chị cho em xin ngày đi, số khách, tiêu chuẩn khách sạn mong muốn và ngân sách dự kiến.",
+                'en' => "For a 3-day, 2-night Da Nang trip from Ho Chi Minh City, Travel Plus can suggest this easy family-friendly route:\n\nDay 1: Fly from Ho Chi Minh City to Da Nang, check in, relax at My Khe Beach, visit Son Tra Peninsula or Linh Ung Pagoda, then have dinner near the beach.\nDay 2: Spend the day at Ba Na Hills and Golden Bridge, or choose Marble Mountains plus Hoi An Ancient Town if you prefer a lighter cultural day.\nDay 3: Visit Han Market or a cafe by the Han River, then return to Ho Chi Minh City.\n\nTo quote properly, please share your travel date, number of guests, preferred hotel level and approximate budget.",
+            ],
+            'ha noi' => [
+                'vi' => "Với Hà Nội 3 ngày 2 đêm, Travel Plus có thể gợi ý lịch trình dễ đi như sau:\n\nNgày 1: Bay đến Hà Nội, nhận phòng, tham quan Hồ Hoàn Kiếm, phố cổ, Nhà Thờ Lớn hoặc cafe phố cổ, tối ăn đặc sản Hà Nội.\nNgày 2: Đi Lăng Bác, Văn Miếu, Hoàng thành Thăng Long; buổi chiều có thể ghé Hồ Tây hoặc làng gốm Bát Tràng nếu muốn nhẹ nhàng.\nNgày 3: Mua đặc sản, cafe sáng, tự do dạo phố rồi ra sân bay về.\n\nAnh/chị cho em xin ngày đi, số khách, tiêu chuẩn khách sạn và ngân sách dự kiến để Travel Plus tính phương án sát hơn.",
+                'en' => "For a 3-day, 2-night Hanoi trip, Travel Plus can suggest:\n\nDay 1: Arrive in Hanoi, check in, visit Hoan Kiem Lake, the Old Quarter, St. Joseph's Cathedral or a local cafe, then try Hanoi specialties for dinner.\nDay 2: Visit Ho Chi Minh Mausoleum area, Temple of Literature and Imperial Citadel; in the afternoon, choose West Lake or Bat Trang pottery village.\nDay 3: Morning cafe, shopping for local specialties, then transfer to the airport.\n\nPlease share travel date, guest count, hotel level and budget so Travel Plus can quote properly.",
+            ],
+            'nha trang' => [
+                'vi' => "Với Nha Trang 3 ngày 2 đêm, Travel Plus có thể gợi ý lịch trình như sau:\n\nNgày 1: Bay đến Nha Trang/Cam Ranh, nhận phòng, nghỉ biển Trần Phú hoặc khu Bãi Dài, tối ăn hải sản.\nNgày 2: Đi tour đảo/cano, tắm biển, lặn ngắm san hô nhẹ; nếu đi gia đình có thể chọn VinWonders hoặc tắm bùn khoáng.\nNgày 3: Ghé Tháp Bà Ponagar, chợ Đầm hoặc cafe biển rồi ra sân bay về.\n\nAnh/chị cho em xin ngày đi, số khách, khách sạn mong muốn và ngân sách để Travel Plus tư vấn phương án phù hợp.",
+                'en' => "For a 3-day, 2-night Nha Trang trip, Travel Plus can suggest:\n\nDay 1: Fly to Cam Ranh/Nha Trang, check in, relax at Tran Phu Beach or Bai Dai, then seafood dinner.\nDay 2: Island hopping by canoe, beach time and light snorkeling; for families, consider VinWonders or a mud bath experience.\nDay 3: Visit Ponagar Cham Tower, Dam Market or a beach cafe, then return to the airport.\n\nPlease share travel date, guest count, hotel preference and budget so Travel Plus can advise the right option.",
+            ],
+            'da lat' => [
+                'vi' => "Với Đà Lạt 3 ngày 2 đêm, Travel Plus có thể gợi ý:\n\nNgày 1: Đến Đà Lạt, nhận phòng, đi Quảng trường Lâm Viên, Hồ Xuân Hương, chợ đêm Đà Lạt.\nNgày 2: Tham quan Fresh Garden hoặc Puppy Farm, nhà thờ Domain, vườn hoa/cafe view đẹp; chiều có thể đi Langbiang hoặc săn mây nếu thích trải nghiệm sớm.\nNgày 3: Cafe sáng, mua đặc sản, ghé thêm một điểm gần trung tâm rồi về.\n\nAnh/chị cho em xin ngày đi, số khách, phương tiện dự kiến và ngân sách để Travel Plus tư vấn chi tiết hơn.",
+                'en' => "For a 3-day, 2-night Da Lat trip, Travel Plus can suggest:\n\nDay 1: Arrive in Da Lat, check in, visit Lam Vien Square, Xuan Huong Lake and Da Lat night market.\nDay 2: Visit Fresh Garden or Puppy Farm, Domaine de Marie Church, flower gardens or scenic cafes; choose Langbiang or cloud hunting if you want an early experience.\nDay 3: Morning cafe, local specialties shopping, one more central stop, then return.\n\nPlease share travel date, guest count, transport preference and budget for a more accurate plan.",
+            ],
+            'phu quoc' => [
+                'vi' => "Với Phú Quốc 3 ngày 2 đêm, Travel Plus có thể gợi ý:\n\nNgày 1: Bay đến Phú Quốc, nhận phòng, nghỉ biển, chiều đi Sunset Town hoặc ngắm hoàng hôn ở bãi biển.\nNgày 2: Chọn tour đảo Nam Phú Quốc/cáp treo Hòn Thơm hoặc đi VinWonders - Safari nếu có trẻ em.\nNgày 3: Ghé Dinh Cậu, chợ Dương Đông/mua đặc sản rồi ra sân bay về.\n\nAnh/chị cho em xin ngày đi, số khách, muốn nghỉ khu trung tâm hay resort biển và ngân sách dự kiến.",
+                'en' => "For a 3-day, 2-night Phu Quoc trip, Travel Plus can suggest:\n\nDay 1: Fly to Phu Quoc, check in, beach time, then Sunset Town or sunset by the sea.\nDay 2: Choose South Island hopping and Hon Thom cable car, or VinWonders and Safari for families with children.\nDay 3: Visit Dinh Cau, Duong Dong Market or local specialty shops, then return to the airport.\n\nPlease share travel date, guest count, preferred area or beach resort style and budget.",
+            ],
+            'sa pa' => [
+                'vi' => "Với Sa Pa 3 ngày 2 đêm, Travel Plus có thể gợi ý:\n\nNgày 1: Di chuyển Hà Nội - Sa Pa, nhận phòng, dạo trung tâm, nhà thờ đá, chợ đêm hoặc cafe view núi.\nNgày 2: Đi Fansipan hoặc bản Cát Cát; nếu thích nhẹ nhàng có thể chọn Ô Quy Hồ, Thác Bạc, Cầu Kính tùy thời tiết.\nNgày 3: Dạo bản/làng gần trung tâm, mua đặc sản rồi về Hà Nội.\n\nAnh/chị cho em xin điểm xuất phát, ngày đi, số khách và tiêu chuẩn khách sạn để Travel Plus tính lịch trình phù hợp.",
+                'en' => "For a 3-day, 2-night Sa Pa trip, Travel Plus can suggest:\n\nDay 1: Travel from Hanoi to Sa Pa, check in, visit the town center, stone church, night market or a mountain-view cafe.\nDay 2: Choose Fansipan or Cat Cat Village; for a lighter route, consider O Quy Ho Pass, Silver Waterfall or Glass Bridge depending on weather.\nDay 3: Visit a nearby village, buy local specialties, then return to Hanoi.\n\nPlease share departure city, travel date, guest count and hotel standard so Travel Plus can plan properly.",
+            ],
+        ];
+
+        if (! isset($suggestions[$destination])) {
+            return null;
+        }
+
+        return $suggestions[$destination][$locale] ?? $suggestions[$destination]['vi'];
+    }
+
+    private function buildInternationalTripSuggestion(string $locale, string $destination): ?string
+    {
+        $labels = [
+            'france' => ['vi' => 'Pháp', 'en' => 'France'],
+            'japan' => ['vi' => 'Nhật Bản', 'en' => 'Japan'],
+            'south korea' => ['vi' => 'Hàn Quốc', 'en' => 'South Korea'],
+            'thailand' => ['vi' => 'Thái Lan', 'en' => 'Thailand'],
+            'singapore' => ['vi' => 'Singapore', 'en' => 'Singapore'],
+            'australia' => ['vi' => 'Úc', 'en' => 'Australia'],
+            'new zealand' => ['vi' => 'New Zealand', 'en' => 'New Zealand'],
+            'usa' => ['vi' => 'Mỹ', 'en' => 'United States'],
+        ];
+
+        if (! isset($labels[$destination])) {
+            return null;
+        }
+
+        $label = $labels[$destination][$locale] ?? $labels[$destination]['vi'];
+        $visaLine = in_array($destination, ['thailand', 'singapore'], true)
+            ? ($locale === 'en'
+                ? 'Visa requirements are usually lighter for Vietnamese leisure travelers, but the team should still check passport and entry conditions before departure.'
+                : 'Yêu cầu visa thường nhẹ hơn với khách Việt đi du lịch, nhưng đội ngũ vẫn nên kiểm tra hộ chiếu và điều kiện nhập cảnh trước ngày đi.')
+            : ($locale === 'en'
+                ? 'Visa preparation should be checked early because requirements depend on passport, travel purpose and applicant profile.'
+                : 'Phần visa nên được kiểm tra sớm vì yêu cầu phụ thuộc vào hộ chiếu, mục đích đi và hồ sơ từng khách.');
+
+        $route = match ($destination) {
+            'france' => $locale === 'en'
+                ? "A suitable first-time route can focus on Paris, Versailles, the Seine area and nearby shopping or museum time."
+                : "Lịch trình lần đầu có thể tập trung Paris, Versailles, khu sông Seine và thời gian mua sắm/bảo tàng gần trung tâm.",
+            'japan' => $locale === 'en'
+                ? "A practical route can combine Tokyo with either Mount Fuji, Osaka, Kyoto or nearby seasonal highlights."
+                : "Lịch trình dễ đi có thể kết hợp Tokyo với núi Phú Sĩ, Osaka, Kyoto hoặc điểm theo mùa.",
+            'south korea' => $locale === 'en'
+                ? "A compact route can focus on Seoul, Nami Island, shopping streets and cultural stops such as Gyeongbokgung."
+                : "Lịch trình gọn có thể tập trung Seoul, đảo Nami, các phố mua sắm và điểm văn hóa như Gyeongbokgung.",
+            'thailand' => $locale === 'en'
+                ? "A short route can focus on Bangkok, temples, shopping, food and one nearby experience such as Pattaya or Ayutthaya."
+                : "Lịch trình ngắn có thể tập trung Bangkok, chùa, mua sắm, ẩm thực và một điểm gần như Pattaya hoặc Ayutthaya.",
+            'singapore' => $locale === 'en'
+                ? "A short route can cover Marina Bay, Gardens by the Bay, Sentosa, Jewel Changi and family-friendly attractions."
+                : "Lịch trình ngắn có thể đi Marina Bay, Gardens by the Bay, Sentosa, Jewel Changi và các điểm phù hợp gia đình.",
+            'australia' => $locale === 'en'
+                ? "A first-time route usually works best by focusing on one city such as Sydney or Melbourne, with one nearby day trip."
+                : "Lịch trình lần đầu thường nên tập trung một thành phố như Sydney hoặc Melbourne, kèm một chuyến đi trong ngày gần đó.",
+            'new zealand' => $locale === 'en'
+                ? "A suitable route depends heavily on season and trip length, often focusing on Auckland, Rotorua, Hobbiton or South Island scenery."
+                : "Lịch trình phù hợp phụ thuộc nhiều vào mùa và số ngày, thường xoay quanh Auckland, Rotorua, Hobbiton hoặc cảnh quan đảo Nam.",
+            'usa' => $locale === 'en'
+                ? "The route should be planned by coast because distances are long. A first consultation should choose East Coast, West Coast or a combined route."
+                : "Nên chọn tuyến theo bờ vì khoảng cách ở Mỹ rất xa. Bước đầu nên xác định đi bờ Đông, bờ Tây hay liên tuyến.",
+            default => '',
+        };
+
+        return $locale === 'en'
+            ? "Travel Plus can advise a {$label} itinerary, but international trips need travel date, trip length, number of guests, visa status and budget before quoting.\n\n{$route}\n\n{$visaLine}\n\nPlease share your expected travel date, number of guests, preferred trip length and whether you already have a visa."
+            : "Travel Plus có thể tư vấn lịch trình {$label}, nhưng tour nước ngoài cần kiểm tra ngày đi, số ngày, số khách, tình trạng visa và ngân sách trước khi báo phương án.\n\n{$route}\n\n{$visaLine}\n\nAnh/chị cho em xin ngày đi dự kiến, số khách, số ngày muốn đi và hiện đã có visa chưa.";
     }
 
     private function extractVisaDestination(string $message): string
