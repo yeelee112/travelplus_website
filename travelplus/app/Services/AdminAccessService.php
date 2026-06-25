@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Throwable;
+
 class AdminAccessService
 {
     private static ?bool $usersTableHasIsAdmin = null;
@@ -23,12 +25,17 @@ class AdminAccessService
         $email = strtolower(trim((string) ($authUser['email'] ?? '')));
 
         if ($userId > 0 && $this->usersTableHasIsAdmin()) {
-            $row = db_connect()->table('users')
-                ->select('is_admin')
-                ->where('id', $userId)
-                ->limit(1)
-                ->get()
-                ->getRowArray();
+            try {
+                $row = db_connect()->table('users')
+                    ->select('is_admin')
+                    ->where('id', $userId)
+                    ->limit(1)
+                    ->get()
+                    ->getRowArray();
+            } catch (Throwable $exception) {
+                DatabaseAvailabilityService::markUnavailable($exception, 'Admin access user lookup failed');
+                $row = null;
+            }
 
             if (is_array($row)) {
                 return (bool) ($row['is_admin'] ?? false);
@@ -62,9 +69,20 @@ class AdminAccessService
             return self::$usersTableHasIsAdmin;
         }
 
-        $db = db_connect();
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            self::$usersTableHasIsAdmin = false;
 
-        self::$usersTableHasIsAdmin = $db->tableExists('users') && $db->fieldExists('is_admin', 'users');
+            return false;
+        }
+
+        try {
+            $db = db_connect();
+
+            self::$usersTableHasIsAdmin = $db->tableExists('users') && $db->fieldExists('is_admin', 'users');
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Admin access schema check failed');
+            self::$usersTableHasIsAdmin = false;
+        }
 
         return self::$usersTableHasIsAdmin;
     }

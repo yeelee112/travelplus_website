@@ -57,6 +57,10 @@ class RememberLoginService
             return null;
         }
 
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            return null;
+        }
+
         if (! $this->hasTokenTable()) {
             return null;
         }
@@ -72,10 +76,16 @@ class RememberLoginService
             return null;
         }
 
-        $row = $db->table('user_remember_tokens')
-            ->where('selector', $selector)
-            ->get()
-            ->getRowArray();
+        try {
+            $row = $db->table('user_remember_tokens')
+                ->where('selector', $selector)
+                ->get()
+                ->getRowArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Remember login token lookup failed');
+
+            return null;
+        }
 
         if (! is_array($row)) {
             $this->clear();
@@ -94,10 +104,16 @@ class RememberLoginService
             return null;
         }
 
-        $user = (new UserModel())
-            ->where('id', (int) $row['user_id'])
-            ->where('status', 'active')
-            ->first();
+        try {
+            $user = (new UserModel())
+                ->where('id', (int) $row['user_id'])
+                ->where('status', 'active')
+                ->first();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Remember login user load failed');
+
+            return null;
+        }
 
         if (! is_array($user)) {
             $this->deleteSelector($selector);
@@ -183,10 +199,16 @@ class RememberLoginService
             return self::$tokenTableExists;
         }
 
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            self::$tokenTableExists = false;
+
+            return false;
+        }
+
         try {
             self::$tokenTableExists = db_connect()->tableExists('user_remember_tokens');
         } catch (Throwable $exception) {
-            log_message('error', 'Remember login table check failed: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Remember login table check failed');
             self::$tokenTableExists = false;
         }
 

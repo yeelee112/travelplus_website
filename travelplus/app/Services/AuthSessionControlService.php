@@ -18,10 +18,16 @@ class AuthSessionControlService
             return self::$sessionVersionSupported;
         }
 
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            self::$sessionVersionSupported = false;
+
+            return false;
+        }
+
         try {
             self::$sessionVersionSupported = db_connect()->fieldExists('auth_session_version', 'users');
         } catch (Throwable $exception) {
-            log_message('error', 'Auth session support check failed: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Auth session support check failed');
             self::$sessionVersionSupported = false;
         }
 
@@ -56,10 +62,20 @@ class AuthSessionControlService
             return null;
         }
 
-        $user = (new UserModel())
-            ->where('id', $userId)
-            ->where('status', 'active')
-            ->first();
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            return null;
+        }
+
+        try {
+            $user = (new UserModel())
+                ->where('id', $userId)
+                ->where('status', 'active')
+                ->first();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Auth session user load failed');
+
+            return null;
+        }
 
         return is_array($user) ? $user : null;
     }
@@ -77,6 +93,10 @@ class AuthSessionControlService
 
         $user = $this->loadActiveUser($userId);
         if (! is_array($user)) {
+            if (DatabaseAvailabilityService::isUnavailable()) {
+                return true;
+            }
+
             $this->clearValidation();
             return false;
         }

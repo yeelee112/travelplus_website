@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DatabaseAvailabilityService;
 use CodeIgniter\Model;
 use Throwable;
 
@@ -18,6 +19,10 @@ class LocationModel extends Model
         ?string $type = null,
         ?int $parentId = null
     ): ?array {
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            return null;
+        }
+
         try {
             $builder = $this->db->table('locations l')
                 ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
@@ -34,7 +39,7 @@ class LocationModel extends Model
 
             $row = $builder->get()->getRowArray();
         } catch (Throwable $exception) {
-            log_message('error', 'Location slug lookup failed: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Location slug lookup failed');
 
             return null;
         }
@@ -44,6 +49,10 @@ class LocationModel extends Model
 
     public function findTranslatedLocationById(string $locale, int $id): ?array
     {
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            return null;
+        }
+
         try {
             $row = $this->db->table('locations l')
                 ->select('l.id, l.parent_id, l.type, l.code, lt.name, lt.slug')
@@ -52,7 +61,7 @@ class LocationModel extends Model
                 ->get()
                 ->getRowArray();
         } catch (Throwable $exception) {
-            log_message('error', 'Location id lookup failed: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Location id lookup failed');
 
             return null;
         }
@@ -74,6 +83,12 @@ class LocationModel extends Model
             self::$megaMenuCache[$locale] = $cached;
 
             return $cached;
+        }
+
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            self::$megaMenuCache[$locale] = [];
+
+            return [];
         }
 
         try {
@@ -99,7 +114,7 @@ class LocationModel extends Model
                 ->get()
                 ->getResultArray();
         } catch (Throwable $exception) {
-            log_message('error', 'Mega menu load failed: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Mega menu load failed');
             self::$megaMenuCache[$locale] = [];
 
             return [];

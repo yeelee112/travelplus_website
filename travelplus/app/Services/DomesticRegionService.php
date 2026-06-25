@@ -178,6 +178,16 @@ class DomesticRegionService
 
         $regions = $this->baseRegions($locale);
 
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            foreach ($regions as $key => $region) {
+                $regions[$key]['link'] = localized_url('tour-trong-nuoc/' . $region['slug']);
+            }
+
+            self::$menuCache[$locale] = $regions;
+
+            return $regions;
+        }
+
         try {
             foreach ($this->getVietnamProvinces($locale) as $province) {
                 $regionKey = $this->resolveRegionKeyByProvinceCode((string) ($province['code'] ?? ''));
@@ -195,7 +205,7 @@ class DomesticRegionService
                 ];
             }
         } catch (Throwable $exception) {
-            log_message('error', 'Domestic region menu load failed: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Domestic region menu load failed');
         }
 
         foreach ($regions as $key => $region) {
