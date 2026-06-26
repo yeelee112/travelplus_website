@@ -571,7 +571,7 @@ class Blogs extends BaseAdminController
 
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->loadHTML(
-            '<!doctype html><html><body><div id="root">' . $html . '</div></body></html>',
+            '<?xml encoding="UTF-8"><!doctype html><html><head><meta charset="UTF-8"></head><body><div id="root">' . $html . '</div></body></html>',
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
 
@@ -662,7 +662,7 @@ class Blogs extends BaseAdminController
 
         libxml_clear_errors();
 
-        return trim($sanitized);
+        return TextEncodingService::repairNullableHtml(trim($sanitized));
     }
 
     private function blogUploadDirectory(int $blogId): string

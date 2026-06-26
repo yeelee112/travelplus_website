@@ -129,7 +129,9 @@ class TextEncodingService
             return null;
         }
 
+        $output = '';
         $bytes = '';
+        $original = '';
         foreach ($matches[0] as $char) {
             $codepoint = self::unicodeCodepoint($char);
             if ($codepoint === null) {
@@ -139,17 +141,34 @@ class TextEncodingService
             $windowsByte = self::windows1252Byte($codepoint);
             if ($windowsByte !== null) {
                 $bytes .= chr($windowsByte);
+                $original .= $char;
                 continue;
             }
 
             if ($codepoint > 255) {
-                return null;
+                $output .= self::decodeByteSegment($bytes, $original);
+                $bytes = '';
+                $original = '';
+                $output .= $char;
+                continue;
             }
 
             $bytes .= chr($codepoint);
+            $original .= $char;
         }
 
-        return preg_match('//u', $bytes) === 1 ? $bytes : null;
+        $output .= self::decodeByteSegment($bytes, $original);
+
+        return $output !== $value ? $output : null;
+    }
+
+    private static function decodeByteSegment(string $bytes, string $original): string
+    {
+        if ($bytes === '') {
+            return '';
+        }
+
+        return preg_match('//u', $bytes) === 1 ? $bytes : $original;
     }
 
     private static function unicodeCodepoint(string $char): ?int

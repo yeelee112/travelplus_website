@@ -304,6 +304,7 @@ class BlogService
             return '';
         }
 
+        $category = TextEncodingService::repair($category);
         $normalized = function_exists('mb_strtolower')
             ? mb_strtolower(trim($category))
             : strtolower(trim($category));
@@ -323,10 +324,10 @@ class BlogService
         ];
 
         if (isset($categoryMap[$normalized])) {
-            return $categoryMap[$normalized][$locale] ?? $categoryMap[$normalized]['vi'];
+            return TextEncodingService::repair($categoryMap[$normalized][$locale] ?? $categoryMap[$normalized]['vi']);
         }
 
-        return $category;
+        return TextEncodingService::repair($category);
     }
 
     private function formatPublishedAt(string $publishedAt): string
