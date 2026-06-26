@@ -45,63 +45,69 @@ class TourCatalogService
             return [];
         }
 
-        $builder = $this->baseToursBuilder($locale)
-            ->where('t.is_promotion', 1);
+        try {
+            $builder = $this->baseToursBuilder($locale)
+                ->where('t.is_promotion', 1);
 
-        if ($this->fieldExists('promotion_ends_at', 'tours')) {
-            $builder->groupStart()
-                ->where('t.promotion_ends_at IS NULL', null, false)
-                ->orWhere('t.promotion_ends_at >=', date('Y-m-d H:i:s'))
-                ->groupEnd();
-        }
-
-        $select = [
-            't.id',
-            't.duration_days',
-            't.duration_nights',
-            't.thumbnail',
-            't.is_featured',
-            't.tour_type',
-            'tt.name AS title',
-            'tt.slug AS slug',
-            'MIN(dl.id) AS destination_id',
-            'MIN(dltn.name) AS destination_name',
-            'MIN(dltn.slug) AS destination_slug',
-            'MIN(td.departure_date) AS departure_date',
-            'MIN(COALESCE(NULLIF(td.price, 0), NULLIF(t.sale_price, 0), NULLIF(t.base_price, 0), 0)) AS min_price',
-            'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name',
-            'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug',
-            'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name',
-            't.is_promotion',
-        ];
-        $groupBy = 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug, t.is_promotion';
-
-        foreach (['promotion_badge', 'promotion_ends_at', 'promotion_sort'] as $field) {
-            if ($this->fieldExists($field, 'tours')) {
-                $select[] = 't.' . $field;
-                $groupBy .= ', t.' . $field;
+            if ($this->fieldExists('promotion_ends_at', 'tours')) {
+                $builder->groupStart()
+                    ->where('t.promotion_ends_at IS NULL', null, false)
+                    ->orWhere('t.promotion_ends_at >=', date('Y-m-d H:i:s'))
+                    ->groupEnd();
             }
+
+            $select = [
+                't.id',
+                't.duration_days',
+                't.duration_nights',
+                't.thumbnail',
+                't.is_featured',
+                't.tour_type',
+                'tt.name AS title',
+                'tt.slug AS slug',
+                'MIN(dl.id) AS destination_id',
+                'MIN(dltn.name) AS destination_name',
+                'MIN(dltn.slug) AS destination_slug',
+                'MIN(td.departure_date) AS departure_date',
+                'MIN(COALESCE(NULLIF(td.price, 0), NULLIF(t.sale_price, 0), NULLIF(t.base_price, 0), 0)) AS min_price',
+                'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name',
+                'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug',
+                'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name',
+                't.is_promotion',
+            ];
+            $groupBy = 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug, t.is_promotion';
+
+            foreach (['promotion_badge', 'promotion_ends_at', 'promotion_sort'] as $field) {
+                if ($this->fieldExists($field, 'tours')) {
+                    $select[] = 't.' . $field;
+                    $groupBy .= ', t.' . $field;
+                }
+            }
+
+            $builder->select(implode(',', $select), false)
+                ->groupBy($groupBy);
+
+            if ($this->fieldExists('promotion_sort', 'tours')) {
+                $builder->orderBy('t.promotion_sort', 'ASC');
+            }
+
+            if ($this->fieldExists('promotion_ends_at', 'tours')) {
+                $builder->orderBy('t.promotion_ends_at IS NULL', 'ASC', false)
+                    ->orderBy('t.promotion_ends_at', 'ASC');
+            }
+
+            $rows = $builder
+                ->orderBy($this->getSortField(), 'DESC')
+                ->limit(max(1, $limit))
+                ->get()
+                ->getResultArray();
+
+            return $this->mapRowsToCards($rows);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Promotional tours load failed');
+
+            return [];
         }
-
-        $builder->select(implode(',', $select), false)
-            ->groupBy($groupBy);
-
-        if ($this->fieldExists('promotion_sort', 'tours')) {
-            $builder->orderBy('t.promotion_sort', 'ASC');
-        }
-
-        if ($this->fieldExists('promotion_ends_at', 'tours')) {
-            $builder->orderBy('t.promotion_ends_at IS NULL', 'ASC', false)
-                ->orderBy('t.promotion_ends_at', 'ASC');
-        }
-
-        $rows = $builder
-            ->orderBy($this->getSortField(), 'DESC')
-            ->limit(max(1, $limit))
-            ->get()
-            ->getResultArray();
-
-        return $this->mapRowsToCards($rows);
     }
 
     /**
@@ -113,8 +119,9 @@ class TourCatalogService
             return [];
         }
 
-        $tabs = [];
-        $domesticItems = $this->getDomesticFeaturedDestinations($locale, $itemsPerTab);
+        try {
+            $tabs = [];
+            $domesticItems = $this->getDomesticFeaturedDestinations($locale, $itemsPerTab);
 
         if ($domesticItems !== []) {
             $tabs[] = [
@@ -124,6 +131,10 @@ class TourCatalogService
             ];
         }
 
+            if (DatabaseAvailabilityService::isUnavailable()) {
+                return $tabs;
+            }
+
         foreach ($this->getOutboundFeaturedDestinations($locale, $itemsPerTab) as $tab) {
             if (($tab['items'] ?? []) === []) {
                 continue;
@@ -132,7 +143,12 @@ class TourCatalogService
             $tabs[] = $tab;
         }
 
-        return $tabs;
+            return $tabs;
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Featured destinations load failed');
+
+            return [];
+        }
     }
 
     public function findTourBySlug(string $locale, string $slug, ?string $tourType = null): ?array
@@ -150,37 +166,55 @@ class TourCatalogService
             return null;
         }
 
-        $row = $this->baseToursBuilder($locale, $tourType)
-            ->select(
-                't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
-                'tt.name AS title, tt.slug AS slug,' .
-                'MIN(dl.id) AS destination_id,' .
-                'MIN(dltn.name) AS destination_name,' .
-                'MIN(dltn.slug) AS destination_slug,' .
-                'MIN(td.departure_date) AS departure_date,' .
-                'MIN(td.price) AS min_price,' .
-                'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
-                'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug,' .
-                'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name'
-            )
-            ->where('tt.slug', $slug)
-            ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug')
-            ->limit(1)
-            ->get()
-            ->getRowArray();
+        try {
+            $row = $this->baseToursBuilder($locale, $tourType)
+                ->select(
+                    't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
+                    'tt.name AS title, tt.slug AS slug,' .
+                    'MIN(dl.id) AS destination_id,' .
+                    'MIN(dltn.name) AS destination_name,' .
+                    'MIN(dltn.slug) AS destination_slug,' .
+                    'MIN(td.departure_date) AS departure_date,' .
+                    'MIN(td.price) AS min_price,' .
+                    'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
+                    'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug,' .
+                    'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name'
+                )
+                ->where('tt.slug', $slug)
+                ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug')
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour detail lookup failed');
+
+            return null;
+        }
 
         if ($row === null) {
             return null;
         }
 
-        $cards = $this->mapRowsToCards([$row]);
+        try {
+            $cards = $this->mapRowsToCards([$row]);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour detail card mapping failed');
+
+            return null;
+        }
         $card = $cards[0] ?? null;
 
         if ($card === null) {
             return null;
         }
 
-        $detail = $this->hydrateTourDetail($card, $locale);
+        try {
+            $detail = $this->hydrateTourDetail($card, $locale);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour detail hydration failed');
+
+            return $card;
+        }
 
         try {
             cache()->save($cacheKey, $detail, self::DETAIL_CACHE_TTL);
@@ -211,29 +245,35 @@ class TourCatalogService
             return [];
         }
 
-        $locationFilter = $this->buildRelatedLocationFilter($locale, $tour);
+        try {
+            $locationFilter = $this->buildRelatedLocationFilter($locale, $tour);
 
-        $rows = $this->baseToursBuilder($locale, $tourType !== '' ? $tourType : null, $locationFilter)
-            ->select(
-                't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
-                'tt.name AS title, tt.slug AS slug,' .
-                'MIN(dl.id) AS destination_id,' .
-                'MIN(dltn.name) AS destination_name,' .
-                'MIN(dltn.slug) AS destination_slug,' .
-                'MIN(td.departure_date) AS departure_date,' .
-                'MIN(t.base_price) AS min_price,' .
-                'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
-                'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug,' .
-                'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name'
-            )
-            ->where('t.id !=', $tourId)
-            ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug')
-            ->orderBy($this->getSortField(), 'DESC')
-            ->limit(max(1, $limit))
-            ->get()
-            ->getResultArray();
+            $rows = $this->baseToursBuilder($locale, $tourType !== '' ? $tourType : null, $locationFilter)
+                ->select(
+                    't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
+                    'tt.name AS title, tt.slug AS slug,' .
+                    'MIN(dl.id) AS destination_id,' .
+                    'MIN(dltn.name) AS destination_name,' .
+                    'MIN(dltn.slug) AS destination_slug,' .
+                    'MIN(td.departure_date) AS departure_date,' .
+                    'MIN(t.base_price) AS min_price,' .
+                    'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
+                    'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug,' .
+                    'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name'
+                )
+                ->where('t.id !=', $tourId)
+                ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug')
+                ->orderBy($this->getSortField(), 'DESC')
+                ->limit(max(1, $limit))
+                ->get()
+                ->getResultArray();
 
-        $relatedTours = $this->mapRowsToCards($rows);
+            $relatedTours = $this->mapRowsToCards($rows);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Related tours load failed');
+
+            return [];
+        }
 
         try {
             cache()->save($cacheKey, $relatedTours, self::DETAIL_CACHE_TTL);
@@ -273,7 +313,8 @@ class TourCatalogService
             ];
         }
 
-        $countRow = $this->baseToursBuilder($locale, $tourType, $locationFilter, false, $promotionOnly)
+        try {
+            $countRow = $this->baseToursBuilder($locale, $tourType, $locationFilter, false, $promotionOnly)
             ->select('COUNT(DISTINCT t.id) AS total', false)
             ->get()
             ->getRowArray();
@@ -301,13 +342,28 @@ class TourCatalogService
             ->get()
             ->getResultArray();
 
-        return [
-            'tours'    => $this->mapRowsToCards($rows),
-            'total'    => $total,
-            'page'     => $page,
-            'perPage'  => $perPage,
-            'lastPage' => $lastPage,
-        ];
+            return [
+                'tours'    => $this->mapRowsToCards($rows),
+                'total'    => $total,
+                'page'     => $page,
+                'perPage'  => $perPage,
+                'lastPage' => $lastPage,
+            ];
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Paged tours load failed');
+
+            $fallback = $this->fallbackTours($offset, $perPage);
+            $total = count(TourCard::getAll());
+            $lastPage = max(1, (int) ceil($total / $perPage));
+
+            return [
+                'tours'    => $fallback,
+                'total'    => $total,
+                'page'     => min($page, $lastPage),
+                'perPage'  => $perPage,
+                'lastPage' => $lastPage,
+            ];
+        }
     }
 
     /**
@@ -342,7 +398,8 @@ class TourCatalogService
             ];
         }
 
-        $builder = $this->baseToursBuilder($locale, $tourType, [], false, $promotionOnly)
+        try {
+            $builder = $this->baseToursBuilder($locale, $tourType, [], false, $promotionOnly)
             ->join('tour_media tm', 'tm.tour_id = t.id AND tm.type = "gallery"', 'left');
 
         if ($query !== '') {
@@ -403,13 +460,24 @@ class TourCatalogService
             ->get()
             ->getResultArray();
 
-        return [
-            'tours' => $this->mapRowsToCards($rows),
-            'total' => $total,
-            'page' => $page,
-            'perPage' => $perPage,
-            'lastPage' => $lastPage,
-        ];
+            return [
+                'tours' => $this->mapRowsToCards($rows),
+                'total' => $total,
+                'page' => $page,
+                'perPage' => $perPage,
+                'lastPage' => $lastPage,
+            ];
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour search failed');
+
+            return [
+                'tours' => [],
+                'total' => 0,
+                'page' => 1,
+                'perPage' => $perPage,
+                'lastPage' => 1,
+            ];
+        }
     }
 
     private function fetchTours(
@@ -454,7 +522,13 @@ class TourCatalogService
             return $this->fallbackTours($offset, $limit);
         }
 
-        return $this->mapRowsToCards($rows);
+        try {
+            return $this->mapRowsToCards($rows);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour catalog mapping failed');
+
+            return $this->fallbackTours($offset, $limit);
+        }
     }
 
     private function baseToursBuilder(
@@ -509,26 +583,32 @@ class TourCatalogService
      */
     private function getDomesticFeaturedDestinations(string $locale, int $limit): array
     {
-        $rows = $this->db->table('tours t')
-            ->select('
-                dl.id AS province_id,
-                dl.code AS province_code,
-                dltn.name AS province_name,
-                dltn.slug AS province_slug,
-                COUNT(DISTINCT t.id) AS tour_count,
-                MIN(t.id) AS sample_tour_id
-            ')
-            ->join('tour_destinations tdst', 'tdst.tour_id = t.id', 'inner')
-            ->join('locations dl', 'dl.id = tdst.location_id AND dl.type = "province"', 'inner')
-            ->join('location_translations dltn', 'dltn.location_id = dl.id AND dltn.locale = ' . $this->db->escape($locale), 'inner')
-            ->where('t.status', 'published')
-            ->where('t.tour_type', 'inbound')
-            ->groupBy('dl.id, dl.code, dltn.name, dltn.slug')
-            ->orderBy('tour_count', 'DESC')
-            ->orderBy('dltn.name', 'ASC')
-            ->limit(max(1, $limit))
-            ->get()
-            ->getResultArray();
+        try {
+            $rows = $this->db->table('tours t')
+                ->select('
+                    dl.id AS province_id,
+                    dl.code AS province_code,
+                    dltn.name AS province_name,
+                    dltn.slug AS province_slug,
+                    COUNT(DISTINCT t.id) AS tour_count,
+                    MIN(t.id) AS sample_tour_id
+                ')
+                ->join('tour_destinations tdst', 'tdst.tour_id = t.id', 'inner')
+                ->join('locations dl', 'dl.id = tdst.location_id AND dl.type = "province"', 'inner')
+                ->join('location_translations dltn', 'dltn.location_id = dl.id AND dltn.locale = ' . $this->db->escape($locale), 'inner')
+                ->where('t.status', 'published')
+                ->where('t.tour_type', 'inbound')
+                ->groupBy('dl.id, dl.code, dltn.name, dltn.slug')
+                ->orderBy('tour_count', 'DESC')
+                ->orderBy('dltn.name', 'ASC')
+                ->limit(max(1, $limit))
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Domestic featured destinations load failed');
+
+            return [];
+        }
 
         $regionService = new DomesticRegionService();
         $items = [];
@@ -562,31 +642,37 @@ class TourCatalogService
      */
     private function getOutboundFeaturedDestinations(string $locale, int $limit): array
     {
-        $rows = $this->db->table('tours t')
-            ->select('
-                continent.id AS continent_id,
-                continent_tr.name AS continent_name,
-                continent_tr.slug AS continent_slug,
-                country.id AS country_id,
-                country_tr.name AS country_name,
-                country_tr.slug AS country_slug,
-                COUNT(DISTINCT t.id) AS tour_count,
-                MIN(t.id) AS sample_tour_id
-            ')
-            ->join('tour_destinations tdst', 'tdst.tour_id = t.id', 'inner')
-            ->join('locations dl', 'dl.id = tdst.location_id', 'inner')
-            ->join('locations country', 'country.id = CASE WHEN dl.type = "country" THEN dl.id WHEN dl.type = "province" THEN dl.parent_id ELSE 0 END', 'inner', false)
-            ->join('locations continent', 'continent.id = CASE WHEN dl.type = "country" THEN dl.parent_id WHEN dl.type = "province" THEN country.parent_id ELSE 0 END', 'inner', false)
-            ->join('location_translations country_tr', 'country_tr.location_id = country.id AND country_tr.locale = ' . $this->db->escape($locale), 'inner')
-            ->join('location_translations continent_tr', 'continent_tr.location_id = continent.id AND continent_tr.locale = ' . $this->db->escape($locale), 'inner')
-            ->where('t.status', 'published')
-            ->where('t.tour_type', 'outbound')
-            ->groupBy('continent.id, continent_tr.name, continent_tr.slug, country.id, country_tr.name, country_tr.slug')
-            ->orderBy('continent_tr.name', 'ASC')
-            ->orderBy('tour_count', 'DESC')
-            ->orderBy('country_tr.name', 'ASC')
-            ->get()
-            ->getResultArray();
+        try {
+            $rows = $this->db->table('tours t')
+                ->select('
+                    continent.id AS continent_id,
+                    continent_tr.name AS continent_name,
+                    continent_tr.slug AS continent_slug,
+                    country.id AS country_id,
+                    country_tr.name AS country_name,
+                    country_tr.slug AS country_slug,
+                    COUNT(DISTINCT t.id) AS tour_count,
+                    MIN(t.id) AS sample_tour_id
+                ')
+                ->join('tour_destinations tdst', 'tdst.tour_id = t.id', 'inner')
+                ->join('locations dl', 'dl.id = tdst.location_id', 'inner')
+                ->join('locations country', 'country.id = CASE WHEN dl.type = "country" THEN dl.id WHEN dl.type = "province" THEN dl.parent_id ELSE 0 END', 'inner', false)
+                ->join('locations continent', 'continent.id = CASE WHEN dl.type = "country" THEN dl.parent_id WHEN dl.type = "province" THEN country.parent_id ELSE 0 END', 'inner', false)
+                ->join('location_translations country_tr', 'country_tr.location_id = country.id AND country_tr.locale = ' . $this->db->escape($locale), 'inner')
+                ->join('location_translations continent_tr', 'continent_tr.location_id = continent.id AND continent_tr.locale = ' . $this->db->escape($locale), 'inner')
+                ->where('t.status', 'published')
+                ->where('t.tour_type', 'outbound')
+                ->groupBy('continent.id, continent_tr.name, continent_tr.slug, country.id, country_tr.name, country_tr.slug')
+                ->orderBy('continent_tr.name', 'ASC')
+                ->orderBy('tour_count', 'DESC')
+                ->orderBy('country_tr.name', 'ASC')
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Outbound featured destinations load failed');
+
+            return [];
+        }
 
         $grouped = [];
 
@@ -936,23 +1022,29 @@ class TourCatalogService
             return [];
         }
 
-        $rows = $this->db->table('tour_destinations tdst')
-            ->select(
-                'tdst.tour_id,' .
-                'COALESCE(dl.code, "") AS location_code,' .
-                'dl.type AS location_type,' .
-                'COALESCE(dltn.name, "") AS location_name,' .
-                'COALESCE(dlp.type, "") AS parent_type,' .
-                'COALESCE(dlptn.name, "") AS parent_name'
-            )
-            ->join('locations dl', 'dl.id = tdst.location_id', 'inner')
-            ->join('locations dlp', 'dlp.id = dl.parent_id', 'left')
-            ->join('location_translations dltn', 'dltn.location_id = dl.id AND dltn.locale = ' . $this->db->escape($locale), 'left')
-            ->join('location_translations dlptn', 'dlptn.location_id = dlp.id AND dlptn.locale = ' . $this->db->escape($locale), 'left')
-            ->whereIn('tdst.tour_id', $tourIds)
-            ->orderBy('tdst.id', 'ASC')
-            ->get()
-            ->getResultArray();
+        try {
+            $rows = $this->db->table('tour_destinations tdst')
+                ->select(
+                    'tdst.tour_id,' .
+                    'COALESCE(dl.code, "") AS location_code,' .
+                    'dl.type AS location_type,' .
+                    'COALESCE(dltn.name, "") AS location_name,' .
+                    'COALESCE(dlp.type, "") AS parent_type,' .
+                    'COALESCE(dlptn.name, "") AS parent_name'
+                )
+                ->join('locations dl', 'dl.id = tdst.location_id', 'inner')
+                ->join('locations dlp', 'dlp.id = dl.parent_id', 'left')
+                ->join('location_translations dltn', 'dltn.location_id = dl.id AND dltn.locale = ' . $this->db->escape($locale), 'left')
+                ->join('location_translations dlptn', 'dlptn.location_id = dlp.id AND dlptn.locale = ' . $this->db->escape($locale), 'left')
+                ->whereIn('tdst.tour_id', $tourIds)
+                ->orderBy('tdst.id', 'ASC')
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour destination batch load failed');
+
+            return [];
+        }
 
         $grouped = [];
         foreach ($rows as $row) {
@@ -1098,7 +1190,13 @@ class TourCatalogService
         $destinationId = (int) ($tour['destination_id'] ?? 0);
 
         if ($tourType === 'inbound' && $destinationId > 0) {
-            $region = (new DomesticRegionService())->getRegionByProvinceId($locale, $destinationId);
+            try {
+                $region = (new DomesticRegionService())->getRegionByProvinceId($locale, $destinationId);
+            } catch (Throwable $exception) {
+                DatabaseAvailabilityService::markUnavailable($exception, 'Related tour region lookup failed');
+
+                return [];
+            }
             $provinceIds = array_values(array_filter(array_map(
                 static fn(array $province): int => (int) ($province['id'] ?? 0),
                 $region['provinces'] ?? []
@@ -1132,21 +1230,31 @@ class TourCatalogService
             return 0;
         }
 
-        $row = $this->db->table('locations dl')
-            ->select(
-                'CASE ' .
-                'WHEN dl.type = "continent" THEN dl.id ' .
-                'WHEN dl.type = "country" THEN dlp.id ' .
-                'WHEN dl.type = "province" THEN dlgp.id ' .
-                'ELSE 0 END AS continent_id',
-                false
-            )
-            ->join('locations dlp', 'dlp.id = dl.parent_id', 'left')
-            ->join('locations dlgp', 'dlgp.id = dlp.parent_id', 'left')
-            ->where('dl.id', $destinationId)
-            ->limit(1)
-            ->get()
-            ->getRowArray();
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            return 0;
+        }
+
+        try {
+            $row = $this->db->table('locations dl')
+                ->select(
+                    'CASE ' .
+                    'WHEN dl.type = "continent" THEN dl.id ' .
+                    'WHEN dl.type = "country" THEN dlp.id ' .
+                    'WHEN dl.type = "province" THEN dlgp.id ' .
+                    'ELSE 0 END AS continent_id',
+                    false
+                )
+                ->join('locations dlp', 'dlp.id = dl.parent_id', 'left')
+                ->join('locations dlgp', 'dlgp.id = dlp.parent_id', 'left')
+                ->where('dl.id', $destinationId)
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Related tour continent lookup failed');
+
+            return 0;
+        }
 
         return (int) ($row['continent_id'] ?? 0);
     }
@@ -1186,15 +1294,21 @@ class TourCatalogService
             return $fallback;
         }
 
-        $row = $this->db->table('tour_media')
-            ->select('file_path')
-            ->where('tour_id', $tourId)
-            ->where('type', 'cover')
-            ->orderBy('sort_order', 'ASC')
-            ->orderBy('id', 'ASC')
-            ->limit(1)
-            ->get()
-            ->getRowArray();
+        try {
+            $row = $this->db->table('tour_media')
+                ->select('file_path')
+                ->where('tour_id', $tourId)
+                ->where('type', 'cover')
+                ->orderBy('sort_order', 'ASC')
+                ->orderBy('id', 'ASC')
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour cover lookup failed');
+
+            return $fallback;
+        }
 
         return (string) ($row['file_path'] ?? $fallback);
     }
@@ -1205,15 +1319,21 @@ class TourCatalogService
             return $fallback;
         }
 
-        $row = $this->db->table('tour_media')
-            ->select('file_path')
-            ->where('tour_id', $tourId)
-            ->where('type', 'banner')
-            ->orderBy('sort_order', 'ASC')
-            ->orderBy('id', 'ASC')
-            ->limit(1)
-            ->get()
-            ->getRowArray();
+        try {
+            $row = $this->db->table('tour_media')
+                ->select('file_path')
+                ->where('tour_id', $tourId)
+                ->where('type', 'banner')
+                ->orderBy('sort_order', 'ASC')
+                ->orderBy('id', 'ASC')
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour banner lookup failed');
+
+            return $fallback;
+        }
 
         return (string) ($row['file_path'] ?? $fallback);
     }

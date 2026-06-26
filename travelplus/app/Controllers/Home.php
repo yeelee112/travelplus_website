@@ -4,7 +4,9 @@ namespace App\Controllers;
 
 use App\Data\FeaturedDestinationCatalog;
 use App\Data\LocalizedPathCatalog;
+use App\Data\TourCard;
 use App\Services\BlogService;
+use App\Services\DatabaseAvailabilityService;
 use App\Services\DomesticRegionService;
 use App\Services\SeoService;
 use App\Services\TourCatalogService;
@@ -14,19 +16,37 @@ class Home extends BaseController
 {
     public function index()
     {
-        $tourService = new TourCatalogService();
-        $blogService = new BlogService();
         $seo = new SeoService();
         $locale = $this->request->getLocale() ?: 'vi';
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $canonicalUrl = localized_url('/');
         $searchUrl = LocalizedPathCatalog::url('search', $locale) . '?q={search_term_string}';
         $metaDesc = $t('home.metaDesc');
-        $featuredTours = $this->safeSection('featured tours', static fn(): array => $tourService->getFeaturedTours($locale, 6));
-        $promotionalTours = $this->safeSection('promotional tours', static fn(): array => $tourService->getPromotionalTours($locale, 4));
-        $featuredDestinations = $this->getCuratedFeaturedDestinations($locale);
-        $homeTours = $this->safeSection('home tours', static fn(): array => $tourService->getHomeTours($locale, 6));
-        $homeBlogs = $this->safeSection('home blogs', static fn(): array => $blogService->getHomeBlogs($locale, 3));
+        $tourFallback = array_slice(TourCard::getAll(), 0, 6);
+        $featuredTours = $this->safeSection(
+            'featured tours',
+            static fn(): array => (new TourCatalogService())->getFeaturedTours($locale, 6),
+            $tourFallback
+        );
+        $promotionalTours = $this->safeSection(
+            'promotional tours',
+            static fn(): array => (new TourCatalogService())->getPromotionalTours($locale, 4)
+        );
+        $featuredDestinations = $this->safeSection(
+            'featured destinations',
+            fn(): array => $this->getCuratedFeaturedDestinations($locale),
+            [],
+            false
+        );
+        $homeTours = $this->safeSection(
+            'home tours',
+            static fn(): array => (new TourCatalogService())->getHomeTours($locale, 6),
+            $tourFallback
+        );
+        $homeBlogs = $this->safeSection(
+            'home blogs',
+            static fn(): array => (new BlogService())->getHomeBlogs($locale, 3)
+        );
 
         return view('home/index', [
             'featuredTours' => $featuredTours,
@@ -60,16 +80,25 @@ class Home extends BaseController
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function safeSection(string $name, callable $callback): array
+    private function safeSection(
+        string $name,
+        callable $callback,
+        array $fallback = [],
+        bool $skipWhenDatabaseUnavailable = true
+    ): array
     {
+        if ($skipWhenDatabaseUnavailable && DatabaseAvailabilityService::isUnavailable()) {
+            return $fallback;
+        }
+
         try {
             $result = $callback();
 
             return is_array($result) ? $result : [];
         } catch (Throwable $exception) {
-            log_message('error', 'Home section failed [' . $name . ']: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Home section failed [' . $name . ']');
 
-            return [];
+            return $fallback;
         }
     }
 
@@ -143,18 +172,23 @@ class Home extends BaseController
         if ($kind === 'domestic_province') {
             $regionSlug = $this->resolveFeaturedDestinationSlug($item['region_slug'] ?? '', $locale);
 
-            if ($locale !== 'vi') {
+            if ($locale !== 'vi' && ! DatabaseAvailabilityService::isUnavailable()) {
                 $regionSlugVi = $this->resolveFeaturedDestinationSlug($item['region_slug'] ?? '', 'vi');
                 $destinationSlugVi = $this->resolveFeaturedDestinationSlug($item['destination_slug'] ?? '', 'vi');
-                $translatedSegments = (new DomesticRegionService())->translatePathSegments(
-                    [
-                        'tour-trong-nuoc',
-                        $regionSlugVi,
-                        $destinationSlugVi,
-                    ],
-                    'vi',
-                    $locale
-                );
+                try {
+                    $translatedSegments = (new DomesticRegionService())->translatePathSegments(
+                        [
+                            'tour-trong-nuoc',
+                            $regionSlugVi,
+                            $destinationSlugVi,
+                        ],
+                        'vi',
+                        $locale
+                    );
+                } catch (Throwable $exception) {
+                    DatabaseAvailabilityService::markUnavailable($exception, 'Featured destination domestic slug translation failed');
+                    $translatedSegments = [];
+                }
 
                 $translatedRegionSlug = (string) ($translatedSegments[1] ?? '');
                 $translatedDestinationSlug = (string) ($translatedSegments[2] ?? '');
@@ -206,6 +240,10 @@ class Home extends BaseController
             return null;
         }
 
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            return null;
+        }
+
         try {
             $db = db_connect();
             $row = $db->table('locations country')
@@ -226,7 +264,7 @@ class Home extends BaseController
                 ->get()
                 ->getRowArray();
         } catch (Throwable $exception) {
-            log_message('error', 'Featured destination slug translation failed: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Featured destination slug translation failed');
 
             return null;
         }

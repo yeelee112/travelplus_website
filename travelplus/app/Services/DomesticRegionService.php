@@ -168,14 +168,6 @@ class DomesticRegionService
             return self::$menuCache[$locale];
         }
 
-        $cacheKey = 'domestic_region_menu_' . $locale;
-        $cached = cache()->get($cacheKey);
-        if (is_array($cached)) {
-            self::$menuCache[$locale] = $cached;
-
-            return $cached;
-        }
-
         $regions = $this->baseRegions($locale);
 
         if (DatabaseAvailabilityService::isUnavailable()) {
@@ -186,6 +178,17 @@ class DomesticRegionService
             self::$menuCache[$locale] = $regions;
 
             return $regions;
+        }
+
+        $cacheKey = 'domestic_region_menu_' . $locale;
+        try {
+            $cached = cache()->get($cacheKey);
+            if (is_array($cached)) {
+                self::$menuCache[$locale] = $cached;
+
+                return $cached;
+            }
+        } catch (Throwable) {
         }
 
         try {
@@ -212,7 +215,11 @@ class DomesticRegionService
             $regions[$key]['link'] = localized_url('tour-trong-nuoc/' . $region['slug']);
         }
 
-        cache()->save($cacheKey, $regions, self::MENU_CACHE_TTL);
+        try {
+            cache()->save($cacheKey, $regions, self::MENU_CACHE_TTL);
+        } catch (Throwable) {
+        }
+
         self::$menuCache[$locale] = $regions;
 
         return $regions;

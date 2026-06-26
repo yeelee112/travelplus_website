@@ -2127,6 +2127,10 @@ class WebsiteKnowledgeService
             return false;
         }
 
+        if ($this->looksLikeCurrentTourFollowUp($question)) {
+            return true;
+        }
+
         if ($this->referencesCurrentTour($question)) {
             return true;
         }
@@ -2167,6 +2171,10 @@ class WebsiteKnowledgeService
 
     private function referencesCurrentTour(string $question): bool
     {
+        if ($this->looksLikeCurrentTourFollowUp($question)) {
+            return true;
+        }
+
         $normalized = mb_strtolower($question);
 
         foreach ([
@@ -2183,6 +2191,29 @@ class WebsiteKnowledgeService
             'nay di qua',
         ] as $needle) {
             if (str_contains($normalized, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function looksLikeCurrentTourFollowUp(string $question): bool
+    {
+        $search = $this->normalizeSearchText($question);
+
+        foreach ([
+            'tour co gi',
+            'co gi',
+            'noi dung tour',
+            'chuong trinh co gi',
+            'tour gom nhung gi',
+            'bao gom nhung gi',
+            'lich trinh the nao',
+            'di cho nao',
+            'choi gi',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
                 return true;
             }
         }

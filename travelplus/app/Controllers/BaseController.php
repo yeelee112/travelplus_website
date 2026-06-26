@@ -50,17 +50,25 @@ abstract class BaseController extends Controller
         $sessionControl = new AuthSessionControlService();
 
         $authUser = session()->get('auth_user');
-        if (is_array($authUser) && ! empty($authUser['id']) && ! $sessionControl->isSessionUserValid($authUser)) {
-            (new RememberLoginService())->clear();
-            session()->remove(['auth_user', 'checkout_mode']);
-            $authUser = null;
+        try {
+            if (is_array($authUser) && ! empty($authUser['id']) && ! $sessionControl->isSessionUserValid($authUser)) {
+                (new RememberLoginService())->clear();
+                session()->remove(['auth_user', 'checkout_mode']);
+                $authUser = null;
+            }
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Auth session validation failed');
         }
 
-        if (! is_array($authUser) || empty($authUser['id'])) {
-            $rememberedUser = (new RememberLoginService())->restoreUser();
-            if (is_array($rememberedUser) && ! empty($rememberedUser['id'])) {
-                $authUser = $this->buildAuthSessionUser($rememberedUser);
-                session()->set('auth_user', $authUser);
+        if ((! is_array($authUser) || empty($authUser['id'])) && ! DatabaseAvailabilityService::isUnavailable()) {
+            try {
+                $rememberedUser = (new RememberLoginService())->restoreUser();
+                if (is_array($rememberedUser) && ! empty($rememberedUser['id'])) {
+                    $authUser = $this->buildAuthSessionUser($rememberedUser);
+                    session()->set('auth_user', $authUser);
+                }
+            } catch (Throwable $exception) {
+                DatabaseAvailabilityService::markUnavailable($exception, 'Remember login restore failed');
             }
         }
 
@@ -70,20 +78,29 @@ abstract class BaseController extends Controller
         $domesticMenu = [];
 
         if ($usesSiteNavigation) {
-            try {
-                $locationModel = new LocationModel();
-                $menu = $locationModel->getMegaMenu($locale);
-
-                if (! DatabaseAvailabilityService::isUnavailable()) {
-                    $domesticRegionService = new DomesticRegionService();
-                    $domesticMenu = $domesticRegionService->getMenu($locale);
+            if (! DatabaseAvailabilityService::isUnavailable()) {
+                try {
+                    $locationModel = new LocationModel();
+                    $menu = $locationModel->getMegaMenu($locale);
+                } catch (Throwable $exception) {
+                    DatabaseAvailabilityService::markUnavailable($exception, 'Site navigation load failed');
                 }
+            }
+
+            try {
+                $domesticRegionService = new DomesticRegionService();
+                $domesticMenu = $domesticRegionService->getMenu($locale);
             } catch (Throwable $exception) {
-                log_message('error', 'Site navigation load failed: ' . $exception->getMessage());
+                DatabaseAvailabilityService::markUnavailable($exception, 'Domestic navigation load failed');
             }
         }
 
-        $isAdminUser = (new AdminAccessService())->isAdmin(is_array($authUser) ? $authUser : null);
+        try {
+            $isAdminUser = (new AdminAccessService())->isAdmin(is_array($authUser) ? $authUser : null);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Admin access check failed');
+            $isAdminUser = false;
+        }
 
         service('renderer')->setVar('menu', $menu);
         service('renderer')->setVar('domesticMenu', $domesticMenu);
@@ -92,7 +109,11 @@ abstract class BaseController extends Controller
         service('renderer')->setVar('currentLocale', $locale);
 
         if (! DatabaseAvailabilityService::isUnavailable()) {
-            (new AnalyticsTrackingService())->track($request, static::class, is_array($authUser) ? $authUser : null);
+            try {
+                (new AnalyticsTrackingService())->track($request, static::class, is_array($authUser) ? $authUser : null);
+            } catch (Throwable $exception) {
+                DatabaseAvailabilityService::markUnavailable($exception, 'Analytics tracking failed');
+            }
         }
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
@@ -100,9 +121,23 @@ abstract class BaseController extends Controller
 
     protected function buildAuthSessionUser(array $user): array
     {
-        $isAdmin = array_key_exists('is_admin', $user)
-            ? (bool) $user['is_admin']
-            : (new AdminAccessService())->isAdmin($user);
+        try {
+            $isAdmin = array_key_exists('is_admin', $user)
+                ? (bool) $user['is_admin']
+                : (new AdminAccessService())->isAdmin($user);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Auth session admin flag failed');
+            $isAdmin = false;
+        }
+
+        try {
+            $authSessionVersion = DatabaseAvailabilityService::isUnavailable()
+                ? 0
+                : (new AuthSessionControlService())->buildSessionVersion($user);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Auth session version build failed');
+            $authSessionVersion = 0;
+        }
 
         return [
             'id' => (int) ($user['id'] ?? 0),
@@ -111,7 +146,7 @@ abstract class BaseController extends Controller
             'username' => (string) ($user['username'] ?? ''),
             'phone' => (string) ($user['phone'] ?? ''),
             'is_admin' => $isAdmin,
-            'auth_session_version' => (new AuthSessionControlService())->buildSessionVersion($user),
+            'auth_session_version' => $authSessionVersion,
         ];
     }
 }

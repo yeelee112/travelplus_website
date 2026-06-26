@@ -486,6 +486,14 @@ class GeminiWebsiteChatService
     {
         $text = $this->normalizeIntentText($message);
 
+        if ($this->inferTripDestination($message, []) !== '') {
+            return false;
+        }
+
+        if (preg_match('/\b(gia|bao nhieu|khoi hanh|lich trinh|co gi|di dau|tham quan|highlight|highlights|price|departure|itinerary)\b/u', $text) === 1) {
+            return false;
+        }
+
         return preg_match('/\b(tu van|goi y|can|muon)\b/u', $text) === 1
             && preg_match('/\b(tour|du lich|lich trinh|hanh trinh)\b/u', $text) === 1
             && ! $this->looksLikeVisaConsultationRequest($message)
@@ -887,6 +895,77 @@ class GeminiWebsiteChatService
                 }
 
                 $lines[] = implode(' | ', $parts);
+            }
+
+            return trim(implode("\n", $lines));
+        }
+
+        if ($type === 'tour_detail') {
+            $tour = is_array($facts['tour'] ?? null) ? $facts['tour'] : [];
+            $intent = (string) ($facts['intent'] ?? 'itinerary');
+            $title = trim((string) ($tour['title'] ?? ''));
+            $lines = [];
+
+            if ($title !== '') {
+                $lines[] = $intent === 'highlights'
+                    ? ($locale === 'en' ? 'Highlights of ' . $title . ':' : 'Điểm nổi bật của tour ' . $title . ':')
+                    : ($locale === 'en' ? 'This tour includes these main points: ' . $title : 'Tour ' . $title . ' có các nội dung chính:');
+            }
+
+            $overview = trim((string) ($tour['overview'] ?? ''));
+            if ($overview !== '') {
+                $lines[] = $overview;
+            }
+
+            $routeStops = array_values(array_filter((array) ($tour['route_stops'] ?? []), 'is_string'));
+            if ($routeStops !== []) {
+                $lines[] = '';
+                $lines[] = $locale === 'en' ? 'Main route:' : 'Tuyến điểm chính:';
+                $lines[] = '- ' . implode(' - ', array_slice($routeStops, 0, 8));
+            }
+
+            $attractions = array_values(array_filter((array) ($tour['attraction_highlights'] ?? []), 'is_string'));
+            if ($attractions !== []) {
+                $lines[] = '';
+                $lines[] = $locale === 'en' ? 'Notable experiences:' : 'Điểm tham quan/trải nghiệm nổi bật:';
+                $lines[] = '- ' . implode(', ', array_slice($attractions, 0, 8));
+            }
+
+            $itineraryHighlights = array_values(array_filter((array) ($tour['itinerary_highlights'] ?? []), 'is_array'));
+            if ($itineraryHighlights !== []) {
+                $lines[] = '';
+                $lines[] = $locale === 'en' ? 'Itinerary by day:' : 'Tóm tắt lịch trình theo ngày:';
+
+                foreach (array_slice($itineraryHighlights, 0, 5) as $day) {
+                    $dayNumber = (int) ($day['day'] ?? 0);
+                    $dayTitle = trim((string) ($day['title'] ?? ''));
+                    $summary = trim((string) ($day['summary'] ?? ''));
+                    $label = $dayNumber > 0
+                        ? ($locale === 'en' ? 'Day ' . $dayNumber : 'Ngày ' . $dayNumber)
+                        : ($locale === 'en' ? 'Itinerary' : 'Lịch trình');
+                    $line = '- ' . $label;
+
+                    if ($dayTitle !== '') {
+                        $line .= ': ' . $dayTitle;
+                    }
+
+                    if ($summary !== '') {
+                        $line .= ' - ' . $summary;
+                    }
+
+                    $lines[] = $line;
+                }
+            }
+
+            $factsLine = array_values(array_filter([
+                ! empty($tour['departure']) ? (($locale === 'en' ? 'Departure' : 'Khởi hành') . ': ' . $tour['departure']) : '',
+                ! empty($tour['price_label']) ? (($locale === 'en' ? 'Price from' : 'Giá từ') . ': ' . $tour['price_label']) : '',
+                ! empty($tour['duration_label']) ? (($locale === 'en' ? 'Duration' : 'Thời lượng') . ': ' . $tour['duration_label']) : '',
+            ]));
+
+            if ($factsLine !== []) {
+                $lines[] = '';
+                $lines[] = implode(' | ', $factsLine);
             }
 
             return trim(implode("\n", $lines));

@@ -56,10 +56,13 @@ class DatabaseAvailabilityService
     private static function shouldCooldown(Throwable $exception): bool
     {
         $message = strtolower($exception->getMessage());
+        $code = (string) $exception->getCode();
 
-        return str_contains($message, 'too many connections')
+        return in_array($code, ['1040', '2002', '2006', '2013'], true)
+            || str_contains($message, 'too many connections')
             || str_contains($message, 'unable to connect')
             || str_contains($message, 'mysqli')
-            || str_contains($message, 'connection');
+            || str_contains($message, 'connection')
+            || ($exception->getPrevious() !== null && self::shouldCooldown($exception->getPrevious()));
     }
 }

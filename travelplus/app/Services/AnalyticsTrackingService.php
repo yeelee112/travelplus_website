@@ -4,6 +4,7 @@ namespace App\Services;
 
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\HTTP\RequestInterface;
+use Throwable;
 
 class AnalyticsTrackingService
 {
@@ -17,96 +18,104 @@ class AnalyticsTrackingService
 
     public function track(RequestInterface $request, string $controllerClass, ?array $authUser = null): void
     {
-        if (! (new CookieConsentService())->allowsAnalytics($request)) {
+        if (DatabaseAvailabilityService::isUnavailable()) {
             return;
         }
 
-        if (! $this->shouldTrack($request, $controllerClass)) {
-            return;
-        }
+        try {
+            if (! (new CookieConsentService())->allowsAnalytics($request)) {
+                return;
+            }
 
-        if (! $this->isAnalyticsReady()) {
-            return;
-        }
+            if (! $this->shouldTrack($request, $controllerClass)) {
+                return;
+            }
 
-        $session = session();
-        $now = date('Y-m-d H:i:s');
-        $path = $this->normalizePath((string) $request->getUri()->getPath());
-        $fullUrl = (string) $request->getUri();
-        $referrer = trim((string) ($request->getServer('HTTP_REFERER') ?? ''));
-        $visitorToken = (string) $session->get(self::VISITOR_TOKEN_KEY);
-        $userId = (int) (($authUser['id'] ?? 0) ?: 0) ?: null;
+            if (! $this->isAnalyticsReady()) {
+                return;
+            }
 
-        if ($visitorToken === '') {
-            $visitorToken = bin2hex(random_bytes(16));
-            $session->set(self::VISITOR_TOKEN_KEY, $visitorToken);
-        }
+            $session = session();
+            $now = date('Y-m-d H:i:s');
+            $path = $this->normalizePath((string) $request->getUri()->getPath());
+            $fullUrl = (string) $request->getUri();
+            $referrer = trim((string) ($request->getServer('HTTP_REFERER') ?? ''));
+            $visitorToken = (string) $session->get(self::VISITOR_TOKEN_KEY);
+            $userId = (int) (($authUser['id'] ?? 0) ?: 0) ?: null;
 
-        $lastSeenAt = strtotime((string) $session->get(self::LAST_SEEN_KEY));
-        $visitToken = (string) $session->get(self::VISIT_TOKEN_KEY);
-        $needNewVisit = $visitToken === ''
-            || $lastSeenAt === false
-            || (time() - $lastSeenAt) > self::VISIT_TIMEOUT_SECONDS
-            || ! $this->visitExists($visitToken);
+            if ($visitorToken === '') {
+                $visitorToken = bin2hex(random_bytes(16));
+                $session->set(self::VISITOR_TOKEN_KEY, $visitorToken);
+            }
 
-        if ($needNewVisit) {
-            $visitToken = bin2hex(random_bytes(12));
-            $this->db()->table('analytics_visits')->insert([
-                'visit_token' => $visitToken,
+            $lastSeenAt = strtotime((string) $session->get(self::LAST_SEEN_KEY));
+            $visitToken = (string) $session->get(self::VISIT_TOKEN_KEY);
+            $needNewVisit = $visitToken === ''
+                || $lastSeenAt === false
+                || (time() - $lastSeenAt) > self::VISIT_TIMEOUT_SECONDS
+                || ! $this->visitExists($visitToken);
+
+            if ($needNewVisit) {
+                $visitToken = bin2hex(random_bytes(12));
+                $this->db()->table('analytics_visits')->insert([
+                    'visit_token' => $visitToken,
+                    'visitor_token' => $visitorToken,
+                    'user_id' => $userId,
+                    'landing_path' => $path,
+                    'landing_url' => $fullUrl,
+                    'last_path' => $path,
+                    'referrer' => $referrer !== '' ? substr($referrer, 0, 255) : null,
+                    'locale' => (string) ($request->getLocale() ?: 'vi'),
+                    'pageviews' => 1,
+                    'is_bounce' => 1,
+                    'started_at' => $now,
+                    'last_seen_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            } else {
+                $this->db()->table('analytics_visits')
+                    ->set('pageviews', 'COALESCE(pageviews, 0) + 1', false)
+                    ->set([
+                        'user_id' => $userId,
+                        'last_path' => $path,
+                        'last_seen_at' => $now,
+                        'updated_at' => $now,
+                        'is_bounce' => 0,
+                    ])
+                    ->where('visit_token', $visitToken)
+                    ->update();
+            }
+
+            $visitRow = $this->db()->table('analytics_visits')
+                ->select('id')
+                ->where('visit_token', $visitToken)
+                ->get()
+                ->getRowArray();
+
+            $visitId = (int) ($visitRow['id'] ?? 0);
+            if ($visitId <= 0) {
+                return;
+            }
+
+            $this->db()->table('analytics_page_views')->insert([
+                'visit_id' => $visitId,
                 'visitor_token' => $visitorToken,
                 'user_id' => $userId,
-                'landing_path' => $path,
-                'landing_url' => $fullUrl,
-                'last_path' => $path,
+                'path' => $path,
+                'full_url' => $fullUrl,
+                'page_type' => $this->resolvePageType($controllerClass, $path),
                 'referrer' => $referrer !== '' ? substr($referrer, 0, 255) : null,
                 'locale' => (string) ($request->getLocale() ?: 'vi'),
-                'pageviews' => 1,
-                'is_bounce' => 1,
-                'started_at' => $now,
-                'last_seen_at' => $now,
+                'viewed_at' => $now,
                 'created_at' => $now,
-                'updated_at' => $now,
             ]);
-        } else {
-            $this->db()->table('analytics_visits')
-                ->set('pageviews', 'COALESCE(pageviews, 0) + 1', false)
-                ->set([
-                    'user_id' => $userId,
-                    'last_path' => $path,
-                    'last_seen_at' => $now,
-                    'updated_at' => $now,
-                    'is_bounce' => 0,
-                ])
-                ->where('visit_token', $visitToken)
-                ->update();
+
+            $session->set(self::VISIT_TOKEN_KEY, $visitToken);
+            $session->set(self::LAST_SEEN_KEY, $now);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Analytics tracking failed');
         }
-
-        $visitRow = $this->db()->table('analytics_visits')
-            ->select('id')
-            ->where('visit_token', $visitToken)
-            ->get()
-            ->getRowArray();
-
-        $visitId = (int) ($visitRow['id'] ?? 0);
-        if ($visitId <= 0) {
-            return;
-        }
-
-        $this->db()->table('analytics_page_views')->insert([
-            'visit_id' => $visitId,
-            'visitor_token' => $visitorToken,
-            'user_id' => $userId,
-            'path' => $path,
-            'full_url' => $fullUrl,
-            'page_type' => $this->resolvePageType($controllerClass, $path),
-            'referrer' => $referrer !== '' ? substr($referrer, 0, 255) : null,
-            'locale' => (string) ($request->getLocale() ?: 'vi'),
-            'viewed_at' => $now,
-            'created_at' => $now,
-        ]);
-
-        $session->set(self::VISIT_TOKEN_KEY, $visitToken);
-        $session->set(self::LAST_SEEN_KEY, $now);
     }
 
     private function shouldTrack(RequestInterface $request, string $controllerClass): bool
@@ -149,8 +158,19 @@ class AnalyticsTrackingService
             return self::$analyticsTablesReady;
         }
 
-        self::$analyticsTablesReady = $this->db()->tableExists('analytics_visits')
-            && $this->db()->tableExists('analytics_page_views');
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            self::$analyticsTablesReady = false;
+
+            return false;
+        }
+
+        try {
+            self::$analyticsTablesReady = $this->db()->tableExists('analytics_visits')
+                && $this->db()->tableExists('analytics_page_views');
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Analytics schema check failed');
+            self::$analyticsTablesReady = false;
+        }
 
         return self::$analyticsTablesReady;
     }
@@ -161,12 +181,22 @@ class AnalyticsTrackingService
             return false;
         }
 
-        return $this->db()->table('analytics_visits')
-            ->select('id')
-            ->where('visit_token', $visitToken)
-            ->limit(1)
-            ->get()
-            ->getRowArray() !== null;
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            return false;
+        }
+
+        try {
+            return $this->db()->table('analytics_visits')
+                ->select('id')
+                ->where('visit_token', $visitToken)
+                ->limit(1)
+                ->get()
+                ->getRowArray() !== null;
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Analytics visit lookup failed');
+
+            return false;
+        }
     }
 
     private function normalizePath(string $path): string
