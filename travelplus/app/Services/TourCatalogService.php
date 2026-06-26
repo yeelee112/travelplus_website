@@ -13,6 +13,8 @@ class TourCatalogService
 {
     private const DEFAULT_CHILD_PRICE_RATE = 0.85;
     private const DEFAULT_INFANT_PRICE_RATE = 0.25;
+    private const SCHEMA_CACHE_TTL = 3600;
+    private const DETAIL_CACHE_TTL = 300;
 
     private BaseConnection $db;
     private static array $tableExistsCache = [];
@@ -135,6 +137,15 @@ class TourCatalogService
 
     public function findTourBySlug(string $locale, string $slug, ?string $tourType = null): ?array
     {
+        $cacheKey = 'tour_detail_' . md5($locale . '|' . $slug . '|' . (string) $tourType);
+        try {
+            $cached = cache()->get($cacheKey);
+            if (is_array($cached)) {
+                return $cached;
+            }
+        } catch (Throwable) {
+        }
+
         if (!$this->hasSchemaForTourCatalog()) {
             return null;
         }
@@ -169,7 +180,14 @@ class TourCatalogService
             return null;
         }
 
-        return $this->hydrateTourDetail($card, $locale);
+        $detail = $this->hydrateTourDetail($card, $locale);
+
+        try {
+            cache()->save($cacheKey, $detail, self::DETAIL_CACHE_TTL);
+        } catch (Throwable) {
+        }
+
+        return $detail;
     }
 
     /**
@@ -178,12 +196,21 @@ class TourCatalogService
      */
     public function getRelatedTours(string $locale, array $tour, int $limit = 6): array
     {
+        $tourId = (int) ($tour['id'] ?? 0);
+        $tourType = (string) ($tour['tour_type'] ?? '');
+        $cacheKey = 'tour_related_' . md5($locale . '|' . $tourId . '|' . $tourType . '|' . $limit);
+        try {
+            $cached = cache()->get($cacheKey);
+            if (is_array($cached)) {
+                return $cached;
+            }
+        } catch (Throwable) {
+        }
+
         if (!$this->hasSchemaForTourCatalog()) {
             return [];
         }
 
-        $tourId = (int) ($tour['id'] ?? 0);
-        $tourType = (string) ($tour['tour_type'] ?? '');
         $locationFilter = $this->buildRelatedLocationFilter($locale, $tour);
 
         $rows = $this->baseToursBuilder($locale, $tourType !== '' ? $tourType : null, $locationFilter)
@@ -206,7 +233,14 @@ class TourCatalogService
             ->get()
             ->getResultArray();
 
-        return $this->mapRowsToCards($rows);
+        $relatedTours = $this->mapRowsToCards($rows);
+
+        try {
+            cache()->save($cacheKey, $relatedTours, self::DETAIL_CACHE_TTL);
+        } catch (Throwable) {
+        }
+
+        return $relatedTours;
     }
 
     /**
@@ -411,7 +445,7 @@ class TourCatalogService
                 ->get()
                 ->getResultArray();
         } catch (Throwable $exception) {
-            log_message('error', 'Tour catalog fetch failed: ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour catalog fetch failed');
 
             return $this->fallbackTours($offset, $limit);
         }
@@ -674,6 +708,12 @@ class TourCatalogService
             return self::$tourCatalogSchemaReady;
         }
 
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            self::$tourCatalogSchemaReady = false;
+
+            return false;
+        }
+
         self::$tourCatalogSchemaReady = $this->tableExists('tours')
             && $this->tableExists('tour_translations')
             && $this->tableExists('tour_departures')
@@ -690,11 +730,37 @@ class TourCatalogService
             return self::$tableExistsCache[$table];
         }
 
+        $cacheKey = 'db_table_exists_' . preg_replace('/[^A-Za-z0-9_]/', '_', $table);
+        try {
+            $cached = cache()->get($cacheKey);
+            if ($cached !== null) {
+                self::$tableExistsCache[$table] = (bool) $cached;
+
+                return self::$tableExistsCache[$table];
+            }
+        } catch (Throwable) {
+        }
+
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            self::$tableExistsCache[$table] = false;
+
+            return false;
+        }
+
+        $checked = false;
         try {
             self::$tableExistsCache[$table] = $this->db->tableExists($table);
+            $checked = true;
         } catch (Throwable $exception) {
-            log_message('error', 'Tour catalog table check failed for ' . $table . ': ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour catalog table check failed for ' . $table);
             self::$tableExistsCache[$table] = false;
+        }
+
+        if ($checked) {
+            try {
+                cache()->save($cacheKey, self::$tableExistsCache[$table] ? 1 : 0, self::SCHEMA_CACHE_TTL);
+            } catch (Throwable) {
+            }
         }
 
         return self::$tableExistsCache[$table];
@@ -707,11 +773,37 @@ class TourCatalogService
             return self::$fieldExistsCache[$key];
         }
 
+        $cacheKey = 'db_field_exists_' . preg_replace('/[^A-Za-z0-9_]/', '_', $key);
+        try {
+            $cached = cache()->get($cacheKey);
+            if ($cached !== null) {
+                self::$fieldExistsCache[$key] = (bool) $cached;
+
+                return self::$fieldExistsCache[$key];
+            }
+        } catch (Throwable) {
+        }
+
+        if (DatabaseAvailabilityService::isUnavailable()) {
+            self::$fieldExistsCache[$key] = false;
+
+            return false;
+        }
+
+        $checked = false;
         try {
             self::$fieldExistsCache[$key] = $this->db->fieldExists($field, $table);
+            $checked = true;
         } catch (Throwable $exception) {
-            log_message('error', 'Tour catalog field check failed for ' . $key . ': ' . $exception->getMessage());
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour catalog field check failed for ' . $key);
             self::$fieldExistsCache[$key] = false;
+        }
+
+        if ($checked) {
+            try {
+                cache()->save($cacheKey, self::$fieldExistsCache[$key] ? 1 : 0, self::SCHEMA_CACHE_TTL);
+            } catch (Throwable) {
+            }
         }
 
         return self::$fieldExistsCache[$key];
@@ -738,6 +830,10 @@ class TourCatalogService
             static fn(array $row): int => (int) ($row['id'] ?? 0),
             $rows
         ))), $locale);
+        $tourMedia = $this->fetchTourMediaPaths(array_values(array_filter(array_map(
+            static fn(array $row): int => (int) ($row['id'] ?? 0),
+            $rows
+        ))));
 
         foreach ($rows as $row) {
             $id = (int) ($row['id'] ?? 0);
@@ -773,6 +869,8 @@ class TourCatalogService
             $tourLink = $tourType === 'inbound'
                 ? localized_url('tour-trong-nuoc/' . ($region['slug'] ?? 'viet-nam') . '/tour/' . $tourSlug)
                 : localized_url('tour-nuoc-ngoai/' . ((string) ($row['continent_slug'] ?? '') ?: 'diem-den') . '/' . $tourSlug);
+            $coverPath = (string) ($tourMedia[$id]['cover'] ?? $row['thumbnail'] ?? '');
+            $bannerPath = (string) ($tourMedia[$id]['banner'] ?? $coverPath);
 
             $destinationMeta = $this->buildDestinationSummary(
                 $tourType,
@@ -787,8 +885,8 @@ class TourCatalogService
                 'slug'      => $tourSlug,
                 'tour_type' => $tourType,
                 'link'      => $tourLink,
-                'image'     => $this->resolveImage($this->getTourCoverPath($id, (string) ($row['thumbnail'] ?? ''))),
-                'banner_image' => $this->resolveImage($this->getTourBannerPath($id, $this->getTourCoverPath($id, (string) ($row['thumbnail'] ?? '')))),
+                'image'     => $this->resolveImage($coverPath),
+                'banner_image' => $this->resolveImage($bannerPath),
                 'badge'     => !empty($row['is_featured']) ? 'Hot Sale!' : null,
                 'promotion' => [
                     'is_active' => !empty($row['is_promotion']),
@@ -873,6 +971,51 @@ class TourCatalogService
         }
 
         return $grouped;
+    }
+
+    /**
+     * @param array<int> $tourIds
+     * @return array<int, array{cover?: string, banner?: string}>
+     */
+    private function fetchTourMediaPaths(array $tourIds): array
+    {
+        $tourIds = array_values(array_filter(array_unique(array_map('intval', $tourIds))));
+        if ($tourIds === [] || ! $this->tableExists('tour_media')) {
+            return [];
+        }
+
+        try {
+            $rows = $this->db->table('tour_media')
+                ->select('tour_id, type, file_path')
+                ->whereIn('tour_id', $tourIds)
+                ->whereIn('type', ['cover', 'banner'])
+                ->orderBy('tour_id', 'ASC')
+                ->orderBy('sort_order', 'ASC')
+                ->orderBy('id', 'ASC')
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Tour media batch load failed');
+
+            return [];
+        }
+
+        $media = [];
+        foreach ($rows as $row) {
+            $tourId = (int) ($row['tour_id'] ?? 0);
+            $type = (string) ($row['type'] ?? '');
+            $filePath = trim((string) ($row['file_path'] ?? ''));
+
+            if ($tourId <= 0 || $filePath === '' || ! in_array($type, ['cover', 'banner'], true)) {
+                continue;
+            }
+
+            if (! isset($media[$tourId][$type])) {
+                $media[$tourId][$type] = $filePath;
+            }
+        }
+
+        return $media;
     }
 
     /**

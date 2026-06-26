@@ -7,6 +7,9 @@ use Throwable;
 
 class BlogService
 {
+    private const SCHEMA_CACHE_KEY = 'db_blog_tables_ready';
+    private const SCHEMA_CACHE_TTL = 3600;
+
     private BaseConnection $db;
     private static ?bool $tablesReady = null;
 
@@ -22,10 +25,35 @@ class BlogService
         }
 
         try {
-            self::$tablesReady = $this->db->tableExists('blogs') && $this->db->tableExists('blog_translations');
-        } catch (Throwable $exception) {
-            log_message('error', 'Blog table check failed: ' . $exception->getMessage());
+            $cached = cache()->get(self::SCHEMA_CACHE_KEY);
+            if ($cached !== null) {
+                self::$tablesReady = (bool) $cached;
+
+                return self::$tablesReady;
+            }
+        } catch (Throwable) {
+        }
+
+        if (DatabaseAvailabilityService::isUnavailable()) {
             self::$tablesReady = false;
+
+            return false;
+        }
+
+        $checked = false;
+        try {
+            self::$tablesReady = $this->db->tableExists('blogs') && $this->db->tableExists('blog_translations');
+            $checked = true;
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Blog table check failed');
+            self::$tablesReady = false;
+        }
+
+        if ($checked) {
+            try {
+                cache()->save(self::SCHEMA_CACHE_KEY, self::$tablesReady ? 1 : 0, self::SCHEMA_CACHE_TTL);
+            } catch (Throwable) {
+            }
         }
 
         return self::$tablesReady;
@@ -48,32 +76,38 @@ class BlogService
             return [];
         }
 
-        $rows = $this->db->table('blogs b')
-            ->select('
-                b.id,
-                b.category,
-                b.author_name,
-                b.thumbnail,
-                b.cover_image,
-                b.featured_image,
-                b.published_at,
-                b.updated_at,
-                b.is_featured,
-                bt.locale,
-                bt.title,
-                bt.slug,
-                bt.excerpt,
-                bt.meta_title,
-                bt.meta_description
-            ')
-            ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
-            ->where('b.status', 'published')
-            ->where('bt.locale', $locale)
-            ->orderBy('b.is_featured', 'DESC')
-            ->orderBy('b.published_at', 'DESC')
-            ->limit($limit, max(0, $offset))
-            ->get()
-            ->getResultArray();
+        try {
+            $rows = $this->db->table('blogs b')
+                ->select('
+                    b.id,
+                    b.category,
+                    b.author_name,
+                    b.thumbnail,
+                    b.cover_image,
+                    b.featured_image,
+                    b.published_at,
+                    b.updated_at,
+                    b.is_featured,
+                    bt.locale,
+                    bt.title,
+                    bt.slug,
+                    bt.excerpt,
+                    bt.meta_title,
+                    bt.meta_description
+                ')
+                ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
+                ->where('b.status', 'published')
+                ->where('bt.locale', $locale)
+                ->orderBy('b.is_featured', 'DESC')
+                ->orderBy('b.published_at', 'DESC')
+                ->limit($limit, max(0, $offset))
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Blog list load failed');
+
+            return [];
+        }
 
         return array_map(fn (array $row): array => $this->mapBlogRow($row, $locale), $rows);
     }
@@ -84,11 +118,17 @@ class BlogService
             return 0;
         }
 
-        return (int) $this->db->table('blogs b')
-            ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
-            ->where('b.status', 'published')
-            ->where('bt.locale', $locale)
-            ->countAllResults();
+        try {
+            return (int) $this->db->table('blogs b')
+                ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
+                ->where('b.status', 'published')
+                ->where('bt.locale', $locale)
+                ->countAllResults();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Blog count failed');
+
+            return 0;
+        }
     }
 
     /**
@@ -100,16 +140,22 @@ class BlogService
             return [];
         }
 
-        $rows = $this->db->table('blogs b')
-            ->select('b.category')
-            ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
-            ->where('b.status', 'published')
-            ->where('bt.locale', $locale)
-            ->where('b.category !=', '')
-            ->groupBy('b.category')
-            ->orderBy('b.category', 'ASC')
-            ->get()
-            ->getResultArray();
+        try {
+            $rows = $this->db->table('blogs b')
+                ->select('b.category')
+                ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
+                ->where('b.status', 'published')
+                ->where('bt.locale', $locale)
+                ->where('b.category !=', '')
+                ->groupBy('b.category')
+                ->orderBy('b.category', 'ASC')
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Blog category load failed');
+
+            return [];
+        }
 
         $categories = [];
         foreach ($rows as $row) {
@@ -131,31 +177,37 @@ class BlogService
             return null;
         }
 
-        $row = $this->db->table('blogs b')
-            ->select('
-                b.id,
-                b.category,
-                b.author_name,
-                b.thumbnail,
-                b.cover_image,
-                b.featured_image,
-                b.published_at,
-                b.updated_at,
-                b.is_featured,
-                bt.locale,
-                bt.title,
-                bt.slug,
-                bt.excerpt,
-                bt.content,
-                bt.meta_title,
-                bt.meta_description
-            ')
-            ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
-            ->where('b.status', 'published')
-            ->where('bt.locale', $locale)
-            ->where('bt.slug', $slug)
-            ->get()
-            ->getRowArray();
+        try {
+            $row = $this->db->table('blogs b')
+                ->select('
+                    b.id,
+                    b.category,
+                    b.author_name,
+                    b.thumbnail,
+                    b.cover_image,
+                    b.featured_image,
+                    b.published_at,
+                    b.updated_at,
+                    b.is_featured,
+                    bt.locale,
+                    bt.title,
+                    bt.slug,
+                    bt.excerpt,
+                    bt.content,
+                    bt.meta_title,
+                    bt.meta_description
+                ')
+                ->join('blog_translations bt', 'bt.blog_id = b.id', 'inner')
+                ->where('b.status', 'published')
+                ->where('bt.locale', $locale)
+                ->where('bt.slug', $slug)
+                ->get()
+                ->getRowArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Blog detail load failed');
+
+            return null;
+        }
 
         if ($row === null) {
             return null;
@@ -199,11 +251,17 @@ class BlogService
             $builder->where('b.category', $category);
         }
 
-        $rows = $builder
-            ->orderBy('b.published_at', 'DESC')
-            ->limit($limit)
-            ->get()
-            ->getResultArray();
+        try {
+            $rows = $builder
+                ->orderBy('b.published_at', 'DESC')
+                ->limit($limit)
+                ->get()
+                ->getResultArray();
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Related blogs load failed');
+
+            return [];
+        }
 
         return array_map(fn (array $row): array => $this->mapBlogRow($row, $locale), $rows);
     }
