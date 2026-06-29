@@ -105,7 +105,17 @@ class WebsiteKnowledgeService
             return $this->buildStructuredMiceFacts($locale);
         }
 
-        if (! $this->looksLikeTourQuestion($question) && ! $this->referencesCurrentTour($question)) {
+        if ($this->looksLikeGeneralTourAvailabilityQuestion($question)) {
+            $publishedTours = $this->getPublishedTours($locale, 5);
+
+            if ($publishedTours !== []) {
+                return $this->buildStructuredTourListFacts($locale, $publishedTours, 'general_availability');
+            }
+        }
+
+        $destinationTripQuestion = $this->looksLikeDestinationTripPlanningQuestion($question);
+
+        if (! $this->looksLikeTourQuestion($question) && ! $this->referencesCurrentTour($question) && ! $destinationTripQuestion) {
             return null;
         }
 
@@ -148,6 +158,10 @@ class WebsiteKnowledgeService
         }
 
         if ($selectedTour === null) {
+            if ($destinationTripQuestion) {
+                return $this->buildStructuredDestinationTripConsultationFacts($locale, $question);
+            }
+
             return null;
         }
 
@@ -721,6 +735,27 @@ class WebsiteKnowledgeService
                 'last_tour_url' => (string) ($matches[0]['url'] ?? ''),
                 'last_locale' => $locale,
             ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildStructuredDestinationTripConsultationFacts(string $locale, string $question): array
+    {
+        return [
+            'type' => 'destination_trip_consultation',
+            'intent' => 'destination_trip_consultation',
+            'trip_request' => [
+                'destination' => $this->extractKnownDestinationName($question),
+                'guest_count' => $this->extractGuestCount($question),
+                'travel_time' => $this->extractTravelTimeText($question),
+                'budget' => $this->extractBudgetText($question),
+            ],
+            'sources' => [[
+                'title' => $locale === 'en' ? 'Tour search' : 'Tìm kiếm tour',
+                'url' => $this->makeLocalizedUrl($locale === 'en' ? 'tour-search' : 'tim-kiem-tour', $locale),
+            ]],
         ];
     }
 
@@ -1645,7 +1680,14 @@ class WebsiteKnowledgeService
             'korea' => ['han quoc', 'korea', 'seoul', 'nami', 'busan'],
             'thailand' => ['thai lan', 'thailand', 'bangkok', 'pattaya', 'phuket'],
             'usa' => ['my', 'hoa ky', 'usa', 'america', 'new york', 'washington', 'los angeles'],
-            'vietnam' => ['viet nam', 'vietnam', 'ha noi', 'da nang', 'tphcm', 'sai gon'],
+            'vietnam' => ['viet nam', 'vietnam'],
+            'ha_noi' => ['ha noi', 'hanoi'],
+            'nha_trang' => ['nha trang', 'cam ranh'],
+            'da_nang' => ['da nang', 'danang', 'hoi an', 'ba na'],
+            'da_lat' => ['da lat', 'dalat'],
+            'phu_quoc' => ['phu quoc', 'phuquoc'],
+            'sa_pa' => ['sa pa', 'sapa'],
+            'ho_chi_minh' => ['tphcm', 'tp hcm', 'sai gon', 'ho chi minh'],
         ];
 
         $signals = [];
@@ -1755,7 +1797,142 @@ class WebsiteKnowledgeService
             }
         }
 
+        return $this->looksLikeDestinationTripPlanningQuestion($question);
+    }
+
+    private function looksLikeGeneralTourAvailabilityQuestion(string $question): bool
+    {
+        $search = $this->normalizeSearchText($question);
+
+        if (! str_contains($search, 'tour')) {
+            return false;
+        }
+
+        foreach ([
+            'tour gi',
+            'co tour gi',
+            'co nhung tour',
+            'dang co tour',
+            'tour nao',
+            'danh sach tour',
+            'cac tour',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    private function looksLikeDestinationTripPlanningQuestion(string $question): bool
+    {
+        if ($this->extractKnownDestinationName($question) === '') {
+            return false;
+        }
+
+        $search = $this->normalizeSearchText($question);
+
+        foreach ([
+            'muon di',
+            'can di',
+            'du dinh di',
+            'di vao',
+            'cho nguoi',
+            'nguoi',
+            'ngan sach',
+            'budget',
+            'thang',
+            'ngay',
+            'lich trinh',
+            'tour',
+            'du lich',
+        ] as $needle) {
+            if (str_contains($search, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function extractKnownDestinationName(string $question): string
+    {
+        $search = ' ' . trim($this->normalizeSearchText($question)) . ' ';
+        $destinations = [
+            'nha trang' => 'Nha Trang',
+            'da nang' => 'Đà Nẵng',
+            'danang' => 'Đà Nẵng',
+            'da lat' => 'Đà Lạt',
+            'dalat' => 'Đà Lạt',
+            'phu quoc' => 'Phú Quốc',
+            'phuquoc' => 'Phú Quốc',
+            'ha noi' => 'Hà Nội',
+            'hanoi' => 'Hà Nội',
+            'sa pa' => 'Sa Pa',
+            'sapa' => 'Sa Pa',
+            'phap' => 'Pháp',
+            'france' => 'Pháp',
+            'nhat ban' => 'Nhật Bản',
+            'japan' => 'Nhật Bản',
+            'han quoc' => 'Hàn Quốc',
+            'korea' => 'Hàn Quốc',
+            'thai lan' => 'Thái Lan',
+            'thailand' => 'Thái Lan',
+            'singapore' => 'Singapore',
+            'uc' => 'Úc',
+            'australia' => 'Úc',
+            'my' => 'Mỹ',
+            'usa' => 'Mỹ',
+            'hoa ky' => 'Mỹ',
+        ];
+
+        foreach ($destinations as $needle => $label) {
+            if ($this->containsNormalizedPhrase($search, $needle)) {
+                return $label;
+            }
+        }
+
+        return '';
+    }
+
+    private function extractGuestCount(string $question): string
+    {
+        $search = $this->normalizeSearchText($question);
+
+        if (preg_match('/\b(\d{1,3})\s*(?:nguoi|khach|pax|guest|guests)\b/u', $search, $matches) === 1) {
+            return (string) ($matches[1] ?? '');
+        }
+
+        return '';
+    }
+
+    private function extractTravelTimeText(string $question): string
+    {
+        $search = $this->normalizeSearchText($question);
+
+        if (preg_match('/\b(thang\s*\d{1,2}|\d{1,2}\s*\/\s*\d{1,2}|\d{1,2}\s*-\s*\d{1,2})\b/u', $search, $matches) === 1) {
+            $value = trim((string) ($matches[1] ?? ''));
+
+            return preg_replace('/^thang\s*/u', 'tháng ', $value) ?? $value;
+        }
+
+        return '';
+    }
+
+    private function extractBudgetText(string $question): string
+    {
+        $search = $this->normalizeSearchText($question);
+
+        if (preg_match('/\b(\d+(?:[\.,]\d+)?)\s*(?:tr|trieu|m|million)\b/u', $search, $matches) === 1) {
+            return trim((string) ($matches[1] ?? '')) . 'tr';
+        }
+
+        if (preg_match('/\b(\d{6,})\s*(?:vnd|dong|d)?\b/u', $search, $matches) === 1) {
+            return trim((string) ($matches[1] ?? '')) . 'đ';
+        }
+
+        return '';
     }
 
     private function looksLikeUpcomingDepartureQuestion(string $question): bool
@@ -2375,6 +2552,8 @@ class WebsiteKnowledgeService
             'voi', 'giup', 'toi', 'website', 'travel', 'plus', 'cho', 'em', 'anh', 'chi', 've', 'cua',
             'nhung', 'nao', 'the', 'duoc', 'khong', 'hay', 'co', 'ko', 'gia', 'tour', 'lich', 'trinh',
             'diem', 'noi', 'bat', 'dac', 'biet', 'special', 'highlight', 'highlights', 'unique',
+            'ben', 'ban', 'minh', 'muon', 'can', 'di', 'nguoi', 'khach', 'ngan', 'sach', 'du', 'kien',
+            'thang', 'vao', 'khoang', 'duoc', 'la', 'cho', 'pax', 'budget',
         ];
 
         $tokens = preg_split('/\s+/u', trim($query)) ?: [];
@@ -2461,6 +2640,72 @@ class WebsiteKnowledgeService
             ->where('DATE(td.departure_date) >=', $today)
             ->groupBy('t.id, t.tour_type, t.duration_days, t.duration_nights, t.base_price, tt.name, tt.slug')
             ->orderBy('MIN(td.departure_date)', 'ASC', false)
+            ->limit(max(1, $limit))
+            ->get()
+            ->getResultArray();
+
+        $matches = [];
+
+        foreach ($rows as $row) {
+            $slug = trim((string) ($row['slug'] ?? ''));
+            $title = trim((string) ($row['title'] ?? ''));
+            $tourType = (string) ($row['tour_type'] ?? 'outbound');
+
+            if ($slug === '' || $title === '') {
+                continue;
+            }
+
+            $locationSlug = $tourType === 'inbound' ? 'viet-nam' : 'diem-den';
+            $url = $tourType === 'inbound'
+                ? localized_url('tour-trong-nuoc/' . $locationSlug . '/tour/' . $slug)
+                : localized_url('tour-nuoc-ngoai/' . $locationSlug . '/' . $slug);
+
+            $matches[] = [
+                'title' => $title,
+                'departure' => $this->formatDisplayDate((string) ($row['departure_date'] ?? '')),
+                'price_label' => $this->formatMoneyLabel((float) ($row['base_price'] ?? 0)),
+                'duration_label' => $this->formatDurationLabel(
+                    (int) ($row['duration_days'] ?? 0),
+                    (int) ($row['duration_nights'] ?? 0),
+                    $locale
+                ),
+                'url' => $url,
+                'score' => 100,
+                'slug' => $slug,
+                'tour_type' => $tourType,
+            ];
+        }
+
+        return $matches;
+    }
+
+    /**
+     * @return list<array{title: string, departure: string, price_label: string, duration_label: string, url: string, score: int, slug: string, tour_type: string}>
+     */
+    private function getPublishedTours(string $locale, int $limit = 5): array
+    {
+        if (! $this->db->tableExists('tours') || ! $this->db->tableExists('tour_translations')) {
+            return [];
+        }
+
+        $rows = $this->db->table('tours t')
+            ->select('
+                t.id,
+                t.tour_type,
+                t.duration_days,
+                t.duration_nights,
+                t.base_price,
+                tt.name AS title,
+                tt.slug,
+                MIN(td.departure_date) AS departure_date
+            ', false)
+            ->join('tour_translations tt', 'tt.tour_id = t.id AND tt.locale = ' . $this->db->escape($locale), 'inner')
+            ->join('tour_departures td', 'td.tour_id = t.id AND td.status = "open"', 'left')
+            ->where('t.status', 'published')
+            ->groupBy('t.id, t.tour_type, t.duration_days, t.duration_nights, t.base_price, tt.name, tt.slug')
+            ->orderBy('MIN(td.departure_date) IS NULL', 'ASC', false)
+            ->orderBy('MIN(td.departure_date)', 'ASC', false)
+            ->orderBy('t.id', 'DESC')
             ->limit(max(1, $limit))
             ->get()
             ->getResultArray();

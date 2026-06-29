@@ -103,6 +103,7 @@ class GeminiWebsiteChatService
                 $factsType === 'company_strength'
                 || $factsType === 'payment_support'
                 || $factsType === 'custom_tour_support'
+                || $factsType === 'destination_trip_consultation'
                 || $factsType === 'mice_service'
                 || ($factsType === 'visa_support' && $factsIntent === 'visa_cost')
                 || ($factsType === 'tour_detail' && in_array($factsIntent, ['price', 'departure'], true))
@@ -969,6 +970,33 @@ class GeminiWebsiteChatService
             }
 
             return trim(implode("\n", $lines));
+        }
+
+        if ($type === 'destination_trip_consultation') {
+            $request = is_array($facts['trip_request'] ?? null) ? $facts['trip_request'] : [];
+            $destination = trim((string) ($request['destination'] ?? ''));
+            $guestCount = trim((string) ($request['guest_count'] ?? ''));
+            $travelTime = trim((string) ($request['travel_time'] ?? ''));
+            $budget = trim((string) ($request['budget'] ?? ''));
+            $details = [];
+
+            if ($guestCount !== '') {
+                $details[] = $locale === 'en' ? $guestCount . ' guests' : $guestCount . ' người';
+            }
+
+            if ($travelTime !== '') {
+                $details[] = $locale === 'en' ? 'travel time: ' . $travelTime : 'thời gian: ' . $travelTime;
+            }
+
+            if ($budget !== '') {
+                $details[] = $locale === 'en' ? 'budget around ' . $budget : 'ngân sách khoảng ' . $budget;
+            }
+
+            $summary = $details !== [] ? ' (' . implode(', ', $details) . ')' : '';
+
+            return $locale === 'en'
+                ? 'Travel Plus can advise a suitable ' . ($destination !== '' ? $destination . ' ' : '') . "tour or tailor-made itinerary{$summary}. The team will check available website tours first; if there is no exact match, Travel Plus can propose a custom plan.\n\nTo quote accurately, please share the exact departure date, preferred trip length, departure city, hotel standard and your phone/email for callback."
+                : 'Travel Plus có thể tư vấn tour ' . ($destination !== '' ? $destination . ' ' : '') . "phù hợp hoặc thiết kế lịch trình riêng{$summary}. Đội ngũ sẽ kiểm tra tour có sẵn trước; nếu chưa có tour khớp đúng, Travel Plus có thể đề xuất phương án riêng.\n\nĐể báo phương án chính xác, anh/chị cho em xin thêm ngày đi cụ thể, số ngày muốn đi, điểm khởi hành, tiêu chuẩn khách sạn và số điện thoại/email để tư vấn lại.";
         }
 
         if ($type === 'visa_support') {
