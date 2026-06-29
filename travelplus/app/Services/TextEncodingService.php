@@ -14,6 +14,7 @@ class TextEncodingService
             return '';
         }
 
+        $value = self::decodeTextEntities($value);
         $current = $value;
 
         for ($i = 0; $i < 2; $i++) {
@@ -58,12 +59,19 @@ class TextEncodingService
                 continue;
             }
 
-            if (preg_match('/^(\s*)(.*?)(\s*)$/us', $part, $matches) === 1) {
-                $parts[$index] = $matches[1] . self::repair($matches[2]) . $matches[3];
-                continue;
+            $leading = '';
+            $trailing = '';
+
+            if (preg_match('/^[ \t\r\n]+/', $part, $matches) === 1) {
+                $leading = (string) ($matches[0] ?? '');
             }
 
-            $parts[$index] = self::repair($part);
+            if (preg_match('/[ \t\r\n]+$/', $part, $matches) === 1) {
+                $trailing = (string) ($matches[0] ?? '');
+            }
+
+            $core = substr($part, strlen($leading), strlen($part) - strlen($leading) - strlen($trailing));
+            $parts[$index] = $leading . self::repair($core) . $trailing;
         }
 
         return implode('', $parts);
@@ -77,6 +85,27 @@ class TextEncodingService
     private static function looksMojibake(string $value): bool
     {
         return self::mojibakeScore($value) > 0;
+    }
+
+    private static function decodeTextEntities(string $value): string
+    {
+        if (! str_contains($value, '&')) {
+            return $value;
+        }
+
+        $value = preg_replace_callback('/&#(?:x([0-9a-f]+)|([0-9]+));/iu', static function (array $matches): string {
+            $codepoint = isset($matches[1]) && $matches[1] !== ''
+                ? hexdec((string) $matches[1])
+                : (int) ($matches[2] ?? 0);
+
+            if ($codepoint < 0 || $codepoint > 0x10FFFF) {
+                return (string) ($matches[0] ?? '');
+            }
+
+            return mb_chr($codepoint, 'UTF-8');
+        }, $value) ?? $value;
+
+        return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 
     private static function mojibakeScore(string $value): int
