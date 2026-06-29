@@ -73,7 +73,8 @@ abstract class BaseController extends Controller
         }
 
         $path = '/' . trim((string) $request->getUri()->getPath(), '/');
-        $usesSiteNavigation = ! preg_match('#^/(admin|api)(/|$)#i', $path);
+        $isBingoOrApiEndpoint = preg_match('#^/(api|host|play|display|replay|history|bingo/admin|updates|game|player)(/|$)#i', $path) === 1;
+        $usesSiteNavigation = ! preg_match('#^/(admin|api|host|play|display|replay|history|bingo/admin|updates|game|player)(/|$)#i', $path);
         $menu = [];
         $domesticMenu = [];
 
@@ -108,7 +109,7 @@ abstract class BaseController extends Controller
         service('renderer')->setVar('isAdminUser', $isAdminUser);
         service('renderer')->setVar('currentLocale', $locale);
 
-        if (! DatabaseAvailabilityService::isUnavailable()) {
+        if (! $isBingoOrApiEndpoint && ! DatabaseAvailabilityService::isUnavailable()) {
             try {
                 (new AnalyticsTrackingService())->track($request, static::class, is_array($authUser) ? $authUser : null);
             } catch (Throwable $exception) {
