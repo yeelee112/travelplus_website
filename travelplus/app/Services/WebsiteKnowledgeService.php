@@ -756,6 +756,16 @@ class WebsiteKnowledgeService
                 'title' => $locale === 'en' ? 'Tour search' : 'Tìm kiếm tour',
                 'url' => $this->makeLocalizedUrl($locale === 'en' ? 'tour-search' : 'tim-kiem-tour', $locale),
             ]],
+            'chat_state' => [
+                'last_tour_slug' => '',
+                'last_tour_type' => '',
+                'last_tour_title' => '',
+                'last_tour_departure' => '',
+                'last_tour_price_label' => '',
+                'last_tour_duration_label' => '',
+                'last_tour_url' => '',
+                'last_locale' => $locale,
+            ],
         ];
     }
 
@@ -1837,6 +1847,7 @@ class WebsiteKnowledgeService
             'muon di',
             'can di',
             'du dinh di',
+            'co di',
             'di vao',
             'cho nguoi',
             'nguoi',
