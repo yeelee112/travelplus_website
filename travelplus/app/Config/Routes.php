@@ -13,36 +13,6 @@ $routes->GET('sitemap.xml', 'Sitemap::index');
 
 /*
 |--------------------------------------------------------------------------
-| Bingo Online
-|--------------------------------------------------------------------------
-*/
-$routes->GET('display', 'DisplayController::index');
-$routes->GET('display/(:segment)', 'DisplayController::show/$1');
-$routes->GET('host', 'HostController::index');
-$routes->GET('host/(:segment)', 'HostController::show/$1');
-$routes->GET('play', 'PlayerController::index');
-$routes->GET('play/(:segment)', 'PlayerController::show/$1');
-$routes->GET('replay/(:num)', 'ReplayController::show/$1');
-$routes->GET('history', 'HistoryController::index');
-$routes->GET('bingo/admin', 'AdminController::index');
-
-$routes->POST('host/create', 'ApiController::create');
-$routes->POST('host/open', 'ApiController::open');
-$routes->POST('host/start', 'ApiController::start');
-$routes->POST('host/draw', 'ApiController::draw');
-$routes->POST('host/reset', 'ApiController::reset');
-$routes->POST('host/end', 'ApiController::end');
-$routes->GET('game/status', 'ApiController::status');
-$routes->POST('player/join', 'ApiController::join');
-$routes->GET('player/board', 'ApiController::board');
-$routes->POST('player/board/regenerate', 'ApiController::regenerateBoard');
-$routes->POST('player/mark', 'ApiController::mark');
-$routes->POST('player/leave', 'ApiController::leave');
-$routes->POST('player/bingo', 'ApiController::bingo');
-$routes->GET('updates', 'ApiController::updates');
-
-/*
-|--------------------------------------------------------------------------
 | Default language (VI)
 |--------------------------------------------------------------------------
 */
