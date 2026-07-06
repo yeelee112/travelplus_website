@@ -10,7 +10,7 @@ class LocationModel extends Model
 {
     protected $table = 'locations';
     private const MENU_CACHE_TTL = 300;
-    private const MENU_CACHE_VERSION = 3;
+    private const MENU_CACHE_VERSION = 5;
     private static array $megaMenuCache = [];
 
     public function findTranslatedLocationBySlug(
@@ -131,13 +131,47 @@ class LocationModel extends Model
 
         foreach ($rows as $row) {
             if ($row['type'] === 'country' && isset($menu[$row['parent_id']])) {
+                if (
+                    $this->isDomesticCountryForOutboundMenu($row)
+                    || $this->isDuplicateContinentCountryForOutboundMenu($row, $menu[$row['parent_id']])
+                ) {
+                    continue;
+                }
+
                 $menu[$row['parent_id']]['countries'][] = $row;
             }
         }
+
+        $menu = array_filter(
+            $menu,
+            static fn (array $continent): bool => ! empty($continent['countries'])
+        );
 
         cache()->save($cacheKey, $menu, self::MENU_CACHE_TTL);
         self::$megaMenuCache[$locale] = $menu;
 
         return $menu;
+    }
+
+    private function isDomesticCountryForOutboundMenu(array $row): bool
+    {
+        $code = strtolower(trim((string) ($row['code'] ?? '')));
+        $slug = strtolower(trim((string) ($row['slug'] ?? '')));
+        $name = mb_strtolower(trim((string) ($row['name'] ?? '')), 'UTF-8');
+
+        return $code === 'vn'
+            || in_array($slug, ['viet-nam', 'vietnam'], true)
+            || in_array($name, ['việt nam', 'vietnam'], true);
+    }
+
+    private function isDuplicateContinentCountryForOutboundMenu(array $row, array $continent): bool
+    {
+        $countrySlug = strtolower(trim((string) ($row['slug'] ?? '')));
+        $countryName = mb_strtolower(trim((string) ($row['name'] ?? '')), 'UTF-8');
+        $continentSlug = strtolower(trim((string) ($continent['slug'] ?? '')));
+        $continentName = mb_strtolower(trim((string) ($continent['name'] ?? '')), 'UTF-8');
+
+        return ($countrySlug !== '' && $countrySlug === $continentSlug)
+            || ($countryName !== '' && $countryName === $continentName);
     }
 }

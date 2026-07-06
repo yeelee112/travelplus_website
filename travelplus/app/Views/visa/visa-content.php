@@ -6,6 +6,11 @@ $metrics = $c['metrics'] ?? [];
 $regions = $c['regions'] ?? [];
 $processSteps = $c['process'] ?? [];
 $faqs = $c['faqs'] ?? [];
+$metricIcons = [
+    '<svg width="50" height="50" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M9 2h6a2 2 0 0 1 2 2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1a2 2 0 0 1 2-2Zm0 2v2h6V4H9Zm-3 2v14h12V6h-1v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V6H6Zm9.7 5.3a1 1 0 0 1 0 1.4l-4.2 4.2a1 1 0 0 1-1.4 0l-2-2a1 1 0 1 1 1.4-1.4l1.3 1.29 3.49-3.49a1 1 0 0 1 1.41 0Z"></path></svg>',
+    '<svg width="50" height="50" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M11 3a8 8 0 0 1 6.32 12.9l3.39 3.39a1 1 0 0 1-1.42 1.42l-3.39-3.39A8 8 0 1 1 11 3Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm3.7 3.3a1 1 0 0 1 0 1.4l-4.2 4.2a1 1 0 0 1-1.4 0l-1.8-1.8a1 1 0 1 1 1.4-1.4l1.1 1.09 3.49-3.49a1 1 0 0 1 1.41 0Z"></path></svg>',
+    '<svg width="50" height="50" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm13 8H4v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8ZM5 6a1 1 0 0 0-1 1v1h16V7a1 1 0 0 0-1-1H5Zm10.7 6.3a1 1 0 0 1 0 1.4l-3.7 3.7a1 1 0 0 1-1.4 0l-1.7-1.7a1 1 0 0 1 1.4-1.4l1 1 2.99-3a1 1 0 0 1 1.41 0Z"></path></svg>',
+];
 
 $sampleCountries = $locale === 'en'
     ? ['United States', 'Canada', 'Australia', 'Schengen Europe']
@@ -78,9 +83,7 @@ $flagMap = [
             <?php foreach (array_slice($metrics, 0, 3) as $index => $metric): ?>
                 <div class="col-lg-4 col-sm-6 d-flex justify-content-lg-center wow animate fadeInDown" data-wow-delay="<?= esc((string) (200 + ($index * 200))) ?>ms" data-wow-duration="1500ms">
                     <div class="single-feature">
-                        <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M25 3C12.87 3 3 12.87 3 25s9.87 22 22 22 22-9.87 22-22S37.13 3 25 3zm0 4c9.93 0 18 8.07 18 18s-8.07 18-18 18S7 34.93 7 25 15.07 7 25 7zm-2.21 8.14-7.65 7.65 2.83 2.83 4.82-4.82 9.04 9.05 2.83-2.83-11.87-11.88z"></path>
-                        </svg>
+                        <?= $metricIcons[$index] ?? $metricIcons[0] ?>
                         <h4><?= esc($metric['title'] ?? '') ?></h4>
                         <p><?= esc($metric['text'] ?? '') ?></p>
                     </div>

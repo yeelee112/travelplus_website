@@ -1347,6 +1347,8 @@ class Tours extends BaseAdminController
             cache()->delete('location_mega_menu_' . $locale);
             cache()->delete('location_mega_menu_v2_' . $locale);
             cache()->delete('location_mega_menu_v3_' . $locale);
+            cache()->delete('location_mega_menu_v4_' . $locale);
+            cache()->delete('location_mega_menu_v5_' . $locale);
             cache()->delete('domestic_region_menu_' . $locale);
         }
     }

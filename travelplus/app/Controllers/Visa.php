@@ -14,8 +14,8 @@ class Visa extends BaseController
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $seo = new SeoService();
         $serviceTypes = $locale === 'en'
-            ? ['Tourist visa consultation', 'Business visa support', 'Family visit visa support', 'Visa document checklist', 'Visa appointment guidance']
-            : ['Tư vấn visa du lịch', 'Dịch vụ visa công tác', 'Visa thăm thân', 'Checklist hồ sơ visa', 'Hướng dẫn đặt lịch nộp hồ sơ'];
+            ? ['Tourist visa consultation', 'Business visa support', 'Family visit visa support', 'Short-term study visa guidance', 'Visa document checklist', 'Visa appointment guidance']
+            : ['Tư vấn visa du lịch', 'Dịch vụ visa công tác', 'Visa thăm thân', 'Visa du học ngắn hạn', 'Rà soát hồ sơ visa', 'Hướng dẫn đặt lịch nộp hồ sơ'];
 
         $data['breadcrumbs'] = [
             [
