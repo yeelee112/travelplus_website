@@ -14,8 +14,8 @@ class Mice extends BaseController
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $seo = new SeoService();
         $serviceTypes = $locale === 'en'
-            ? ['Corporate MICE', 'Meetings and conferences', 'Incentive travel', 'Team building', 'Gala dinner', 'Healthcare MICE', 'Pharmaceutical MICE']
-            : ['MICE doanh nghiệp', 'Tổ chức hội nghị hội thảo', 'Du lịch incentive', 'Team building', 'Gala dinner', 'MICE ngành y/dược'];
+            ? ['Corporate MICE', 'Corporate Event', 'Business Event', 'Medical Congress', 'Medical Meeting', 'Incentive Tour', 'Company Trip', 'Team Building', 'Gala Dinner', 'Kick Off', 'Sales Conference', 'Customer Conference', 'Symposium', 'Scientific Meeting']
+            : ['MICE doanh nghiệp', 'Corporate Event', 'Business Event', 'Medical Congress', 'Medical Meeting', 'Du lịch incentive', 'Company Trip', 'Team Building', 'Gala Dinner', 'Kick Off', 'Sales Conference', 'Customer Conference', 'Symposium', 'Scientific Meeting'];
 
         $data['breadcrumbs'] = [
             [
@@ -33,6 +33,8 @@ class Mice extends BaseController
         $data['pageContent'] = MicePageContent::get($locale);
         $data['meta_image'] = base_url('assets/images/mice-1.jpeg');
         $data['meta_image_alt'] = $t('common.miceService');
+        $data['contact_form_token'] = bin2hex(random_bytes(16));
+        session()->set('contact_form_token', $data['contact_form_token']);
         $data['alternate_links'] = [
             ['hreflang' => 'vi', 'href' => base_url('dich-vu-mice')],
             ['hreflang' => 'en', 'href' => base_url('en/dich-vu-mice')],
@@ -49,6 +51,7 @@ class Mice extends BaseController
                 'assets/images/mice-1.jpeg',
                 $serviceTypes
             ),
+            $seo->faqSchema((array) ($data['pageContent']['faqs'] ?? [])),
         ];
 
         return view('mice/index', $data);

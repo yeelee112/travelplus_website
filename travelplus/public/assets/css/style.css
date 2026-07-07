@@ -5438,6 +5438,269 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
 @media (max-width:767px) {.home8-country-serve-section .single-item .primary-btn1 {font-size: 14px;
         padding: 16px 20px}
 }
+.visa-lead-section {margin-top: -120px;
+    position: relative;
+    z-index: 2}
+.visa-lead-card {background: url("../images/visa/form-visa.webp") center/cover no-repeat;
+    border: 1px solid #dbeef6;
+    border-radius: 8px;
+    box-shadow: 0 24px 60px rgba(8, 28, 68, .12);
+    overflow: hidden;
+    padding: 34px;
+    position: relative}
+.visa-lead-card:before {display: none}
+.visa-lead-card > * {position: relative;
+    z-index: 1}
+.visa-lead-copy {display: grid;
+    gap: 10px;
+    margin-bottom: 24px}
+.visa-lead-copy span {color: #0b79b7;
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    line-height: 1.2;
+    text-transform: uppercase}
+.visa-lead-copy h2 {color: #102168;
+    font-family: var(--font-main);
+    font-size: 34px;
+    font-weight: 850;
+    line-height: 1.18;
+    margin: 0}
+.visa-lead-copy p {color: #334155;
+    font-family: var(--font-main);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+    margin: 0;
+    max-width: 780px}
+.visa-lead-grid {display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 18px}
+.visa-lead-form label {display: grid;
+    gap: 8px;
+    min-width: 0}
+.visa-lead-form label span {color: #102168;
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.2}
+.visa-lead-form input, .visa-lead-form select, .visa-lead-form textarea {width: 100%;
+    border: 1px solid #c7dfeb;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .96);
+    color: var(--title-color);
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease}
+.visa-lead-form input, .visa-lead-form select {min-height: 52px;
+    padding: 0 14px}
+.visa-lead-form textarea {min-height: 118px;
+    padding: 14px;
+    resize: vertical}
+.visa-lead-form select {appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #475569 50%), linear-gradient(135deg, #475569 50%, transparent 50%);
+    background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+    background-repeat: no-repeat;
+    background-size: 5px 5px, 5px 5px;
+    padding-right: 36px}
+.visa-lead-form input:focus, .visa-lead-form select:focus, .visa-lead-form textarea:focus {border-color: #ffb35a;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(255, 179, 90, .16)}
+.visa-lead-form input.is-invalid, .visa-lead-form select.is-invalid, .visa-lead-form textarea.is-invalid {border-color: #ff6b6b;
+    box-shadow: 0 0 0 4px rgba(255, 107, 107, .18)}
+.visa-lead-message {grid-column: 1 / -1}
+.visa-lead-check {align-items: flex-start;
+    display: grid !important;
+    gap: 0 10px !important;
+    grid-template-columns: 18px minmax(0, 1fr);
+    margin-bottom: 22px}
+.visa-lead-check input[type="checkbox"] {appearance: auto;
+    height: 18px;
+    margin: 3px 0 0;
+    min-height: 18px;
+    padding: 0;
+    width: 18px}
+.visa-lead-check span {color: #334155;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.6}
+.visa-lead-check a {color: #0b79b7;
+    font-weight: 850}
+.visa-lead-submit {width: 100%;
+    justify-content: center}
+.visa-lead-card .alert {border-radius: 8px;
+    margin-bottom: 18px}
+@media (max-width:1199px) {.visa-lead-section {margin-top: -100px}
+    .visa-lead-grid {grid-template-columns: repeat(2, minmax(0, 1fr))}
+}
+@media (max-width:767px) {.visa-lead-section {margin-top: -90px}
+    .visa-lead-card {padding: 24px 18px}
+    .visa-lead-copy h2 {font-size: 27px}
+    .visa-lead-grid {grid-template-columns: 1fr}
+}
+.visa-seo-section {padding: 76px 0}
+.visa-seo-section--why {background: linear-gradient(180deg, #f6fbff 0%, #fff 100%)}
+.visa-seo-section--checklist {background: #fff}
+.visa-seo-section--cases {background: linear-gradient(180deg, #fff 0%, #f7fafb 100%)}
+.visa-seo-head {max-width: 860px;
+    margin: 0 auto 34px}
+.visa-seo-head span, .visa-risk-copy span {color: var(--primary-color1);
+    display: block;
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    text-transform: uppercase}
+.visa-seo-head h2, .visa-risk-copy h2 {color: var(--title-color);
+    font-family: var(--font-main);
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.18;
+    margin-bottom: 14px}
+.visa-seo-head p, .visa-risk-copy p {color: var(--text-color);
+    font-family: var(--font-main);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    margin-bottom: 0}
+.visa-stats-grid {display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 34px}
+.visa-stat-item {background: #fff;
+    border: 1px solid #dbeef6;
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(10, 52, 75, .06);
+    min-height: 118px;
+    padding: 24px 18px;
+    text-align: center}
+.visa-stat-item strong {color: #12256a;
+    display: block;
+    font-family: var(--font-main);
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 9px}
+.visa-stat-item span {color: var(--text-color);
+    display: block;
+    font-family: var(--font-main);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.45}
+.visa-why-card, .visa-checklist-card, .visa-case-card {background: #fff;
+    border: 1px solid #dbeef6;
+    border-radius: 8px;
+    box-shadow: 0 14px 34px rgba(10, 52, 75, .07);
+    height: 100%}
+.visa-why-card {padding: 26px 24px}
+.visa-why-card>span {background: linear-gradient(135deg, var(--primary-color1), #ff8a3d);
+    border-radius: 999px;
+    display: block;
+    height: 10px;
+    margin-bottom: 18px;
+    width: 48px}
+.visa-why-card h3, .visa-checklist-card h3, .visa-case-card h3 {color: var(--title-color);
+    font-family: var(--font-main);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 12px}
+.visa-why-card p, .visa-case-card p {color: var(--text-color);
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.7;
+    margin-bottom: 0}
+.visa-checklist-card {padding: 26px 22px}
+.visa-checklist-card ul {list-style: none;
+    margin: 0;
+    padding: 0}
+.visa-checklist-card li {color: var(--text-color);
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.65;
+    margin-bottom: 12px;
+    padding-left: 24px;
+    position: relative}
+.visa-checklist-card li:before {background: #20b36b;
+    border-radius: 999px;
+    content: "";
+    height: 8px;
+    left: 0;
+    position: absolute;
+    top: 9px;
+    width: 8px}
+.visa-checklist-card li:last-child {margin-bottom: 0}
+.visa-case-card {display: grid;
+    gap: 18px;
+    grid-template-columns: 210px 1fr;
+    padding: 26px}
+.visa-case-card div {border-right: 1px solid #dbeef6;
+    padding-right: 20px}
+.visa-case-card span {color: var(--primary-color1);
+    display: block;
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .04em;
+    margin-bottom: 8px;
+    text-transform: uppercase}
+.visa-case-card small {color: #586475;
+    display: block;
+    font-family: var(--font-main);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45}
+.visa-risk-panel {background: #102168;
+    border-radius: 8px;
+    display: grid;
+    gap: 30px;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    padding: 36px}
+.visa-risk-copy span {color: #ffb35a}
+.visa-risk-copy h2, .visa-risk-copy p {color: #fff}
+.visa-risk-copy p {opacity: .86}
+.visa-risk-list {display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0}
+.visa-risk-list li {background: rgba(255, 255, 255, .09);
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 8px;
+    color: #fff;
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.55;
+    padding: 15px 16px}
+@media (max-width:1199px) {.visa-stats-grid {grid-template-columns: repeat(2, minmax(0, 1fr))}
+    .visa-case-card {grid-template-columns: 1fr}
+    .visa-case-card div {border-right: 0;
+        border-bottom: 1px solid #dbeef6;
+        padding-bottom: 18px;
+        padding-right: 0}
+}
+@media (max-width:991px) {.visa-seo-section {padding: 64px 0}
+    .visa-seo-head h2, .visa-risk-copy h2 {font-size: 32px}
+    .visa-risk-panel {grid-template-columns: 1fr}
+}
+@media (max-width:767px) {.visa-seo-section {padding: 54px 0}
+    .visa-seo-head {margin-bottom: 26px}
+    .visa-seo-head h2, .visa-risk-copy h2 {font-size: 28px}
+    .visa-seo-head p, .visa-risk-copy p {font-size: 16px}
+    .visa-stats-grid, .visa-risk-list {grid-template-columns: 1fr}
+    .visa-risk-panel {padding: 26px 20px}
+}
 .pagination-area {display: flex;
     align-items: center;
     justify-content: center;
@@ -6671,6 +6934,18 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;}
 .travelplus-contact-check a:hover {color: var(--primary-color3);}
+.visa-lead-form label span {color: #102168 !important;}
+.visa-lead-form .visa-lead-check span {color: #334155 !important;
+    font-weight: 600 !important;}
+.visa-lead-form .visa-lead-check a {color: #0b79b7 !important;
+    font-weight: 850;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;}
+.visa-lead-form .visa-lead-check input[type="checkbox"] {accent-color: #0b79b7;
+    border: 1px solid #9fc8dd}
+.visa-lead-form .travelplus-inline-error {color: #b91c1c;
+    font-weight: 800}
 .travelplus-contact-submit {display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -10999,12 +11274,23 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .mice-page__hero-content p {font-size: 18px;
     max-width: 680px;
     margin-bottom: 28px;}
+.mice-page__hero-note {display: inline-flex;
+    max-width: 760px;
+    padding: 12px 16px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: rgba(var(--title-color-opc), 0.72);
+    font-size: 14px !important;
+    font-weight: 750;
+    line-height: 1.45;
+    margin: -8px 0 28px !important;}
 .mice-page__hero-actions {display: flex;
     flex-wrap: wrap;
     gap: 16px;
     margin-bottom: 28px;}
 .mice-page__hero-metrics {display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;}
 .mice-page__metric-card {padding: 22px 20px;
     background: rgba(255, 255, 255, 0.92);
@@ -11012,8 +11298,10 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     border-radius: 22px;
     box-shadow: 0 22px 50px rgba(17, 15, 15, 0.06);}
 .mice-page__metric-card strong {display: block;
-    color: var(--title-color);
-    font-size: 18px;
+    color: var(--primary-color4);
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1;
     margin-bottom: 10px;}
 .mice-page__metric-card span {display: block;
     color: var(--text-color);
@@ -11069,6 +11357,24 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     height: 8px;
     border-radius: 50%;
     background: var(--primary-color1);}
+.mice-page__pain-grid {display: grid;
+    grid-template-columns: repeat(7, minmax(180px, 1fr));
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: thin;}
+.mice-page__pain-card {min-height: 210px;
+    padding: 24px 20px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.1);
+    border-radius: 24px;
+    background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+    box-shadow: 0 20px 42px rgba(17, 15, 15, 0.05);}
+.mice-page__pain-card h3 {font-size: 20px;
+    line-height: 1.28;
+    margin-bottom: 12px;}
+.mice-page__pain-card p {font-size: 15px;
+    line-height: 1.68;
+    margin-bottom: 0;}
 .mice-page__solutions .row, .mice-page__brief-card {align-items: stretch;}
 .mice-page__solution-panel {height: 100%;
     padding: 38px;
@@ -11188,23 +11494,201 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     font-size: 24px;
     line-height: 1.4;
     font-weight: 700;}
+.mice-page__internal-grid {display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;}
+.mice-page__internal-card {display: flex;
+    min-height: 220px;
+    flex-direction: column;
+    padding: 26px 24px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.1);
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 18px 40px rgba(17, 15, 15, 0.05);
+    color: inherit;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;}
+.mice-page__internal-card:hover {border-color: rgba(var(--primary-color1-opc), 0.32);
+    box-shadow: 0 24px 48px rgba(17, 15, 15, 0.08);
+    transform: translateY(-3px);}
+.mice-page__internal-card h3 {font-size: 22px;
+    margin-bottom: 12px;}
+.mice-page__internal-card p {color: var(--text-color);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 18px;}
+.mice-page__internal-card span {display: inline-flex;
+    margin-top: auto;
+    color: var(--primary-color1);
+    font-size: 14px;
+    font-weight: 850;}
+.mice-page__profile-card {display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: center;
+    padding: 34px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.1);
+    border-radius: 28px;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, .94), rgba(247, 252, 255, .9)),
+        url(../images/mice-corporate-travel.jpg) center / cover no-repeat;
+    box-shadow: 0 24px 48px rgba(17, 15, 15, 0.06);}
+.mice-page__profile-card span {display: inline-flex;
+    color: var(--primary-color1);
+    font-size: 13px;
+    font-weight: 850;
+    letter-spacing: .08em;
+    margin-bottom: 12px;
+    text-transform: uppercase;}
+.mice-page__profile-card h2 {font-size: 32px;
+    margin-bottom: 10px;}
+.mice-page__profile-card p {font-size: 16px;
+    line-height: 1.75;
+    margin-bottom: 0;}
+.mice-page__profile-button {display: inline-flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 24px;
+    border-radius: 999px;
+    background: var(--primary-color1);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 850;
+    line-height: 1.2;
+    letter-spacing: .02em;
+    text-align: center;
+    box-shadow: 0 14px 30px rgba(0, 156, 222, 0.18);}
+.mice-page__profile-button:hover {background: var(--primary-color1);
+    color: #fff;}
+.mice-page__profile-card .primary-btn1 {display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    color: #fff;
+    border-color: var(--primary-color1);
+    background: var(--primary-color1);}
+.mice-page__profile-card .primary-btn1 span {display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    line-height: 1;}
+.mice-page__profile-card .primary-btn1:hover {color: #fff;
+    border-color: var(--primary-color3);
+    background: var(--primary-color3);}
+.mice-page__profile-card .primary-btn1:hover span {color: #fff;}
+.mice-page__faq-wrap .accordion-item {border: 1px solid rgba(var(--primary-color1-opc), 0.1);
+    border-radius: 18px;
+    box-shadow: 0 16px 36px rgba(17, 15, 15, 0.04);
+    overflow: hidden;}
+.mice-page__faq-wrap .accordion-item + .accordion-item {margin-top: 12px;}
+.mice-page__brief-quick {display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;}
+.mice-page__brief-quick a {display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    padding: 8px 14px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.16);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--primary-color1);
+    font-size: 14px;
+    font-weight: 850;}
+.mice-page__brief-form {padding: 26px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(var(--primary-color1-opc), 0.08), rgba(var(--primary-color1-opc), 0.02));}
+.mice-page__brief-form-grid {display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;}
+.mice-page__brief-form label {display: grid;
+    gap: 7px;
+    min-width: 0;}
+.mice-page__brief-form label span {color: var(--title-color);
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.2;}
+.mice-page__brief-form input, .mice-page__brief-form select, .mice-page__brief-form textarea {width: 100%;
+    border: 1px solid #d4e8f1;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .96);
+    color: var(--title-color);
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 650;
+    outline: none;
+    transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;}
+.mice-page__brief-form input, .mice-page__brief-form select {min-height: 48px;
+    padding: 0 13px;}
+.mice-page__brief-form textarea {min-height: 118px;
+    padding: 13px;
+    resize: vertical;}
+.mice-page__brief-form select {appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, rgba(var(--title-color-opc), .58) 50%), linear-gradient(135deg, rgba(var(--title-color-opc), .58) 50%, transparent 50%);
+    background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+    background-repeat: no-repeat;
+    background-size: 5px 5px, 5px 5px;
+    padding-right: 36px;}
+.mice-page__brief-form input:focus, .mice-page__brief-form select:focus, .mice-page__brief-form textarea:focus {border-color: var(--primary-color1);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(var(--primary-color1-opc), .1);}
+.mice-page__brief-message {grid-column: 1 / -1;}
+.mice-page__brief-check {display: grid !important;
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 0 10px !important;
+    align-items: center;
+    margin: 18px 0 22px;}
+.mice-page__brief-check input[type="checkbox"] {appearance: auto;
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--primary-color1);}
+.mice-page__brief-check span {color: rgba(var(--title-color-opc), .72) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1.6;}
+.mice-page__brief-check a {color: var(--primary-color1);
+    font-weight: 850;
+    text-decoration: underline;
+    text-underline-offset: 3px;}
+.mice-page__brief-submit {width: 100%;
+    justify-content: center;}
+.mice-page__sticky-cta {position: fixed;
+    left: 24px;
+    bottom: 24px;
+    z-index: 1020;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 50px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #1aa7ec, #0089d8);
+    color: #fff;
+    box-shadow: 0 16px 34px rgba(0, 156, 222, .26);
+    font-size: 15px;
+    font-weight: 900;}
+.mice-page__sticky-cta:hover {color: #fff;
+    transform: translateY(-1px);}
 @media (max-width: 1399px) {.mice-page__hero-content h1 {font-size: 46px;}
 .mice-page__process-overview h2 {font-size: 32px;}
 }
 @media (max-width: 991px) {.mice-page__hero {padding: 55px 0 80px;}
-.mice-page__hero-layout, .mice-page__process-layout, .mice-page__brief-card {grid-template-columns: 1fr;}
+.mice-page__hero-layout, .mice-page__process-layout, .mice-page__brief-card, .mice-page__profile-card {grid-template-columns: 1fr;}
 .mice-page__process-overview {position: relative;
         top: auto;}
 .mice-page__hero-content h1 {font-size: 38px;}
-.mice-page__hero-metrics, .mice-page__process-flow {grid-template-columns: repeat(2, minmax(0, 1fr));}
+.mice-page__hero-metrics, .mice-page__process-flow, .mice-page__internal-grid {grid-template-columns: repeat(2, minmax(0, 1fr));}
 }
 @media (max-width: 767px) {.mice-page__hero-content h1 {font-size: 32px;}
 .mice-page__hero-actions .primary-btn1, .mice-page__hero-actions .primary-btn1.transparent, .mice-page__brief-contact .primary-btn1 {width: 100%;
         justify-content: center;
         text-align: center;}
 .mice-page__hero-main-media {min-height: 300px;}
-.mice-page__hero-side-grid, .mice-page__hero-metrics, .mice-page__process-flow {grid-template-columns: 1fr;}
-.mice-page__copy-card, .mice-page__solution-panel, .mice-page__process-overview, .mice-page__brief-card, .mice-page__service-card, .mice-page__why-card, .mice-page__process-step {padding: 24px 20px;}
+.mice-page__hero-side-grid, .mice-page__hero-metrics, .mice-page__process-flow, .mice-page__internal-grid, .mice-page__brief-form-grid {grid-template-columns: 1fr;}
+.mice-page__copy-card, .mice-page__solution-panel, .mice-page__process-overview, .mice-page__brief-card, .mice-page__service-card, .mice-page__why-card, .mice-page__process-step, .mice-page__profile-card, .mice-page__brief-form {padding: 24px 20px;}
 .mice-page__process-overview h2 {font-size: 28px;}
 .mice-page__process-step {grid-template-columns: 54px minmax(0, 1fr);
         gap: 14px;}
@@ -11213,6 +11697,89 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
         border-radius: 14px;
         font-size: 15px;}
 .mice-page__brief-contact-item a {font-size: 20px;}
+.mice-page__profile-card h2 {font-size: 26px;}
+.mice-page__sticky-cta {left: 12px;
+        bottom: 16px;
+        min-height: 46px;
+        padding: 10px 14px;
+        font-size: 14px;}
+}
+.mice-page .section-title {max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;}
+.mice-page .section-title h2 {max-width: 820px;
+    margin-left: auto;
+    margin-right: auto;}
+.mice-page .section-title p {max-width: 660px;
+    font-size: 16px;
+    line-height: 1.72;}
+.mice-page__copy-card {padding: 30px;}
+.mice-page__copy-card p {line-height: 1.75;}
+.mice-page__seo-copy {display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    padding: 24px;}
+.mice-page__seo-copy p {margin-bottom: 0;
+    padding: 20px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #f8fbff 0%, #fff 100%);
+    border: 1px solid rgba(var(--primary-color1-opc), .08);
+    font-size: 15px;
+    line-height: 1.68;}
+.mice-page__pain-grid {grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    overflow: visible;
+    padding-bottom: 0;}
+.mice-page__pain-card {min-height: 0;
+    padding: 22px;}
+.mice-page__pain-card h3, .mice-page__service-card h3, .mice-page__why-card h3, .mice-page__internal-card h3 {font-size: 20px;
+    line-height: 1.28;
+    margin-bottom: 10px;}
+.mice-page__service-card, .mice-page__why-card, .mice-page__internal-card {border-radius: 22px;}
+.mice-page__service-card {display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    padding: 24px 22px;}
+.mice-page__why-card {padding: 24px 22px;}
+.mice-page__internal-card {min-height: 0;
+    padding: 24px 22px;}
+.mice-page__service-card p, .mice-page__solution-item p, .mice-page__why-card p, .mice-page__pain-card p, .mice-page__internal-card p, .mice-page__process-step p {display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;}
+.mice-page__service-card p, .mice-page__why-card p, .mice-page__internal-card p, .mice-page__process-step p {-webkit-line-clamp: 3;}
+.mice-page__pain-card p, .mice-page__solution-item p {-webkit-line-clamp: 2;}
+.mice-page__service-card p, .mice-page__why-card p, .mice-page__internal-card p, .mice-page__pain-card p {font-size: 15px;
+    line-height: 1.62;}
+.mice-page__service-card ul {margin-top: auto;
+    padding-top: 16px;}
+.mice-page__service-card li {font-size: 14px;
+    line-height: 1.55;}
+.mice-page__service-card li + li {margin-top: 8px;}
+.mice-page__solution-list {gap: 14px;
+    padding: 18px;}
+.mice-page__solution-item {padding: 20px;}
+.mice-page__process-step {padding: 20px;
+    gap: 14px;}
+.mice-page__brief-card {grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: 32px;
+    padding: 34px;}
+.mice-page__brief-copy p {max-width: 560px;
+    line-height: 1.7;}
+.mice-page__brief-form {padding: 24px;}
+.mice-page__brief-form-grid {gap: 16px 18px;}
+.mice-page__brief-message textarea {min-height: 106px;}
+@media (max-width: 1199px) {.mice-page__pain-grid, .mice-page__seo-copy {grid-template-columns: repeat(2, minmax(0, 1fr));}
+}
+@media (max-width: 767px) {.mice-page .section-title {max-width: 100%;}
+.mice-page .section-title p {font-size: 15px;}
+.mice-page__seo-copy, .mice-page__pain-grid {grid-template-columns: 1fr;}
+.mice-page__seo-copy, .mice-page__copy-card, .mice-page__brief-card {padding: 20px;}
+.mice-page__seo-copy p {padding: 18px;}
+.mice-page__service-card p, .mice-page__solution-item p, .mice-page__why-card p, .mice-page__pain-card p, .mice-page__internal-card p, .mice-page__process-step p {display: block;
+        overflow: visible;
+        -webkit-line-clamp: initial;}
+.mice-page__brief-card {grid-template-columns: 1fr;
+        gap: 24px;}
 }
 .service-landing-page {background:
         radial-gradient(circle at top right, rgba(var(--primary-color1-opc), 0.08), transparent 25%),

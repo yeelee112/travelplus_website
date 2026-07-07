@@ -14,8 +14,8 @@ class Visa extends BaseController
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
         $seo = new SeoService();
         $serviceTypes = $locale === 'en'
-            ? ['Tourist visa consultation', 'Business visa support', 'Family visit visa support', 'Short-term study visa guidance', 'Visa document checklist', 'Visa appointment guidance']
-            : ['Tư vấn visa du lịch', 'Dịch vụ visa công tác', 'Visa thăm thân', 'Visa du học ngắn hạn', 'Rà soát hồ sơ visa', 'Hướng dẫn đặt lịch nộp hồ sơ'];
+            ? ['Visa service', 'U.S. visa service', 'Canada visa service', 'Australia visa service', 'Schengen visa service', 'Japan visa service', 'South Korea visa service', 'Visa document checklist', 'Visa file review', 'Visa appointment guidance']
+            : ['Dịch vụ làm visa', 'Làm visa Mỹ', 'Làm visa Canada', 'Làm visa Úc', 'Visa Schengen', 'Visa Nhật Bản', 'Visa Hàn Quốc', 'Checklist hồ sơ visa', 'Rà soát hồ sơ visa', 'Hướng dẫn đặt lịch hẹn visa'];
 
         $data['breadcrumbs'] = [
             [
@@ -32,6 +32,8 @@ class Visa extends BaseController
         $data['pageContent'] = VisaPageContent::get($locale);
         $data['meta_image'] = base_url('assets/images/visa-banner.png');
         $data['meta_image_alt'] = $t('common.visaService');
+        $data['contact_form_token'] = bin2hex(random_bytes(16));
+        session()->set('contact_form_token', $data['contact_form_token']);
         $data['schema_graph'] = [
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),

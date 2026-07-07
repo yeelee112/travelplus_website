@@ -31,17 +31,28 @@ class Contact extends BaseController
         }
 
         session()->remove('contact_form_token');
+        $serviceType = strtolower(trim((string) $this->request->getPost('service_type')));
+        $isVisaRequest = $serviceType === 'visa';
+        $isMiceRequest = $serviceType === 'mice';
+        $isSpecializedRequest = $isVisaRequest || $isMiceRequest;
 
         $rules = [
+            'service_type' => 'permit_empty|in_list[visa,mice]',
+            'company_name' => 'permit_empty|max_length[160]',
+            'event_type' => 'permit_empty|max_length[160]',
+            'conference_name' => 'permit_empty|max_length[180]',
             'name' => 'required|min_length[2]|max_length[120]',
             'email' => 'required|valid_email|max_length[160]',
             'phone' => 'required|validVietnamPhone|max_length[30]',
             'destination' => 'permit_empty|max_length[160]',
+            'visa_type' => 'permit_empty|max_length[120]',
+            'visa_refusal' => 'permit_empty|max_length[120]',
+            'budget' => 'permit_empty|max_length[160]',
             'travelers' => 'permit_empty|max_length[80]',
             'estimated_time' => 'permit_empty|max_length[120]',
             'trip_length' => 'permit_empty|max_length[120]',
             'hotel_rating' => 'permit_empty|max_length[80]',
-            'message' => 'required|min_length[10]|max_length[5000]',
+            'message' => $isSpecializedRequest ? 'permit_empty|min_length[10]|max_length[5000]' : 'required|min_length[10]|max_length[5000]',
             'privacy_agree' => 'required',
             'recaptcha_token' => 'required',
         ];
@@ -93,23 +104,50 @@ class Contact extends BaseController
         $email = trim((string) $this->request->getPost('email'));
         $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
         $destination = trim((string) $this->request->getPost('destination'));
+        $visaType = trim((string) $this->request->getPost('visa_type'));
+        $visaRefusal = trim((string) $this->request->getPost('visa_refusal'));
         $travelers = trim((string) $this->request->getPost('travelers'));
         $estimatedTime = trim((string) $this->request->getPost('estimated_time'));
         $tripLength = trim((string) $this->request->getPost('trip_length'));
         $hotelRating = trim((string) $this->request->getPost('hotel_rating'));
         $message = trim((string) $this->request->getPost('message'));
+        if ($isVisaRequest && $message === '') {
+            $message = $locale === 'en'
+                ? 'Customer sent a visa consultation request and did not add extra notes.'
+                : 'Khách gửi yêu cầu tư vấn visa và chưa nhập ghi chú thêm.';
+        }
+        if ($isMiceRequest && $message === '') {
+            $message = $locale === 'en'
+                ? 'Customer sent a MICE brief request and did not add extra notes.'
+                : 'Khách gửi yêu cầu nhận proposal MICE và chưa nhập brief chi tiết.';
+        }
+        $companyName = trim((string) $this->request->getPost('company_name'));
+        $eventType = trim((string) $this->request->getPost('event_type'));
+        $conferenceName = trim((string) $this->request->getPost('conference_name'));
+        $budget = trim((string) $this->request->getPost('budget'));
 
         $mailer = service('email');
         $mailer->clear(true);
         $mailer->setFrom($fromEmail, $fromName);
         $mailer->setTo($recipient);
         $mailer->setReplyTo($email, $name);
-        $mailer->setSubject(lang('Frontend.contact.mailSubject', [], $locale));
+        $mailer->setSubject($isVisaRequest
+            ? ($locale === 'en' ? 'New visa consultation request from Travel Plus website' : 'Yêu cầu tư vấn visa mới từ website Travel Plus')
+            : ($isMiceRequest
+                ? ($locale === 'en' ? 'New MICE brief request from Travel Plus website' : 'Yêu cầu nhận proposal MICE mới từ website Travel Plus')
+                : lang('Frontend.contact.mailSubject', [], $locale)));
         $mailer->setMessage($this->buildMailBody([
+            'service_type' => $serviceType,
+            'company_name' => $companyName,
+            'event_type' => $eventType,
+            'conference_name' => $conferenceName,
             'name' => $name,
             'email' => $email,
             'phone' => $phone,
             'destination' => $destination,
+            'visa_type' => $visaType,
+            'visa_refusal' => $visaRefusal,
+            'budget' => $budget,
             'travelers' => $travelers,
             'estimated_time' => $estimatedTime,
             'trip_length' => $tripLength,
@@ -195,39 +233,109 @@ class Contact extends BaseController
     }
 
     /**
-     * @param array{name:string,email:string,phone:string,destination:string,travelers:string,estimated_time:string,trip_length:string,hotel_rating:string,message:string} $payload
+     * @param array{service_type?:string,company_name?:string,event_type?:string,conference_name?:string,name:string,email:string,phone:string,destination:string,visa_type?:string,visa_refusal?:string,budget?:string,travelers:string,estimated_time:string,trip_length:string,hotel_rating:string,message:string} $payload
      */
     private function buildMailBody(array $payload, string $locale): string
     {
+        $isVisaRequest = ($payload['service_type'] ?? '') === 'visa';
+        $isMiceRequest = ($payload['service_type'] ?? '') === 'mice';
         $destination = $payload['destination'] !== ''
             ? $payload['destination']
             : lang('Frontend.contact.mailUnknownDestination', [], $locale);
 
-        $labels = $locale === 'en'
-            ? [
+        if ($isVisaRequest) {
+            $labels = $locale === 'en'
+                ? [
+                    'destination' => 'Visa destination',
+                    'visa_type' => 'Visa type',
+                    'visa_refusal' => 'Previous visa refusal',
+                    'travelers' => 'Number of applicants',
+                    'estimated_time' => 'Expected timing',
+                    'trip_length' => 'Trip length',
+                    'hotel_rating' => 'Hotel standard',
+                ]
+                : [
+                    'destination' => 'Quốc gia cần xin visa',
+                    'visa_type' => 'Loại visa',
+                    'visa_refusal' => 'Đã từng bị từ chối visa',
+                    'travelers' => 'Số người xin visa',
+                    'estimated_time' => 'Thời gian dự kiến',
+                    'trip_length' => 'Thời gian đi',
+                    'hotel_rating' => 'Khách sạn mong muốn',
+                ];
+        } elseif ($isMiceRequest) {
+            $labels = $locale === 'en'
+                ? [
+                    'company_name' => 'Company',
+                    'event_type' => 'Program type',
+                    'conference_name' => 'Conference / meeting name',
+                    'destination' => 'Preferred destination',
+                    'travelers' => 'Guest count',
+                    'estimated_time' => 'Expected timing',
+                    'budget' => 'Reference budget',
+                    'trip_length' => 'Trip length',
+                    'hotel_rating' => 'Hotel standard',
+                ]
+                : [
+                    'company_name' => 'Tên công ty',
+                    'event_type' => 'Loại chương trình',
+                    'conference_name' => 'Tên hội nghị/hội thảo',
+                    'destination' => 'Điểm đến mong muốn',
+                    'travelers' => 'Số lượng khách',
+                    'estimated_time' => 'Thời gian dự kiến',
+                    'budget' => 'Ngân sách tham khảo',
+                    'trip_length' => 'Thời gian đi',
+                    'hotel_rating' => 'Khách sạn mong muốn',
+                ];
+        } else {
+            $labels = $locale === 'en'
+                ? [
                 'travelers' => 'Group size',
                 'estimated_time' => 'Preferred travel period',
                 'trip_length' => 'Trip length',
                 'hotel_rating' => 'Hotel standard',
-            ]
-            : [
+                ]
+                : [
                 'travelers' => 'Số lượng khách',
                 'estimated_time' => 'Thoi gian du kien',
                 'trip_length' => 'Thoi gian di',
                 'hotel_rating' => 'Khach san mong muon',
-            ];
+                ];
+        }
 
         $details = [
             ['label' => lang('Frontend.contact.email', [], $locale), 'value' => $payload['email']],
             ['label' => lang('Frontend.contact.phone', [], $locale), 'value' => $payload['phone']],
         ];
 
-        foreach ([
+        if ($isVisaRequest) {
+            $optionalDetails = [
+            'visa_type' => $payload['visa_type'] ?? '',
+            'visa_refusal' => $payload['visa_refusal'] ?? '',
             'travelers' => $payload['travelers'],
             'estimated_time' => $payload['estimated_time'],
             'trip_length' => $payload['trip_length'],
             'hotel_rating' => $payload['hotel_rating'],
-        ] as $key => $value) {
+            ];
+        } elseif ($isMiceRequest) {
+            $optionalDetails = [
+                'company_name' => $payload['company_name'] ?? '',
+                'event_type' => $payload['event_type'] ?? '',
+                'conference_name' => $payload['conference_name'] ?? '',
+                'travelers' => $payload['travelers'],
+                'estimated_time' => $payload['estimated_time'],
+                'budget' => $payload['budget'] ?? '',
+            ];
+        } else {
+            $optionalDetails = [
+            'travelers' => $payload['travelers'],
+            'estimated_time' => $payload['estimated_time'],
+            'trip_length' => $payload['trip_length'],
+            'hotel_rating' => $payload['hotel_rating'],
+            ];
+        }
+
+        foreach ($optionalDetails as $key => $value) {
             if ($value === '') {
                 continue;
             }
@@ -239,12 +347,24 @@ class Contact extends BaseController
         }
 
         return (new EmailTemplateService())->render(
-            'Yêu cầu liên hệ',
-            lang('Frontend.contact.mailHeading', [], $locale),
-            'Khách vừa gửi yêu cầu tư vấn từ trang liên hệ Travel Plus. Vui lòng kiểm tra nhu cầu và phản hồi sớm.',
+            $isVisaRequest ? 'Yêu cầu tư vấn visa' : ($isMiceRequest ? 'Yêu cầu proposal MICE' : 'Yêu cầu liên hệ'),
+            $isVisaRequest
+                ? ($locale === 'en' ? 'New visa consultation request from Travel Plus website' : 'Yêu cầu tư vấn visa mới từ website Travel Plus')
+                : ($isMiceRequest
+                    ? ($locale === 'en' ? 'New MICE brief request from Travel Plus website' : 'Yêu cầu nhận proposal MICE mới từ website Travel Plus')
+                    : lang('Frontend.contact.mailHeading', [], $locale)),
+            $isVisaRequest
+                ? ($locale === 'en'
+                    ? 'A customer has submitted initial visa file information. Please review the destination, visa type and document status before advising.'
+                    : 'Khách vừa gửi thông tin hồ sơ visa ban đầu. Vui lòng kiểm tra quốc gia, loại visa và tình trạng hồ sơ để tư vấn sớm.')
+                : ($isMiceRequest
+                    ? ($locale === 'en'
+                        ? 'A company has submitted a MICE brief request. Please review the program type, guest count, timing and budget before proposing.'
+                        : 'Doanh nghiệp vừa gửi brief MICE. Vui lòng kiểm tra loại chương trình, số khách, thời gian và ngân sách để phản hồi proposal.')
+                    : 'Khách vừa gửi yêu cầu tư vấn từ trang liên hệ Travel Plus. Vui lòng kiểm tra nhu cầu và phản hồi sớm.'),
             [
                 lang('Frontend.contact.name', [], $locale) => $payload['name'],
-                lang('Frontend.contact.destination', [], $locale) => $destination,
+                ($isVisaRequest || $isMiceRequest ? $labels['destination'] : lang('Frontend.contact.destination', [], $locale)) => $destination,
             ],
             $details,
             $payload['message'],

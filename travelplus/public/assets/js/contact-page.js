@@ -14,6 +14,7 @@ if (form && submitButton) {
   const phoneRequiredError = form.dataset.phoneRequired || form.dataset.phoneError || "Please enter your phone number.";
   const phoneInvalidError = form.dataset.phoneInvalid || form.dataset.phoneError || "Please enter a valid Vietnamese phone number.";
   const messageError = form.dataset.messageError || "Your message must be at least 10 characters.";
+  const messageOptional = form.dataset.messageOptional === "true";
   const privacyError = form.dataset.privacyError || "Please agree to the privacy statement and terms of service.";
 
   const setSubmittingState = (submitting) => {
@@ -85,7 +86,7 @@ if (form && submitButton) {
     });
   };
 
-  const flashError = form.closest(".travelplus-contact-form-card, .summer-lead__form-card, .contact-form-wrap")?.querySelector(".alert-danger");
+  const flashError = form.closest(".travelplus-contact-form-card, .summer-lead__form-card, .visa-lead-card, .mice-page__brief-card, .contact-form-wrap")?.querySelector(".alert-danger");
   if (flashError) {
     setTimeout(() => scrollToElement(flashError), 120);
   }
@@ -150,7 +151,7 @@ if (form && submitButton) {
       }
     }
 
-    if (messageField && messageField.value.trim().length < 10) {
+    if (messageField && (!messageOptional || messageField.value.trim() !== "") && messageField.value.trim().length < 10) {
       rememberInvalid(messageField, messageError);
     }
 

@@ -1,11 +1,75 @@
 <?php
 $locale = service('request')->getLocale() ?: 'vi';
 $contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $locale);
+$privacyUrl = \App\Data\LocalizedPathCatalog::url('legal.privacy', $locale);
+$termsUrl = \App\Data\LocalizedPathCatalog::url('legal.terms', $locale);
+$recaptchaSiteKey = trim((string) env('recaptcha.siteKey', ''), " \t\n\r\0\x0B\"'");
+$contactFormToken = trim((string) ($contact_form_token ?? ''));
 $c = is_array($content ?? null) ? $content : [];
 $metrics = $c['metrics'] ?? [];
 $regions = $c['regions'] ?? [];
 $processSteps = $c['process'] ?? [];
 $faqs = $c['faqs'] ?? [];
+$whyCards = $c['why_cards'] ?? [];
+$visaStats = $c['stats'] ?? [];
+$visaChecklists = $c['checklists'] ?? [];
+$caseStudies = $c['case_studies'] ?? [];
+$rejectionReasons = $c['rejection_reasons'] ?? [];
+$visaLeadForm = $locale === 'en'
+    ? [
+        'title' => 'Send your visa file details',
+        'desc' => 'Travel Plus will review your initial information and advise a suitable checklist before submission.',
+        'nameLabel' => 'Full name',
+        'namePlaceholder' => 'Nguyen Van A',
+        'phoneLabel' => 'Phone number',
+        'phonePlaceholder' => '+84...',
+        'emailLabel' => 'Email',
+        'emailPlaceholder' => 'email@domain.com',
+        'destinationLabel' => 'Visa destination',
+        'destinationOptions' => ['U.S.', 'Canada', 'Australia', 'Schengen', 'Japan', 'South Korea', 'Other destination'],
+        'visaTypeLabel' => 'Visa type',
+        'visaTypeOptions' => ['Tourist visa', 'Business visa', 'Family visit visa', 'Short-term study', 'Other type'],
+        'travelersLabel' => 'Number of applicants',
+        'travelersPlaceholder' => 'Example: 4 people',
+        'timingLabel' => 'Expected timing',
+        'timingPlaceholder' => 'Example: July 2026',
+        'refusalLabel' => 'Previous visa refusal?',
+        'refusalOptions' => ['No', 'Yes', 'Not sure'],
+        'messageLabel' => 'Additional notes',
+        'messagePlaceholder' => 'Share current document status, travel purpose or questions...',
+        'privacyPrefix' => 'I agree to the',
+        'privacyJoin' => 'and',
+        'privacySuffix' => 'of Travel Plus.',
+        'submit' => 'Send visa consultation request',
+        'loading' => 'Sending...',
+    ]
+    : [
+        'title' => 'Gửi thông tin hồ sơ visa',
+        'desc' => 'Travel Plus sẽ kiểm tra thông tin ban đầu và tư vấn checklist phù hợp trước khi nộp hồ sơ.',
+        'nameLabel' => 'Họ và tên',
+        'namePlaceholder' => 'Nguyễn Văn A',
+        'phoneLabel' => 'Số điện thoại',
+        'phonePlaceholder' => '+84...',
+        'emailLabel' => 'Email',
+        'emailPlaceholder' => 'email@domain.com',
+        'destinationLabel' => 'Quốc gia cần xin visa',
+        'destinationOptions' => ['Mỹ', 'Canada', 'Úc', 'Schengen', 'Nhật Bản', 'Hàn Quốc', 'Điểm đến khác'],
+        'visaTypeLabel' => 'Loại visa',
+        'visaTypeOptions' => ['Du lịch', 'Công tác', 'Thăm thân', 'Du học ngắn hạn', 'Loại khác'],
+        'travelersLabel' => 'Số người',
+        'travelersPlaceholder' => 'Ví dụ: 4 người',
+        'timingLabel' => 'Dự kiến đi khi nào',
+        'timingPlaceholder' => 'Ví dụ: tháng 7/2026',
+        'refusalLabel' => 'Đã từng bị từ chối visa chưa?',
+        'refusalOptions' => ['Chưa từng', 'Đã từng', 'Chưa rõ'],
+        'messageLabel' => 'Ghi chú thêm',
+        'messagePlaceholder' => 'Tình trạng giấy tờ hiện có, mục đích chuyến đi hoặc câu hỏi cần tư vấn...',
+        'privacyPrefix' => 'Tôi đồng ý với',
+        'privacyJoin' => 'và',
+        'privacySuffix' => 'của Travel Plus.',
+        'submit' => 'Gửi hồ sơ để Travel Plus tư vấn',
+        'loading' => 'Đang gửi...',
+    ];
 $metricIcons = [
     '<svg width="50" height="50" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M9 2h6a2 2 0 0 1 2 2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1a2 2 0 0 1 2-2Zm0 2v2h6V4H9Zm-3 2v14h12V6h-1v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V6H6Zm9.7 5.3a1 1 0 0 1 0 1.4l-4.2 4.2a1 1 0 0 1-1.4 0l-2-2a1 1 0 1 1 1.4-1.4l1.3 1.29 3.49-3.49a1 1 0 0 1 1.41 0Z"></path></svg>',
     '<svg width="50" height="50" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M11 3a8 8 0 0 1 6.32 12.9l3.39 3.39a1 1 0 0 1-1.42 1.42l-3.39-3.39A8 8 0 1 1 11 3Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm3.7 3.3a1 1 0 0 1 0 1.4l-4.2 4.2a1 1 0 0 1-1.4 0l-1.8-1.8a1 1 0 1 1 1.4-1.4l1.1 1.09 3.49-3.49a1 1 0 0 1 1.41 0Z"></path></svg>',
@@ -24,6 +88,20 @@ $sampleCitizenships = $locale === 'en'
 $sampleResidences = $locale === 'en'
     ? ['Vietnam', 'Canada', 'Japan', 'Germany']
     : ['Việt Nam', 'Canada', 'Nhật Bản', 'Đức'];
+
+$visaQuickFields = $locale === 'en'
+    ? [
+        ['Destination', 'U.S. / Canada / Australia / Schengen', ['Japan / South Korea', 'China / Taiwan', 'Other destination']],
+        ['Travel purpose', 'Tourism / business / family visit', ['Short-term study', 'Conference / MICE', 'Other purpose']],
+        ['Expected timing', 'Departure month and trip length', ['Traveling soon', 'Flexible schedule', 'Need appointment advice']],
+        ['Current file status', 'Passport and documents available', ['Missing documents', 'Need file review', 'First-time application']],
+    ]
+    : [
+        ['Điểm đến cần xin visa', 'Mỹ / Canada / Úc / Schengen', ['Nhật Bản / Hàn Quốc', 'Trung Quốc / Đài Loan', 'Điểm đến khác']],
+        ['Mục đích chuyến đi', 'Du lịch / công tác / thăm thân', ['Du học ngắn hạn', 'Hội nghị / MICE', 'Mục đích khác']],
+        ['Thời gian dự kiến', 'Tháng khởi hành và thời lượng đi', ['Đi gấp', 'Lịch linh hoạt', 'Cần tư vấn lịch hẹn']],
+        ['Tình trạng hồ sơ', 'Hộ chiếu và giấy tờ hiện có', ['Thiếu giấy tờ', 'Cần rà soát hồ sơ', 'Lần đầu xin visa']],
+    ];
 
 $flagMap = [
     'France' => 'fr', 'Pháp' => 'fr',
@@ -93,43 +171,169 @@ $flagMap = [
     </div>
 </div>
 
-<div class="filter-wrapper three mb-100">
+<section class="visa-lead-section mb-100" id="visa-lead-form">
     <div class="container">
-        <div class="filter-input-wrap">
-            <h6><?= esc(lang('Frontend.visaPage.eligibilityTitle', [], $locale)) ?></h6>
-            <form class="filter-input two show" action="<?= esc($contactUrl) ?>" method="get">
-                <?php
-                $filterSamples = [
-                    [lang('Frontend.visaPage.country', [], $locale), $sampleCountries[0], $sampleCountries],
-                    [lang('Frontend.visaPage.visaType', [], $locale), $sampleVisaTypes[0], $sampleVisaTypes],
-                    [lang('Frontend.visaPage.citizenship', [], $locale), $sampleCitizenships[0], $sampleCitizenships],
-                    [lang('Frontend.visaPage.livingIn', [], $locale), $sampleResidences[0], $sampleResidences],
-                ];
-                ?>
-                <?php foreach ($filterSamples as [$label, $value, $options]): ?>
-                    <div class="single-search-box">
-                        <div class="custom-select-dropdown">
-                            <span><?= esc($label) ?></span>
-                            <input type="text" readonly value="<?= esc($value) ?>">
-                        </div>
-                        <div class="custom-select-wrap four">
-                            <ul class="option-list">
-                                <?php foreach ($options as $option): ?>
-                                    <li class="single-item"><h6><?= esc($option) ?></h6></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-                <button type="submit" class="primary-btn1 white-bg">
-                    <span><?= esc(lang('Frontend.visaPage.checkNow', [], $locale)) ?></span>
-                    <span><?= esc(lang('Frontend.visaPage.checkNow', [], $locale)) ?></span>
+        <div class="visa-lead-card">
+            <div class="visa-lead-copy">
+                <span><?= esc(lang('Frontend.visaPage.eligibilityTitle', [], $locale)) ?></span>
+                <h2><?= esc($visaLeadForm['title']) ?></h2>
+                <p><?= esc($visaLeadForm['desc']) ?></p>
+            </div>
+
+            <?php $contactError = session()->getFlashdata('error'); ?>
+            <?php if ($contactError): ?>
+                <div class="alert alert-danger">
+                    <?= nl2br(esc((string) $contactError)) ?>
+                </div>
+            <?php endif; ?>
+
+            <?php $contactSuccess = session()->getFlashdata('success'); ?>
+            <?php if ($contactSuccess): ?>
+                <div class="alert alert-success">
+                    <?= esc((string) $contactSuccess) ?>
+                </div>
+            <?php endif; ?>
+
+            <form
+                method="POST"
+                id="contactForm"
+                class="visa-lead-form travelplus-contact-form"
+                action="<?= esc($contactUrl, 'attr') ?>"
+                data-recaptcha-site-key="<?= esc($recaptchaSiteKey, 'attr') ?>"
+                data-recaptcha-error="<?= esc(lang('Frontend.contact.recaptchaFailed', [], $locale), 'attr') ?>"
+                data-name-error="<?= esc($locale === 'en' ? 'Please enter your full name.' : 'Vui lòng nhập họ và tên.', 'attr') ?>"
+                data-email-required="<?= esc($locale === 'en' ? 'Please enter your email address.' : 'Vui lòng nhập email.', 'attr') ?>"
+                data-email-invalid="<?= esc($locale === 'en' ? 'Please enter a valid email address.' : 'Vui lòng nhập email hợp lệ.', 'attr') ?>"
+                data-phone-required="<?= esc($locale === 'en' ? 'Please enter your phone number.' : 'Vui lòng nhập số điện thoại.', 'attr') ?>"
+                data-phone-invalid="<?= esc($locale === 'en' ? 'Please enter a valid Vietnamese phone number.' : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.', 'attr') ?>"
+                data-message-error="<?= esc($locale === 'en' ? 'Additional notes must be at least 10 characters when provided.' : 'Ghi chú cần tối thiểu 10 ký tự nếu có nhập.', 'attr') ?>"
+                data-message-optional="true"
+                data-privacy-error="<?= esc($locale === 'en' ? 'Please agree to the privacy statement and terms of service.' : 'Vui lòng đồng ý với Chính sách bảo mật và Điều khoản sử dụng.', 'attr') ?>"
+                novalidate>
+                <?= csrf_field() ?>
+                <input type="hidden" name="contact_form_token" value="<?= esc($contactFormToken, 'attr') ?>">
+                <input type="hidden" name="redirect_to" value="<?= esc(current_url() . '#visa-lead-form', 'attr') ?>">
+                <input type="hidden" name="service_type" value="visa">
+                <input type="hidden" name="recaptcha_token" id="recaptcha_token">
+
+                <div class="visa-lead-grid">
+                    <label>
+                        <span><?= esc($visaLeadForm['nameLabel']) ?></span>
+                        <input type="text" name="name" value="<?= esc((string) old('name'), 'attr') ?>" placeholder="<?= esc($visaLeadForm['namePlaceholder'], 'attr') ?>" autocomplete="name" required>
+                    </label>
+                    <label>
+                        <span><?= esc($visaLeadForm['phoneLabel']) ?></span>
+                        <input type="tel" name="phone" value="<?= esc((string) old('phone'), 'attr') ?>" placeholder="<?= esc($visaLeadForm['phonePlaceholder'], 'attr') ?>" autocomplete="tel" required>
+                    </label>
+                    <label>
+                        <span><?= esc($visaLeadForm['emailLabel']) ?></span>
+                        <input type="email" name="email" value="<?= esc((string) old('email'), 'attr') ?>" placeholder="<?= esc($visaLeadForm['emailPlaceholder'], 'attr') ?>" autocomplete="email" required>
+                    </label>
+                    <label>
+                        <span><?= esc($visaLeadForm['destinationLabel']) ?></span>
+                        <select name="destination" required>
+                            <?php foreach ($visaLeadForm['destinationOptions'] as $option): ?>
+                                <option value="<?= esc((string) $option, 'attr') ?>" <?= old('destination') === (string) $option ? 'selected' : '' ?>>
+                                    <?= esc((string) $option) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label>
+                        <span><?= esc($visaLeadForm['visaTypeLabel']) ?></span>
+                        <select name="visa_type" required>
+                            <?php foreach ($visaLeadForm['visaTypeOptions'] as $option): ?>
+                                <option value="<?= esc((string) $option, 'attr') ?>" <?= old('visa_type') === (string) $option ? 'selected' : '' ?>>
+                                    <?= esc((string) $option) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label>
+                        <span><?= esc($visaLeadForm['travelersLabel']) ?></span>
+                        <input type="text" name="travelers" value="<?= esc((string) old('travelers'), 'attr') ?>" placeholder="<?= esc($visaLeadForm['travelersPlaceholder'], 'attr') ?>">
+                    </label>
+                    <label>
+                        <span><?= esc($visaLeadForm['timingLabel']) ?></span>
+                        <input type="text" name="estimated_time" value="<?= esc((string) old('estimated_time'), 'attr') ?>" placeholder="<?= esc($visaLeadForm['timingPlaceholder'], 'attr') ?>">
+                    </label>
+                    <label>
+                        <span><?= esc($visaLeadForm['refusalLabel']) ?></span>
+                        <select name="visa_refusal">
+                            <?php foreach ($visaLeadForm['refusalOptions'] as $option): ?>
+                                <option value="<?= esc((string) $option, 'attr') ?>" <?= old('visa_refusal') === (string) $option ? 'selected' : '' ?>>
+                                    <?= esc((string) $option) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label class="visa-lead-message">
+                        <span><?= esc($visaLeadForm['messageLabel']) ?></span>
+                        <textarea name="message" rows="4" placeholder="<?= esc($visaLeadForm['messagePlaceholder'], 'attr') ?>"><?= esc((string) old('message')) ?></textarea>
+                    </label>
+                </div>
+
+                <label class="visa-lead-check" for="visaLeadPrivacyAgree">
+                    <input type="checkbox" name="privacy_agree" value="1" id="visaLeadPrivacyAgree" <?= old('privacy_agree') ? 'checked' : '' ?> required>
+                    <span>
+                        <?= esc($visaLeadForm['privacyPrefix']) ?>
+                        <a href="<?= esc($privacyUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer"><?= esc(lang('Frontend.footer.link.privacy', [], $locale)) ?></a>
+                        <?= esc($visaLeadForm['privacyJoin']) ?>
+                        <a href="<?= esc($termsUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer"><?= esc(lang('Frontend.footer.link.terms', [], $locale)) ?></a>
+                        <?= esc($visaLeadForm['privacySuffix']) ?>
+                    </span>
+                </label>
+
+                <button
+                    type="submit"
+                    class="primary-btn1 five visa-lead-submit"
+                    id="contactSubmitBtn"
+                    data-default-text="<?= esc($visaLeadForm['submit'], 'attr') ?>"
+                    data-loading-text="<?= esc($visaLeadForm['loading'], 'attr') ?>">
+                    <span data-contact-submit-label><?= esc($visaLeadForm['submit']) ?><i class="bi bi-arrow-up-right"></i></span>
+                    <span><?= esc($visaLeadForm['submit']) ?><i class="bi bi-arrow-up-right"></i></span>
                 </button>
             </form>
-            <p style="font-weight:400"><?= esc(lang('Frontend.visaPage.eligibilityNote', [], $locale)) ?></p>
         </div>
     </div>
-</div>
+</section>
+
+<?php if ($whyCards || $visaStats): ?>
+    <section class="visa-seo-section visa-seo-section--why mb-100">
+        <div class="container">
+            <div class="visa-seo-head text-center">
+                <span><?= esc($c['why_eyebrow'] ?? '') ?></span>
+                <h2><?= esc($c['why_title'] ?? '') ?></h2>
+                <p><?= esc($c['why_desc'] ?? '') ?></p>
+            </div>
+
+            <?php if ($visaStats): ?>
+                <div class="visa-stats-grid">
+                    <?php foreach ($visaStats as $stat): ?>
+                        <div class="visa-stat-item">
+                            <strong><?= esc($stat['value'] ?? '') ?></strong>
+                            <span><?= esc($stat['label'] ?? '') ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($whyCards): ?>
+                <div class="row g-4">
+                    <?php foreach ($whyCards as $card): ?>
+                        <div class="col-lg-4 col-md-6">
+                            <article class="visa-why-card">
+                                <span aria-hidden="true"></span>
+                                <h3><?= esc($card['title'] ?? '') ?></h3>
+                                <p><?= esc($card['text'] ?? '') ?></p>
+                            </article>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
+<?php endif; ?>
 
 <div class="home8-country-serve-section mb-100">
     <div class="container">
@@ -181,6 +385,32 @@ $flagMap = [
     </div>
 </div>
 
+<?php if ($visaChecklists): ?>
+    <section class="visa-seo-section visa-seo-section--checklist mb-100">
+        <div class="container">
+            <div class="visa-seo-head text-center">
+                <span><?= esc($c['checklist_eyebrow'] ?? '') ?></span>
+                <h2><?= esc($c['checklist_title'] ?? '') ?></h2>
+                <p><?= esc($c['checklist_desc'] ?? '') ?></p>
+            </div>
+            <div class="row g-4">
+                <?php foreach ($visaChecklists as $checklist): ?>
+                    <div class="col-lg-3 col-md-6">
+                        <article class="visa-checklist-card">
+                            <h3><?= esc($checklist['title'] ?? '') ?></h3>
+                            <ul>
+                                <?php foreach ($checklist['items'] ?? [] as $item): ?>
+                                    <li><?= esc($item) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </article>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+<?php endif; ?>
+
 <div class="home8-process-section">
     <div class="container">
         <div class="row justify-content-center mb-50 wow animate fadeInDown" data-wow-delay="200ms" data-wow-duration="1500ms">
@@ -224,6 +454,49 @@ $flagMap = [
         <img alt="<?= esc(lang('Frontend.common.alt.visaService', [], $locale)) ?>" loading="lazy" decoding="async" width="400" height="220" src="<?= esc(base_url('assets/images/visa-progress.webp')) ?>">
     </div>
 </div>
+
+<?php if ($caseStudies || $rejectionReasons): ?>
+    <section class="visa-seo-section visa-seo-section--cases mb-100">
+        <div class="container">
+            <?php if ($caseStudies): ?>
+                <div class="visa-seo-head text-center">
+                    <span><?= esc($c['case_eyebrow'] ?? '') ?></span>
+                    <h2><?= esc($c['case_title'] ?? '') ?></h2>
+                    <p><?= esc($c['case_desc'] ?? '') ?></p>
+                </div>
+                <div class="row g-4 mb-60">
+                    <?php foreach ($caseStudies as $case): ?>
+                        <div class="col-lg-6">
+                            <article class="visa-case-card">
+                                <div>
+                                    <span><?= esc($case['profile'] ?? '') ?></span>
+                                    <h3><?= esc($case['destination'] ?? '') ?></h3>
+                                    <small><?= esc($case['timeline'] ?? '') ?></small>
+                                </div>
+                                <p><?= esc($case['result'] ?? '') ?></p>
+                            </article>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($rejectionReasons): ?>
+                <div class="visa-risk-panel">
+                    <div class="visa-risk-copy">
+                        <span><?= esc($c['rejection_eyebrow'] ?? '') ?></span>
+                        <h2><?= esc($c['rejection_title'] ?? '') ?></h2>
+                        <p><?= esc($c['rejection_desc'] ?? '') ?></p>
+                    </div>
+                    <ul class="visa-risk-list">
+                        <?php foreach ($rejectionReasons as $reason): ?>
+                            <li><?= esc($reason) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
+<?php endif; ?>
 
 <div class="home8-company-intro-section mb-100" style="background-image:url(<?= esc(base_url('assets/images/visa-wrapper.jpg')) ?>)">
     <div class="container">
