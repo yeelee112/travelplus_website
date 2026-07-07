@@ -114,7 +114,7 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <?php endif; ?>
 
 <?php if ($bodyClass === 'is-home-page'): ?>
-<link rel="preload" as="image" href="<?= base_url('assets/images/home/banner01.jpg') ?>" fetchpriority="high">
+<link rel="preload" as="image" href="<?= base_url('assets/images/home/banner01.png') ?>" fetchpriority="high">
 <?php endif; ?>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
