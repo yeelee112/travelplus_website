@@ -11478,7 +11478,8 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
 .mice-page__brief-card {display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
     gap: 28px;
-    padding: 38px;}
+    padding: 38px;
+    background: url(../images/mice/mice-form.webp) center / cover no-repeat;}
 .mice-page__brief-contact {padding: 26px;
     border-radius: 24px;
     background: linear-gradient(180deg, rgba(var(--primary-color1-opc), 0.08), rgba(var(--primary-color1-opc), 0.02));
@@ -11597,7 +11598,7 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     font-weight: 850;}
 .mice-page__brief-form {padding: 26px;
     border-radius: 24px;
-    background: linear-gradient(180deg, rgba(var(--primary-color1-opc), 0.08), rgba(var(--primary-color1-opc), 0.02));}
+    background: transparent;}
 .mice-page__brief-form-grid {display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;}
@@ -11765,6 +11766,16 @@ body:has(.tour-list-filter__panel.is-open) .progress-wrap {opacity: 0;
     padding: 34px;}
 .mice-page__brief-copy p {max-width: 560px;
     line-height: 1.7;}
+.mice-page__brief-copy {align-self: start;
+    max-width: 560px;
+    padding: 26px 28px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(255, 255, 255, .64);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .08);
+    backdrop-filter: blur(3px);}
+.mice-page__brief-copy h2, .mice-page__brief-copy p {color: var(--title-color);}
+.mice-page__brief-copy p {font-weight: 650;}
 .mice-page__brief-form {padding: 24px;}
 .mice-page__brief-form-grid {gap: 16px 18px;}
 .mice-page__brief-message textarea {min-height: 106px;}
