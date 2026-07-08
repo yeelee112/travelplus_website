@@ -31,6 +31,31 @@ class LegalController extends BaseController
         }
 
         $pathKey = $type === 'privacy' ? 'legal.privacy' : 'legal.terms';
+        $relatedPathKey = $type === 'privacy' ? 'legal.terms' : 'legal.privacy';
+        $relatedLabel = $type === 'privacy'
+            ? lang('Frontend.footer.link.terms', [], $locale)
+            : lang('Frontend.footer.link.privacy', [], $locale);
+        $page['related_links'] = [
+            [
+                'label' => $relatedLabel,
+                'url' => LocalizedPathCatalog::url($relatedPathKey, $locale),
+            ],
+            [
+                'label' => $locale === 'en' ? 'Visa service' : 'Dịch vụ visa',
+                'url' => LocalizedPathCatalog::url('service.visa', $locale),
+            ],
+            [
+                'label' => $locale === 'en' ? 'MICE service' : 'Dịch vụ MICE',
+                'url' => LocalizedPathCatalog::url('service.mice', $locale),
+            ],
+            [
+                'label' => $locale === 'en' ? 'Contact Travel Plus' : 'Liên hệ Travel Plus',
+                'url' => LocalizedPathCatalog::url('contact', $locale),
+            ],
+        ];
+        $page['cta']['primary_url'] = LocalizedPathCatalog::url('contact', $locale);
+        $page['cta']['secondary_url'] = LocalizedPathCatalog::url($relatedPathKey, $locale);
+
         $data = [
             'page' => $page,
             'pageType' => $type,
@@ -57,6 +82,7 @@ class LegalController extends BaseController
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
             $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url']),
+            $seo->faqSchema($page['faqs'] ?? []),
         ];
 
         return view('legal/page', $data);

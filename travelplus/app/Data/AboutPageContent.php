@@ -38,7 +38,7 @@ final class AboutPageContent
                     ['year' => '2013 – 2014', 'date' => '2013 – 2014', 'title' => 'Củng cố vận hành sau 5 năm', 'events' => [
                         ['date' => '01/2013', 'text' => 'Kỷ niệm 5 năm thành lập công ty tại TP Hồ Chí Minh.'],
                         ['date' => '12/2014', 'text' => 'Chuyển văn phòng TP Hồ Chí Minh về 3/30A Thích Quảng Đức, Phường 3, Quận Phú Nhuận.'],
-                        ['date' => '12/2014', 'text' => 'Giấy phép kinh doanh lữ hành quốc tế được Tổng cục Du lịch cấp lần 2.'],
+                        ['date' => '12/2014', 'text' => 'Giấy phép kinh doanh lữ hành quốc tế số 79-114/2014/TCDL-GP LHQT được Tổng cục Du lịch cấp lần 2.'],
                     ]],
                     ['year' => '2016 – 2017', 'date' => '2016 – 2017', 'title' => 'Phát triển tại Cần Thơ', 'events' => [
                         ['date' => '05/2016', 'text' => 'Thành lập Chi nhánh Cần Thơ tại 14-16B Hòa Bình, Phường An Cư, Quận Ninh Kiều.'],
@@ -94,7 +94,7 @@ final class AboutPageContent
                     ['year' => '2013 – 2014', 'date' => '2013 – 2014', 'title' => 'Consolidation after five years', 'events' => [
                         ['date' => '01/2013', 'text' => 'Travel Plus celebrated its 5th anniversary in Ho Chi Minh City.'],
                         ['date' => '12/2014', 'text' => 'The Ho Chi Minh City office moved to 3/30A Thich Quang Duc, Ward 3, Phu Nhuan District.'],
-                        ['date' => '12/2014', 'text' => 'The international travel business license was issued for the second time by the Vietnam National Administration of Tourism.'],
+                        ['date' => '12/2014', 'text' => 'International tour operator license No. 79-114/2014/TCDL-GP LHQT was issued for the second time by the Vietnam National Administration of Tourism.'],
                     ]],
                     ['year' => '2016 – 2017', 'date' => '2016 – 2017', 'title' => 'Development in Can Tho', 'events' => [
                         ['date' => '05/2016', 'text' => 'Travel Plus established its Can Tho Branch at 14-16B Hoa Binh, An Cu Ward, Ninh Kieu District.'],

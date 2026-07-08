@@ -13,7 +13,8 @@ $footerCopy = [
         'ctaSecondary' => 'Tìm tour',
         'brandDesc' => 'Travel Plus cung cấp tour nước ngoài, tour trong nước, visa và MICE cho khách cá nhân, gia đình, nhóm bạn và doanh nghiệp.',
         'contactTitle' => 'Liên hệ nhanh',
-        'taxLabel' => 'Mã số thuế',
+        'taxLabel' => 'MST',
+        'travelLicenseLabel' => 'GP lữ hành quốc tế',
         'officeTitle' => 'Văn phòng Travel Plus',
         'socialTitle' => 'Kết nối với Travel Plus',
         'viewLabel' => 'Lượt truy cập',
@@ -27,11 +28,13 @@ $footerCopy = [
         'brandDesc' => 'Travel Plus provides outbound tours, domestic tours, visa services and MICE programs for individuals, families, groups and companies.',
         'contactTitle' => 'Quick contact',
         'taxLabel' => 'Tax code',
+        'travelLicenseLabel' => 'Tour operator license',
         'officeTitle' => 'Travel Plus offices',
         'socialTitle' => 'Connect with Travel Plus',
         'viewLabel' => 'Total views',
     ],
 ][$locale];
+$copyrightText = html_entity_decode(lang('Frontend.footer.copyright'), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
 $tourLinks = [
     ['label' => lang('Frontend.footer.link.outbound'), 'url' => \App\Data\LocalizedPathCatalog::url('outbound', $locale)],
@@ -69,6 +72,7 @@ $socialLinks = [
     <meta itemprop="telephone" content="+84795681568">
     <meta itemprop="email" content="info@travelplusvn.com">
     <meta itemprop="taxID" content="0305475784">
+    <meta itemprop="identifier" content="79-114/2014/TCDL-GP LHQT">
     <div class="container">
         <div class="travelplus-footer__cta">
             <div class="travelplus-footer__cta-copy">
@@ -94,9 +98,12 @@ $socialLinks = [
                 </a>
                 <p><?= esc($footerCopy['brandDesc']) ?></p>
                 <div class="travelplus-footer__contact" aria-label="<?= esc($footerCopy['contactTitle']) ?>">
+                    <span class="travelplus-footer__legal-line">
+                        <span><?= esc($footerCopy['taxLabel']) ?>: <strong>0305475784</strong></span>
+                        <span><?= esc($footerCopy['travelLicenseLabel']) ?>: <strong>79-114/2014/TCDL-GP LHQT</strong></span>
+                    </span>
                     <a href="tel:+84795681568"><i class="bi bi-telephone"></i> +84 79 568 1 568</a>
                     <a href="mailto:info@travelplusvn.com"><i class="bi bi-envelope"></i> info@travelplusvn.com</a>
-                    <span class="travelplus-footer__tax"><i class="bi bi-receipt"></i> <?= esc($footerCopy['taxLabel']) ?>: 0305475784</span>
                 </div>
                 <div class="travelplus-footer__socials" aria-label="<?= esc($footerCopy['socialTitle']) ?>">
                     <?php foreach ($socialLinks as $social): ?>
@@ -163,7 +170,7 @@ $socialLinks = [
     <div class="travelplus-footer__bottom">
         <div class="container">
             <div class="travelplus-footer__bottom-inner">
-                <p><?= esc(lang('Frontend.footer.copyright')) ?></p>
+                <p><?= esc($copyrightText) ?></p>
                 <div class="travelplus-footer__views" aria-label="<?= esc($footerCopy['viewLabel']) ?>">
                     <i class="bi bi-eye"></i>
                     <span><?= esc($footerCopy['viewLabel']) ?>:</span>

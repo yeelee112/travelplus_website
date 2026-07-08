@@ -120,7 +120,7 @@ $copy = $locale === 'en'
     .tp-cookie-choice span{color:#5d6c7b;font-size:12px;line-height:1.45}
     .tp-cookie-choice em{display:inline-flex;align-items:center;min-height:24px;padding:4px 9px;border-radius:999px;background:#e9f7ff;color:#0b77aa;font-size:11px;font-style:normal;font-weight:900;white-space:nowrap}
     .tp-cookie-choice input{width:20px;height:20px;flex:0 0 20px;accent-color:#0b3d91}
-    .travelplus-footer__cookie-button{border:0;background:transparent;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+    .travelplus-footer__cookie-button{display:inline-flex;border:0;background:transparent;padding:0;color:rgba(var(--title-color-opc),.72);font:inherit;font-size:15px;line-height:1.45;text-align:left;cursor:pointer;transition:color .2s ease}
     .travelplus-footer__cookie-button:hover{color:var(--primary-color1)}
     body.tp-cookie-panel-open .tp-ai-chatbox{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px)}
     @media (max-width:991px){.tp-cookie-consent__panel{grid-template-columns:1fr}.tp-cookie-consent__actions{justify-content:flex-start}.tp-cookie-consent__choices{grid-template-columns:repeat(2,minmax(0,1fr))}}

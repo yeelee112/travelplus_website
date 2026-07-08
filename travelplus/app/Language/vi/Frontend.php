@@ -99,7 +99,7 @@ return [
     'footer.link.terms' => 'Điều khoản sử dụng',
     'footer.link.privacy' => 'Chính sách bảo mật',
     'footer.views' => 'Lượt xem',
-    'footer.copyright' => 'Copyright 2026 © Travel Plus. All rights reserved.',
+    'footer.copyright' => '&copy; 2026 Travel Plus. Nội dung và thương hiệu thuộc Travel Plus; hình ảnh minh họa có thể thuộc đối tác hoặc nguồn được cấp phép.',
 
     'hero.banner1.title' => 'Khám Phá Thế Giới',
     'hero.banner1.cta' => 'Xem tất cả tour',

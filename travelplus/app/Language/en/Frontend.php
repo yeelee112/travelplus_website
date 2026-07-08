@@ -99,7 +99,7 @@ return [
     'footer.link.terms' => 'Terms of Service',
     'footer.link.privacy' => 'Privacy Statement',
     'footer.views' => 'Views',
-    'footer.copyright' => 'Copyright 2026 © Travel Plus. All rights reserved.',
+    'footer.copyright' => '&copy; 2026 Travel Plus. Content and brand assets belong to Travel Plus; illustrative images may belong to partners or licensed sources.',
 
     'hero.banner1.title' => 'Explore the World',
     'hero.banner1.cta' => 'View all tours',
