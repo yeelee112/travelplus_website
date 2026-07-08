@@ -99,8 +99,23 @@ $c = is_array($content ?? null) ? $content : [];
                         <?php foreach (($c['timeline'] ?? []) as $index => $item): ?>
                             <?php $active = $index === 0; $tabId = 'pills-' . ($index + 1); ?>
                             <div class="tab-pane fade <?= $active ? 'show active' : '' ?>" id="<?= esc($tabId) ?>" role="tabpanel" aria-labelledby="<?= esc($tabId) ?>-tab">
-                                <h4><?= esc($item['title']) ?></h4>
-                                <p><?= esc($item['body']) ?></p>
+                                <div class="about-page-journey-card">
+                                    <div class="about-page-journey-card__copy">
+                                        <h4><?= esc($item['title']) ?></h4>
+                                        <?php if (! empty($item['events']) && is_array($item['events'])): ?>
+                                            <div class="about-page-journey-events">
+                                                <?php foreach ($item['events'] as $event): ?>
+                                                    <div class="about-page-journey-event">
+                                                        <time><?= esc($event['date'] ?? '') ?></time>
+                                                        <p><?= esc($event['text'] ?? '') ?></p>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <p><?= esc($item['body']) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>

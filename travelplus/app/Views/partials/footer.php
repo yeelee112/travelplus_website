@@ -13,6 +13,7 @@ $footerCopy = [
         'ctaSecondary' => 'Tìm tour',
         'brandDesc' => 'Travel Plus cung cấp tour nước ngoài, tour trong nước, visa và MICE cho khách cá nhân, gia đình, nhóm bạn và doanh nghiệp.',
         'contactTitle' => 'Liên hệ nhanh',
+        'taxLabel' => 'Mã số thuế',
         'officeTitle' => 'Văn phòng Travel Plus',
         'socialTitle' => 'Kết nối với Travel Plus',
         'viewLabel' => 'Lượt truy cập',
@@ -25,6 +26,7 @@ $footerCopy = [
         'ctaSecondary' => 'Find tours',
         'brandDesc' => 'Travel Plus provides outbound tours, domestic tours, visa services and MICE programs for individuals, families, groups and companies.',
         'contactTitle' => 'Quick contact',
+        'taxLabel' => 'Tax code',
         'officeTitle' => 'Travel Plus offices',
         'socialTitle' => 'Connect with Travel Plus',
         'viewLabel' => 'Total views',
@@ -66,6 +68,7 @@ $socialLinks = [
     <meta itemprop="url" content="<?= esc(base_url(), 'attr') ?>">
     <meta itemprop="telephone" content="+84795681568">
     <meta itemprop="email" content="info@travelplusvn.com">
+    <meta itemprop="taxID" content="0305475784">
     <div class="container">
         <div class="travelplus-footer__cta">
             <div class="travelplus-footer__cta-copy">
@@ -93,6 +96,7 @@ $socialLinks = [
                 <div class="travelplus-footer__contact" aria-label="<?= esc($footerCopy['contactTitle']) ?>">
                     <a href="tel:+84795681568"><i class="bi bi-telephone"></i> +84 79 568 1 568</a>
                     <a href="mailto:info@travelplusvn.com"><i class="bi bi-envelope"></i> info@travelplusvn.com</a>
+                    <span class="travelplus-footer__tax"><i class="bi bi-receipt"></i> <?= esc($footerCopy['taxLabel']) ?>: 0305475784</span>
                 </div>
                 <div class="travelplus-footer__socials" aria-label="<?= esc($footerCopy['socialTitle']) ?>">
                     <?php foreach ($socialLinks as $social): ?>
