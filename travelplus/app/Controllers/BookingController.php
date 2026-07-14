@@ -7,6 +7,7 @@ use App\Models\BookingModel;
 use App\Models\PromotionCodeModel;
 use App\Models\UserModel;
 use App\Services\BookingNotificationService;
+use App\Services\CrmLeadCaptureService;
 use App\Services\PayPalSandboxService;
 use App\Services\PromotionCodeService;
 use App\Services\VietnamPhoneService;
@@ -118,6 +119,45 @@ class BookingController extends BaseController
         ]);
     }
 
+    public function lookup()
+    {
+        $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
+        $bookingCode = strtoupper(trim((string) $this->request->getPost('booking_code')));
+        $contact = trim((string) $this->request->getPost('contact'));
+        $bookings = [];
+        $error = '';
+        $submitted = strtolower($this->request->getMethod()) === 'post';
+
+        if ($submitted) {
+            if ($bookingCode === '' && $contact === '') {
+                $error = $locale === 'en'
+                    ? 'Please enter a booking code, email, or phone number.'
+                    : 'Vui lòng nhập mã booking, email hoặc số điện thoại.';
+            } else {
+                $bookings = $this->findBookingsForLookup($bookingCode, $contact);
+
+                if ($bookings === []) {
+                    $error = $locale === 'en'
+                        ? 'No booking matched those details. Please check the information and try again.'
+                        : 'Không tìm thấy booking khớp với thông tin đã nhập. Vui lòng kiểm tra lại và thử lại.';
+                }
+            }
+        }
+
+        return view('booking/lookup', [
+            'bookings' => $bookings,
+            'error' => $error,
+            'submitted' => $submitted,
+            'bookingCode' => $bookingCode,
+            'contact' => $contact,
+            'lookupAction' => LocalizedPathCatalog::url('booking.lookup', $locale),
+            'meta_title' => $locale === 'en' ? 'Booking lookup | Travel Plus' : 'Tra cứu booking | Travel Plus',
+            'meta_desc' => $locale === 'en'
+                ? 'Look up your Travel Plus booking status with your booking code and contact information.'
+                : 'Tra cứu trạng thái booking Travel Plus bằng mã booking và thông tin liên hệ.',
+        ]);
+    }
+
     public function applyCoupon()
     {
         $pendingBooking = $this->getPendingBooking();
@@ -196,6 +236,56 @@ class BookingController extends BaseController
             'departureFrom' => $this->resolveBookingDepartureFrom((int) ($booking['tour_id'] ?? 0), $this->request->getLocale()),
             'bookingTourType' => $this->resolveBookingTourType((int) ($booking['tour_id'] ?? 0)),
         ]);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function findBookingsForLookup(string $bookingCode, string $contact): array
+    {
+        $bookingCode = strtoupper(trim($bookingCode));
+        $contact = trim($contact);
+
+        if ($bookingCode === '' && $contact === '') {
+            return [];
+        }
+
+        $email = strtolower($contact);
+        $phone = VietnamPhoneService::normalize($contact);
+        $hasEmail = filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+        $hasPhone = VietnamPhoneService::isValid($phone);
+
+        if ($contact !== '' && ! $hasEmail && ! $hasPhone) {
+            return [];
+        }
+
+        $query = (new BookingModel())->orderBy('created_at', 'DESC')->orderBy('id', 'DESC');
+
+        if ($bookingCode !== '') {
+            $query->where('booking_code', $bookingCode);
+        }
+
+        if ($contact !== '') {
+            $query->groupStart();
+
+            if ($hasEmail) {
+                $query->where('customer_email', $email);
+            }
+
+            if ($hasPhone) {
+                if ($hasEmail) {
+                    $query->orWhere('customer_phone', $phone);
+                } else {
+                    $query->where('customer_phone', $phone);
+                }
+            }
+
+            $query->groupEnd();
+        }
+
+        $bookings = $query->findAll($bookingCode !== '' ? 1 : 10);
+
+        return is_array($bookings) ? $bookings : [];
     }
 
     private function resolveBookingTourType(int $tourId): string
@@ -1244,6 +1334,7 @@ class BookingController extends BaseController
         }
 
         session()->set('current_booking_code', (string) $booking['booking_code']);
+        (new CrmLeadCaptureService())->captureBooking($booking);
 
         return $booking;
     }

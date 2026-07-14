@@ -7,6 +7,7 @@ $displayRole = is_array($authUser) && ! empty($authUser['is_admin']) ? 'Quản t
 $navItems = [
     ['key' => 'dashboard', 'label' => 'Tổng quan', 'url' => site_url('admin')],
     ['key' => 'analytics', 'label' => 'Analytics', 'url' => site_url('admin/analytics')],
+    ['key' => 'leads', 'label' => 'CRM leads', 'url' => site_url('admin/leads')],
     ['key' => 'bookings', 'label' => 'Đơn đặt tour', 'url' => site_url('admin/bookings')],
     ['key' => 'tours', 'label' => 'Tour', 'url' => site_url('admin/tours')],
     ['key' => 'promotion_codes', 'label' => 'Mã khuyến mãi', 'url' => site_url('admin/promotion-codes')],

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Data\LocalizedPathCatalog;
+use App\Services\CrmLeadCaptureService;
 use App\Services\EmailTemplateService;
 use App\Services\SeoService;
 use App\Services\VietnamPhoneService;
@@ -160,6 +161,33 @@ class Contact extends BaseController
 
             return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.sendFailed', [], $locale), true);
         }
+
+        (new CrmLeadCaptureService())->capture([
+            'source' => 'contact_form',
+            'stage' => 'new',
+            'priority' => $isMiceRequest || $isVisaRequest ? 'high' : 'normal',
+            'customer_name' => $name,
+            'customer_email' => $email,
+            'customer_phone' => $phone,
+            'service_type' => $serviceType !== '' ? $serviceType : 'tour',
+            'interest_title' => $isVisaRequest ? 'Visa consultation' : ($isMiceRequest ? 'MICE proposal' : 'Contact request'),
+            'interest_url' => $redirectTarget ?? LocalizedPathCatalog::url('contact', $locale),
+            'destination' => $destination,
+            'travel_date' => $estimatedTime,
+            'travelers' => $travelers,
+            'budget' => $budget,
+            'message' => $message,
+            'metadata' => [
+                'locale' => $locale,
+                'company_name' => $companyName,
+                'event_type' => $eventType,
+                'conference_name' => $conferenceName,
+                'visa_type' => $visaType,
+                'visa_refusal' => $visaRefusal,
+                'trip_length' => $tripLength,
+                'hotel_rating' => $hotelRating,
+            ],
+        ]);
 
         return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale));
     }

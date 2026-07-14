@@ -37,6 +37,8 @@ $routes->GET('tour-he', 'SummerTours::index');
 
 $routes->GET('admin', 'Admin\Dashboard::index');
 $routes->GET('admin/analytics', 'Admin\Analytics::index');
+$routes->GET('admin/leads', 'Admin\Leads::index');
+$routes->POST('admin/leads/(:num)', 'Admin\Leads::update/$1');
 $routes->GET('admin/bookings', 'Admin\Bookings::index');
 $routes->GET('admin/bookings/export', 'Admin\Bookings::exportCsv');
 $routes->GET('admin/bookings/(:num)', 'Admin\Bookings::show/$1');
@@ -87,6 +89,7 @@ $routes->GET('auth/google', 'AuthController::google');
 $routes->GET('auth/google/callback', 'AuthController::googleCallback');
 $routes->POST('booking/proceed', 'BookingController::proceed');
 $routes->match(['GET', 'POST'], 'booking/guest', 'BookingController::continueGuest');
+$routes->match(['GET', 'POST'], 'booking/lookup', 'BookingController::lookup');
 $routes->GET('booking/checkout', 'BookingController::checkout');
 $routes->POST('booking/apply-coupon', 'BookingController::applyCoupon');
 $routes->GET('booking/success/(:segment)', 'BookingController::success/$1');
@@ -149,6 +152,7 @@ $routes->group('en', function ($routes) {
     $routes->GET('auth/google/callback', 'AuthController::googleCallback');
     $routes->POST('booking/proceed', 'BookingController::proceed');
     $routes->match(['GET', 'POST'], 'booking/guest', 'BookingController::continueGuest');
+    $routes->match(['GET', 'POST'], 'booking/lookup', 'BookingController::lookup');
     $routes->GET('booking/checkout', 'BookingController::checkout');
     $routes->POST('booking/apply-coupon', 'BookingController::applyCoupon');
     $routes->GET('booking/success/(:segment)', 'BookingController::success/$1');

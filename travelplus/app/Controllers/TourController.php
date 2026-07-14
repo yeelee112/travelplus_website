@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Services\EntityViewService;
+use App\Services\CrmLeadCaptureService;
 use App\Services\SeoService;
 use App\Services\TourCatalogService;
 use App\Services\TourEnquiryNotificationService;
@@ -203,6 +204,25 @@ class TourController extends BaseController
                 'message' => lang('Frontend.tour.enquiry.mailFailed', [], $locale),
             ]);
         }
+
+        (new CrmLeadCaptureService())->capture([
+            'source' => 'tour_enquiry',
+            'stage' => 'new',
+            'priority' => 'high',
+            'customer_name' => $enquiry['full_name'],
+            'customer_email' => $enquiry['email'],
+            'customer_phone' => $enquiry['phone'],
+            'service_type' => 'tour',
+            'interest_title' => $enquiry['tour_title'],
+            'interest_url' => $enquiry['tour_link'],
+            'travel_date' => $enquiry['travel_date'],
+            'travelers' => $enquiry['travelers'],
+            'message' => $enquiry['message'],
+            'metadata' => [
+                'locale' => $locale,
+                'tour_id' => $enquiry['tour_id'],
+            ],
+        ]);
 
         return $this->response->setJSON([
             'ok' => true,

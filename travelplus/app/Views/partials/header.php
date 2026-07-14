@@ -4,7 +4,6 @@ $currentAbsoluteUrl = (string) service('request')->getUri();
 $isEnglish = $locale === 'en';
 $viUrl = switch_locale_url('vi');
 $enUrl = switch_locale_url('en');
-$searchAction = \App\Data\LocalizedPathCatalog::url('search', $locale);
 $currentPath = trim((string) service('request')->getUri()->getPath(), '/');
 $normalizeHeaderPath = static function (string $url): string {
     $path = (string) (parse_url($url, PHP_URL_PATH) ?? '');
@@ -21,12 +20,6 @@ $isActiveHeaderUrl = static function (string $url) use ($currentPath, $normalize
 };
 $loginLabel = lang('Frontend.auth.login');
 $logoutLabel = lang('Frontend.auth.logout');
-$headerQuickSearches = [
-    ['label' => lang('Frontend.header.quick.japan'), 'query' => 'Nhat Ban'],
-    ['label' => lang('Frontend.header.quick.paris'), 'query' => 'Paris'],
-    ['label' => lang('Frontend.header.quick.danang'), 'query' => 'Da Nang'],
-    ['label' => lang('Frontend.header.quick.eiffel'), 'query' => 'Eiffel'],
-];
 $serviceMenuItems = [
     ['label' => lang('Frontend.header.service.airlineTickets'), 'url' => \App\Data\LocalizedPathCatalog::url('service.airlineTickets', $locale)],
     ['label' => lang('Frontend.header.service.transport'), 'url' => \App\Data\LocalizedPathCatalog::url('service.transport', $locale)],
@@ -58,6 +51,8 @@ $domesticUrl = \App\Data\LocalizedPathCatalog::url('domestic', $locale);
 $visaUrl = \App\Data\LocalizedPathCatalog::url('service.visa', $locale);
 $miceUrl = \App\Data\LocalizedPathCatalog::url('service.mice', $locale);
 $contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $locale);
+$bookingLookupUrl = \App\Data\LocalizedPathCatalog::url('booking.lookup', $locale);
+$bookingLookupLabel = $locale === 'en' ? 'Booking lookup' : 'Tra cứu booking';
 $serviceMenuActive = array_reduce(
     $serviceMenuItems,
     static fn (bool $active, array $item): bool => $active || $isActiveHeaderUrl((string) ($item['url'] ?? '')),
@@ -103,6 +98,9 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
             <div class="topbar-right">
                 <div class="support-and-language-area">
                     <a href="<?= $aboutUrl ?>"><?= esc(lang('Frontend.header.aboutTravelPlus')) ?></a>
+                    <a class="header-booking-lookup-btn header-booking-lookup-btn--topbar" href="<?= esc($bookingLookupUrl) ?>" aria-label="<?= esc($bookingLookupLabel, 'attr') ?>" title="<?= esc($bookingLookupLabel, 'attr') ?>">
+                        <span><?= esc($bookingLookupLabel) ?></span>
+                    </a>
                     <div class="language-area">
                         <div class="language-btn">
                             <img alt="<?= esc($currentLanguage['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" src="<?= esc($currentLanguage['flag']) ?>">
@@ -123,35 +121,6 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
                 </div>
 
                 <div class="search-and-login">
-                    <div class="search-bar">
-                        <div class="search-btn" data-toggle="dropdown" data-target=".search-input">
-                            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <path d="M15.7417 14.6098L13.486 12.3621C14.7088 10.8514 15.3054 8.9291 15.1526 6.99153C14.9998 5.05396 14.1093 3.24888 12.6648 1.94851C11.2203 0.648146 9.33193 -0.0483622 7.38901 0.00261294C5.44609 0.0535881 3.59681 0.84816 2.22248 2.22248C0.84816 3.59681 0.0535881 5.44609 0.00261294 7.38901C-0.0483622 9.33193 0.648146 11.2203 1.94851 12.6648C3.24888 14.1093 5.05396 14.9998 6.99153 15.1526C8.9291 15.3054 10.8514 14.7088 12.3621 13.486L14.6098 15.7417C14.6839 15.8164 14.7721 15.8757 14.8692 15.9161C14.9664 15.9566 15.0705 15.9774 15.1758 15.9774C15.281 15.9774 15.3852 15.9566 15.4823 15.9161C15.5794 15.8757 15.6676 15.8164 15.7417 15.7417C15.8164 15.6676 15.8757 15.5794 15.9161 15.4823C15.9566 15.3852 15.9774 15.281 15.9774 15.1758C15.9774 15.0705 15.9566 14.9664 15.9161 14.8692C15.8757 14.7721 15.8164 14.6839 15.7417 14.6098ZM1.62572 7.60368C1.62572 6.42135 1.97632 5.26557 2.63319 4.2825C3.29005 3.29943 4.22368 2.53322 5.31601 2.08076C6.40834 1.62831 7.61031 1.50992 8.76992 1.74058C9.92953 1.97124 10.9947 2.54059 11.8307 3.37662C12.6668 4.21266 13.2361 5.27783 13.4668 6.43744C13.6974 7.59705 13.579 8.79902 13.1266 9.89134C12.6741 10.9837 11.9079 11.9173 10.9249 12.5742C9.94178 13.231 8.78601 13.5816 7.60368 13.5816C6.01822 13.5816 4.49771 12.9518 3.37662 11.8307C2.25554 10.7096 1.62572 9.18913 1.62572 7.60368Z"></path>
-                                </g>
-                            </svg>
-                        </div>
-                        <div class="search-input">
-                            <div class="search-close"></div>
-                            <form action="<?= esc($searchAction) ?>" method="get" data-tour-search-form class="header-tour-search-form">
-                                <div class="search-group">
-                                    <div class="form-inner2 header-search-box">
-                                        <input type="text" name="q" class="header-search-field" placeholder="<?= esc(lang('Frontend.header.searchPlaceholder')) ?>" autocomplete="off">
-                                        <button type="submit" class="header-search-submit"><i class="bi bi-search"></i></button>
-                                    </div>
-                                </div>
-                                <div class="quick-search">
-                                    <ul>
-                                        <li><?= esc(lang('Frontend.header.quickSearch')) ?></li>
-                                        <?php foreach ($headerQuickSearches as $quickSearch): ?>
-                                            <li><a href="<?= esc($searchAction . '?q=' . rawurlencode($quickSearch['query'])) ?>"><?= esc($quickSearch['label']) ?></a></li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
                     <?php if ($authUser): ?>
                         <div class="account-dropdown">
                             <div class="primary-btn1 three black-bg account-btn">
@@ -326,6 +295,7 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
 
                 <li class="<?= $isActiveHeaderUrl($blogUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $blogUrl ?>"><?= esc(lang('Frontend.header.menu.blog')) ?></a></li>
                 <li class="<?= $isActiveHeaderUrl($contactUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $contactUrl ?>"><?= esc(lang('Frontend.header.menu.contact')) ?></a></li>
+                <li class="mobile-booking-menu-item <?= $isActiveHeaderUrl($bookingLookupUrl) ? 'current-menu-item' : '' ?>"><a href="<?= esc($bookingLookupUrl) ?>"><?= esc($bookingLookupLabel) ?></a></li>
             </ul>
 
             <div class="language-and-login-area d-lg-none d-block">
@@ -399,35 +369,6 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
         </div>
 
         <div class="nav-right">
-            <div class="search-bar d-lg-none d-block">
-                <div class="search-btn" data-toggle="dropdown" data-target=".search-input">
-                    <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                        <g>
-                            <path d="M15.7417 14.6098L13.486 12.3621C14.7088 10.8514 15.3054 8.9291 15.1526 6.99153C14.9998 5.05396 14.1093 3.24888 12.6648 1.94851C11.2203 0.648146 9.33193 -0.0483622 7.38901 0.00261294C5.44609 0.0535881 3.59681 0.84816 2.22248 2.22248C0.84816 3.59681 0.0535881 5.44609 0.00261294 7.38901C-0.0483622 9.33193 0.648146 11.2203 1.94851 12.6648C3.24888 14.1093 5.05396 14.9998 6.99153 15.1526C8.9291 15.3054 10.8514 14.7088 12.3621 13.486L14.6098 15.7417C14.6839 15.8164 14.7721 15.8757 14.8692 15.9161C14.9664 15.9566 15.0705 15.9774 15.1758 15.9774C15.281 15.9774 15.3852 15.9566 15.4823 15.9161C15.5794 15.8757 15.6676 15.8164 15.7417 15.7417C15.8164 15.6676 15.8757 15.5794 15.9161 15.4823C15.9566 15.3852 15.9774 15.281 15.9774 15.1758C15.9774 15.0705 15.9566 14.9664 15.9161 14.8692C15.8757 14.7721 15.8164 14.6839 15.7417 14.6098ZM1.62572 7.60368C1.62572 6.42135 1.97632 5.26557 2.63319 4.2825C3.29005 3.29943 4.22368 2.53322 5.31601 2.08076C6.40834 1.62831 7.61031 1.50992 8.76992 1.74058C9.92953 1.97124 10.9947 2.54059 11.8307 3.37662C12.6668 4.21266 13.2361 5.27783 13.4668 6.43744C13.6974 7.59705 13.579 8.79902 13.1266 9.89134C12.6741 10.9837 11.9079 11.9173 10.9249 12.5742C9.94178 13.231 8.78601 13.5816 7.60368 13.5816C6.01822 13.5816 4.49771 12.9518 3.37662 11.8307C2.25554 10.7096 1.62572 9.18913 1.62572 7.60368Z"></path>
-                        </g>
-                    </svg>
-                </div>
-                <div class="search-input">
-                    <div class="search-close"></div>
-                    <form action="<?= esc($searchAction) ?>" method="get" data-tour-search-form class="header-tour-search-form">
-                        <div class="search-group">
-                            <div class="form-inner2 header-search-box">
-                                <input type="text" name="q" class="header-search-field" placeholder="<?= esc(lang('Frontend.header.searchPlaceholder')) ?>" autocomplete="off">
-                                <button type="submit" class="header-search-submit"><i class="bi bi-search"></i></button>
-                            </div>
-                        </div>
-                        <div class="quick-search">
-                            <ul>
-                                <li><?= esc(lang('Frontend.header.quickSearch')) ?></li>
-                                <?php foreach ($headerQuickSearches as $quickSearch): ?>
-                                    <li><a href="<?= esc($searchAction . '?q=' . rawurlencode($quickSearch['query'])) ?>"><?= esc($quickSearch['label']) ?></a></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
             <div class="sidebar-button mobile-menu-btn">
                 <svg width="20" height="18" viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.29445 2.8421H10.5237C11.2389 2.8421 11.8182 2.2062 11.8182 1.42105C11.8182 0.635903 11.2389 0 10.5237 0H1.29445C0.579249 0 0 0.635903 0 1.42105C0 2.2062 0.579249 2.8421 1.29445 2.8421Z"></path>

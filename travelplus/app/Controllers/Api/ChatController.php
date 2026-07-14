@@ -3,6 +3,7 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
+use App\Services\CrmLeadCaptureService;
 use App\Services\GeminiWebsiteChatService;
 use RuntimeException;
 
@@ -40,6 +41,7 @@ class ChatController extends BaseController
         }
 
         $this->logChatEntry('user', $locale, $message, $payload);
+        $this->captureLeadFromChat($locale, $message, $payload);
 
         if (! $this->passesRateLimit()) {
             return $this->response->setStatusCode(429)->setJSON([
@@ -90,8 +92,15 @@ class ChatController extends BaseController
                 $session->set('ai_chat_state', $result['chat_state']);
             }
 
+            $assistantMessage = $this->appendLeadCaptureCta(
+                $locale,
+                $message,
+                $normalizedHistory,
+                (string) $result['message']
+            );
+
             $response = [
-                'message' => $result['message'],
+                'message' => $assistantMessage,
                 'sources' => $result['sources'],
             ];
 
@@ -99,7 +108,7 @@ class ChatController extends BaseController
                 $response['debug'] = $result['debug_meta'];
             }
 
-            $this->logChatEntry('assistant', $locale, (string) $result['message'], $payload, [
+            $this->logChatEntry('assistant', $locale, $assistantMessage, $payload, [
                 'sources_count' => is_array($result['sources'] ?? null) ? count($result['sources']) : 0,
             ]);
 
@@ -113,6 +122,165 @@ class ChatController extends BaseController
                     : 'AI Travel Plus đang tạm thời không khả dụng. Vui lòng thử lại sau.',
             ]);
         }
+    }
+
+    /**
+     * @param list<array{role: string, text: string}> $history
+     */
+    private function appendLeadCaptureCta(string $locale, string $latestMessage, array $history, string $assistantMessage): string
+    {
+        $session = session();
+
+        if ((bool) $session->get('ai_chat_lead_cta_asked')) {
+            return $assistantMessage;
+        }
+
+        if ($this->conversationHasContact($latestMessage, $history)) {
+            $session->set('ai_chat_lead_cta_asked', true);
+            return $assistantMessage;
+        }
+
+        if (! $this->looksLikeLeadCaptureMoment($latestMessage, $history, $assistantMessage)) {
+            return $assistantMessage;
+        }
+
+        $session->set('ai_chat_lead_cta_asked', true);
+
+        $cta = $locale === 'en'
+            ? 'If you want Travel Plus to advise directly, please leave your phone number or email here so a consultant can follow up.'
+            : 'Nếu anh/chị muốn Travel Plus tư vấn trực tiếp, mình có thể để lại SĐT hoặc email tại đây để tư vấn viên liên hệ lại.';
+
+        return rtrim($assistantMessage) . "\n\n" . $cta;
+    }
+
+    /**
+     * @param list<array{role: string, text: string}> $history
+     */
+    private function conversationHasContact(string $latestMessage, array $history): bool
+    {
+        $leadService = new CrmLeadCaptureService();
+        $contact = $leadService->extractContactFromText($latestMessage);
+
+        if ($contact['email'] !== '' || $contact['phone'] !== '') {
+            return true;
+        }
+
+        foreach (array_slice($history, -8) as $item) {
+            if (($item['role'] ?? '') !== 'user') {
+                continue;
+            }
+
+            $contact = $leadService->extractContactFromText((string) ($item['text'] ?? ''));
+
+            if ($contact['email'] !== '' || $contact['phone'] !== '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param list<array{role: string, text: string}> $history
+     */
+    private function looksLikeLeadCaptureMoment(string $latestMessage, array $history, string $assistantMessage): bool
+    {
+        $text = $this->normalizeIntentText($latestMessage . ' ' . $assistantMessage);
+
+        $consultationSignals = [
+            'tu van',
+            'bao gia',
+            'dat tour',
+            'booking',
+            'giu cho',
+            'lien he',
+            'goi lai',
+            'visa',
+            'mice',
+            'proposal',
+            'khach san',
+            'hotel',
+            've may bay',
+            'van chuyen',
+            'tour rieng',
+            'tour theo yeu cau',
+            'custom tour',
+            'lich trinh',
+            'chi phi',
+            'gia',
+            'ngan sach',
+            'doan',
+            'cong ty',
+            'gia dinh',
+            'so luong khach',
+            'travel plus can advise',
+            'consultant',
+            'consultation',
+            'call back',
+            'phone',
+            'email',
+        ];
+
+        foreach ($consultationSignals as $signal) {
+            if (str_contains($text, $signal)) {
+                return true;
+            }
+        }
+
+        foreach (array_slice($history, -4) as $item) {
+            if (($item['role'] ?? '') !== 'user') {
+                continue;
+            }
+
+            $historyText = $this->normalizeIntentText((string) ($item['text'] ?? ''));
+            foreach (['tour', 'visa', 'mice', 'booking', 'khach san', 'hotel'] as $signal) {
+                if (str_contains($historyText, $signal)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private function normalizeIntentText(string $text): string
+    {
+        $text = mb_strtolower($text);
+        $ascii = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+        $text = is_string($ascii) && $ascii !== '' ? $ascii : $text;
+        $text = preg_replace('/[^a-z0-9\s]+/i', ' ', $text) ?? '';
+
+        return preg_replace('/\s+/', ' ', trim($text)) ?? '';
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function captureLeadFromChat(string $locale, string $message, array $payload): void
+    {
+        $leadService = new CrmLeadCaptureService();
+        $contact = $leadService->extractContactFromText($message);
+
+        if ($contact['email'] === '' && $contact['phone'] === '') {
+            return;
+        }
+
+        $leadService->capture([
+            'source' => 'ai_chat',
+            'stage' => 'new',
+            'priority' => 'normal',
+            'customer_email' => $contact['email'],
+            'customer_phone' => $contact['phone'],
+            'service_type' => 'chat',
+            'interest_title' => $locale === 'en' ? 'AI chat lead' : 'Lead từ AI chat',
+            'interest_url' => trim((string) ($payload['page_url'] ?? $payload['url'] ?? '')),
+            'message' => $message,
+            'metadata' => [
+                'locale' => $locale,
+                'session_id' => session_id(),
+                'ip_address' => $this->request->getIPAddress(),
+            ],
+        ]);
     }
 
     private function passesRateLimit(): bool

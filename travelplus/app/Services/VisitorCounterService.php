@@ -9,38 +9,46 @@ class VisitorCounterService
     public function getTotalViews(): int
     {
         $session = session();
-        $data = $this->readCounter();
 
         if (! $session->get(self::SESSION_KEY)) {
-            $data['total'] = max(0, (int) ($data['total'] ?? 0)) + 1;
-            $this->writeCounter($data);
+            $total = $this->incrementCounter();
             $session->set(self::SESSION_KEY, true);
+
+            return $total;
         }
 
-        return max(0, (int) ($data['total'] ?? 0));
+        return $this->readCounter();
     }
 
-    /**
-     * @return array{total:int}
-     */
-    private function readCounter(): array
+    private function readCounter(): int
     {
         $path = $this->getCounterPath();
 
         if (! is_file($path)) {
-            return ['total' => 0];
+            return 0;
         }
 
-        $raw = file_get_contents($path);
-        $data = json_decode((string) $raw, true);
+        $handle = fopen($path, 'r');
 
-        return is_array($data) ? ['total' => (int) ($data['total'] ?? 0)] : ['total' => 0];
+        if ($handle === false) {
+            return 0;
+        }
+
+        try {
+            if (! flock($handle, LOCK_SH)) {
+                return 0;
+            }
+
+            $raw = stream_get_contents($handle);
+            flock($handle, LOCK_UN);
+        } finally {
+            fclose($handle);
+        }
+
+        return $this->parseCounterTotal(is_string($raw) ? $raw : '');
     }
 
-    /**
-     * @param array{total:int} $data
-     */
-    private function writeCounter(array $data): void
+    private function incrementCounter(): int
     {
         $path = $this->getCounterPath();
         $dir = dirname($path);
@@ -49,23 +57,46 @@ class VisitorCounterService
             mkdir($dir, 0755, true);
         }
 
+        if (! is_dir($dir)) {
+            return 0;
+        }
+
         $handle = fopen($path, 'c+');
 
         if ($handle === false) {
-            return;
+            return 0;
         }
 
         try {
-            if (flock($handle, LOCK_EX)) {
-                ftruncate($handle, 0);
-                rewind($handle);
-                fwrite($handle, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-                fflush($handle);
-                flock($handle, LOCK_UN);
+            if (! flock($handle, LOCK_EX)) {
+                return $this->readCounter();
             }
+
+            $raw = stream_get_contents($handle);
+            $total = $this->parseCounterTotal(is_string($raw) ? $raw : '');
+            $total++;
+
+            rewind($handle);
+            ftruncate($handle, 0);
+            fwrite($handle, json_encode(['total' => $total], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            fflush($handle);
+            flock($handle, LOCK_UN);
+
+            return $total;
         } finally {
             fclose($handle);
         }
+    }
+
+    private function parseCounterTotal(string $raw): int
+    {
+        $data = json_decode($raw, true);
+
+        if (! is_array($data)) {
+            return 0;
+        }
+
+        return max(0, (int) ($data['total'] ?? 0));
     }
 
     private function getCounterPath(): string

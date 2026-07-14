@@ -9,35 +9,34 @@ use App\Services\BookingNotificationService;
 
 class Bookings extends BaseAdminController
 {
+    private const PAYMENT_STATUSES = ['draft', 'pending_payment', 'pending_transfer', 'paid', 'cancelled', 'failed'];
+    private const PAYMENT_METHODS = ['paypal', 'vnpay', 'vietqr'];
+    private const RECONCILIATION_FILTERS = ['needs_reconciliation', 'online_paid', 'failed_or_cancelled'];
+
     public function index()
     {
         if ($redirect = $this->requireAdmin()) {
             return $redirect;
         }
 
-        $status = trim((string) $this->request->getGet('status'));
+        $status = $this->normalizeStatus((string) $this->request->getGet('status'));
+        $method = $this->normalizePaymentMethod((string) $this->request->getGet('method'));
+        $reconciliation = $this->normalizeReconciliationFilter((string) $this->request->getGet('reconciliation'));
         $keyword = trim((string) $this->request->getGet('q'));
 
         $query = (new BookingModel())->orderBy('created_at', 'DESC');
-
-        if ($status !== '' && in_array($status, ['draft', 'pending_payment', 'pending_transfer', 'paid', 'cancelled', 'failed'], true)) {
-            $query->where('payment_status', $status);
-        }
-
-        if ($keyword !== '') {
-            $query->groupStart()
-                ->like('booking_code', $keyword)
-                ->orLike('tour_title', $keyword)
-                ->orLike('customer_name', $keyword)
-                ->orLike('customer_email', $keyword)
-                ->groupEnd();
-        }
+        $this->applyBookingFilters($query, $status, $method, $reconciliation, $keyword);
 
         return view('admin/bookings/index', [
             'bookings' => $query->paginate(20),
             'pager' => $query->pager,
             'status' => $status,
+            'method' => $method,
+            'reconciliation' => $reconciliation,
             'keyword' => $keyword,
+            'statusOptions' => self::PAYMENT_STATUSES,
+            'methodOptions' => self::PAYMENT_METHODS,
+            'reconciliationStats' => $this->buildReconciliationStats(),
             'dashboardUrl' => site_url('admin'),
             'success' => session()->getFlashdata('success'),
             'error' => session()->getFlashdata('error'),
@@ -50,23 +49,13 @@ class Bookings extends BaseAdminController
             return $redirect;
         }
 
-        $status = trim((string) $this->request->getGet('status'));
+        $status = $this->normalizeStatus((string) $this->request->getGet('status'));
+        $method = $this->normalizePaymentMethod((string) $this->request->getGet('method'));
+        $reconciliation = $this->normalizeReconciliationFilter((string) $this->request->getGet('reconciliation'));
         $keyword = trim((string) $this->request->getGet('q'));
 
         $query = (new BookingModel())->orderBy('created_at', 'DESC');
-
-        if ($status !== '' && in_array($status, ['draft', 'pending_payment', 'pending_transfer', 'paid', 'cancelled', 'failed'], true)) {
-            $query->where('payment_status', $status);
-        }
-
-        if ($keyword !== '') {
-            $query->groupStart()
-                ->like('booking_code', $keyword)
-                ->orLike('tour_title', $keyword)
-                ->orLike('customer_name', $keyword)
-                ->orLike('customer_email', $keyword)
-                ->groupEnd();
-        }
+        $this->applyBookingFilters($query, $status, $method, $reconciliation, $keyword);
 
         $bookings = $query->findAll();
 
@@ -84,7 +73,10 @@ class Bookings extends BaseAdminController
             'coupon_code',
             'discount_amount_vnd',
             'grand_total',
+            'amount_due_vnd',
             'amount_paid_vnd',
+            'provider_reference',
+            'paid_at',
             'departure_label',
             'created_at',
         ]);
@@ -102,7 +94,10 @@ class Bookings extends BaseAdminController
                 $booking['coupon_code'] ?? '',
                 $booking['discount_amount_vnd'] ?? '',
                 $booking['grand_total'] ?? '',
+                $booking['amount_due_vnd'] ?? '',
                 $booking['amount_paid_vnd'] ?? '',
+                $booking['provider_reference'] ?? '',
+                $booking['paid_at'] ?? '',
                 $booking['departure_label'] ?? '',
                 $booking['created_at'] ?? '',
             ]);
@@ -134,6 +129,7 @@ class Bookings extends BaseAdminController
         return view('admin/bookings/show', [
             'booking' => $booking,
             'statusLogs' => $this->getStatusLogs($bookingId),
+            'statusOptions' => array_values(array_diff(self::PAYMENT_STATUSES, ['draft'])),
             'success' => session()->getFlashdata('success'),
             'error' => session()->getFlashdata('error'),
         ]);
@@ -155,7 +151,11 @@ class Bookings extends BaseAdminController
 
         $status = trim((string) $this->request->getPost('payment_status'));
         $note = trim((string) $this->request->getPost('status_note'));
-        $allowed = ['pending_payment', 'pending_transfer', 'paid', 'cancelled', 'failed'];
+        $amountPaid = $this->parseVndAmount((string) $this->request->getPost('amount_paid_vnd'));
+        $providerReference = trim((string) $this->request->getPost('provider_reference'));
+        $confirmedPayment = (string) $this->request->getPost('confirm_payment') === '1';
+        $sendBookingEmail = $this->request->getPost('send_booking_email') !== null;
+        $allowed = array_values(array_diff(self::PAYMENT_STATUSES, ['draft']));
 
         if (! in_array($status, $allowed, true)) {
             return redirect()->back()->with('error', 'Trạng thái thanh toán không hợp lệ.');
@@ -167,24 +167,51 @@ class Bookings extends BaseAdminController
         ];
 
         if ($status === 'paid') {
-            $update['paid_at'] = date('Y-m-d H:i:s');
-            $update['amount_paid_vnd'] = (float) ($booking['amount_due_vnd'] ?? $booking['grand_total'] ?? 0);
+            if ($previousStatus !== 'paid' && ! $confirmedPayment) {
+                return redirect()->back()->with('error', 'Vui lòng xác nhận đã đối soát giao dịch trước khi chuyển booking sang đã thanh toán.');
+            }
+
+            if ($amountPaid <= 0) {
+                $amountPaid = (float) ($booking['amount_due_vnd'] ?? $booking['grand_total'] ?? 0);
+            }
+
+            if ($amountPaid <= 0) {
+                return redirect()->back()->with('error', 'Số tiền đã thanh toán không hợp lệ.');
+            }
+
+            $update['paid_at'] = (string) ($booking['paid_at'] ?? '') !== '' ? $booking['paid_at'] : date('Y-m-d H:i:s');
+            $update['amount_paid_vnd'] = $amountPaid;
+            $update['provider_reference'] = $providerReference !== '' ? $providerReference : ($booking['provider_reference'] ?? null);
         }
 
         if ($status === 'cancelled') {
-            $update['cancelled_at'] = date('Y-m-d H:i:s');
+            $update['cancelled_at'] = (string) ($booking['cancelled_at'] ?? '') !== '' ? $booking['cancelled_at'] : date('Y-m-d H:i:s');
+        }
+
+        if ($status !== 'paid' && $providerReference !== '') {
+            $update['provider_reference'] = $providerReference;
         }
 
         $bookingModel->update($bookingId, $update);
         $updated = $bookingModel->find($bookingId);
 
-        if ($previousStatus !== $status) {
-            $this->logStatusChange($bookingId, $previousStatus, $status, $note);
+        if ($previousStatus !== $status || $note !== '' || $status === 'paid') {
+            $this->logStatusChange(
+                $bookingId,
+                $previousStatus,
+                $status,
+                $note,
+                $status === 'paid' ? (float) ($update['amount_paid_vnd'] ?? 0) : null,
+                (string) ($update['provider_reference'] ?? $booking['provider_reference'] ?? '')
+            );
         }
 
         if (is_array($updated) && $status === 'paid' && $previousStatus !== 'paid') {
             $this->incrementCouponUsage($updated);
-            (new BookingNotificationService())->sendBookingEmails($updated);
+
+            if ($sendBookingEmail) {
+                (new BookingNotificationService())->sendBookingEmails($updated);
+            }
         }
 
         return redirect()->to(site_url('admin/bookings/' . $bookingId))
@@ -210,8 +237,14 @@ class Bookings extends BaseAdminController
             ->getResultArray();
     }
 
-    private function logStatusChange(int $bookingId, string $fromStatus, string $toStatus, string $note = ''): void
-    {
+    private function logStatusChange(
+        int $bookingId,
+        string $fromStatus,
+        string $toStatus,
+        string $note = '',
+        ?float $amountPaid = null,
+        string $providerReference = ''
+    ): void {
         $db = db_connect();
 
         if (! $db->tableExists('booking_status_logs')) {
@@ -219,16 +252,122 @@ class Bookings extends BaseAdminController
         }
 
         $authUser = session()->get('auth_user');
-        $db->table('booking_status_logs')->insert([
+        $payload = [
             'booking_id' => $bookingId,
             'from_status' => $fromStatus !== '' ? $fromStatus : null,
             'to_status' => $toStatus,
+            'amount_paid_vnd' => $amountPaid,
+            'provider_reference' => $providerReference !== '' ? $providerReference : null,
             'actor_user_id' => is_array($authUser) ? (int) ($authUser['id'] ?? 0) ?: null : null,
             'actor_name' => is_array($authUser) ? (string) ($authUser['full_name'] ?? '') : null,
             'actor_email' => is_array($authUser) ? (string) ($authUser['email'] ?? '') : null,
             'note' => $note !== '' ? $note : null,
             'created_at' => date('Y-m-d H:i:s'),
-        ]);
+        ];
+
+        foreach (['amount_paid_vnd', 'provider_reference'] as $field) {
+            if (! $db->fieldExists($field, 'booking_status_logs')) {
+                unset($payload[$field]);
+            }
+        }
+
+        $db->table('booking_status_logs')->insert($payload);
+    }
+
+    private function applyBookingFilters(BookingModel $query, string $status, string $method, string $reconciliation, string $keyword): void
+    {
+        if ($status !== '') {
+            $query->where('payment_status', $status);
+        }
+
+        if ($method !== '') {
+            $query->where('payment_method', $method);
+        }
+
+        if ($reconciliation === 'needs_reconciliation') {
+            $query->whereIn('payment_status', ['pending_payment', 'pending_transfer'])
+                ->whereIn('payment_method', ['vietqr', 'vnpay']);
+        } elseif ($reconciliation === 'online_paid') {
+            $query->where('payment_status', 'paid')
+                ->whereIn('payment_method', ['vietqr', 'vnpay', 'paypal']);
+        } elseif ($reconciliation === 'failed_or_cancelled') {
+            $query->whereIn('payment_status', ['failed', 'cancelled'])
+                ->whereIn('payment_method', ['vnpay', 'paypal']);
+        }
+
+        if ($keyword !== '') {
+            $query->groupStart()
+                ->like('booking_code', $keyword)
+                ->orLike('tour_title', $keyword)
+                ->orLike('customer_name', $keyword)
+                ->orLike('customer_email', $keyword)
+                ->orLike('customer_phone', $keyword)
+                ->orLike('provider_reference', $keyword)
+                ->groupEnd();
+        }
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function buildReconciliationStats(): array
+    {
+        return [
+            'needs_reconciliation' => (new BookingModel())
+                ->whereIn('payment_status', ['pending_payment', 'pending_transfer'])
+                ->whereIn('payment_method', ['vietqr', 'vnpay'])
+                ->countAllResults(),
+            'pending_transfer' => (new BookingModel())
+                ->where('payment_status', 'pending_transfer')
+                ->countAllResults(),
+            'pending_payment' => (new BookingModel())
+                ->where('payment_status', 'pending_payment')
+                ->countAllResults(),
+            'failed_or_cancelled' => (new BookingModel())
+                ->whereIn('payment_status', ['failed', 'cancelled'])
+                ->countAllResults(),
+        ];
+    }
+
+    private function normalizeStatus(string $status): string
+    {
+        $status = trim($status);
+
+        return in_array($status, self::PAYMENT_STATUSES, true) ? $status : '';
+    }
+
+    private function normalizePaymentMethod(string $method): string
+    {
+        $method = trim(strtolower($method));
+
+        return in_array($method, self::PAYMENT_METHODS, true) ? $method : '';
+    }
+
+    private function normalizeReconciliationFilter(string $filter): string
+    {
+        $filter = trim($filter);
+
+        return in_array($filter, self::RECONCILIATION_FILTERS, true) ? $filter : '';
+    }
+
+    private function parseVndAmount(string $value): float
+    {
+        $value = trim($value);
+
+        if ($value === '') {
+            return 0.0;
+        }
+
+        $normalized = preg_replace('/[^\d.,]/', '', $value) ?? '';
+
+        if (str_contains($normalized, ',') && str_contains($normalized, '.')) {
+            $normalized = str_replace('.', '', $normalized);
+            $normalized = str_replace(',', '.', $normalized);
+        } else {
+            $normalized = str_replace([',', '.'], '', $normalized);
+        }
+
+        return is_numeric($normalized) ? max(0.0, (float) $normalized) : 0.0;
     }
 
     /**

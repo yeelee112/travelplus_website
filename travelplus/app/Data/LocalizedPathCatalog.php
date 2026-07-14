@@ -156,6 +156,10 @@ final class LocalizedPathCatalog
             'vi' => 'booking/guest',
             'en' => 'booking/guest',
         ],
+        'booking.lookup' => [
+            'vi' => 'booking/lookup',
+            'en' => 'booking/lookup',
+        ],
         'booking.successPrefix' => [
             'vi' => 'booking/success',
             'en' => 'booking/success',
