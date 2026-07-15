@@ -125,7 +125,7 @@ $customerNote = trim((string) ($booking['customer_note'] ?? ''));
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="1" id="send_booking_email" name="send_booking_email" checked>
-                                        <label class="form-check-label" for="send_booking_email">Gửi email cập nhật trạng thái cho khách. Khi chuyển sang đã thanh toán lần đầu, hệ thống gửi email xác nhận thanh toán.</label>
+                                        <label class="form-check-label" for="send_booking_email">Chỉ gửi email cập nhật cho khách. Khi chuyển sang đã thanh toán lần đầu, khách nhận email xác nhận thanh toán; admin không nhận lại email booking mới.</label>
                                     </div>
                                 </div>
                             </div>

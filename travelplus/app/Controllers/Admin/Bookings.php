@@ -214,7 +214,7 @@ class Bookings extends BaseAdminController
             $notifier = new BookingNotificationService();
 
             if ($status === 'paid' && $previousStatus !== 'paid') {
-                $notifier->sendBookingEmails($updated);
+                $notifier->sendPaymentConfirmation($updated);
             } else {
                 $notifier->sendStatusUpdateEmail($updated, $status, $note);
             }

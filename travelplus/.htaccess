@@ -1,5 +1,9 @@
 Options -Indexes
 
+# Use the branded CodeIgniter error pages for errors raised at the hosting root.
+ErrorDocument 403 /error-403.php
+ErrorDocument 404 /errors/404
+
 <FilesMatch "(^\.|\.env$|\.ini$|\.log$|\.sql$|\.bak$|\.old$|\.orig$|\.save$|\.swp$|\.tmp$|\.ya?ml$|\.lock$|composer\.(json|lock)$|package(-lock)?\.json$)">
     Require all denied
 </FilesMatch>

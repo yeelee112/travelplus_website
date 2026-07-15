@@ -80,6 +80,26 @@ class BookingNotificationService
         );
     }
 
+    /**
+     * Send only the customer payment confirmation. Admin booking alerts belong
+     * to the booking-created flow and must not be repeated on status updates.
+     *
+     * @param array<string, mixed> $booking
+     */
+    public function sendPaymentConfirmation(array $booking): bool
+    {
+        if ($this->hasSuccessfulCustomerEmail($booking, self::TYPE_PAYMENT_CONFIRMATION)) {
+            return true;
+        }
+
+        return $this->sendCustomerTransactionalEmail(
+            $booking,
+            self::TYPE_PAYMENT_CONFIRMATION,
+            $this->buildCustomerSubject($booking),
+            $this->buildCustomerMessage($booking)
+        );
+    }
+
     public function isConfigured(): bool
     {
         $fromEmail = trim((string) env('email.fromEmail', ''));
