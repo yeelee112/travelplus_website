@@ -11,6 +11,7 @@ $locale = $isEnglish ? 'en' : 'vi';
 $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
 $basePath = preg_replace('#/index\.php$#', '', $scriptName) ?? '';
 $basePath = rtrim($basePath, '/');
+$basePath = preg_replace('#/public$#i', '', $basePath) ?? $basePath;
 $url = static fn (string $path): string => $basePath . '/' . ltrim($path, '/');
 
 $copy = [
