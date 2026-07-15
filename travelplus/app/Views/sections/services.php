@@ -17,7 +17,7 @@ $copy = $locale === 'en'
                 'meta' => 'Strong in medical and pharmaceutical programs',
                 'url' => $miceUrl,
                 'icon' => 'bi-briefcase-fill',
-                'image' => 'assets/images/mice-corporate-travel.jpg',
+                'image' => 'assets/images/mice-corporate-travel.webp',
             ],
             [
                 'title' => 'Outbound and domestic tours',
@@ -33,7 +33,7 @@ $copy = $locale === 'en'
                 'meta' => 'Documents, timeline and service coordination',
                 'url' => $visaUrl,
                 'icon' => 'bi-passport-fill',
-                'image' => 'assets/images/visa-wrapper.jpg',
+                'image' => 'assets/images/visa-wrapper.webp',
             ],
         ],
     ]
@@ -50,7 +50,7 @@ $copy = $locale === 'en'
                 'meta' => 'Mạnh về chương trình y dược và đoàn bác sĩ',
                 'url' => $miceUrl,
                 'icon' => 'bi-briefcase-fill',
-                'image' => 'assets/images/mice-corporate-travel.jpg',
+                'image' => 'assets/images/mice-corporate-travel.webp',
             ],
             [
                 'title' => 'Tour nước ngoài và trong nước',
@@ -66,7 +66,7 @@ $copy = $locale === 'en'
                 'meta' => 'Hồ sơ, thời gian và điều phối dịch vụ',
                 'url' => $visaUrl,
                 'icon' => 'bi-passport-fill',
-                'image' => 'assets/images/visa-wrapper.jpg',
+                'image' => 'assets/images/visa-wrapper.webp',
             ],
         ],
     ];

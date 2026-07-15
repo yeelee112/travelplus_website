@@ -31,7 +31,7 @@ class Mice extends BaseController
         $data['meta_desc'] = $t('mice.metaDesc');
         $data['canonical_url'] = LocalizedPathCatalog::url('service.mice', $locale);
         $data['pageContent'] = MicePageContent::get($locale);
-        $data['meta_image'] = base_url('assets/images/mice-1.jpeg');
+        $data['meta_image'] = base_url('assets/images/mice-1.webp');
         $data['meta_image_alt'] = $t('common.miceService');
         $data['contact_form_token'] = bin2hex(random_bytes(16));
         session()->set('contact_form_token', $data['contact_form_token']);
@@ -48,7 +48,7 @@ class Mice extends BaseController
                 $t('common.miceService'),
                 (string) $data['meta_desc'],
                 (string) $data['canonical_url'],
-                'assets/images/mice-1.jpeg',
+                'assets/images/mice-1.webp',
                 $serviceTypes
             ),
             $seo->faqSchema((array) ($data['pageContent']['faqs'] ?? [])),

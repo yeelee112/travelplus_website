@@ -70,7 +70,7 @@ $formatBytes = static function (int $bytes): string {
         <div class="media-hero">
             <div>
                 <h1>Kiểm tra và tối ưu media</h1>
-                <p>Kiểm tra ảnh đang được blog và tour sử dụng, chuyển ảnh JPG/PNG dung lượng lớn sang WebP và nhận diện file không còn được database tham chiếu.</p>
+                <p>Kiểm tra ảnh đang được blog và tour sử dụng, tối ưu ảnh JPG/PNG/WebP dung lượng lớn và nhận diện file không còn được database tham chiếu.</p>
             </div>
         </div>
         <div class="media-summary">
@@ -95,7 +95,7 @@ $formatBytes = static function (int $bytes): string {
             <div class="media-section__head">
                 <div>
                     <h2>Ảnh đang dùng cần tối ưu</h2>
-                    <p>Chỉ liệt kê JPG/PNG từ 300 KB. Mỗi lượt xử lý tối đa 30 ảnh để phù hợp shared hosting.</p>
+                    <p>Chỉ liệt kê JPG/PNG/WebP từ 300 KB. Mỗi lượt xử lý tối đa 30 ảnh để phù hợp shared hosting.</p>
                 </div>
             </div>
 
@@ -113,7 +113,7 @@ $formatBytes = static function (int $bytes): string {
                     <thead><tr><th style="width:44px"></th><th>File</th><th style="width:90px">Loại</th><th style="width:130px">Dung lượng</th></tr></thead>
                     <tbody>
                     <?php if ($optimizable === []): ?>
-                        <tr><td colspan="4" class="media-empty">Không có ảnh JPG/PNG lớn cần tối ưu.</td></tr>
+                        <tr><td colspan="4" class="media-empty">Không có ảnh JPG/PNG/WebP lớn cần tối ưu.</td></tr>
                     <?php else: ?>
                         <?php foreach ($optimizable as $item): ?>
                             <tr data-media-row>

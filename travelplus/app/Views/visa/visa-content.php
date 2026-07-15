@@ -498,7 +498,7 @@ $flagMap = [
     </section>
 <?php endif; ?>
 
-<div class="home8-company-intro-section mb-100" style="background-image:url(<?= esc(base_url('assets/images/visa-wrapper.jpg')) ?>)">
+<div class="home8-company-intro-section mb-100" style="background-image:url(<?= esc(base_url('assets/images/visa-wrapper.webp')) ?>)">
     <div class="container">
         <div class="row">
             <div class="col-xl-4 col-lg-5 col-md-7 col-sm-9">

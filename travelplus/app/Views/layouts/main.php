@@ -43,16 +43,40 @@ $googleAnalyticsId = 'G-W2FBGJD5YK';
 if (str_starts_with($requestHost, 'demo.') || $isFocusedFlow) {
     $metaRobots = 'noindex,nofollow,max-image-preview:large';
 }
-$hasMinifiedStyle = is_file($publicPath . DIRECTORY_SEPARATOR . 'assets/css/style.min.css');
-$styleAsset = (! $isLocalRequest && $hasMinifiedStyle)
-    ? 'assets/css/style.min.css'
-    : 'assets/css/style.css';
-$styleVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . $styleAsset) ?: time();
-$mainJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/main.js') ?: time();
-$widgetCssVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/css/widgets.css') ?: time();
-$aiChatboxJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/ai-chatbox.js') ?: time();
-$tourToolsJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/tour-tools.js') ?: time();
-$cookieConsentJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/cookie-consent.js') ?: time();
+$styleAssetUrl = frontend_asset_url('assets/css/style-common.css');
+$widgetCssAssetUrl = frontend_asset_url('assets/css/widgets.css');
+$mainJsAssetUrl = frontend_asset_url('assets/js/main.js');
+$aiChatboxJsAssetUrl = frontend_asset_url('assets/js/ai-chatbox.js');
+$tourToolsJsAssetUrl = frontend_asset_url('assets/js/tour-tools.js');
+$cookieConsentJsAssetUrl = frontend_asset_url('assets/js/cookie-consent.js');
+$pageStyleAssets = [];
+if (str_contains($contentSection, 'visa-lead-') || str_contains($contentSection, 'visa-seo-')) {
+    $pageStyleAssets[] = 'visa';
+}
+if (str_contains($contentSection, 'travelplus-contact-') || str_contains($contentSection, 'travelplus-inline-error')) {
+    $pageStyleAssets[] = 'contact';
+}
+if (str_contains($contentSection, 'package-details-page') || str_contains($contentSection, 'tour-detail-hero')) {
+    $pageStyleAssets[] = 'tour-detail';
+}
+if (str_contains($contentSection, 'mice-page')) {
+    $pageStyleAssets[] = 'mice';
+}
+if (str_contains($contentSection, 'summer-landing-page')) {
+    $pageStyleAssets[] = 'summer';
+}
+if (str_contains($contentSection, 'checkout-stepper-')
+    || str_contains($contentSection, 'travelplus-booking-')
+    || str_contains($contentSection, 'booking-lookup-')) {
+    $pageStyleAssets[] = 'booking';
+}
+if (str_contains($contentSection, 'about-page-') || str_contains($contentSection, 'journey-pane')) {
+    $pageStyleAssets[] = 'about';
+}
+$pageStyleAssetUrls = array_map(
+    static fn (string $asset): string => frontend_asset_url('assets/css/style-' . $asset . '.css'),
+    array_values(array_unique($pageStyleAssets))
+);
 $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/icon/favicon.svg') ?: time();
 ?>
 <!doctype html>
@@ -137,8 +161,11 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap">
-<link rel="stylesheet" href="<?= base_url($styleAsset . '?v=' . $styleVersion) ?>">
-<link rel="stylesheet" href="<?= base_url('assets/css/widgets.css?v=' . $widgetCssVersion) ?>">
+<link rel="stylesheet" href="<?= esc($styleAssetUrl, 'attr') ?>">
+<?php foreach ($pageStyleAssetUrls as $pageStyleAssetUrl): ?>
+<link rel="stylesheet" href="<?= esc($pageStyleAssetUrl, 'attr') ?>">
+<?php endforeach; ?>
+<link rel="stylesheet" href="<?= esc($widgetCssAssetUrl, 'attr') ?>">
 <?php if ($usesSwiper): ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"/>
 
@@ -157,19 +184,19 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <?= $this->include('partials/footer') ?>
 <?php if ($showAiChatbox): ?>
 <?= $this->include('partials/ai-chatbox') ?>
-<script defer src="<?= base_url('assets/js/ai-chatbox.js?v=' . $aiChatboxJsVersion) ?>"></script>
+<script defer src="<?= esc($aiChatboxJsAssetUrl, 'attr') ?>"></script>
 <?php endif; ?>
 <?php if ($showTourTools): ?>
 <?= $this->include('partials/tour-tools') ?>
-<script defer src="<?= base_url('assets/js/tour-tools.js?v=' . $tourToolsJsVersion) ?>"></script>
+<script defer src="<?= esc($tourToolsJsAssetUrl, 'attr') ?>"></script>
 <?php endif; ?>
 <?php if ($showCookieConsent): ?>
 <?= $this->include('partials/cookie-consent') ?>
-<script defer src="<?= base_url('assets/js/cookie-consent.js?v=' . $cookieConsentJsVersion) ?>"></script>
+<script defer src="<?= esc($cookieConsentJsAssetUrl, 'attr') ?>"></script>
 <?php endif; ?>
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script type="module" src="<?= base_url('assets/js/main.js?v=' . $mainJsVersion) ?>"></script>
+<script type="module" src="<?= esc($mainJsAssetUrl, 'attr') ?>"></script>
 <?= $this->renderSection('scripts') ?>
 
 </body>

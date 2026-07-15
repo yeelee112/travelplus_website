@@ -9,5 +9,5 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script type="module" src="<?= base_url('assets/js/about-us.js?v=' . (@filemtime(FCPATH . 'assets/js/about-us.js') ?: time())) ?>"></script>
+<script type="module" src="<?= esc(frontend_asset_url('assets/js/about-us.js'), 'attr') ?>"></script>
 <?= $this->endSection() ?>

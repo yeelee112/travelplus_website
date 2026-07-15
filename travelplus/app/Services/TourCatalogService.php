@@ -1263,7 +1263,7 @@ class TourCatalogService
     private function resolveImage(string $thumbnail): string
     {
         if ($thumbnail === '') {
-            return base_url('assets/images/avt-tour-01.jpg');
+            return base_url('assets/images/avt-tour-01.webp');
         }
 
         if (str_starts_with($thumbnail, 'http://') || str_starts_with($thumbnail, 'https://')) {

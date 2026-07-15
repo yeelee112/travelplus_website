@@ -21,7 +21,7 @@ class FeaturedDestinationImageMap
             'thanh-pho-ho-chi-minh' => 'assets/images/gallery-6.jpg',
             'da-nang' => 'assets/images/destination/da-nang.jpg',
             'ha-noi' => 'assets/images/destination/ha-noi.webp',
-            'sa-pa' => 'assets/images/destination/sa-pa.jpg',
+            'sa-pa' => 'assets/images/destination/sa-pa.webp',
         ];
     }
 }

@@ -887,6 +887,65 @@
   BANNER SLIDE
   ===================================================== */
 
+  const heroRotator = document.querySelector("[data-hero-rotator]");
+
+  if (heroRotator) {
+    const heroSlides = [...heroRotator.querySelectorAll("img")];
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const configuredInterval = Number.parseInt(heroRotator.dataset.interval || "7000", 10);
+    const rotationInterval = Number.isFinite(configuredInterval) && configuredInterval >= 5000
+      ? configuredInterval
+      : 7000;
+
+    if (heroSlides.length > 1 && !reduceMotion) {
+      let activeHeroIndex = 0;
+
+      const loadHeroSlide = (slide) => new Promise((resolve) => {
+        const pendingSource = slide.dataset.heroSrc || "";
+
+        if (pendingSource === "") {
+          resolve(slide.complete && slide.naturalWidth > 0);
+          return;
+        }
+
+        const handleLoad = () => {
+          delete slide.dataset.heroSrc;
+          resolve(true);
+        };
+        const handleError = () => {
+          slide.removeAttribute("src");
+          resolve(false);
+        };
+
+        slide.addEventListener("load", handleLoad, { once: true });
+        slide.addEventListener("error", handleError, { once: true });
+        slide.src = pendingSource;
+      });
+
+      const preloadNextHero = () => {
+        const nextIndex = (activeHeroIndex + 1) % heroSlides.length;
+        loadHeroSlide(heroSlides[nextIndex]);
+      };
+
+      const rotateHero = async () => {
+        const nextIndex = (activeHeroIndex + 1) % heroSlides.length;
+        const nextSlide = heroSlides[nextIndex];
+
+        if (await loadHeroSlide(nextSlide)) {
+          heroSlides[activeHeroIndex].classList.remove("is-active");
+          nextSlide.classList.add("is-active");
+          activeHeroIndex = nextIndex;
+        }
+
+        window.setTimeout(preloadNextHero, Math.max(1000, rotationInterval - 2000));
+        window.setTimeout(rotateHero, rotationInterval);
+      };
+
+      window.setTimeout(preloadNextHero, Math.max(1000, rotationInterval - 2000));
+      window.setTimeout(rotateHero, rotationInterval);
+    }
+  }
+
   const sliderEl = document.querySelector(".home-page__hero-slider");
 
   if (sliderEl) {

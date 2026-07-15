@@ -49,7 +49,7 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Miền Bắc', 'en' => 'Northern Vietnam'],
                         'region_slug' => ['vi' => 'mien-bac', 'en' => 'northern-vietnam'],
                         'destination_slug' => ['vi' => 'sa-pa', 'en' => 'sapa'],
-                        'image' => 'assets/images/destination/sa-pa.jpg',
+                        'image' => 'assets/images/destination/sa-pa.webp',
                     ],
                     [
                         'kind' => 'domestic_province',
@@ -57,7 +57,7 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Miền Trung', 'en' => 'Central Vietnam'],
                         'region_slug' => ['vi' => 'mien-trung', 'en' => 'central-vietnam'],
                         'destination_slug' => ['vi' => 'nha-trang', 'en' => 'nha-trang'],
-                        'image' => 'assets/images/destination/nha-trang.png',
+                        'image' => 'assets/images/destination/nha-trang.webp',
                     ],
                     [
                         'kind' => 'domestic_province',
@@ -65,7 +65,7 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Miền Nam', 'en' => 'Southern Vietnam'],
                         'region_slug' => ['vi' => 'mien-nam', 'en' => 'southern-vietnam'],
                         'destination_slug' => ['vi' => 'da-lat', 'en' => 'dalat'],
-                        'image' => 'assets/images/destination/da-lat.png',
+                        'image' => 'assets/images/destination/da-lat.webp',
                     ],
                     [
                         'kind' => 'domestic_province',
@@ -138,7 +138,7 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Châu Âu', 'en' => 'Europe'],
                         'continent_slug' => ['vi' => 'chau-au', 'en' => 'europe'],
                         'destination_slug' => ['vi' => 'anh', 'en' => 'england'],
-                        'image' => 'assets/images/destination/anh.jpg',
+                        'image' => 'assets/images/destination/anh.webp',
                     ],
                     [
                         'kind' => 'outbound_country',
@@ -164,7 +164,7 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Châu Á', 'en' => 'Asia'],
                         'continent_slug' => ['vi' => 'chau-a', 'en' => 'asia'],
                         'destination_slug' => ['vi' => 'nhat-ban', 'en' => 'japan'],
-                        'image' => 'assets/images/destination/nhat-ban.jpg',
+                        'image' => 'assets/images/destination/nhat-ban.webp',
                     ],
                     [
                         'kind' => 'outbound_country',
@@ -212,7 +212,7 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Châu Á', 'en' => 'Asia'],
                         'continent_slug' => ['vi' => 'chau-a', 'en' => 'asia'],
                         'destination_slug' => ['vi' => 'uae', 'en' => 'united-arab-emirates'],
-                        'image' => 'assets/images/destination/uae.png',
+                        'image' => 'assets/images/destination/uae.webp',
                     ],
                     
                 ],
@@ -238,7 +238,7 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Bắc Mỹ', 'en' => 'North America'],
                         'continent_slug' => ['vi' => 'bac-my', 'en' => 'north-america'],
                         'destination_slug' => ['vi' => 'canada', 'en' => 'canada'],
-                        'image' => 'assets/images/destination/canada.jpg',
+                        'image' => 'assets/images/destination/canada.webp',
                     ],
                     [
                         'kind' => 'outbound_country',

@@ -254,7 +254,7 @@ $allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến
                             <a class="home-promo-card__media" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
                                 <span><?= esc($tourBadge) ?></span>
                                 <img
-                                    src="<?= esc((string) ($tour['image'] ?? base_url('assets/images/avt-tour-01.jpg')), 'attr') ?>"
+                                    src="<?= esc((string) ($tour['image'] ?? base_url('assets/images/avt-tour-01.webp')), 'attr') ?>"
                                     alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>"
                                     width="240"
                                     height="180"

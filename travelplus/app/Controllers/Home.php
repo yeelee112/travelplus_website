@@ -339,7 +339,7 @@ class Home extends BaseController
     private function resolveFeaturedDestinationImage(string $path): string
     {
         if ($path === '') {
-            return base_url('assets/images/avt-tour-01.jpg');
+            return base_url('assets/images/avt-tour-01.webp');
         }
 
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {

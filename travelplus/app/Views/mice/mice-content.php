@@ -112,14 +112,14 @@ $briefForm = $locale === 'en'
 
                 <div class="mice-page__hero-media">
                     <div class="mice-page__hero-main-media">
-                        <img src="<?= base_url('assets/images/mice-1.jpeg') ?>" alt="<?= esc(lang('Frontend.common.alt.travelPlusMice', [], $locale)) ?>" loading="eager" fetchpriority="high" decoding="async" width="680" height="520">
+                        <img src="<?= base_url('assets/images/mice-1.webp') ?>" alt="<?= esc(lang('Frontend.common.alt.travelPlusMice', [], $locale)) ?>" loading="eager" fetchpriority="high" decoding="async" width="680" height="520">
                     </div>
                     <div class="mice-page__hero-side-grid">
                         <div class="mice-page__hero-side-card">
-                            <img src="<?= base_url('assets/images/mice-2.jpg') ?>" alt="<?= esc(lang('Frontend.common.alt.corporateConference', [], $locale)) ?>" loading="eager" decoding="async" width="320" height="240">
+                            <img src="<?= base_url('assets/images/mice-2.webp') ?>" alt="<?= esc(lang('Frontend.common.alt.corporateConference', [], $locale)) ?>" loading="lazy" fetchpriority="low" decoding="async" width="320" height="240">
                         </div>
                         <div class="mice-page__hero-side-card">
-                            <img src="<?= base_url('assets/images/mice-3.jpg') ?>" alt="<?= esc(lang('Frontend.common.alt.teamBuildingProgram', [], $locale)) ?>" loading="eager" decoding="async" width="320" height="240">
+                            <img src="<?= base_url('assets/images/mice-3.webp') ?>" alt="<?= esc(lang('Frontend.common.alt.teamBuildingProgram', [], $locale)) ?>" loading="lazy" fetchpriority="low" decoding="async" width="320" height="240">
                         </div>
                     </div>
                 </div>

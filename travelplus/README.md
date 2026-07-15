@@ -29,8 +29,12 @@ Lenh tuy chon chi dung o local:
 
 ```bash
 php vendor/bin/phpunit --no-coverage
+php scripts/optimize-static-images.php
 php scripts/minify-css.php
+php scripts/build-frontend-assets.php
 ```
+
+`public/assets/css/style.css` la file CSS nguon. Lenh build tao san `style-common` va cac bundle `style-*` theo trang, bao gom ban `.min.css` dung tren production. Anh WebP tinh cung duoc tao san tu file nguon; hosting khong phai xu ly anh.
 
 ## Publish shared hosting khong co command
 
@@ -40,6 +44,7 @@ php scripts/minify-css.php
 4. Import cac file SQL can thiet bang phpMyAdmin thay cho `php spark migrate`.
 5. Dam bao `writable/` co quyen ghi; khong ghi de counter/log runtime dang co tren hosting.
 6. Neu domain dang tro vao root du an thay vi `public/`, giu nguyen rule rewrite root va kiem tra URL khong bi chen `/public/`.
+7. Upload day du cac bundle CSS/JS da build san trong `public/assets/`; hosting khong can chay lenh build.
 
 Sau khi publish, kiem tra: trang chu VI/EN, booking lookup, form lien he, email, thanh toan, `/sitemap.xml`, `/robots.txt`, mot URL 404 va mot thu muc bi chan 403.
 

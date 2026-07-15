@@ -54,39 +54,17 @@ $copy = $locale === 'en'
     ];
 ?>
 
-<style>
-.home-modern-hero__media::after {
-    background:
-        linear-gradient(90deg, rgba(5, 17, 25, 0.48) 0%, rgba(5, 17, 25, 0.30) 44%, rgba(5, 17, 25, 0.08) 100%),
-        linear-gradient(180deg, rgba(5, 17, 25, 0.02) 0%, rgba(5, 17, 25, 0.14) 100%);
-}
-.home-modern-hero__media img {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    filter: saturate(1.03) brightness(1.08);
-    transition: opacity 1.2s ease;
-}
-.home-modern-hero__media img.is-active {
-    opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) {
-    .home-modern-hero__media img {
-        transition: none;
-    }
-
-    .home-modern-hero__media img:first-child {
-        opacity: 1;
-    }
-}
-</style>
-
 <section class="home-modern-hero" aria-labelledby="home-hero-title">
     <div class="home-modern-hero__media" aria-hidden="true" data-hero-rotator data-interval="7000">
         <?php foreach ($heroImages as $index => $heroImage): ?>
+            <?php $heroImageUrl = base_url((string) $heroImage['path']); ?>
             <img
                 class="<?= $index === 0 ? 'is-active' : '' ?>"
-                src="<?= esc(base_url((string) $heroImage['path']), 'attr') ?>"
+                <?php if ($index === 0): ?>
+                src="<?= esc($heroImageUrl, 'attr') ?>"
+                <?php else: ?>
+                data-hero-src="<?= esc($heroImageUrl, 'attr') ?>"
+                <?php endif; ?>
                 alt=""
                 width="<?= (int) $heroImage['width'] ?>"
                 height="<?= (int) $heroImage['height'] ?>"
@@ -203,24 +181,3 @@ $copy = $locale === 'en'
         </div>
     </div>
 </section>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const media = document.querySelector('[data-hero-rotator]');
-    const slides = media ? Array.from(media.querySelectorAll('img')) : [];
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (!media || slides.length < 2 || reduceMotion) {
-        return;
-    }
-
-    let activeIndex = 0;
-    const interval = Number.parseInt(media.dataset.interval || '7000', 10);
-
-    window.setInterval(() => {
-        slides[activeIndex].classList.remove('is-active');
-        activeIndex = (activeIndex + 1) % slides.length;
-        slides[activeIndex].classList.add('is-active');
-    }, Number.isFinite(interval) && interval >= 5000 ? interval : 7000);
-});
-</script>

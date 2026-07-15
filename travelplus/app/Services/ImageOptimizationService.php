@@ -123,6 +123,25 @@ final class ImageOptimizationService
                 return $result;
             }
 
+            clearstatcache(true, $temporaryPath);
+            $candidateBytes = (int) (filesize($temporaryPath) ?: 0);
+            $wasResized = $targetWidth !== $width || $targetHeight !== $height;
+
+            if ($candidateBytes < 1) {
+                @unlink($temporaryPath);
+                $result['error'] = 'The optimized WebP image is empty.';
+
+                return $result;
+            }
+
+            if (! $wasResized && $candidateBytes >= $result['original_bytes']) {
+                @unlink($temporaryPath);
+                $result['success'] = true;
+                $result['output_bytes'] = $result['original_bytes'];
+
+                return $result;
+            }
+
             if (! @copy($temporaryPath, $destinationPath)) {
                 @unlink($temporaryPath);
                 $result['error'] = 'Unable to publish the optimized WebP image.';
@@ -145,10 +164,7 @@ final class ImageOptimizationService
             }
 
             $result['success'] = true;
-            $result['optimized'] = $destinationPath !== $sourcePath
-                || $targetWidth !== $width
-                || $targetHeight !== $height
-                || $outputBytes < $result['original_bytes'];
+            $result['optimized'] = true;
             $result['output_path'] = $destinationPath;
             $result['output_bytes'] = $outputBytes;
 

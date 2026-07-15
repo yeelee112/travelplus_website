@@ -67,6 +67,7 @@ class MediaAudit extends BaseAdminController
         $db = db_connect();
         $optimizer = new ImageOptimizationService();
         $optimized = 0;
+        $unchanged = 0;
         $failed = 0;
         $savedBytes = 0;
 
@@ -74,32 +75,41 @@ class MediaAudit extends BaseAdminController
             $absolutePath = $this->resolveManagedFilePath($relativePath, ['uploads/blogs/', 'uploads/tours/']);
             $extension = strtolower(pathinfo($relativePath, PATHINFO_EXTENSION));
 
-            if ($absolutePath === null || ! in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
+            if ($absolutePath === null || ! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
                 $failed++;
                 continue;
             }
 
             $destinationPath = preg_replace('/\.(?:jpe?g|png)$/i', '.webp', $absolutePath) ?: '';
-            if ($destinationPath === '' || is_file($destinationPath)) {
+            if ($destinationPath === '' || ($extension !== 'webp' && is_file($destinationPath))) {
                 $failed++;
                 continue;
             }
 
-            $result = $optimizer->optimizeToWebp($absolutePath, 2400, 2400, 82, false);
+            if ($this->countMediaReferences($db, $relativePath) < 1) {
+                $failed++;
+                continue;
+            }
+
+            $maxDimension = $this->optimizationMaxDimension($relativePath);
+            $result = $optimizer->optimizeToWebp($absolutePath, $maxDimension, $maxDimension, 82, false);
             if (! $result['success']) {
                 $failed++;
+                continue;
+            }
+            if (! $result['optimized']) {
+                $unchanged++;
+                continue;
+            }
+
+            if ($extension === 'webp') {
+                $optimized++;
+                $savedBytes += max(0, (int) $result['original_bytes'] - (int) $result['output_bytes']);
                 continue;
             }
 
             $newRelativePath = $this->relativePathFromAbsolute((string) $result['output_path']);
             if ($newRelativePath === '') {
-                @unlink((string) $result['output_path']);
-                $failed++;
-                continue;
-            }
-
-            $referenceCount = $this->countMediaReferences($db, $relativePath);
-            if ($referenceCount < 1) {
                 @unlink((string) $result['output_path']);
                 $failed++;
                 continue;
@@ -115,7 +125,9 @@ class MediaAudit extends BaseAdminController
                 continue;
             }
 
-            @unlink($absolutePath);
+            if ((string) $result['output_path'] !== $absolutePath) {
+                @unlink($absolutePath);
+            }
             $optimized++;
             $savedBytes += max(0, (int) $result['original_bytes'] - (int) $result['output_bytes']);
         }
@@ -132,11 +144,14 @@ class MediaAudit extends BaseAdminController
         if ($failed > 0) {
             $message .= ' Có ' . $failed . ' ảnh không thể xử lý hoặc đã có bản WebP.';
         }
+        if ($unchanged > 0) {
+            $message .= ' Có ' . $unchanged . ' ảnh đã đủ nhẹ nên được giữ nguyên.';
+        }
         if ($skippedByLimit > 0) {
             $message .= ' Còn ' . $skippedByLimit . ' ảnh chưa xử lý để tránh timeout; hãy chạy lại lần nữa.';
         }
 
-        return redirect()->to(site_url('admin/media-audit'))->with($optimized > 0 ? 'success' : 'error', $message);
+        return redirect()->to(site_url('admin/media-audit'))->with($optimized > 0 || $unchanged > 0 ? 'success' : 'error', $message);
     }
 
     /**
@@ -201,7 +216,7 @@ class MediaAudit extends BaseAdminController
             $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
             $size = $absolutePath !== null ? (int) (filesize($absolutePath) ?: 0) : 0;
 
-            if ($absolutePath === null || $size < self::OPTIMIZATION_THRESHOLD_BYTES || ! in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
+            if ($absolutePath === null || $size < self::OPTIMIZATION_THRESHOLD_BYTES || ! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
                 continue;
             }
 
@@ -373,6 +388,19 @@ class MediaAudit extends BaseAdminController
         }
 
         return $fields;
+    }
+
+    private function optimizationMaxDimension(string $relativePath): int
+    {
+        if (str_starts_with($relativePath, 'uploads/blogs/')) {
+            return str_contains($relativePath, '/thumbnail/') ? 1400 : 2000;
+        }
+
+        if (str_contains($relativePath, '/gallery/')) {
+            return 1800;
+        }
+
+        return 2000;
     }
 
     private function formatBytes(int $bytes): string

@@ -14,5 +14,5 @@
 <?php if ($recaptchaSiteKey !== ''): ?>
 <script defer src="https://www.google.com/recaptcha/api.js?render=<?= esc($recaptchaSiteKey, 'url') ?>"></script>
 <?php endif; ?>
-<script type="module" src="<?= base_url('assets/js/contact-page.js?v=' . (@filemtime(FCPATH . 'assets/js/contact-page.js') ?: time())) ?>"></script>
+<script type="module" src="<?= esc(frontend_asset_url('assets/js/contact-page.js'), 'attr') ?>"></script>
 <?= $this->endSection() ?>

@@ -60,4 +60,38 @@ final class ImageOptimizationServiceTest extends CIUnitTestCase
             @unlink($sourcePath);
         }
     }
+
+    public function testKeepsExistingWebpWhenReencodingWouldIncreaseItsSize(): void
+    {
+        if (! function_exists('imagewebp')) {
+            $this->markTestSkipped('PHP GD WebP support is unavailable.');
+        }
+
+        $sourcePath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'travelplus-image-' . bin2hex(random_bytes(5)) . '.webp';
+        $image = imagecreatetruecolor(320, 320);
+
+        for ($y = 0; $y < 320; $y++) {
+            for ($x = 0; $x < 320; $x++) {
+                $color = imagecolorallocate($image, random_int(0, 255), random_int(0, 255), random_int(0, 255));
+                imagesetpixel($image, $x, $y, $color);
+            }
+        }
+
+        imagewebp($image, $sourcePath, 45);
+        imagedestroy($image);
+        $originalHash = hash_file('sha256', $sourcePath);
+        $originalBytes = filesize($sourcePath);
+
+        try {
+            $result = (new ImageOptimizationService())->optimizeToWebp($sourcePath, 320, 320, 92, true);
+
+            $this->assertTrue($result['success'], $result['error']);
+            $this->assertFalse($result['optimized']);
+            $this->assertSame($sourcePath, $result['output_path']);
+            $this->assertSame($originalBytes, filesize($sourcePath));
+            $this->assertSame($originalHash, hash_file('sha256', $sourcePath));
+        } finally {
+            @unlink($sourcePath);
+        }
+    }
 }

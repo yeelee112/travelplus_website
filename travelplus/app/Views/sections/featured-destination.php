@@ -57,7 +57,7 @@ $copy = $locale === 'en'
                             <article class="home-destination-card <?= $itemIndex === 0 ? 'home-destination-card--wide' : '' ?>">
                                 <a href="<?= esc((string) ($item['link'] ?? '#'), 'attr') ?>">
                                     <img
-                                        src="<?= esc((string) ($item['image'] ?? base_url('assets/images/avt-tour-01.jpg')), 'attr') ?>"
+                                        src="<?= esc((string) ($item['image'] ?? base_url('assets/images/avt-tour-01.webp')), 'attr') ?>"
                                         alt="<?= esc((string) ($item['title'] ?? ''), 'attr') ?>"
                                         loading="lazy"
                                         decoding="async"

@@ -3,6 +3,30 @@
 use App\Services\DomesticRegionService;
 use App\Models\LocationModel;
 
+function frontend_asset_url(string $source, ?string $minified = null): string
+{
+    $source = ltrim(str_replace('\\', '/', $source), '/');
+
+    if ($minified === null) {
+        $extensionPosition = strrpos($source, '.');
+        $minified = $extensionPosition === false
+            ? $source
+            : substr($source, 0, $extensionPosition) . '.min' . substr($source, $extensionPosition);
+    }
+
+    $minified = ltrim(str_replace('\\', '/', $minified), '/');
+    $requestHost = strtolower(service('request')->getUri()->getHost());
+    $isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
+    $useMinified = ENVIRONMENT === 'production' || ! $isLocalRequest;
+    $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    $minifiedPath = $publicPath . str_replace('/', DIRECTORY_SEPARATOR, $minified);
+    $asset = $useMinified && is_file($minifiedPath) ? $minified : $source;
+    $assetPath = $publicPath . str_replace('/', DIRECTORY_SEPARATOR, $asset);
+    $version = @filemtime($assetPath) ?: 1;
+
+    return base_url($asset . '?v=' . $version);
+}
+
 function localized_url($path = '')
 {
     $locale = service('request')->getLocale();

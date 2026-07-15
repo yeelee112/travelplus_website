@@ -1238,5 +1238,5 @@ window.TOUR_DETAIL_I18N = <?= json_encode([
     'currencySuffix' => 'đ',
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 </script>
-<script src="<?= base_url('assets/js/tour-detail.js?v=' . (@filemtime(FCPATH . 'assets/js/tour-detail.js') ?: time())) ?>"></script>
+<script src="<?= esc(frontend_asset_url('assets/js/tour-detail.js'), 'attr') ?>"></script>
 <?= $this->endSection() ?>

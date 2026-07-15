@@ -263,7 +263,7 @@ $phoneDisplay = '+84 79 568 1 568';
         <div class="container">
             <?php if ($landingBannerImage !== ''): ?>
                 <div class="summer-hero__banner-shell">
-                    <img class="summer-hero__banner" src="<?= esc($landingBannerImage, 'attr') ?>" alt="<?= esc((string) ($copy['eyebrow'] ?? $copy['title'] ?? 'Tour he Travel Plus'), 'attr') ?>" loading="eager" decoding="async">
+                    <img class="summer-hero__banner" src="<?= esc($landingBannerImage, 'attr') ?>" alt="<?= esc((string) ($copy['eyebrow'] ?? $copy['title'] ?? 'Tour he Travel Plus'), 'attr') ?>" loading="eager" fetchpriority="high" decoding="async" width="1536" height="1024">
                 </div>
             <?php endif; ?>
 
@@ -355,7 +355,7 @@ $phoneDisplay = '+84 79 568 1 568';
                         ?>
                         <a class="summer-hero-teaser" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>">
                             <div class="summer-hero-teaser__media">
-                                <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async">
+                                <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async" width="710" height="500">
                                 <span><?= esc($resolveSaleBadge($tour)) ?></span>
                             </div>
                             <div class="summer-hero-teaser__body">
@@ -583,7 +583,7 @@ $phoneDisplay = '+84 79 568 1 568';
                         ?>
                         <a class="summer-hero-teaser summer-hero-teaser--destination" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>" data-summer-destination-item="<?= esc(implode(' ', $destinationKeys), 'attr') ?>">
                             <div class="summer-hero-teaser__media">
-                                <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async">
+                                <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async" width="760" height="500">
                                 <span><?= esc($resolveSaleBadge($tour)) ?></span>
                             </div>
                             <div class="summer-hero-teaser__body summer-hero-teaser__body--destination">
@@ -658,7 +658,7 @@ $phoneDisplay = '+84 79 568 1 568';
             <div class="container">
                 <div class="summer-editorial__layout">
                     <a class="summer-editorial__feature" href="<?= esc((string) ($editorialPrimary['link'] ?? '#'), 'attr') ?>">
-                        <img src="<?= esc((string) ($editorialPrimary['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($editorialPrimary['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async">
+                        <img src="<?= esc((string) ($editorialPrimary['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($editorialPrimary['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async" width="960" height="720">
                         <div class="summer-editorial__overlay">
                             <span><?= esc((string) ($copy['editorialKicker'] ?? $copy['promoTitle'] ?? '')) ?></span>
                             <strong><?= esc((string) ($editorialPrimary['title'] ?? '')) ?></strong>
@@ -700,7 +700,7 @@ $phoneDisplay = '+84 79 568 1 568';
                             $miniLocation = $resolveDisplayLocation($tour);
                             ?>
                             <a class="summer-editorial__mini" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>">
-                                <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async">
+                                <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async" width="320" height="240">
                                 <div>
                                     <span><?= esc($resolveSaleBadge($tour)) ?></span>
                                     <strong><?= esc((string) ($tour['title'] ?? '')) ?></strong>
@@ -758,7 +758,7 @@ $phoneDisplay = '+84 79 568 1 568';
                         ?>
                         <a class="summer-rail-card" href="<?= esc((string) ($tour['link'] ?? '#'), 'attr') ?>">
                             <div class="summer-rail-card__media">
-                                <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async">
+                                <img src="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>" alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>" loading="lazy" decoding="async" width="590" height="500">
                                 <span><?= esc($resolveSaleBadge($tour)) ?></span>
                             </div>
 
@@ -885,7 +885,7 @@ $phoneDisplay = '+84 79 568 1 568';
 <?php if ($recaptchaSiteKey !== ''): ?>
 <script defer src="https://www.google.com/recaptcha/api.js?render=<?= esc($recaptchaSiteKey, 'url') ?>"></script>
 <?php endif; ?>
-<script type="module" src="<?= base_url('assets/js/contact-page.js?v=' . (@filemtime(FCPATH . 'assets/js/contact-page.js') ?: time())) ?>"></script>
+<script type="module" src="<?= esc(frontend_asset_url('assets/js/contact-page.js'), 'attr') ?>"></script>
 <script>
 (() => {
   const filterRoot = document.getElementById("summerDestinationFilters");

@@ -8291,7 +8291,7 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
     padding: 36px;
     background:
         linear-gradient(180deg, rgba(4, 34, 43, .14) 0%, rgba(4, 34, 43, .9) 100%),
-        url("../images/mice-1.jpeg") center / cover no-repeat;
+        url("../images/mice-1.webp") center / cover no-repeat;
     color: #fff;}
 .travelplus-auth-intro > span, .travelplus-auth-card-head > span, .travelplus-account-head > div > span {display: inline-flex;
     margin-bottom: 12px;
@@ -12146,7 +12146,7 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
 .mice-page__solution-panel {height: 100%;
     padding: 38px;
     background-color: rgba(81, 81 ,81);
-    background-image: url(../images/mice-corporate-travel.jpg);
+    background-image: url(../images/mice-corporate-travel.webp);
     background-size: cover;
     background-position: center;
     background-blend-mode: multiply;}
@@ -12180,7 +12180,7 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     border-radius: 28px;
     background:
         linear-gradient(135deg, rgba(17, 24, 39, 0.92), rgba(16, 112, 150, 0.88)),
-        url(../images/mice-corporate-travel.jpg);
+        url(../images/mice-corporate-travel.webp);
     background-size: cover;
     background-position: center;
     color: #fff;
@@ -12298,7 +12298,7 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     border-radius: 28px;
     background:
         linear-gradient(135deg, rgba(255, 255, 255, .94), rgba(247, 252, 255, .9)),
-        url(../images/mice-corporate-travel.jpg) center / cover no-repeat;
+        url(../images/mice-corporate-travel.webp) center / cover no-repeat;
     box-shadow: 0 24px 48px rgba(17, 15, 15, 0.06);}
 .mice-page__profile-card span {display: inline-flex;
     color: var(--primary-color1);
