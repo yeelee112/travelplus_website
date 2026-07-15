@@ -4,7 +4,7 @@ $relatedBlogs = $relatedBlogs ?? [];
 $locale = service('request')->getLocale() ?: 'vi';
 $t = static fn(string $key) => lang('Frontend.' . $key, [], $locale);
 $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
-$blogImage = ! empty($blog['image']) ? base_url((string) $blog['image']) : base_url('assets/images/home/banner02.jpg');
+$blogImage = ! empty($blog['image']) ? base_url((string) $blog['image']) : base_url('assets/images/home/banner02.webp');
 $title = trim((string) ($blog['title'] ?? ''));
 $excerpt = trim((string) ($blog['excerpt'] ?? ''));
 $content = trim((string) ($blog['content'] ?? ''));
@@ -113,7 +113,7 @@ $labels = $locale === 'en'
                         <div class="travelplus-blog-related-list">
                             <?php foreach ($relatedBlogs as $relatedBlog): ?>
                                 <a class="travelplus-blog-related-item" href="<?= esc((string) $relatedBlog['link'], 'attr') ?>">
-                                    <img src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg')), 'attr') ?>" alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="92" height="72" loading="lazy" decoding="async">
+                                    <img src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.webp')), 'attr') ?>" alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="92" height="72" loading="lazy" decoding="async">
                                     <span>
                                         <small><?= esc((string) $relatedBlog['published_label']) ?></small>
                                         <strong><?= esc((string) $relatedBlog['title']) ?></strong>
@@ -135,7 +135,7 @@ $labels = $locale === 'en'
                 <div class="travelplus-blog-more-grid">
                     <?php foreach (array_slice($relatedBlogs, 0, 3) as $relatedBlog): ?>
                         <a class="travelplus-blog-more-card" href="<?= esc((string) $relatedBlog['link'], 'attr') ?>">
-                            <img src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.jpg')), 'attr') ?>" alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="420" height="280" loading="lazy" decoding="async">
+                            <img src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.webp')), 'attr') ?>" alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="420" height="280" loading="lazy" decoding="async">
                             <span><?= esc((string) $relatedBlog['published_label']) ?></span>
                             <h3><?= esc((string) $relatedBlog['title']) ?></h3>
                             <?php if (! empty($relatedBlog['excerpt'])): ?>

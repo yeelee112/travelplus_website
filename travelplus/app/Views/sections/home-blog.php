@@ -45,7 +45,7 @@ $copy = $locale === 'en'
                     <article class="home-blog-feature">
                         <a class="home-blog-feature__media" href="<?= esc((string) $featuredBlog['link'], 'attr') ?>">
                             <img
-                                src="<?= esc(base_url((string) ($featuredBlog['image'] ?? 'assets/images/home/banner02.jpg')), 'attr') ?>"
+                                src="<?= esc(base_url((string) ($featuredBlog['image'] ?? 'assets/images/home/banner02.webp')), 'attr') ?>"
                                 alt="<?= esc((string) $featuredBlog['title'], 'attr') ?>"
                                 width="760"
                                 height="460"
@@ -78,7 +78,7 @@ $copy = $locale === 'en'
                         <article class="home-blog-card">
                             <a class="home-blog-card__media" href="<?= esc((string) $blog['link'], 'attr') ?>">
                                 <img
-                                    src="<?= esc(base_url((string) ($blog['image'] ?? 'assets/images/home/banner02.jpg')), 'attr') ?>"
+                                    src="<?= esc(base_url((string) ($blog['image'] ?? 'assets/images/home/banner02.webp')), 'attr') ?>"
                                     alt="<?= esc((string) $blog['title'], 'attr') ?>"
                                     width="280"
                                     height="200"

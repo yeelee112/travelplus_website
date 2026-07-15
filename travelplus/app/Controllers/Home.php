@@ -8,6 +8,7 @@ use App\Data\TourCard;
 use App\Services\BlogService;
 use App\Services\DatabaseAvailabilityService;
 use App\Services\DomesticRegionService;
+use App\Services\PublicContentCacheService;
 use App\Services\SeoService;
 use App\Services\TourCatalogService;
 use Throwable;
@@ -26,26 +27,42 @@ class Home extends BaseController
         $featuredTours = $this->safeSection(
             'featured tours',
             static fn(): array => (new TourCatalogService())->getFeaturedTours($locale, 6),
-            $tourFallback
+            $tourFallback,
+            true,
+            'home:featured-tours:' . $locale,
+            300
         );
         $promotionalTours = $this->safeSection(
             'promotional tours',
-            static fn(): array => (new TourCatalogService())->getPromotionalTours($locale, 4)
+            static fn(): array => (new TourCatalogService())->getPromotionalTours($locale, 4),
+            [],
+            true,
+            'home:promotional-tours:' . $locale,
+            180
         );
         $featuredDestinations = $this->safeSection(
             'featured destinations',
             fn(): array => $this->getCuratedFeaturedDestinations($locale),
             [],
-            false
+            false,
+            'home:featured-destinations:' . $locale,
+            600
         );
         $homeTours = $this->safeSection(
             'home tours',
             static fn(): array => (new TourCatalogService())->getHomeTours($locale, 6),
-            $tourFallback
+            $tourFallback,
+            true,
+            'home:tours:' . $locale,
+            300
         );
         $homeBlogs = $this->safeSection(
             'home blogs',
-            static fn(): array => (new BlogService())->getHomeBlogs($locale, 3)
+            static fn(): array => (new BlogService())->getHomeBlogs($locale, 3),
+            [],
+            true,
+            'home:blogs:' . $locale,
+            300
         );
 
         return view('home/index', [
@@ -84,9 +101,19 @@ class Home extends BaseController
         string $name,
         callable $callback,
         array $fallback = [],
-        bool $skipWhenDatabaseUnavailable = true
+        bool $skipWhenDatabaseUnavailable = true,
+        ?string $cacheKey = null,
+        int $cacheTtl = 300
     ): array
     {
+        $contentCache = $cacheKey !== null ? new PublicContentCacheService() : null;
+        if ($contentCache !== null) {
+            $cached = $contentCache->get($cacheKey);
+            if (is_array($cached)) {
+                return $cached;
+            }
+        }
+
         if ($skipWhenDatabaseUnavailable && DatabaseAvailabilityService::isUnavailable()) {
             return $fallback;
         }
@@ -94,7 +121,12 @@ class Home extends BaseController
         try {
             $result = $callback();
 
-            return is_array($result) ? $result : [];
+            $result = is_array($result) ? $result : [];
+            if ($contentCache !== null) {
+                $contentCache->save((string) $cacheKey, $result, $cacheTtl);
+            }
+
+            return $result;
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Home section failed [' . $name . ']');
 

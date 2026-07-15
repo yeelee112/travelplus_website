@@ -273,7 +273,7 @@ class BlogService
     private function mapBlogRow(array $row, string $locale): array
     {
         $basePath = $locale === 'en' ? 'travel-inspiration' : 'cam-hung-du-lich';
-        $image = (string) ($row['featured_image'] ?: $row['cover_image'] ?: $row['thumbnail'] ?: 'assets/images/home/banner02.jpg');
+        $image = (string) ($row['featured_image'] ?: $row['cover_image'] ?: $row['thumbnail'] ?: 'assets/images/home/banner02.webp');
         $rawCategory = TextEncodingService::repair(trim((string) ($row['category'] ?? '')));
 
         return [

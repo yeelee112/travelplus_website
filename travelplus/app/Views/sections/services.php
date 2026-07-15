@@ -25,7 +25,7 @@ $copy = $locale === 'en'
                 'meta' => 'Asia, Europe, America and Vietnam',
                 'url' => $searchUrl,
                 'icon' => 'bi-compass-fill',
-                'image' => 'assets/images/home/banner02.jpg',
+                'image' => 'assets/images/home/banner02.webp',
             ],
             [
                 'title' => 'Visa and travel services',
@@ -58,7 +58,7 @@ $copy = $locale === 'en'
                 'meta' => 'Châu Á, Châu Âu, Mỹ và Việt Nam',
                 'url' => $searchUrl,
                 'icon' => 'bi-compass-fill',
-                'image' => 'assets/images/home/banner02.jpg',
+                'image' => 'assets/images/home/banner02.webp',
             ],
             [
                 'title' => 'Visa và dịch vụ du lịch',

@@ -69,7 +69,7 @@ $fallbackTitle = $locale === 'en'
     : 'Lịch khởi hành tốt cho gia đình và đoàn nhỏ';
 $featureTitle = (string) ($featureTour['title'] ?? $fallbackTitle);
 $featureLink = (string) ($featureTour['link'] ?? $searchUrl);
-$featureImage = (string) ($featureTour['image'] ?? base_url('assets/images/home/banner02.jpg'));
+$featureImage = (string) ($featureTour['image'] ?? base_url('assets/images/home/banner02.webp'));
 $featurePrice = (string) ($featureTour['price']['label'] ?? '');
 $featureDeparture = (string) ($featureTour['departure'] ?? '');
 $featureContinent = (string) ($featureTour['continent'] ?? '');

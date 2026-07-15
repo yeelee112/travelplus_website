@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Data\LocalizedPathCatalog;
 use App\Services\BlogService;
+use App\Services\DatabaseAvailabilityService;
+use App\Services\PublicContentCacheService;
 use App\Services\TourCatalogService;
 use CodeIgniter\Controller;
 
@@ -11,6 +13,16 @@ class Sitemap extends Controller
 {
     public function index()
     {
+        $contentCache = new PublicContentCacheService();
+        $cacheKey = 'sitemap:' . base_url();
+        $cachedXml = $contentCache->get($cacheKey);
+        if (is_string($cachedXml) && $cachedXml !== '') {
+            return $this->response
+                ->setCache(['public', 'max-age' => 900])
+                ->setContentType('application/xml')
+                ->setBody($cachedXml);
+        }
+
         $locales = ['vi', 'en'];
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"></urlset>');
         $urls = [];
@@ -149,7 +161,15 @@ class Sitemap extends Controller
             }
         }
 
-        return $this->response->setContentType('application/xml')->setBody($xml->asXML());
+        $xmlBody = (string) $xml->asXML();
+        if (! DatabaseAvailabilityService::isUnavailable()) {
+            $contentCache->save($cacheKey, $xmlBody, 900);
+        }
+
+        return $this->response
+            ->setCache(['public', 'max-age' => 900])
+            ->setContentType('application/xml')
+            ->setBody($xmlBody);
     }
 
     /**

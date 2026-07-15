@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Services\DomesticRegionService;
 use App\Services\ImageOptimizationService;
+use App\Services\PublicContentCacheService;
 use Throwable;
 
 class Tours extends BaseAdminController
@@ -82,6 +83,8 @@ class Tours extends BaseAdminController
         if (! $db->transStatus()) {
             return redirect()->to(site_url('admin/tours'))->with('error', 'Không thể cập nhật nhanh tour lúc này.');
         }
+
+        $this->clearNavigationCaches();
 
         return redirect()->to(site_url('admin/tours'))->with('success', 'Đã cập nhật nhanh tour #' . $tourId . '.');
     }
@@ -167,6 +170,8 @@ class Tours extends BaseAdminController
         if (! $db->transStatus()) {
             return redirect()->to(site_url('admin/tours'))->with('error', 'Không thể xóa tour lúc này.');
         }
+
+        $this->clearNavigationCaches();
 
         $this->deleteDirectory($this->tourUploadDirectory($tourId));
 
@@ -1347,6 +1352,8 @@ class Tours extends BaseAdminController
 
     private function clearNavigationCaches(): void
     {
+        (new PublicContentCacheService())->invalidate();
+
         foreach (['vi', 'en'] as $locale) {
             cache()->delete('location_mega_menu_' . $locale);
             cache()->delete('location_mega_menu_v2_' . $locale);

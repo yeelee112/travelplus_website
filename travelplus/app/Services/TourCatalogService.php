@@ -153,7 +153,8 @@ class TourCatalogService
 
     public function findTourBySlug(string $locale, string $slug, ?string $tourType = null): ?array
     {
-        $cacheKey = 'tour_detail_' . md5($locale . '|' . $slug . '|' . (string) $tourType);
+        $contentVersion = (new PublicContentCacheService())->version();
+        $cacheKey = 'tour_detail_v' . $contentVersion . '_' . md5($locale . '|' . $slug . '|' . (string) $tourType);
         try {
             $cached = cache()->get($cacheKey);
             if (is_array($cached)) {
@@ -232,7 +233,8 @@ class TourCatalogService
     {
         $tourId = (int) ($tour['id'] ?? 0);
         $tourType = (string) ($tour['tour_type'] ?? '');
-        $cacheKey = 'tour_related_' . md5($locale . '|' . $tourId . '|' . $tourType . '|' . $limit);
+        $contentVersion = (new PublicContentCacheService())->version();
+        $cacheKey = 'tour_related_v' . $contentVersion . '_' . md5($locale . '|' . $tourId . '|' . $tourType . '|' . $limit);
         try {
             $cached = cache()->get($cacheKey);
             if (is_array($cached)) {

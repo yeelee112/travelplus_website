@@ -5,7 +5,7 @@ $recentBlogs = $recentBlogs ?? array_slice($blogs, 0, 4);
 $categories = is_array($categories ?? null) ? $categories : [];
 $totalBlogs = (int) ($totalBlogs ?? count($blogs));
 $pagination = is_array($pagination ?? null) ? $pagination : [];
-$fallbackImage = base_url('assets/images/home/banner02.jpg');
+$fallbackImage = base_url('assets/images/home/banner02.webp');
 $locale = service('request')->getLocale() ?: 'vi';
 $t = static fn(string $key) => lang('Frontend.' . $key, [], $locale);
 $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);

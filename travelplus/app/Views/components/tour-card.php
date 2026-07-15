@@ -29,7 +29,7 @@ $copy = [
 
 $title = trim((string) ($tour['title'] ?? ''));
 $link = trim((string) ($tour['link'] ?? '#'));
-$image = trim((string) ($tour['image'] ?? '')) ?: base_url('assets/images/home/banner02.jpg');
+$image = trim((string) ($tour['image'] ?? '')) ?: base_url('assets/images/home/banner02.webp');
 $badge = trim((string) ($tour['badge'] ?? ''));
 $promotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
 $promotionBadge = trim((string) ($promotion['badge'] ?? ''));

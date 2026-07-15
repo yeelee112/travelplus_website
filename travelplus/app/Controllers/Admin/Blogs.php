@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Data\LocalizedPathCatalog;
 use App\Services\ImageOptimizationService;
+use App\Services\PublicContentCacheService;
 use App\Services\TextEncodingService;
 use DOMDocument;
 use DOMElement;
@@ -170,6 +171,7 @@ class Blogs extends BaseAdminController
         }
 
         $db->table('blogs')->where('id', $blogId)->update($payload);
+        (new PublicContentCacheService())->invalidate();
 
         return redirect()->to(site_url('admin/blogs'))->with('success', 'Đã cập nhật trạng thái blog #' . $blogId . '.');
     }
@@ -201,6 +203,7 @@ class Blogs extends BaseAdminController
         }
 
         $this->deleteDirectory($this->blogUploadDirectory($blogId));
+        (new PublicContentCacheService())->invalidate();
 
         return redirect()->to(site_url('admin/blogs'))->with('success', 'Đã xóa bài viết blog #' . $blogId . '.');
     }
@@ -403,6 +406,8 @@ class Blogs extends BaseAdminController
         foreach (array_diff($oldImagePaths, $activeImagePaths) as $unusedPath) {
             $this->deleteRelativeFile((string) $unusedPath, 'uploads/blogs/');
         }
+
+        (new PublicContentCacheService())->invalidate();
 
         return redirect()->to(site_url('admin/blogs/' . $blogId . '/edit'))->with('success', $message);
     }

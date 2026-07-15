@@ -9,7 +9,7 @@ $routes->setDefaultController('Home');
 $routes->setDefaultMethod('index');
 $routes->setAutoRoute(false);
 
-$routes->GET('sitemap.xml', 'Sitemap::index');
+$routes->match(['GET', 'HEAD'], 'sitemap.xml', 'Sitemap::index');
 $routes->GET('errors/403', 'ErrorPages::forbidden');
 $routes->GET('errors/404', 'ErrorPages::notFound');
 
