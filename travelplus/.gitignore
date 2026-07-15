@@ -63,6 +63,10 @@ writable/uploads/*
 writable/debugbar/*
 !writable/debugbar/index.html
 
+writable/stats/*.bak
+writable/stats/*.lock
+writable/stats/*.tmp-*
+
 php_errors.log
 
 #-------------------------
