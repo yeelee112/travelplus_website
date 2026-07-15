@@ -62,14 +62,8 @@ $customerNote = trim((string) ($booking['customer_note'] ?? ''));
                 <h1 class="h3 mb-1">Booking <?= esc((string) ($booking['booking_code'] ?? '')) ?></h1>
                 <p class="text-muted mb-0">Chi tiết booking, đối soát thanh toán và lịch sử cập nhật.</p>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Back to bookings</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/promotion-codes') ?>">Promotion codes</a>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Quay lại bookings</a>
             </div>
         </div>
 
@@ -131,7 +125,7 @@ $customerNote = trim((string) ($booking['customer_note'] ?? ''));
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="1" id="send_booking_email" name="send_booking_email" checked>
-                                        <label class="form-check-label" for="send_booking_email">Gửi email xác nhận cho khách khi lần đầu chuyển sang đã thanh toán.</label>
+                                        <label class="form-check-label" for="send_booking_email">Gửi email cập nhật trạng thái cho khách. Khi chuyển sang đã thanh toán lần đầu, hệ thống gửi email xác nhận thanh toán.</label>
                                     </div>
                                 </div>
                             </div>

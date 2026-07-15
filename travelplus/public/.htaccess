@@ -1,6 +1,10 @@
 # Disable directory browsing
 Options -Indexes
 
+# Use branded pages for errors generated directly by Apache.
+ErrorDocument 403 /errors/403
+ErrorDocument 404 /errors/404
+
 # Block accidental exposure of source maps, backups, local configs and VCS files.
 <FilesMatch "(^\.|\.map$|\.log$|\.sql$|\.bak$|\.old$|\.orig$|\.save$|\.swp$|\.tmp$|\.env$|\.ini$|\.ya?ml$|\.lock$|composer\.(json|lock)$|package(-lock)?\.json$)">
 	Require all denied
@@ -52,6 +56,9 @@ Options -Indexes
 	# change the following line to match the subfolder you need.
 	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
 	# RewriteBase /
+
+	# Drop malformed scanner requests before they reach CodeIgniter and flood its logs.
+	RewriteRule ^https&$ - [F,L,NC]
 
 	# Block percent-encoded non-ASCII spam URLs before CodeIgniter handles them.
 	RewriteCond %{THE_REQUEST} \s/+[^\s?]*%[89A-Fa-f][0-9A-Fa-f] [NC]

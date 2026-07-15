@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - Promotion code</title>
+    <title>Admin - Mã khuyến mãi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
@@ -11,9 +11,6 @@
         .admin-shell { max-width:1180px; margin:32px auto; padding:0 16px; }
         .admin-card { background:#fff; border:1px solid #e6ebf0; border-radius:20px; box-shadow:0 16px 40px rgba(23,32,51,.06); padding:28px; }
         .promo-hero__eyebrow { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#0ea5e9; margin-bottom:8px; }
-        .promo-hero__nav { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-        .promo-nav-link { border:1px solid #dbe5ef; color:#3c4a5d; background:#fff; border-radius:999px; padding:8px 14px; font-size:14px; font-weight:600; text-decoration:none; }
-        .promo-nav-link.is-active { background:#172033; border-color:#172033; color:#fff; }
         .form-label { font-weight:600; }
         .promo-section { border:1px solid #edf1f5; border-radius:18px; padding:20px; background:#fbfcfe; }
         .promo-scope-option { border:1px solid #dbe5ef; border-radius:16px; padding:16px; background:#fff; height:100%; }
@@ -31,16 +28,11 @@
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-4 flex-wrap">
             <div>
-                <div class="promo-hero__eyebrow">Promotion Codes</div>
+                <div class="promo-hero__eyebrow">Mã khuyến mãi</div>
                 <h1 class="h3 mb-2"><?= esc((string) ($pageTitle ?? 'Promotion code')) ?></h1>
                 <p class="text-muted mb-0">Thiết lập mức giảm, thời gian hiệu lực và phạm vi áp dụng cho toàn site hoặc một nhóm tour cụ thể.</p>
-                <div class="promo-hero__nav">
-                    <a class="promo-nav-link" href="<?= site_url('admin') ?>">Dashboard</a>
-                    <a class="promo-nav-link" href="<?= site_url('admin/bookings') ?>">Bookings</a>
-                    <a class="promo-nav-link" href="<?= site_url('admin/tours') ?>">Tours</a>
-                    <a class="promo-nav-link is-active" href="<?= site_url('admin/promotion-codes') ?>">Promotion codes</a>
-                </div>
             </div>
+            <a class="btn btn-outline-secondary" href="<?= site_url('admin/promotion-codes') ?>">Quay lại danh sách</a>
         </div>
 
         <?php if (! empty($success)): ?><div class="alert alert-success"><?= esc($success) ?></div><?php endif; ?>

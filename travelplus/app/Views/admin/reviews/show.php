@@ -30,12 +30,8 @@
                 <h1 class="h3 mb-1">Review #<?= esc((string) ($review['id'] ?? '')) ?></h1>
                 <p class="text-muted mb-0">Chi tiết review và thao tác moderation.</p>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Back to reviews</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Quay lại đánh giá</a>
             </div>
         </div>
 
@@ -45,7 +41,7 @@
         <div class="meta-grid mb-4">
             <div class="meta-item"><small>Tour</small><div class="fw-semibold"><?= esc((string) ($review['tour_name'] ?? '')) ?></div></div>
             <div class="meta-item"><small>Reviewer</small><div class="fw-semibold"><?= esc((string) ($review['reviewer_name'] ?? '')) ?></div><div><?= esc((string) ($review['reviewer_email'] ?? '')) ?></div></div>
-            <div class="meta-item"><small>Status</small><div class="fw-semibold"><?= esc((string) ($review['status'] ?? '')) ?></div></div>
+            <div class="meta-item"><small>Trạng thái</small><div class="fw-semibold"><?= ($review['status'] ?? '') === 'approved' ? 'Đã duyệt' : (($review['status'] ?? '') === 'hidden' ? 'Đã ẩn' : 'Chờ duyệt') ?></div></div>
             <div class="meta-item"><small>Created</small><div class="fw-semibold"><?= esc(app_datetime((string) ($review['created_at'] ?? ''))) ?></div></div>
             <div class="meta-item"><small>Overall</small><div class="fw-semibold"><?= esc((string) ($review['rating_overall'] ?? '0')) ?></div></div>
             <div class="meta-item"><small>Destination / Transport / Value</small><div class="fw-semibold"><?= esc((string) ($review['rating_destination'] ?? '0')) ?> / <?= esc((string) ($review['rating_transport'] ?? '0')) ?> / <?= esc((string) ($review['rating_value'] ?? '0')) ?></div></div>
@@ -68,23 +64,23 @@
                     <?= csrf_field() ?>
                     <input type="hidden" name="status" value="approved">
                     <input type="hidden" name="redirect_to" value="show">
-                    <button type="submit" class="btn btn-outline-success">Approve</button>
+                    <button type="submit" class="btn btn-outline-success">Duyệt</button>
                 </form>
                 <form method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/status') ?>">
                     <?= csrf_field() ?>
                     <input type="hidden" name="status" value="pending">
                     <input type="hidden" name="redirect_to" value="show">
-                    <button type="submit" class="btn btn-outline-warning">Pending</button>
+                    <button type="submit" class="btn btn-outline-warning">Chờ duyệt</button>
                 </form>
                 <form method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/status') ?>">
                     <?= csrf_field() ?>
                     <input type="hidden" name="status" value="hidden">
                     <input type="hidden" name="redirect_to" value="show">
-                    <button type="submit" class="btn btn-outline-secondary">Hide</button>
+                    <button type="submit" class="btn btn-outline-secondary">Ẩn</button>
                 </form>
-                <form method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/delete') ?>" onsubmit="return confirm('Delete this review?');">
+                <form method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/delete') ?>" onsubmit="return confirm('Xóa đánh giá này?');">
                     <?= csrf_field() ?>
-                    <button type="submit" class="btn btn-outline-danger">Delete</button>
+                    <button type="submit" class="btn btn-outline-danger">Xóa</button>
                 </form>
             </div>
             <form method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/status') ?>">

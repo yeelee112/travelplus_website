@@ -18,5 +18,11 @@ document.addEventListener('DOMContentLoaded', function () {
       root.classList.remove('admin-sidebar-open');
     });
   });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      root.classList.remove('admin-sidebar-open');
+    }
+  });
 });
 </script>

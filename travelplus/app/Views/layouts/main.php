@@ -28,6 +28,7 @@ $bodyClass = $requestPath === '' || ($currentLocale === 'en' && $requestPath ===
     : 'is-inner-page';
 $isContactPage = $requestPath === 'contact' || str_ends_with($requestPath, '/contact');
 $showAiChatbox = ! in_array($firstSegment, ['admin', 'api'], true);
+$showTourTools = ! in_array($firstSegment, ['admin', 'api'], true);
 $showCookieConsent = ! in_array($firstSegment, ['admin', 'api'], true);
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
@@ -140,6 +141,9 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <?= $this->include('partials/footer') ?>
 <?php if ($showAiChatbox): ?>
 <?= $this->include('partials/ai-chatbox') ?>
+<?php endif; ?>
+<?php if ($showTourTools): ?>
+<?= $this->include('partials/tour-tools') ?>
 <?php endif; ?>
 <?php if ($showCookieConsent): ?>
 <?= $this->include('partials/cookie-consent') ?>

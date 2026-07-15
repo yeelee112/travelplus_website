@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - Tours</title>
+    <title>Admin - Tour</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
@@ -47,16 +47,11 @@
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
             <div>
-                <h1 class="h3 mb-1">Admin tours</h1>
+                <h1 class="h3 mb-1">Quản lý tour</h1>
                 <p class="text-muted mb-0">Quản lý tour, giá bán và lịch khởi hành từ một màn hình gọn hơn.</p>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Bookings</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
-                <a class="btn btn-primary" href="<?= site_url('admin/tours/create') ?>">Create tour</a>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
+                <a class="btn btn-primary" href="<?= site_url('admin/tours/create') ?>">Tạo tour</a>
             </div>
         </div>
 
@@ -70,12 +65,12 @@
                     <th>ID</th>
                     <th>Tour</th>
                     <th>Loại</th>
-                    <th>Views</th>
+                    <th>Lượt xem</th>
                     <th>Trạng thái</th>
                     <th>Giá</th>
                     <th>Khởi hành gần nhất</th>
                     <th>Cập nhật</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -124,11 +119,11 @@
                         <td><?= esc(app_datetime((string) ($tour['updated_at'] ?? ''))) ?></td>
                         <td class="text-end">
                             <div class="tour-actions">
-                                <button type="button" class="btn btn-sm btn-outline-secondary js-quick-edit-toggle" data-target="quick-edit-<?= $tourId ?>">Quick edit</button>
-                                <a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/tours/' . $tourId . '/edit') ?>">Edit</a>
-                                <form method="post" action="<?= site_url('admin/tours/' . $tourId . '/delete') ?>" onsubmit="return confirm('Delete this tour?');">
+                                <button type="button" class="btn btn-sm btn-outline-secondary js-quick-edit-toggle" data-target="quick-edit-<?= $tourId ?>">Sửa nhanh</button>
+                                <a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/tours/' . $tourId . '/edit') ?>">Sửa</a>
+                                <form method="post" action="<?= site_url('admin/tours/' . $tourId . '/delete') ?>" onsubmit="return confirm('Xóa tour này?');">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
                                 </form>
                             </div>
                         </td>
@@ -139,8 +134,8 @@
                                 <?= csrf_field() ?>
                                 <div class="quick-edit-head">
                                     <div>
-                                        <h2 class="quick-edit-title">Quick edit: <?= esc((string) $tour['name']) ?></h2>
-                                        <div class="quick-edit-meta">Sửa nhanh giá và toàn bộ lịch khởi hành. Dùng trang `Edit` khi cần đổi nội dung, media, itinerary hoặc SEO.</div>
+                                        <h2 class="quick-edit-title">Sửa nhanh: <?= esc((string) $tour['name']) ?></h2>
+                                        <div class="quick-edit-meta">Sửa nhanh giá và toàn bộ lịch khởi hành. Dùng trang sửa đầy đủ khi cần đổi nội dung, media, itinerary hoặc SEO.</div>
                                     </div>
                                     <div class="d-flex gap-2 flex-wrap">
                                         <button type="button" class="btn btn-outline-secondary js-quick-edit-toggle" data-target="quick-edit-<?= $tourId ?>">Đóng</button>
@@ -187,10 +182,10 @@
                                                             <input type="number" min="0" name="departures[0][price_up]" class="form-control">
                                                         </div>
                                                         <div class="col-md-2">
-                                                            <label class="form-label">Status</label>
+                                                            <label class="form-label">Trạng thái</label>
                                                             <select name="departures[0][status]" class="form-select">
-                                                                <option value="open">Open</option>
-                                                                <option value="closed">Closed</option>
+                                                                <option value="open">Đang mở</option>
+                                                                <option value="closed">Đã đóng</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -216,10 +211,10 @@
                                                                 <input type="number" min="0" name="departures[<?= $index ?>][price_up]" class="form-control" value="<?= esc((string) ($departure['price_up'] ?? '')) ?>">
                                                             </div>
                                                             <div class="col-md-2">
-                                                                <label class="form-label">Status</label>
+                                                                <label class="form-label">Trạng thái</label>
                                                                 <select name="departures[<?= $index ?>][status]" class="form-select">
-                                                                    <option value="open" <?= ($departure['status'] ?? 'open') === 'open' ? 'selected' : '' ?>>Open</option>
-                                                                    <option value="closed" <?= ($departure['status'] ?? '') === 'closed' ? 'selected' : '' ?>>Closed</option>
+                                                                    <option value="open" <?= ($departure['status'] ?? 'open') === 'open' ? 'selected' : '' ?>>Đang mở</option>
+                                                                    <option value="closed" <?= ($departure['status'] ?? '') === 'closed' ? 'selected' : '' ?>>Đã đóng</option>
                                                                 </select>
                                                             </div>
                                                         </div>

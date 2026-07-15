@@ -208,9 +208,15 @@ class Bookings extends BaseAdminController
 
         if (is_array($updated) && $status === 'paid' && $previousStatus !== 'paid') {
             $this->incrementCouponUsage($updated);
+        }
 
-            if ($sendBookingEmail) {
-                (new BookingNotificationService())->sendBookingEmails($updated);
+        if (is_array($updated) && $sendBookingEmail && $previousStatus !== $status) {
+            $notifier = new BookingNotificationService();
+
+            if ($status === 'paid' && $previousStatus !== 'paid') {
+                $notifier->sendBookingEmails($updated);
+            } else {
+                $notifier->sendStatusUpdateEmail($updated, $status, $note);
             }
         }
 

@@ -19,11 +19,11 @@
 
 4. Tour wishlist and comparison
    - Let visitors save tours and compare price, departure, duration, destination, and included services.
-   - Status: planned
+   - Status: implemented with browser localStorage; pending browser verification when the local PHP CLI has required extensions enabled.
 
 5. Automated booking emails
    - Send booking confirmation, payment reminders, document reminders, and status updates.
-   - Status: planned
+   - Status: implemented with email logs, admin browser sender, and optional `booking:send-reminders` command; pending migration/browser verification when the local PHP CLI has required extensions enabled.
 
 6. SEO and content polish
    - Replace default README content with project-specific documentation.

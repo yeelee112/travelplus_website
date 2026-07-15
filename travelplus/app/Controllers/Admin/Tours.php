@@ -92,10 +92,10 @@ class Tours extends BaseAdminController
         }
 
         return $this->renderForm([
-            'pageTitle' => 'Create tour',
-            'pageDesc' => 'Internal form for inserting tour data without writing SQL.',
+            'pageTitle' => 'Tạo tour',
+            'pageDesc' => 'Nhập dữ liệu tour, lịch trình, hình ảnh và thông tin bán hàng.',
             'formAction' => site_url('admin/tours'),
-            'submitLabel' => 'Save tour',
+            'submitLabel' => 'Lưu tour',
             'tourId' => null,
             'formData' => $this->defaultFormData(),
         ]);
@@ -123,10 +123,10 @@ class Tours extends BaseAdminController
         }
 
         return $this->renderForm([
-            'pageTitle' => 'Edit tour #' . $tourId,
-            'pageDesc' => 'Update tour content, itinerary, media and booking data.',
+            'pageTitle' => 'Sửa tour #' . $tourId,
+            'pageDesc' => 'Cập nhật nội dung tour, lịch trình, hình ảnh và dữ liệu booking.',
             'formAction' => site_url('admin/tours/' . $tourId),
-            'submitLabel' => 'Update tour',
+            'submitLabel' => 'Cập nhật tour',
             'tourId' => $tourId,
             'formData' => $formData,
         ]);
@@ -553,15 +553,19 @@ class Tours extends BaseAdminController
     private function insertTourTranslations($db, int $tourId, array $post): void
     {
         $fields = $db->getFieldNames('tour_translations');
+        $metaDescriptionVi = trim((string) ($post['meta_description_vi'] ?? ''));
+        $metaDescriptionEn = trim((string) ($post['meta_description_en'] ?? ''));
+        $shortDescriptionVi = $metaDescriptionVi !== '' ? $metaDescriptionVi : trim((string) ($post['short_description_vi'] ?? ''));
+        $shortDescriptionEn = $metaDescriptionEn !== '' ? $metaDescriptionEn : trim((string) ($post['short_description_en'] ?? ''));
         $locales = [
             'vi' => [
                 'name' => trim((string) $post['name_vi']),
                 'slug' => trim((string) ($post['slug_vi'] ?? '')) ?: $this->slugify(trim((string) $post['name_vi'])),
-                'short_description' => trim((string) ($post['short_description_vi'] ?? '')),
+                'short_description' => $shortDescriptionVi,
                 'description' => $this->sanitizeRichHtml((string) ($post['description_vi'] ?? '')),
                 'itinerary' => $this->sanitizeRichHtml((string) ($post['itinerary_vi'] ?? '')),
                 'meta_title' => trim((string) ($post['meta_title_vi'] ?? '')),
-                'meta_description' => trim((string) ($post['meta_description_vi'] ?? '')),
+                'meta_description' => $metaDescriptionVi,
                 'overview' => $this->sanitizeRichHtml((string) ($post['overview_vi'] ?? '')),
                 'booking_policy' => $this->sanitizeRichHtml((string) ($post['booking_policy_vi'] ?? '')),
                 'cancellation_policy' => $this->sanitizeRichHtml((string) ($post['cancellation_policy_vi'] ?? '')),
@@ -570,11 +574,11 @@ class Tours extends BaseAdminController
             'en' => [
                 'name' => trim((string) (($post['name_en'] ?? '') ?: $post['name_vi'])),
                 'slug' => trim((string) ($post['slug_en'] ?? '')) ?: $this->slugify(trim((string) (($post['name_en'] ?? '') ?: $post['name_vi']))),
-                'short_description' => trim((string) ($post['short_description_en'] ?? '')),
+                'short_description' => $shortDescriptionEn,
                 'description' => $this->sanitizeRichHtml((string) ($post['description_en'] ?? '')),
                 'itinerary' => $this->sanitizeRichHtml((string) ($post['itinerary_en'] ?? '')),
                 'meta_title' => trim((string) ($post['meta_title_en'] ?? '')),
-                'meta_description' => trim((string) ($post['meta_description_en'] ?? '')),
+                'meta_description' => $metaDescriptionEn,
                 'overview' => $this->sanitizeRichHtml((string) ($post['overview_en'] ?? '')),
                 'booking_policy' => $this->sanitizeRichHtml((string) ($post['booking_policy_en'] ?? '')),
                 'cancellation_policy' => $this->sanitizeRichHtml((string) ($post['cancellation_policy_en'] ?? '')),
@@ -756,9 +760,11 @@ class Tours extends BaseAdminController
             }
 
             $titleVi = trim((string) ($row['title_vi'] ?? ''));
+            $titleEn = trim((string) ($row['title_en'] ?? ''));
             $descriptionVi = $this->sanitizeRichHtml((string) ($row['description_vi'] ?? ''));
+            $descriptionEn = $this->sanitizeRichHtml((string) ($row['description_en'] ?? ''));
 
-            if ($titleVi === '' && $descriptionVi === '') {
+            if ($titleVi === '' && $descriptionVi === '' && $titleEn === '' && $descriptionEn === '') {
                 continue;
             }
 
@@ -778,18 +784,15 @@ class Tours extends BaseAdminController
             $db->table('tour_itinerary_day_translations')->insert([
                 'itinerary_day_id' => $dayId,
                 'locale' => 'vi',
-                'title' => $titleVi ?: 'Ngày ' . ($index + 1),
-                'description' => $descriptionVi,
+                'title' => $titleVi ?: ($titleEn ?: 'Ngày ' . ($index + 1)),
+                'description' => $descriptionVi ?: $descriptionEn,
             ]);
-
-            $titleEn = trim((string) ($row['title_en'] ?? '')) ?: $titleVi;
-            $descriptionEn = $this->sanitizeRichHtml((string) ($row['description_en'] ?? '')) ?: $descriptionVi;
 
             $db->table('tour_itinerary_day_translations')->insert([
                 'itinerary_day_id' => $dayId,
                 'locale' => 'en',
-                'title' => $titleEn,
-                'description' => $descriptionEn,
+                'title' => $titleEn ?: ($titleVi ?: 'Day ' . ($index + 1)),
+                'description' => $descriptionEn ?: $descriptionVi,
             ]);
         }
     }

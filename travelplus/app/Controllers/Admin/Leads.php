@@ -10,6 +10,9 @@ class Leads extends BaseAdminController
 {
     private const STAGES = ['new', 'consulting', 'won', 'lost'];
     private const SOURCES = ['contact_form', 'tour_enquiry', 'ai_chat', 'booking', 'manual'];
+    private const PER_PAGE = 12;
+    private const STATS_CACHE_KEY = 'admin_crm_leads_stage_stats';
+    private const STATS_CACHE_TTL = 60;
 
     public function index()
     {
@@ -17,18 +20,36 @@ class Leads extends BaseAdminController
             return $redirect;
         }
 
-        $this->syncOpenBookings();
-
         $stage = $this->normalizeStage((string) $this->request->getGet('stage'));
         $source = $this->normalizeSource((string) $this->request->getGet('source'));
         $keyword = trim((string) $this->request->getGet('q'));
+        $page = max(1, (int) $this->request->getGet('page'));
 
-        $query = (new CrmLeadModel())->orderBy('updated_at', 'DESC')->orderBy('created_at', 'DESC');
+        if ((string) $this->request->getGet('sync_bookings') === '1') {
+            $synced = $this->syncOpenBookings();
+            $this->clearStatsCache();
+            $query = http_build_query(array_filter([
+                'stage' => $stage,
+                'source' => $source,
+                'q' => $keyword,
+            ], static fn ($value) => $value !== ''));
+
+            return redirect()->to(site_url('admin/leads' . ($query !== '' ? '?' . $query : '')))
+                ->with('success', 'Đã đồng bộ ' . $synced . ' booking vào CRM leads.');
+        }
+
+        $query = (new CrmLeadModel())
+            ->select('id, source, stage, priority, customer_name, customer_email, customer_phone, interest_title, interest_url, destination, travel_date, travelers, message, booking_code, last_contacted_at, internal_note, created_at, updated_at')
+            ->orderBy('updated_at', 'DESC')
+            ->orderBy('created_at', 'DESC');
         $this->applyFilters($query, $stage, $source, $keyword);
+        $leads = $query->findAll(self::PER_PAGE + 1, ($page - 1) * self::PER_PAGE);
+        $hasNextPage = count($leads) > self::PER_PAGE;
 
         return view('admin/leads/index', [
-            'leads' => $query->paginate(24),
-            'pager' => $query->pager,
+            'leads' => array_slice($leads, 0, self::PER_PAGE),
+            'currentPage' => $page,
+            'hasNextPage' => $hasNextPage,
             'stage' => $stage,
             'source' => $source,
             'keyword' => $keyword,
@@ -73,30 +94,36 @@ class Leads extends BaseAdminController
         }
 
         $model->update($leadId, $update);
+        $this->clearStatsCache();
 
         return redirect()->back()->with('success', 'Đã cập nhật lead.');
     }
 
-    private function syncOpenBookings(): void
+    private function syncOpenBookings(): int
     {
         $db = db_connect();
 
         if (! $db->tableExists('bookings') || ! $db->tableExists('crm_leads')) {
-            return;
+            return 0;
         }
 
         $bookings = (new BookingModel())
+            ->select('id, booking_code, customer_name, customer_email, customer_phone, customer_note, tour_title, tour_link, departure_label, adult_quantity, child_quantity, infant_quantity, payment_status, payment_method, amount_due_vnd, grand_total')
             ->whereIn('payment_status', ['pending_payment', 'pending_transfer', 'failed', 'cancelled'])
             ->orderBy('created_at', 'DESC')
             ->findAll(50);
 
         $capture = new CrmLeadCaptureService();
+        $synced = 0;
 
         foreach ($bookings as $booking) {
             if (is_array($booking)) {
                 $capture->captureBooking($booking);
+                $synced++;
             }
         }
+
+        return $synced;
     }
 
     private function applyFilters(CrmLeadModel $query, string $stage, string $source, string $keyword): void
@@ -126,13 +153,20 @@ class Leads extends BaseAdminController
      */
     private function buildStats(): array
     {
+        $defaults = ['new' => 0, 'consulting' => 0, 'won' => 0, 'lost' => 0, 'total' => 0];
+        $cached = cache()->get(self::STATS_CACHE_KEY);
+
+        if (is_array($cached)) {
+            return array_merge($defaults, $cached);
+        }
+
         $db = db_connect();
 
         if (! $db->tableExists('crm_leads')) {
-            return ['new' => 0, 'consulting' => 0, 'won' => 0, 'lost' => 0, 'total' => 0];
+            return $defaults;
         }
 
-        $stats = ['new' => 0, 'consulting' => 0, 'won' => 0, 'lost' => 0, 'total' => 0];
+        $stats = $defaults;
         $rows = $db->table('crm_leads')
             ->select('stage, COUNT(*) AS total')
             ->groupBy('stage')
@@ -147,7 +181,14 @@ class Leads extends BaseAdminController
             }
         }
 
+        cache()->save(self::STATS_CACHE_KEY, $stats, self::STATS_CACHE_TTL);
+
         return $stats;
+    }
+
+    private function clearStatsCache(): void
+    {
+        cache()->delete(self::STATS_CACHE_KEY);
     }
 
     private function normalizeStage(string $stage): string

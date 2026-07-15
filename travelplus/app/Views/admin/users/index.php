@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - Users</title>
+    <title>Admin - Người dùng</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
@@ -22,16 +22,11 @@
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
             <div>
-                <h1 class="h3 mb-1">User management</h1>
+                <h1 class="h3 mb-1">Quản lý người dùng</h1>
                 <p class="text-muted mb-0">Quản lý tài khoản, quyền admin và trạng thái hoạt động.</p>
             </div>
             <div class="d-flex gap-2 admin-toolbar">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Bookings</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
-                <a class="btn btn-primary" href="<?= site_url('admin/users/create') ?>">Create user</a>
+                <a class="btn btn-primary" href="<?= site_url('admin/users/create') ?>">Tạo tài khoản</a>
             </div>
         </div>
 
@@ -43,8 +38,8 @@
                 <label class="form-label">Trạng thái</label>
                 <select name="status" class="form-select">
                     <option value="">Tất cả</option>
-                    <option value="active" <?= ($status ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
-                    <option value="inactive" <?= ($status ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                    <option value="active" <?= ($status ?? '') === 'active' ? 'selected' : '' ?>>Đang hoạt động</option>
+                    <option value="inactive" <?= ($status ?? '') === 'inactive' ? 'selected' : '' ?>>Tạm khóa</option>
                 </select>
             </div>
             <div class="col-md-5">
@@ -53,7 +48,7 @@
             </div>
             <div class="col-md-4 d-flex align-items-end gap-2">
                 <button class="btn btn-primary" type="submit">Lọc</button>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Reset</a>
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Đặt lại</a>
             </div>
         </form>
 
@@ -83,10 +78,15 @@
                             <td><?= esc((string) ($user['email'] ?? '')) ?></td>
                             <td><?= esc((string) ($user['username'] ?? '')) ?></td>
                             <td><?= esc((string) ($user['phone'] ?? '')) ?></td>
-                            <td><span class="badge <?= ! empty($user['is_admin']) ? 'text-bg-primary' : 'text-bg-secondary' ?>"><?= ! empty($user['is_admin']) ? 'Admin' : 'User' ?></span></td>
-                            <td><?= esc((string) ($user['status'] ?? '')) ?></td>
+                            <td><span class="badge <?= ! empty($user['is_admin']) ? 'text-bg-primary' : 'text-bg-secondary' ?>"><?= ! empty($user['is_admin']) ? 'Admin' : 'Nhân sự' ?></span></td>
+                            <td>
+                                <?php $userStatus = (string) ($user['status'] ?? 'inactive'); ?>
+                                <span class="status-badge <?= $userStatus === 'active' ? 'status-active' : 'status-inactive' ?>">
+                                    <?= $userStatus === 'active' ? 'Đang hoạt động' : 'Tạm khóa' ?>
+                                </span>
+                            </td>
                             <td><?= esc(app_datetime((string) ($user['last_login_at'] ?? ''))) ?></td>
-                            <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/users/' . (int) $user['id'] . '/edit') ?>">Edit</a></td>
+                            <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/users/' . (int) $user['id'] . '/edit') ?>">Sửa</a></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>

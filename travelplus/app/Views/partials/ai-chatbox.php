@@ -53,7 +53,9 @@ $contactUi = $currentLocale === 'en'
         'zalo' => 'Zalo',
     ];
 $contactPhone = '+84795681568';
-$contactPhoneDisplay = '+84 79 568 1 568';
+$contactPhoneDisplay = $currentLocale === 'en'
+    ? '(+84) 79 568 1 568'
+    : '079 568 1 568';
 $messengerUrl = 'https://m.me/uuthedulich.vietnam';
 $zaloUrl = 'https://zalo.me/84795681568';
 ?>
@@ -61,15 +63,14 @@ $zaloUrl = 'https://zalo.me/84795681568';
     <div class="tp-ai-chatbox__contact">
         <div class="tp-ai-chatbox__contact-panel" id="tp-ai-contact-panel" hidden>
             <span><?= esc($contactUi['panel']) ?></span>
+            <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--phone" href="tel:<?= esc($contactPhone, 'attr') ?>">
+                <i class="bi bi-telephone-fill"></i>
+                <strong><?= esc($contactPhoneDisplay) ?></strong>
+            </a>
             <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--messenger" href="<?= esc($messengerUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer">
                 <i class="bi bi-messenger"></i>
                 <strong><?= esc($contactUi['messenger']) ?></strong>
                 <small>Travel Plus</small>
-            </a>
-            <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--phone" href="tel:<?= esc($contactPhone, 'attr') ?>">
-                <i class="bi bi-telephone-fill"></i>
-                <strong><?= esc($contactUi['phone']) ?></strong>
-                <small><?= esc($contactPhoneDisplay) ?></small>
             </a>
             <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--zalo" href="<?= esc($zaloUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer">
                 <i aria-hidden="true">Z</i>
@@ -149,16 +150,20 @@ $zaloUrl = 'https://zalo.me/84795681568';
         70%{transform:scale(1.28);opacity:0}
         100%{transform:scale(1.28);opacity:0}
     }
-    .tp-ai-chatbox__contact-panel{position:absolute;left:0;bottom:64px;display:grid;width:238px;gap:8px;padding:12px;border:1px solid #dbe6f1;border-radius:18px;background:#fff;box-shadow:0 24px 58px rgba(15,23,42,.2)}
-    .tp-ai-chatbox__contact-panel::after{content:"";position:absolute;left:20px;bottom:-7px;width:14px;height:14px;transform:rotate(45deg);border-right:1px solid #dbe6f1;border-bottom:1px solid #dbe6f1;background:#fff}
-    .tp-ai-chatbox__contact-panel>span{padding:0 4px 2px;color:#5c7389;font-size:12px;font-weight:800;line-height:1.25}
-    .tp-ai-chatbox__contact-option{position:relative;z-index:1;display:grid;grid-template-columns:36px minmax(0,1fr);gap:2px 10px;align-items:center;min-height:48px;padding:8px;border:1px solid #e2edf6;border-radius:14px;background:#f8fcff;color:#12324a;text-decoration:none;transition:border-color .18s ease,background-color .18s ease,transform .18s ease}
-    .tp-ai-chatbox__contact-option:hover{transform:translateY(-1px);border-color:rgba(0,156,222,.28);background:#fff;color:#12324a}
-    .tp-ai-chatbox__contact-option i{grid-row:1 / 3;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:12px;color:#fff;font-size:17px;font-style:normal;font-weight:900}
-    .tp-ai-chatbox__contact-option strong{min-width:0;color:#12324a;font-size:14px;font-weight:850;line-height:1.2}
-    .tp-ai-chatbox__contact-option small{min-width:0;color:#6b7f92;font-size:12px;font-weight:700;line-height:1.2}
+    .tp-ai-chatbox__contact-panel{position:absolute;left:0;bottom:64px;display:grid;width:272px;gap:10px;padding:14px;border:1px solid rgba(0,156,222,.26);border-radius:18px;background:linear-gradient(180deg,#fff 0%,#f7fcff 100%);box-shadow:0 28px 70px rgba(15,23,42,.24),0 0 0 4px rgba(0,156,222,.06)}
+    .tp-ai-chatbox__contact-panel::after{content:"";position:absolute;left:20px;bottom:-7px;width:14px;height:14px;transform:rotate(45deg);border-right:1px solid rgba(0,156,222,.26);border-bottom:1px solid rgba(0,156,222,.26);background:#f7fcff}
+    .tp-ai-chatbox__contact-panel>span{padding:0 4px 2px;color:#365f78;font-size:14px;font-weight:850;line-height:1.25}
+    .tp-ai-chatbox__contact-option{position:relative;z-index:1;display:grid;grid-template-columns:40px minmax(0,1fr);gap:2px 12px;align-items:center;min-height:56px;padding:9px 10px;border:1px solid rgba(0,156,222,.2);border-radius:14px;background:#fff;color:#12324a;text-decoration:none;box-shadow:0 7px 18px rgba(21,91,128,.08);transition:border-color .18s ease,background-color .18s ease,transform .18s ease,box-shadow .18s ease}
+    .tp-ai-chatbox__contact-option:hover{transform:translateY(-1px);border-color:rgba(0,156,222,.42);background:#fff;color:#12324a;box-shadow:0 10px 24px rgba(21,91,128,.13)}
+    .tp-ai-chatbox__contact-option i{grid-row:1 / 3;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;color:#fff;font-size:18px;font-style:normal;font-weight:900}
+    .tp-ai-chatbox__contact-option strong{min-width:0;color:#092f4b;font-size:16px;font-weight:900;line-height:1.2}
+    .tp-ai-chatbox__contact-option small{min-width:0;color:#4f7088;font-size:13px;font-weight:800;line-height:1.25}
     .tp-ai-chatbox__contact-option--messenger i{background:#0084ff}
     .tp-ai-chatbox__contact-option--phone i{background:#16a34a}
+    .tp-ai-chatbox__contact-option--phone{grid-template-columns:44px minmax(0,1fr);min-height:62px;border-color:#e64532;background:linear-gradient(135deg,#ff7a2f 0%,#ef3f45 100%);box-shadow:0 12px 28px rgba(239,63,69,.32)}
+    .tp-ai-chatbox__contact-option--phone i{grid-row:1;width:44px;height:44px;background:#fff;color:#ef493b;font-size:19px;box-shadow:0 5px 14px rgba(125,32,28,.2)}
+    .tp-ai-chatbox__contact-option--phone strong{color:#fff;font-size:20px;font-weight:900;line-height:1.15}
+    .tp-ai-chatbox__contact-option--phone:hover{border-color:#d9362e;background:linear-gradient(135deg,#ff6a26 0%,#dd303a 100%);color:#fff;box-shadow:0 16px 34px rgba(239,63,69,.4)}
     .tp-ai-chatbox__contact-option--zalo i{background:#0068ff}
     .tp-ai-chatbox__toggle{display:flex;align-items:center;gap:12px;min-width:0;border:1px solid #d8e6f4;padding:14px 18px;border-radius:999px;background:linear-gradient(180deg,#ffffff 0%,#eef7ff 100%);color:#12324a;box-shadow:0 18px 40px rgba(15,23,42,.14)}
     .tp-ai-chatbox__toggle-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#18a0dc,#246bff);font-size:18px;flex:0 0 40px}
@@ -217,7 +222,7 @@ $zaloUrl = 'https://zalo.me/84795681568';
         .tp-ai-chatbox{left:12px;right:auto;bottom:calc(16px + env(safe-area-inset-bottom))}
         .tp-ai-chatbox__contact{bottom:70px}
         .tp-ai-chatbox__contact-toggle{width:52px;height:52px;font-size:20px;box-shadow:0 16px 32px rgba(255,107,53,.36),0 10px 22px rgba(226,55,55,.28)}
-        .tp-ai-chatbox__contact-panel{bottom:58px;width:min(236px,calc(100vw - 24px))}
+        .tp-ai-chatbox__contact-panel{bottom:58px;width:min(272px,calc(100vw - 24px))}
         .tp-ai-chatbox__toggle{width:48px;height:48px;min-width:48px;gap:0;padding:0;justify-content:center;border-radius:999px;box-shadow:0 14px 30px rgba(15,23,42,.16)}
         .tp-ai-chatbox__toggle-icon{width:48px;height:48px;border-radius:999px;font-size:17px;flex:0 0 48px}
         .tp-ai-chatbox__toggle-copy{display:none}

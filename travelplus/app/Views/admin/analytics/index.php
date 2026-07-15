@@ -68,7 +68,7 @@
                     <h2 class="h5 mb-3">Trang được xem nhiều</h2>
                     <div class="table-responsive">
                         <table class="table table-sm align-middle">
-                            <thead><tr><th>Path</th><th>Loại trang</th><th>Views</th><th>Khách</th><th>Xem gần nhất</th></tr></thead>
+                            <thead><tr><th>Đường dẫn</th><th>Loại trang</th><th>Lượt xem</th><th>Khách</th><th>Xem gần nhất</th></tr></thead>
                             <tbody>
                             <?php if (empty($topPages)): ?>
                                 <tr><td colspan="5" class="text-center text-muted py-3">Chưa có dữ liệu.</td></tr>
@@ -197,7 +197,7 @@
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-sm align-middle">
-                                <thead><tr><th>Từ khóa</th><th>Filter</th><th>KQ</th><th>Lúc</th></tr></thead>
+                                <thead><tr><th>Từ khóa</th><th>Bộ lọc</th><th>KQ</th><th>Lúc</th></tr></thead>
                                 <tbody>
                                 <?php if (empty($recentSearches)): ?>
                                     <tr><td colspan="4" class="text-center text-muted py-3">Chưa có search nào được ghi nhận.</td></tr>

@@ -93,13 +93,8 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                 <h1 class="h3 mb-1"><?= esc($pageTitle ?? 'Blog form') ?></h1>
                 <p class="text-muted mb-0"><?= esc($pageDesc ?? '') ?></p>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Bookings</a>
             </div>
         </div>
 
@@ -371,7 +366,7 @@ $categoryOptions = array_values(array_unique(array_filter(array_map(
                     <div class="meta">Kiểm tra lại title, slug, ảnh đại diện và content song ngữ trước khi lưu.</div>
                 </div>
                 <div class="d-flex justify-content-end gap-2">
-                    <a class="btn btn-outline-secondary" href="<?= $blogId ? site_url('admin/blogs/' . (int) $blogId . '/edit') : site_url('admin/blogs/create') ?>">Reset</a>
+                    <a class="btn btn-outline-secondary" href="<?= $blogId ? site_url('admin/blogs/' . (int) $blogId . '/edit') : site_url('admin/blogs/create') ?>">Đặt lại</a>
                     <button type="submit" class="btn btn-primary"><?= esc($submitLabel ?? 'Lưu blog') ?></button>
                 </div>
             </div>

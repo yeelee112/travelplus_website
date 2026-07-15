@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - Reviews</title>
+    <title>Admin - Đánh giá</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
@@ -48,16 +48,10 @@
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
             <div>
-                <h1 class="h3 mb-1">Review moderation</h1>
+                <h1 class="h3 mb-1">Duyệt đánh giá</h1>
                 <p class="text-muted mb-0">Duyệt, ẩn hoặc đưa review tour về trạng thái chờ.</p>
             </div>
-            <div class="d-flex gap-2 admin-toolbar">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Bookings</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
-            </div>
+            <a class="btn btn-outline-primary" href="<?= site_url('admin/reviews?status=pending') ?>">Review chờ duyệt</a>
         </div>
 
         <?php if (! empty($success)): ?><div class="alert alert-success"><?= esc($success) ?></div><?php endif; ?>
@@ -68,9 +62,9 @@
                 <label class="form-label">Trạng thái</label>
                 <select name="status" class="form-select">
                     <option value="">Tất cả</option>
-                    <option value="pending" <?= ($status ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
-                    <option value="approved" <?= ($status ?? '') === 'approved' ? 'selected' : '' ?>>Approved</option>
-                    <option value="hidden" <?= ($status ?? '') === 'hidden' ? 'selected' : '' ?>>Hidden</option>
+                    <option value="pending" <?= ($status ?? '') === 'pending' ? 'selected' : '' ?>>Chờ duyệt</option>
+                    <option value="approved" <?= ($status ?? '') === 'approved' ? 'selected' : '' ?>>Đã duyệt</option>
+                    <option value="hidden" <?= ($status ?? '') === 'hidden' ? 'selected' : '' ?>>Đã ẩn</option>
                 </select>
             </div>
             <div class="col-md-5">
@@ -79,7 +73,7 @@
             </div>
             <div class="col-md-4 d-flex align-items-end gap-2">
                 <button class="btn btn-primary" type="submit">Lọc</button>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reset</a>
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Đặt lại</a>
             </div>
         </form>
 
@@ -92,9 +86,9 @@
                     <th>Reviewer</th>
                     <th>Ratings</th>
                     <th>Nội dung</th>
-                    <th>Status</th>
+                    <th>Trạng thái</th>
                     <th>Created</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -128,7 +122,7 @@
                             </td>
                             <td class="review-status">
                                 <span class="badge <?= ($review['status'] ?? '') === 'approved' ? 'text-bg-success' : (($review['status'] ?? '') === 'hidden' ? 'text-bg-secondary' : 'text-bg-warning') ?>">
-                                    <?= esc(ucfirst((string) ($review['status'] ?? 'pending'))) ?>
+                                    <?= ($review['status'] ?? '') === 'approved' ? 'Đã duyệt' : (($review['status'] ?? '') === 'hidden' ? 'Đã ẩn' : 'Chờ duyệt') ?>
                                 </span>
                             </td>
                             <td>
@@ -136,25 +130,25 @@
                             </td>
                             <td class="text-end">
                                 <div class="review-actions">
-                                    <a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/reviews/' . (int) $review['id']) ?>">Open</a>
+                                    <a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/reviews/' . (int) $review['id']) ?>">Mở</a>
                                     <form method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/status') ?>">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="status" value="approved">
-                                        <button type="submit" class="btn btn-sm btn-outline-success">Approve</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Duyệt</button>
                                     </form>
                                     <form method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/status') ?>">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="status" value="pending">
-                                        <button type="submit" class="btn btn-sm btn-outline-warning">Pending</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">Chờ duyệt</button>
                                     </form>
                                     <form method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/status') ?>">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="status" value="hidden">
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Hide</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Ẩn</button>
                                     </form>
-                                    <form class="btn-danger-wide" method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/delete') ?>" onsubmit="return confirm('Delete this review?');">
+                                    <form class="btn-danger-wide" method="post" action="<?= site_url('admin/reviews/' . (int) $review['id'] . '/delete') ?>" onsubmit="return confirm('Xóa đánh giá này?');">
                                         <?= csrf_field() ?>
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
                                     </form>
                                 </div>
                             </td>

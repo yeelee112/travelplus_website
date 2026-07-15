@@ -68,18 +68,11 @@ $exportQuery = http_build_query(array_filter([
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
             <div>
-                <h1 class="h3 mb-1">Admin bookings</h1>
+                <h1 class="h3 mb-1">Quản lý booking</h1>
                 <p class="text-muted mb-0">Theo dõi booking, lọc giao dịch cần đối soát và xác nhận thanh toán VietQR/VNPAY.</p>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/promotion-codes') ?>">Promotion codes</a>
-                <a class="btn btn-outline-primary" href="<?= site_url('admin/bookings/export' . ($exportQuery !== '' ? '?' . $exportQuery : '')) ?>">Export CSV</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('/') ?>">Home</a>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
+                <a class="btn btn-outline-primary" href="<?= site_url('admin/bookings/export' . ($exportQuery !== '' ? '?' . $exportQuery : '')) ?>">Xuất CSV</a>
             </div>
         </div>
 
@@ -135,7 +128,7 @@ $exportQuery = http_build_query(array_filter([
             </div>
             <div class="col-lg-2 d-flex gap-2">
                 <button class="btn btn-primary" type="submit">Lọc</button>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Reset</a>
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/bookings') ?>">Đặt lại</a>
             </div>
         </form>
 

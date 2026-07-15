@@ -28,12 +28,8 @@
                 <h1 class="h3 mb-1"><?= esc($pageTitle ?? 'User form') ?></h1>
                 <p class="text-muted mb-0"><?= esc($pageDesc ?? '') ?></p>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
                 <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/reviews') ?>">Reviews</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
             </div>
         </div>
 
@@ -66,8 +62,8 @@
                 <div class="col-md-6">
                     <label>Trạng thái</label>
                     <select class="form-select" name="status">
-                        <option value="active" <?= old('status', (string) ($user['status'] ?? 'active')) === 'active' ? 'selected' : '' ?>>Active</option>
-                        <option value="inactive" <?= old('status', (string) ($user['status'] ?? 'active')) === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                        <option value="active" <?= old('status', (string) ($user['status'] ?? 'active')) === 'active' ? 'selected' : '' ?>>Đang hoạt động</option>
+                        <option value="inactive" <?= old('status', (string) ($user['status'] ?? 'active')) === 'inactive' ? 'selected' : '' ?>>Tạm khóa</option>
                     </select>
                 </div>
                 <div class="col-md-6 d-flex align-items-end">

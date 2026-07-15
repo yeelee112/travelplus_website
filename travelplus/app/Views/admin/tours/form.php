@@ -55,7 +55,13 @@
         .itinerary-importer__head { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; flex-wrap:wrap; margin-bottom:12px; }
         .itinerary-importer__title { font-size:16px; font-weight:800; color:#0f172a; margin:0; }
         .itinerary-importer__hint { color:#64748b; font-size:13px; line-height:1.55; margin:4px 0 0; max-width:720px; }
-        .itinerary-importer textarea { min-height:170px; font-family:Consolas,Monaco,monospace; font-size:13px; line-height:1.55; }
+        .itinerary-importer__controls { display:flex; gap:10px; align-items:end; flex-wrap:wrap; margin-bottom:12px; }
+        .itinerary-importer__controls label { min-width:190px; margin:0; }
+        .itinerary-importer__editor { min-height:190px; padding:14px 16px; border:1px solid #d8dee6; border-radius:12px; background:#fff; outline:0; line-height:1.65; }
+        .itinerary-importer__editor:empty:before { content:attr(data-placeholder); color:#94a3b8; white-space:pre-line; }
+        .itinerary-importer__editor:focus { border-color:#009cde; box-shadow:0 0 0 3px rgba(0,156,222,.14); }
+        .itinerary-importer__editor p { margin:0 0 10px; }
+        .itinerary-importer__editor ul, .itinerary-importer__editor ol { margin:0 0 10px 22px; padding:0; }
         .itinerary-importer__actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
         .itinerary-importer__preview { display:none; margin-top:14px; border:1px solid #d9edf5; border-radius:14px; background:#fff; overflow:hidden; }
         .itinerary-importer__preview.is-visible { display:block; }
@@ -128,12 +134,11 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
             <div>
-                <h1 class="h3 mb-1"><?= esc($pageTitle ?? 'Tour form') ?></h1>
+                <h1 class="h3 mb-1"><?= esc($pageTitle ?? 'Form tour') ?></h1>
                 <p class="text-muted mb-0"><?= esc($pageDesc ?? '') ?></p>
             </div>
             <div class="compact-links">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Quay lại danh sách</a>
             </div>
         </div>
 
@@ -253,7 +258,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                     <input type="number" min="0" max="1" step="0.01" name="infant_price_rate" class="form-control" value="<?= esc($fv('infant_price_rate', '0.25')) ?>">
                     <div class="help">0.25 = 25% giá người lớn</div>
                 </div>
-                <div class="col-md-6"><label>Ảnh đại diện</label><input name="thumbnail" class="form-control" value="<?= esc($fv('thumbnail')) ?>"></div>
+                <input type="hidden" name="thumbnail" value="<?= esc($fv('thumbnail'), 'attr') ?>">
                 <div class="col-md-3">
                     <label>Trạng thái</label>
                     <select name="status" class="form-select">
@@ -414,7 +419,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 <div class="row g-3">
                     <div class="col-md-6"><label>Tên tour tiếng Việt</label><input name="name_vi" id="name_vi" class="form-control" value="<?= esc($fv('name_vi')) ?>" required></div>
                     <div class="col-md-6"><label>Slug tiếng Việt</label><input name="slug_vi" id="slug_vi" class="form-control" value="<?= esc($fv('slug_vi')) ?>"></div>
-                    <div class="col-md-12"><label>Mô tả ngắn tiếng Việt</label><textarea name="short_description_vi" class="form-control"><?= esc($fv('short_description_vi')) ?></textarea></div>
+                    <input type="hidden" name="short_description_vi" value="<?= esc($fv('short_description_vi'), 'attr') ?>" data-short-description-sync="vi">
                     <div class="col-md-6"><label>Tổng quan tiếng Việt</label><textarea name="overview_vi" class="form-control"><?= esc($fv('overview_vi')) ?></textarea></div>
                     <div class="col-md-6"><label>Mô tả chi tiết tiếng Việt</label><textarea name="description_vi" class="form-control"><?= esc($fv('description_vi')) ?></textarea></div>
                 </div>
@@ -423,7 +428,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 <div class="row g-3">
                     <div class="col-md-6"><label>Tên tour tiếng Anh</label><input name="name_en" id="name_en" class="form-control" value="<?= esc($fv('name_en')) ?>"></div>
                     <div class="col-md-6"><label>Slug tiếng Anh</label><input name="slug_en" id="slug_en" class="form-control" value="<?= esc($fv('slug_en')) ?>"></div>
-                    <div class="col-md-12"><label>Mô tả ngắn tiếng Anh</label><textarea name="short_description_en" class="form-control"><?= esc($fv('short_description_en')) ?></textarea></div>
+                    <input type="hidden" name="short_description_en" value="<?= esc($fv('short_description_en'), 'attr') ?>" data-short-description-sync="en">
                     <div class="col-md-6"><label>Tổng quan tiếng Anh</label><textarea name="overview_en" class="form-control"><?= esc($fv('overview_en')) ?></textarea></div>
                     <div class="col-md-6"><label>Mô tả chi tiết tiếng Anh</label><textarea name="description_en" class="form-control"><?= esc($fv('description_en')) ?></textarea></div>
                 </div>
@@ -443,13 +448,21 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             <div class="lang-panel is-active" data-tab-panel="seo-vi">
                 <div class="row g-3">
                     <div class="col-md-12"><label>Meta title VI</label><input name="meta_title_vi" class="form-control" value="<?= esc($fv('meta_title_vi')) ?>"></div>
-                    <div class="col-md-12"><label>Meta description VI</label><textarea name="meta_description_vi" class="form-control"><?= esc($fv('meta_description_vi')) ?></textarea></div>
+                    <div class="col-md-12">
+                        <label>Meta description VI</label>
+                        <textarea name="meta_description_vi" class="form-control" data-meta-description-source="vi"><?= esc($fv('meta_description_vi')) ?></textarea>
+                        <div class="form-text">Nội dung này cũng được dùng làm mô tả ngắn tiếng Việt của tour.</div>
+                    </div>
                 </div>
             </div>
             <div class="lang-panel" data-tab-panel="seo-en">
                 <div class="row g-3">
                     <div class="col-md-12"><label>Meta title EN</label><input name="meta_title_en" class="form-control" value="<?= esc($fv('meta_title_en')) ?>"></div>
-                    <div class="col-md-12"><label>Meta description EN</label><textarea name="meta_description_en" class="form-control"><?= esc($fv('meta_description_en')) ?></textarea></div>
+                    <div class="col-md-12">
+                        <label>Meta description EN</label>
+                        <textarea name="meta_description_en" class="form-control" data-meta-description-source="en"><?= esc($fv('meta_description_en')) ?></textarea>
+                        <div class="form-text">Nội dung này cũng được dùng làm mô tả ngắn tiếng Anh của tour.</div>
+                    </div>
                 </div>
             </div>
             </section>
@@ -533,17 +546,31 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 <div class="itinerary-importer__head">
                     <div>
                         <h3 class="itinerary-importer__title">Import lịch trình từ Word</h3>
-                        <p class="itinerary-importer__hint">Copy toàn bộ lịch trình từ file Word rồi dán vào đây. Hệ thống sẽ tự tách theo mẫu "Ngày 1:", "NGÀY 01 -" hoặc "Day 1:".</p>
+                        <p class="itinerary-importer__hint">Copy toàn bộ lịch trình từ Word rồi dán vào ô rich text bên dưới. Bold, bullet và xuống dòng sẽ được giữ lại trong mô tả từng ngày.</p>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="clearItineraryImport">Xóa nội dung dán</button>
                 </div>
-                <textarea class="form-control" id="itineraryImportText" placeholder="Ví dụ:
+                <div class="itinerary-importer__controls">
+                    <label>
+                        <span>Import vào ngôn ngữ</span>
+                        <select class="form-select" id="itineraryImportLocale">
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="en">English</option>
+                        </select>
+                    </label>
+                </div>
+                <div
+                    class="itinerary-importer__editor"
+                    id="itineraryImportContent"
+                    contenteditable="true"
+                    data-placeholder="Ví dụ:
 Ngày 1: TPHCM - PARIS
 Quý khách tập trung tại sân bay Tân Sơn Nhất...
-Nghỉ đêm trên máy bay.
+• Nghỉ đêm trên máy bay.
 
 Ngày 2: PARIS CITY TOUR
-Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
+Tham quan tháp Eiffel, bảo tàng Louvre..."
+                ></div>
                 <div class="itinerary-importer__actions">
                     <button type="button" class="btn btn-outline-primary" id="previewItineraryImport">Xem trước</button>
                     <button type="button" class="btn btn-primary" id="replaceItineraryImport">Import thay thế lịch trình hiện tại</button>
@@ -774,8 +801,8 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."></textarea>
                     <div class="meta">Kiểm tra lại destinations, media và slug trước khi lưu. Các block lớn đã được tách để thao tác nhanh hơn.</div>
                 </div>
                 <div class="d-flex gap-2 toolbar-wrap">
-                    <?php if ($tourId): ?><a class="btn btn-outline-secondary btn-lg" href="<?= site_url('admin/tours/' . (int) $tourId . '/edit') ?>">Reset</a><?php else: ?><a class="btn btn-outline-secondary btn-lg" href="<?= site_url('admin/tours/create') ?>">Reset</a><?php endif; ?>
-                    <button class="btn btn-primary btn-lg" type="submit"><?= esc($submitLabel ?? 'Save') ?></button>
+                    <?php if ($tourId): ?><a class="btn btn-outline-secondary btn-lg" href="<?= site_url('admin/tours/' . (int) $tourId . '/edit') ?>">Đặt lại</a><?php else: ?><a class="btn btn-outline-secondary btn-lg" href="<?= site_url('admin/tours/create') ?>">Đặt lại</a><?php endif; ?>
+                    <button class="btn btn-primary btn-lg" type="submit"><?= esc($submitLabel ?? 'Lưu tour') ?></button>
                 </div>
             </div>
         </form>
@@ -1412,36 +1439,148 @@ function escapeHtml(value) {
     .replace(/'/g, '&#039;');
 }
 
-function textLinesToHtml(lines) {
-  const paragraphs = [];
-  let current = [];
+function htmlToPlainText(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || '').replace(/\s+/g, ' ').trim();
+}
 
-  lines.forEach(line => {
-    const cleanLine = String(line || '').trim();
-    if (cleanLine === '') {
-      if (current.length) {
-        paragraphs.push(current);
-        current = [];
+function sanitizeImportedHtml(html) {
+  const template = document.createElement('template');
+  template.innerHTML = html || '';
+  const allowed = new Set(['P', 'BR', 'STRONG', 'B', 'EM', 'I', 'U', 'UL', 'OL', 'LI']);
+  const blockTags = new Set(['DIV', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER']);
+
+  template.content.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(node => node.remove());
+
+  const walk = (node) => {
+    Array.from(node.childNodes).forEach(child => {
+      if (child.nodeType === Node.TEXT_NODE) return;
+      if (child.nodeType !== Node.ELEMENT_NODE) {
+        child.remove();
+        return;
       }
-      return;
-    }
-    current.push(cleanLine);
-  });
 
-  if (current.length) paragraphs.push(current);
+      const tag = child.tagName;
 
-  return paragraphs
-    .map(group => '<p>' + group.map(escapeHtml).join('<br>') + '</p>')
+      if (tag === 'B') {
+        const strong = document.createElement('strong');
+        strong.innerHTML = child.innerHTML;
+        child.replaceWith(strong);
+        walk(strong);
+        return;
+      }
+
+      if (tag === 'I') {
+        const em = document.createElement('em');
+        em.innerHTML = child.innerHTML;
+        child.replaceWith(em);
+        walk(em);
+        return;
+      }
+
+      if (blockTags.has(tag)) {
+        const p = document.createElement('p');
+        p.innerHTML = child.innerHTML;
+        child.replaceWith(p);
+        walk(p);
+        return;
+      }
+
+      if (!allowed.has(tag)) {
+        child.replaceWith(...Array.from(child.childNodes));
+        walk(node);
+        return;
+      }
+
+      Array.from(child.attributes).forEach(attribute => child.removeAttribute(attribute.name));
+      walk(child);
+    });
+  };
+
+  walk(template.content);
+
+  const wrapper = document.createElement('div');
+  wrapper.appendChild(template.content.cloneNode(true));
+
+  return wrapper.innerHTML
+    .replace(/<p>\s*<\/p>/gi, '')
+    .replace(/(?:<br>\s*){3,}/gi, '<br><br>')
+    .trim();
+}
+
+function blockHtmlFromNode(node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.textContent.trim();
+    return text === '' ? '' : `<p>${escapeHtml(text)}</p>`;
+  }
+
+  if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+  const tag = node.tagName.toLowerCase();
+  const html = sanitizeImportedHtml(node.outerHTML);
+  const text = htmlToPlainText(html);
+
+  if (text === '') return '';
+  if (['p', 'ul', 'ol', 'li'].includes(tag)) return html;
+
+  return `<p>${sanitizeImportedHtml(node.innerHTML)}</p>`;
+}
+
+function plainTextToImporterHtml(text) {
+  return String(text || '')
+    .replace(/\r/g, '')
+    .split(/\n{2,}/)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean)
+    .map(paragraph => `<p>${paragraph.split('\n').map(line => escapeHtml(line.trim())).join('<br>')}</p>`)
     .join('');
 }
 
-function parseItineraryImportText(text) {
+function splitBlocksOnLineBreaks(container) {
+  container.querySelectorAll('p').forEach(block => {
+    if (!block.querySelector('br')) return;
+
+    const replacement = [];
+    let current = [];
+
+    const flush = () => {
+      const p = document.createElement('p');
+      current.forEach(node => p.appendChild(node));
+      if ((p.textContent || '').trim() !== '' || p.querySelector('strong,em,u,ul,ol,li')) {
+        replacement.push(p);
+      }
+      current = [];
+    };
+
+    Array.from(block.childNodes).forEach(child => {
+      if (child.nodeType === Node.ELEMENT_NODE && child.tagName === 'BR') {
+        flush();
+        return;
+      }
+
+      current.push(child.cloneNode(true));
+    });
+
+    flush();
+
+    if (replacement.length) {
+      block.replaceWith(...replacement);
+    }
+  });
+}
+
+function parseItineraryImportHtml(html, locale = 'vi') {
   const headingPattern = /^\s*(?:ng[aà]y|ngay|day)\s*0*(\d{1,3})\s*(?:[:.)\-\u2013\u2014|]\s*)?(.*)$/i;
-  const normalized = String(text || '')
-    .replace(/\r/g, '')
-    .replace(/\u00a0/g, ' ')
-    .replace(/[ \t]+$/gm, '')
-    .trim();
+  const container = document.createElement('div');
+  container.innerHTML = sanitizeImportedHtml(html || '');
+
+  if (htmlToPlainText(container.innerHTML) !== '' && container.children.length === 0) {
+    container.innerHTML = plainTextToImporterHtml(container.textContent || '');
+  }
+
+  splitBlocksOnLineBreaks(container);
+
   const rows = [];
   let current = null;
 
@@ -1449,51 +1588,63 @@ function parseItineraryImportText(text) {
     if (!current) return;
 
     if (current.generated_title) {
-      const titleIndex = current.description_lines.findIndex(line => String(line || '').trim() !== '');
-      const titleCandidate = titleIndex >= 0 ? String(current.description_lines[titleIndex]).trim() : '';
+      const titleIndex = current.description_blocks.findIndex(block => htmlToPlainText(block) !== '');
+      const titleCandidate = titleIndex >= 0 ? htmlToPlainText(current.description_blocks[titleIndex]) : '';
       if (titleCandidate !== '' && titleCandidate.length <= 140 && !headingPattern.test(titleCandidate)) {
-        current.title_vi = titleCandidate;
-        current.description_lines.splice(titleIndex, 1);
+        current.title = titleCandidate;
+        current.description_blocks.splice(titleIndex, 1);
       }
     }
 
     rows.push(current);
   };
 
-  normalized.split('\n').forEach(rawLine => {
-    const line = rawLine.trim();
-    const match = line.match(headingPattern);
+  const nodes = Array.from(container.childNodes);
+
+  nodes.forEach(node => {
+    const blockText = (node.textContent || '').replace(/\u00a0/g, ' ').trim();
+    const match = blockText.match(headingPattern);
 
     if (match) {
       if (current) pushCurrent();
       const title = (match[2] || '').trim();
       current = {
         day_number: parseInt(match[1], 10) || (rows.length + 1),
-        title_vi: title || `Ngày ${parseInt(match[1], 10) || (rows.length + 1)}`,
+        title: title || (locale === 'en' ? `Day ${parseInt(match[1], 10) || (rows.length + 1)}` : `Ngày ${parseInt(match[1], 10) || (rows.length + 1)}`),
         generated_title: title === '',
-        description_lines: [],
+        description_blocks: [],
       };
       return;
     }
 
     if (current) {
-      current.description_lines.push(rawLine);
+      const blockHtml = blockHtmlFromNode(node);
+      if (blockHtml !== '') current.description_blocks.push(blockHtml);
     }
   });
 
   if (current) pushCurrent();
 
-  return rows.map((row, index) => ({
-    day_number: row.day_number || (index + 1),
-    title_vi: row.title_vi,
-    title_en: '',
-    description_vi: textLinesToHtml(row.description_lines),
-    description_en: '',
-    description_text: row.description_lines.map(line => line.trim()).filter(Boolean).join(' '),
-  }));
+  return rows.map((row, index) => {
+    const descriptionHtml = row.description_blocks.join('');
+    const data = {
+      day_number: row.day_number || (index + 1),
+      title_vi: '',
+      title_en: '',
+      description_vi: '',
+      description_en: '',
+      description_text: htmlToPlainText(descriptionHtml),
+      import_locale: locale,
+    };
+
+    data[`title_${locale}`] = row.title;
+    data[`description_${locale}`] = descriptionHtml;
+
+    return data;
+  });
 }
 
-function renderItineraryImportPreview(rows) {
+function renderItineraryImportPreview(rows, locale = 'vi') {
   const preview = document.getElementById('itineraryImportPreview');
   if (!preview) return;
 
@@ -1504,14 +1655,15 @@ function renderItineraryImportPreview(rows) {
     return;
   }
 
+  const localeLabel = locale === 'en' ? 'English' : 'Tiếng Việt';
   preview.innerHTML = `
-    <div class="itinerary-importer__preview-head">Nhận diện ${rows.length} ngày lịch trình</div>
+    <div class="itinerary-importer__preview-head">Nhận diện ${rows.length} ngày lịch trình cho ${localeLabel}</div>
     <div class="itinerary-importer__preview-list">
       ${rows.map(row => `
         <div class="itinerary-importer__preview-item">
           <div class="itinerary-importer__preview-day">Ngày ${escapeHtml(row.day_number)}</div>
-          <div class="itinerary-importer__preview-title">${escapeHtml(row.title_vi)}</div>
-          <div class="itinerary-importer__preview-desc">${escapeHtml(row.description_text || 'Chưa có mô tả.')}</div>
+          <div class="itinerary-importer__preview-title">${escapeHtml(locale === 'en' ? row.title_en : row.title_vi)}</div>
+          <div class="itinerary-importer__preview-desc">${locale === 'en' ? (row.description_en || '<p>Chưa có mô tả.</p>') : (row.description_vi || '<p>Chưa có mô tả.</p>')}</div>
         </div>
       `).join('')}
     </div>`;
@@ -1537,9 +1689,10 @@ function appendImportedItineraryRow(data = {}) {
 }
 
 function importItineraryRows(mode) {
-  const input = document.getElementById('itineraryImportText');
-  const rows = parseItineraryImportText(input?.value || '');
-  renderItineraryImportPreview(rows);
+  const input = document.getElementById('itineraryImportContent');
+  const locale = document.getElementById('itineraryImportLocale')?.value === 'en' ? 'en' : 'vi';
+  const rows = parseItineraryImportHtml(input?.innerHTML || '', locale);
+  renderItineraryImportPreview(rows, locale);
 
   if (!rows.length) return;
 
@@ -1565,17 +1718,21 @@ function importItineraryRows(mode) {
 }
 
 function initItineraryImporter() {
-  const input = document.getElementById('itineraryImportText');
+  const input = document.getElementById('itineraryImportContent');
+  const localeInput = document.getElementById('itineraryImportLocale');
   const previewButton = document.getElementById('previewItineraryImport');
   const replaceButton = document.getElementById('replaceItineraryImport');
   const appendButton = document.getElementById('appendItineraryImport');
   const clearButton = document.getElementById('clearItineraryImport');
 
-  previewButton?.addEventListener('click', () => renderItineraryImportPreview(parseItineraryImportText(input?.value || '')));
+  previewButton?.addEventListener('click', () => {
+    const locale = localeInput?.value === 'en' ? 'en' : 'vi';
+    renderItineraryImportPreview(parseItineraryImportHtml(input?.innerHTML || '', locale), locale);
+  });
   replaceButton?.addEventListener('click', () => importItineraryRows('replace'));
   appendButton?.addEventListener('click', () => importItineraryRows('append'));
   clearButton?.addEventListener('click', () => {
-    if (input) input.value = '';
+    if (input) input.innerHTML = '';
     const preview = document.getElementById('itineraryImportPreview');
     if (preview) {
       preview.classList.remove('is-visible');
@@ -1811,7 +1968,6 @@ function bindCopyActions() {
   document.getElementById('copyContentViToEn')?.addEventListener('click', () => {
     copyInputValue('name_vi', 'name_en');
     copyInputValue('slug_vi', 'slug_en');
-    copyInputValue('short_description_vi', 'short_description_en');
     copyInputValue('overview_vi', 'overview_en');
     copyInputValue('description_vi', 'description_en');
     activateTab(document.querySelector('[data-tab-group="content"]'), 'content-en');
@@ -1824,11 +1980,38 @@ function bindCopyActions() {
   });
 }
 
+function syncShortDescriptionsFromMeta() {
+  ['vi', 'en'].forEach(locale => {
+    const meta = document.querySelector(`[data-meta-description-source="${locale}"]`);
+    const shortInput = document.querySelector(`[data-short-description-sync="${locale}"]`);
+    if (!meta || !shortInput) return;
+
+    if (meta.value.trim() === '' && shortInput.value.trim() !== '') {
+      meta.value = shortInput.value;
+    }
+
+    shortInput.value = meta.value;
+    meta.addEventListener('input', () => {
+      shortInput.value = meta.value;
+      shortInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  });
+
+  document.getElementById('tourForm')?.addEventListener('submit', () => {
+    ['vi', 'en'].forEach(locale => {
+      const meta = document.querySelector(`[data-meta-description-source="${locale}"]`);
+      const shortInput = document.querySelector(`[data-short-description-sync="${locale}"]`);
+      if (meta && shortInput) shortInput.value = meta.value;
+    });
+  });
+}
+
 bindAutoSlug('name_vi', 'slug_vi');
 bindAutoSlug('name_en', 'slug_en');
 bindLangTabs();
 bindAccordions();
 bindCopyActions();
+syncShortDescriptionsFromMeta();
 </script>
 <?= view('admin/partials/app_end') ?>
 </body>

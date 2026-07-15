@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - Media audit</title>
+    <title>Admin - Kiểm tra media</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
@@ -25,14 +25,8 @@
     <div class="admin-card mb-4">
         <div class="d-flex justify-content-between align-items-start gap-3">
             <div>
-                <h1 class="h3 mb-1">Media audit</h1>
+                <h1 class="h3 mb-1">Kiểm tra media</h1>
                 <p class="text-muted mb-0">Quét file trong <code>uploads/blogs</code> và <code>uploads/tours</code>, đối chiếu với dữ liệu đang được tham chiếu trong database.</p>
-            </div>
-            <div class="d-flex gap-2 dashboard-toolbar">
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin') ?>">Dashboard</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/tours') ?>">Tours</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/blogs') ?>">Blogs</a>
-                <a class="btn btn-outline-secondary" href="<?= site_url('admin/users') ?>">Users</a>
             </div>
         </div>
     </div>
@@ -55,7 +49,7 @@
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
             <div>
-                <h2 class="h5 mb-1">Orphan files</h2>
+                <h2 class="h5 mb-1">File không còn được tham chiếu</h2>
                 <p class="text-muted mb-0">Danh sách này chỉ bao gồm file trong phạm vi quản lý của blog và tour.</p>
             </div>
             <?php if (! empty($report['orphans'])): ?>
@@ -64,7 +58,7 @@
                     <?php foreach ($report['orphans'] as $orphan): ?>
                         <input type="hidden" name="files[]" value="<?= esc((string) $orphan['path']) ?>">
                     <?php endforeach; ?>
-                    <button type="submit" class="btn btn-danger">Delete all orphans</button>
+                    <button type="submit" class="btn btn-danger">Xóa tất cả file thừa</button>
                 </form>
             <?php endif; ?>
         </div>

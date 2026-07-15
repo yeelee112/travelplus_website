@@ -10,6 +10,8 @@ $routes->setDefaultMethod('index');
 $routes->setAutoRoute(false);
 
 $routes->GET('sitemap.xml', 'Sitemap::index');
+$routes->GET('errors/403', 'ErrorPages::forbidden');
+$routes->GET('errors/404', 'ErrorPages::notFound');
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +43,8 @@ $routes->GET('admin/leads', 'Admin\Leads::index');
 $routes->POST('admin/leads/(:num)', 'Admin\Leads::update/$1');
 $routes->GET('admin/bookings', 'Admin\Bookings::index');
 $routes->GET('admin/bookings/export', 'Admin\Bookings::exportCsv');
+$routes->GET('admin/booking-emails', 'Admin\BookingEmails::index');
+$routes->POST('admin/booking-emails/send', 'Admin\BookingEmails::send');
 $routes->GET('admin/bookings/(:num)', 'Admin\Bookings::show/$1');
 $routes->POST('admin/bookings/(:num)/status', 'Admin\Bookings::updateStatus/$1');
 $routes->GET('admin/tours', 'Admin\Tours::index');

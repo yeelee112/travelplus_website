@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - Promotion codes</title>
+    <title>Admin - Mã khuyến mãi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
@@ -13,10 +13,6 @@
         .promo-hero { display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:24px; }
         .promo-hero__copy { max-width:720px; }
         .promo-hero__eyebrow { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#0ea5e9; margin-bottom:8px; }
-        .promo-hero__nav { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-        .promo-hero__nav a { text-decoration:none; }
-        .promo-nav-link { border:1px solid #dbe5ef; color:#3c4a5d; background:#fff; border-radius:999px; padding:8px 14px; font-size:14px; font-weight:600; }
-        .promo-nav-link.is-active { background:#172033; border-color:#172033; color:#fff; }
         .promo-actions { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start; }
         .promo-stats { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:20px; }
         .promo-stat { background:#fbfcfe; border:1px solid #e5ebf2; border-radius:16px; padding:18px; }
@@ -48,17 +44,9 @@
     <div class="admin-card">
         <div class="promo-hero">
             <div class="promo-hero__copy">
-                <div class="promo-hero__eyebrow">Promotion Codes</div>
+                <div class="promo-hero__eyebrow">Mã khuyến mãi</div>
                 <h1 class="h3 mb-2">Quản lý mã khuyến mãi</h1>
                 <p class="text-muted mb-0">Theo dõi mã đang bật, phạm vi áp dụng toàn site hay theo tour, và thao tác nhanh ngay trên một màn hình.</p>
-                <div class="promo-hero__nav">
-                    <a class="promo-nav-link" href="<?= site_url('admin') ?>">Dashboard</a>
-                    <a class="promo-nav-link" href="<?= site_url('admin/bookings') ?>">Bookings</a>
-                    <a class="promo-nav-link" href="<?= site_url('admin/tours') ?>">Tours</a>
-                    <a class="promo-nav-link is-active" href="<?= site_url('admin/promotion-codes') ?>">Promotion codes</a>
-                    <a class="promo-nav-link" href="<?= site_url('admin/blogs') ?>">Blogs</a>
-                    <a class="promo-nav-link" href="<?= site_url('admin/users') ?>">Users</a>
-                </div>
             </div>
             <div class="promo-actions">
                 <a class="btn btn-primary" href="<?= site_url('admin/promotion-codes/create') ?>">Tạo mã mới</a>
@@ -99,7 +87,7 @@
                 </div>
                 <div class="col-md-6 col-lg-3 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Lọc</button>
-                    <a href="<?= site_url('admin/promotion-codes') ?>" class="btn btn-outline-secondary">Reset</a>
+                    <a href="<?= site_url('admin/promotion-codes') ?>" class="btn btn-outline-secondary">Đặt lại</a>
                 </div>
             </div>
         </form>
@@ -180,14 +168,14 @@
                         <td class="text-end">
                             <div class="promo-actions-inline">
                                 <a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/promotion-codes/' . (int) $code['id'] . '/edit') ?>">Sửa</a>
-                                <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('admin/promotion-codes/' . (int) $code['id'] . '/clone') ?>">Clone</a>
+                                <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('admin/promotion-codes/' . (int) $code['id'] . '/clone') ?>">Nhân bản</a>
                                 <form method="post" action="<?= site_url('admin/promotion-codes/' . (int) $code['id'] . '/toggle') ?>">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="btn btn-sm <?= (int) ($code['is_active'] ?? 0) === 1 ? 'btn-outline-warning' : 'btn-outline-success' ?>">
-                                        <?= (int) ($code['is_active'] ?? 0) === 1 ? 'Pause' : 'Active' ?>
+                                        <?= (int) ($code['is_active'] ?? 0) === 1 ? 'Tạm dừng' : 'Bật lại' ?>
                                     </button>
                                 </form>
-                                <form method="post" action="<?= site_url('admin/promotion-codes/' . (int) $code['id'] . '/delete') ?>" onsubmit="return confirm('Delete this promotion code?');">
+                                <form method="post" action="<?= site_url('admin/promotion-codes/' . (int) $code['id'] . '/delete') ?>" onsubmit="return confirm('Xóa mã khuyến mãi này?');">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
                                 </form>

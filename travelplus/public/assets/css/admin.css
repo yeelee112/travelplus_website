@@ -1,6 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+
+:root {
+    --admin-font-main: "Google Sans", Arial, Helvetica, sans-serif;
+    --admin-bg: #f5f7fb;
+    --admin-surface: #ffffff;
+    --admin-surface-soft: #f8fbff;
+    --admin-border: #dfe8f1;
+    --admin-border-soft: #e8eef5;
+    --admin-title: #071a33;
+    --admin-text: #334155;
+    --admin-muted: #64748b;
+    --admin-primary: #009cde;
+    --admin-primary-dark: #007fba;
+    --admin-success: #0f8a4b;
+    --admin-warning: #9f6500;
+    --admin-danger: #bc3229;
+}
+
 body.admin-app {
-    background: #eef3f8;
+    font-family: var(--admin-font-main);
+    background:
+        radial-gradient(circle at top right, rgba(0, 156, 222, 0.08), transparent 320px),
+        var(--admin-bg);
     color: #172033;
+}
+
+.admin-app input,
+.admin-app button,
+.admin-app select,
+.admin-app textarea {
+    font-family: inherit;
 }
 
 .admin-app__layout {
@@ -13,6 +42,9 @@ body.admin-app {
     position: sticky;
     top: 0;
     height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: linear-gradient(180deg, #0f172a 0%, #132238 100%);
     color: #dce7f3;
     padding: 24px 18px;
@@ -125,7 +157,7 @@ body.admin-app {
     align-items: center;
     gap: 14px;
     padding: 16px 24px;
-    background: rgba(238, 243, 248, 0.88);
+    background: rgba(245, 247, 251, 0.9);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid #dce4ec;
 }
@@ -138,6 +170,7 @@ body.admin-app {
 .admin-topbar__meta {
     display: grid;
     gap: 2px;
+    min-width: 0;
 }
 
 .admin-topbar__eyebrow {
@@ -152,6 +185,8 @@ body.admin-app {
     color: #172033;
     font-size: 14px;
     font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
 }
 
 .admin-shell {
@@ -161,9 +196,10 @@ body.admin-app {
 }
 
 .admin-card {
-    border: 1px solid #dce4ec !important;
-    border-radius: 22px !important;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06) !important;
+    background: var(--admin-surface) !important;
+    border: 1px solid var(--admin-border) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.06) !important;
     padding: 24px !important;
 }
 
@@ -177,6 +213,43 @@ body.admin-app {
     letter-spacing: 0;
 }
 
+.admin-card h1.h3,
+.admin-card .h3 {
+    color: var(--admin-title);
+    font-size: 28px;
+    font-weight: 850;
+    line-height: 1.2;
+}
+
+.admin-card h2.h5,
+.admin-card .h5 {
+    color: var(--admin-title);
+    font-size: 20px;
+    font-weight: 850;
+    line-height: 1.25;
+}
+
+.admin-card .text-muted {
+    color: var(--admin-muted) !important;
+}
+
+.admin-card > .d-flex.justify-content-between.align-items-start.gap-3.mb-4,
+.admin-card > .d-flex.justify-content-between.align-items-start.gap-3,
+.promo-hero {
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--admin-border-soft);
+}
+
+.admin-card > form.row.g-3.mb-4,
+.admin-card > form.promo-filter,
+.promo-filter {
+    margin-bottom: 20px !important;
+    padding: 16px;
+    border: 1px solid var(--admin-border-soft);
+    border-radius: 14px;
+    background: var(--admin-surface-soft);
+}
+
 .table {
     margin-bottom: 0;
 }
@@ -185,7 +258,7 @@ body.admin-app {
     background: #f8fafc;
     color: #475569;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 850;
     text-transform: uppercase;
     letter-spacing: .05em;
     border-bottom-width: 1px;
@@ -193,6 +266,9 @@ body.admin-app {
 
 .table tbody td {
     border-color: #edf2f7;
+    color: var(--admin-text);
+    padding-top: 14px;
+    padding-bottom: 14px;
 }
 
 .table-hover > tbody > tr:hover > * {
@@ -209,23 +285,38 @@ body.admin-app {
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #2563eb;
+    border-color: var(--admin-primary);
+    outline: 3px solid rgba(0, 156, 222, 0.14);
 }
 
 .btn {
     border-radius: 12px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0;
 }
 
 .btn-primary {
-    background: #0f3f8c;
-    border-color: #0f3f8c;
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
 }
 
 .btn-primary:hover,
 .btn-primary:focus {
-    background: #0b3270;
-    border-color: #0b3270;
+    background: var(--admin-primary-dark);
+    border-color: var(--admin-primary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--admin-primary-dark);
+    border-color: rgba(0, 156, 222, 0.35);
+    background: #fff;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    color: #fff;
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
 }
 
 .btn-outline-secondary {
@@ -241,12 +332,213 @@ body.admin-app {
     border-color: #bfcbd8;
 }
 
+.btn-outline-danger {
+    color: var(--admin-danger);
+    border-color: rgba(188, 50, 41, 0.32);
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+    color: #fff;
+    background: var(--admin-danger);
+    border-color: var(--admin-danger);
+}
+
+.btn-danger {
+    background: var(--admin-danger);
+    border-color: var(--admin-danger);
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+    background: #9f281f;
+    border-color: #9f281f;
+}
+
 .alert {
     border-radius: 14px;
 }
 
 .badge {
     border-radius: 999px;
+}
+
+.stat-card,
+.promo-stat,
+.metric-card {
+    min-height: 118px;
+    border: 1px solid var(--admin-border-soft) !important;
+    border-radius: 14px !important;
+    background: var(--admin-surface) !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+
+.stat-label,
+.promo-stat small {
+    color: var(--admin-muted) !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.stat-value,
+.promo-stat strong {
+    color: var(--admin-title) !important;
+    font-weight: 850 !important;
+}
+
+.reconcile-card {
+    min-height: 120px;
+    border-color: var(--admin-border-soft) !important;
+    border-radius: 14px !important;
+    background: var(--admin-surface) !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+
+.reconcile-card:hover,
+.reconcile-card.is-active {
+    border-color: rgba(0, 156, 222, 0.5) !important;
+    background: #f5fbff !important;
+}
+
+.reconcile-card small {
+    color: var(--admin-muted) !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.reconcile-card strong {
+    color: var(--admin-title);
+    font-weight: 850;
+}
+
+.status-badge,
+.promo-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.status-paid,
+.status-confirmed,
+.promo-badge--active,
+.promo-badge--all {
+    background: #e5f8ed !important;
+    color: var(--admin-success) !important;
+}
+
+.status-pending-transfer,
+.status-pending-payment {
+    background: #fff4d6 !important;
+    color: var(--admin-warning) !important;
+}
+
+.status-cancelled,
+.status-failed {
+    background: #ffe5e2 !important;
+    color: var(--admin-danger) !important;
+}
+
+.status-draft,
+.promo-badge--inactive {
+    background: #edf2f7 !important;
+    color: #526174 !important;
+}
+
+.status-active {
+    background: #e5f8ed !important;
+    color: var(--admin-success) !important;
+}
+
+.status-inactive {
+    background: #edf2f7 !important;
+    color: #526174 !important;
+}
+
+.promo-badge--specific,
+.badge-soft {
+    background: #eef7ff !important;
+    color: #0075b8 !important;
+}
+
+.admin-toolbar,
+.dashboard-toolbar,
+.promo-actions-inline,
+.tour-actions,
+.blog-actions,
+.review-actions {
+    gap: 8px !important;
+}
+
+.table-responsive {
+    border: 1px solid var(--admin-border-soft);
+    border-radius: 14px;
+    overflow: auto;
+}
+
+.table-responsive > .table thead th:first-child,
+.table-responsive > .table tbody td:first-child {
+    padding-left: 16px;
+}
+
+.table-responsive > .table thead th:last-child,
+.table-responsive > .table tbody td:last-child {
+    padding-right: 16px;
+}
+
+.meta-item,
+.history-item,
+.promo-section,
+.quick-card,
+.quick-departure-item,
+.journey-card {
+    border: 1px solid var(--admin-border-soft) !important;
+    border-radius: 14px !important;
+    background: var(--admin-surface-soft) !important;
+}
+
+.meta-item small,
+.history-item small {
+    color: var(--admin-muted) !important;
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.admin-app .form-label,
+.admin-app form label:not(.form-check-label) {
+    color: var(--admin-text);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-app .form-text {
+    color: var(--admin-muted);
+}
+
+.confirm-box {
+    border-color: #f2d598 !important;
+    border-radius: 14px !important;
+    background: #fffaf0 !important;
+}
+
+.admin-app pre {
+    border-radius: 14px;
+}
+
+.admin-app hr {
+    border-color: var(--admin-border-soft);
+    opacity: 1;
 }
 
 .admin-app__backdrop {
@@ -291,6 +583,21 @@ body.admin-app {
 @media (max-width: 767px) {
     .admin-topbar {
         padding: 14px 16px;
+        align-items: flex-start;
+    }
+
+    .admin-topbar__toggle {
+        min-width: 34px;
+        min-height: 34px;
+        justify-content: center;
+    }
+
+    .admin-topbar__eyebrow {
+        font-size: 11px;
+    }
+
+    .admin-topbar__meta strong {
+        font-size: 13px;
     }
 
     .admin-shell {

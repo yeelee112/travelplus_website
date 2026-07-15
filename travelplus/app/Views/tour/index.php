@@ -145,6 +145,9 @@ $singleRoomSupplement = (float) ($tour['single_room_supplement'] ?? 0);
 $singleRoomSupplementLabel = $singleRoomSupplement > 0
     ? number_format($singleRoomSupplement, 0, ',', '.') . 'đ'
     : '';
+$singleRoomSupplementCompareLabel = $singleRoomSupplementLabel !== ''
+    ? $singleRoomSupplementLabel
+    : ($locale === 'en' ? 'Contact for quote' : 'Liên hệ báo giá');
 $reviewLabel = match (true) {
     $reviewSummary['overall'] >= 4.5 => $t('tour.reviewLabel.excellent'),
     $reviewSummary['overall'] >= 4.0 => $t('tour.reviewLabel.veryGood'),
@@ -173,10 +176,52 @@ $enquiryLabels = [
     'agree' => $t('tour.enquiry.agree'),
     'submit' => $t('tour.enquiry.submit'),
 ];
+$tourToolCopy = [
+    'wishlist' => $locale === 'en' ? 'Save tour' : 'Lưu tour',
+    'wishlistSaved' => $locale === 'en' ? 'Saved' : 'Đã lưu',
+    'compare' => $locale === 'en' ? 'Compare' : 'So sánh',
+    'compareSaved' => $locale === 'en' ? 'Comparing' : 'Đang so sánh',
+    'toolsLabel' => $locale === 'en' ? 'Tour saving and comparison actions' : 'Thao tác lưu và so sánh tour',
+];
+$tourToolId = trim((string) ($tour['id'] ?? ''));
+if ($tourToolId === '') {
+    $tourToolId = md5((string) current_url() . '|' . (string) ($tour['title'] ?? ''));
+}
+$tourType = (string) ($tour['tour_type'] ?? '');
+$tourTypeLabel = $tourType === 'inbound'
+    ? ($locale === 'en' ? 'Domestic tour' : 'Tour trong nước')
+    : ($locale === 'en' ? 'Outbound tour' : 'Tour nước ngoài');
+$tourToolTravelers = $hasBookableDepartures && ! empty($departureOptions[0]['max_travelers'])
+    ? ($locale === 'en' ? 'Available: ' . (int) $departureOptions[0]['max_travelers'] . ' seats' : 'Còn ' . (int) $departureOptions[0]['max_travelers'] . ' chỗ')
+    : ($locale === 'en' ? 'Up to ' . $maxTravelers . ' guests' : 'Tối đa ' . $maxTravelers . ' khách');
+$tourToolPromotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
+$tourToolHighlight = trim((string) ($tourToolPromotion['badge'] ?? $tour['badge'] ?? $reviewLabel));
+$tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_map(
+    static fn(array $item): string => trim((string) ($item['label'] ?? '')),
+    $includedItems
+))), 0, 3));
 $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) : [];
 ?>
 
-<section class="tour-detail-hero" itemscope itemtype="https://schema.org/TouristTrip">
+<section
+    class="tour-detail-hero"
+    itemscope
+    itemtype="https://schema.org/TouristTrip"
+    data-tour-tools-source
+    data-tour-id="<?= esc($tourToolId, 'attr') ?>"
+    data-tour-title="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>"
+    data-tour-url="<?= esc(current_url(), 'attr') ?>"
+    data-tour-image="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>"
+    data-tour-price="<?= esc($priceDisplay !== '' ? $priceDisplay : (string) ($tour['price']['label'] ?? ''), 'attr') ?>"
+    data-tour-duration="<?= esc($durationLabel, 'attr') ?>"
+    data-tour-departure="<?= esc($departureLabel, 'attr') ?>"
+    data-tour-destination="<?= esc($destinationLabel, 'attr') ?>"
+    data-tour-type="<?= esc($tourTypeLabel, 'attr') ?>"
+    data-tour-departure-from="<?= esc($departureFrom, 'attr') ?>"
+    data-tour-travelers="<?= esc($tourToolTravelers, 'attr') ?>"
+    data-tour-room="<?= esc($singleRoomSupplementCompareLabel, 'attr') ?>"
+    data-tour-highlight="<?= esc($tourToolHighlight, 'attr') ?>"
+    data-tour-included="<?= esc($tourToolIncluded, 'attr') ?>">
     <div class="tour-detail-hero__media">
         <img class="tour-detail-hero__image" src="<?= esc($tour['image']) ?>" alt="<?= esc($tour['title']) ?>" loading="eager" fetchpriority="high" decoding="async" width="1920" height="760" itemprop="image">
     </div>
@@ -224,6 +269,28 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                         <span><?= esc($t('tour.sidebar.consult')) ?><i class="bi bi-chat-dots"></i></span>
                         <span><?= esc($t('tour.sidebar.consult')) ?><i class="bi bi-chat-dots"></i></span>
                     </button>
+                    <div class="tour-detail-hero__tool-actions" aria-label="<?= esc($tourToolCopy['toolsLabel'], 'attr') ?>">
+                        <button
+                            type="button"
+                            class="tour-detail-tool-btn"
+                            data-tour-action="wishlist"
+                            data-label-add="<?= esc($tourToolCopy['wishlist'], 'attr') ?>"
+                            data-label-remove="<?= esc($tourToolCopy['wishlistSaved'], 'attr') ?>"
+                            aria-pressed="false">
+                            <i class="bi bi-heart" aria-hidden="true"></i>
+                            <span data-tour-action-text><?= esc($tourToolCopy['wishlist']) ?></span>
+                        </button>
+                        <button
+                            type="button"
+                            class="tour-detail-tool-btn"
+                            data-tour-action="compare"
+                            data-label-add="<?= esc($tourToolCopy['compare'], 'attr') ?>"
+                            data-label-remove="<?= esc($tourToolCopy['compareSaved'], 'attr') ?>"
+                            aria-pressed="false">
+                            <i class="bi bi-bar-chart" aria-hidden="true"></i>
+                            <span data-tour-action-text><?= esc($tourToolCopy['compare']) ?></span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <aside class="tour-detail-hero__summary" aria-label="<?= esc($t('tour.sidebar.price')) ?>">
@@ -792,21 +859,16 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                                             <?php $collapseId = 'flush-collapseTourPlan-' . ($index + 1); ?>
                                             <div class="accordion-item">
                                                 <div class="accordion-header" id="flush-headingTourPlan-<?= $index + 1 ?>">
-                                                    <div class="accordion-button <?= $index > 0 ? 'collapsed' : '' ?>" role="button" data-bs-toggle="collapse"
-                                                    data-bs-target="#<?= esc($collapseId) ?>" aria-expanded="<?= $index === 0 ? 'true' : 'false' ?>"
+                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                    data-bs-target="#<?= esc($collapseId) ?>" aria-expanded="false"
                                                     aria-controls="<?= esc($collapseId) ?>">
-                                                        <h6><span>
-                                                            <svg width="14" height="14" viewBox="0 0 14 14"
-                                                                xmlns="http://www.w3.org/2000/svg">
-                                                                <path
-                                                                    d="M7 14C7 14 12.25 9.02475 12.25 5.25C12.25 3.85761 11.6969 2.52226 10.7123 1.53769C9.72774 0.553123 8.39239 0 7 0C5.60761 0 4.27226 0.553123 3.28769 1.53769C2.30312 2.52226 1.75 3.85761 1.75 5.25C1.75 9.02475 7 14 7 14ZM7 7.875C6.30381 7.875 5.63613 7.59844 5.14384 7.10616C4.65156 6.61387 4.375 5.94619 4.375 5.25C4.375 4.55381 4.65156 3.88613 5.14384 3.39384C5.63613 2.90156 6.30381 2.625 7 2.625C7.69619 2.625 8.36387 2.90156 8.85616 3.39384C9.34844 3.88613 9.625 4.55381 9.625 5.25C9.625 5.94619 9.34844 6.61387 8.85616 7.10616C8.36387 7.59844 7.69619 7.875 7 7.875Z">
-                                                                </path>
-                                                            </svg>
-                                                            <?= esc(lang('Frontend.tour.itinerary.day', [(string) ($day['day_number'] ?? '')], $locale)) ?></span><?= esc($day['title'] ?? '') ?>
-                                                        </h6>
-                                                    </div>
+                                                        <span class="tour-itinerary-row">
+                                                            <span class="tour-itinerary-day"><?= esc(rtrim(lang('Frontend.tour.itinerary.day', [(string) ($day['day_number'] ?? '')], $locale), ': ')) ?></span>
+                                                            <span class="tour-itinerary-heading"><?= esc($day['title'] ?? '') ?></span>
+                                                        </span>
+                                                    </button>
                                                 </div>
-                                                <div id="<?= esc($collapseId) ?>" class="accordion-collapse collapse <?= $index === 0 ? 'show' : '' ?>" aria-labelledby="flush-headingTourPlan-<?= $index + 1 ?>">
+                                                <div id="<?= esc($collapseId) ?>" class="accordion-collapse collapse" aria-labelledby="flush-headingTourPlan-<?= $index + 1 ?>">
                                                     <div class="accordion-body">
                                                         <?= tour_detail_html($day['description'] ?? '') ?>
                                                     </div>
@@ -1015,7 +1077,23 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
             </div>
             <div class="col-lg-4">
                 <div class="package-details-sidebar">
-                    <div class="pricing-and-booking-area mb-40">
+                    <div
+                        class="pricing-and-booking-area mb-40"
+                        data-tour-tools-source
+                        data-tour-id="<?= esc($tourToolId, 'attr') ?>"
+                        data-tour-title="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>"
+                        data-tour-url="<?= esc(current_url(), 'attr') ?>"
+                        data-tour-image="<?= esc((string) ($tour['image'] ?? ''), 'attr') ?>"
+                        data-tour-price="<?= esc($priceDisplay !== '' ? $priceDisplay : (string) ($tour['price']['label'] ?? ''), 'attr') ?>"
+                        data-tour-duration="<?= esc($durationLabel, 'attr') ?>"
+                        data-tour-departure="<?= esc($departureLabel, 'attr') ?>"
+                        data-tour-destination="<?= esc($destinationLabel, 'attr') ?>"
+                        data-tour-type="<?= esc($tourTypeLabel, 'attr') ?>"
+                        data-tour-departure-from="<?= esc($departureFrom, 'attr') ?>"
+                        data-tour-travelers="<?= esc($tourToolTravelers, 'attr') ?>"
+                        data-tour-room="<?= esc($singleRoomSupplementCompareLabel, 'attr') ?>"
+                        data-tour-highlight="<?= esc($tourToolHighlight, 'attr') ?>"
+                        data-tour-included="<?= esc($tourToolIncluded, 'attr') ?>">
                         <div class="price-area">
                             <h6><?= esc($t('tour.sidebar.price')) ?></h6>
                             <span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub><?= esc($t('tour.booking.perPerson')) ?></sub>
@@ -1035,7 +1113,18 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                                         d="M11.0419 5.31317L6.17665 10.1811C6.09912 10.256 6.00086 10.2948 5.90268 10.2948C5.85176 10.2949 5.80132 10.2849 5.75428 10.2654C5.70724 10.2458 5.66454 10.2172 5.62863 10.1811L2.95813 7.51056C2.80562 7.36059 2.80562 7.11506 2.95813 6.96255L3.90173 6.01632C4.04655 5.8716 4.30502 5.8716 4.44983 6.01632L5.90268 7.46917L9.5503 3.81894C9.58623 3.78292 9.6289 3.75434 9.67587 3.73483C9.72285 3.71531 9.77321 3.70524 9.82408 3.70519C9.92742 3.70519 10.0257 3.74657 10.098 3.81894L11.0416 4.76525C11.1944 4.91776 11.1944 5.16329 11.0419 5.31317Z">
                                     </path>
                                 </svg><?= esc($t('tour.sidebar.support')) ?></li>
-                        </ul><button class="primary-btn1 mb-10" <?= $hasBookableDepartures ? 'data-bs-toggle="modal" data-bs-target="#bookingModal"' : 'disabled' ?>><span><?= esc($hasBookableDepartures ? $t('tour.sidebar.checkAvailability') : $t('tour.booking.noDeparturesShort')) ?><svg width="10" height="10"
+                        </ul><div class="tour-detail-sticky-tools" aria-label="<?= esc($tourToolCopy['toolsLabel'], 'attr') ?>">
+                            <button
+                                type="button"
+                                class="tour-detail-sticky-compare"
+                                data-tour-action="compare"
+                                data-label-add="<?= esc($tourToolCopy['compare'], 'attr') ?>"
+                                data-label-remove="<?= esc($tourToolCopy['compareSaved'], 'attr') ?>"
+                                aria-pressed="false">
+                                <i class="bi bi-bar-chart" aria-hidden="true"></i>
+                                <span data-tour-action-text><?= esc($tourToolCopy['compare']) ?></span>
+                            </button>
+                        </div><button class="primary-btn1 mb-10" <?= $hasBookableDepartures ? 'data-bs-toggle="modal" data-bs-target="#bookingModal"' : 'disabled' ?>><span><?= esc($hasBookableDepartures ? $t('tour.sidebar.checkAvailability') : $t('tour.booking.noDeparturesShort')) ?><svg width="10" height="10"
                                     viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M9.73535 1.14746C9.57033 1.97255 9.32924 3.26406 9.24902 4.66797C9.16817 6.08312 9.25559 7.5453 9.70214 8.73633C9.84754 9.12406 9.65129 9.55659 9.26367 9.70215C8.9001 9.83849 8.4969 9.67455 8.32812 9.33398L8.29785 9.26367L8.19921 8.98438C7.73487 7.5758 7.67054 5.98959 7.75097 4.58203C7.77875 4.09598 7.82525 3.62422 7.87988 3.17969L1.53027 9.53027C1.23738 9.82317 0.762615 9.82317 0.469722 9.53027C0.176829 9.23738 0.176829 8.76262 0.469722 8.46973L6.83593 2.10254C6.3319 2.16472 5.79596 2.21841 5.25 2.24902C3.8302 2.32862 2.2474 2.26906 0.958003 1.79102L0.704097 1.68945L0.635738 1.65527C0.303274 1.47099 0.157578 1.06102 0.310542 0.704102C0.463655 0.347333 0.860941 0.170391 1.22363 0.28418L1.29589 0.310547L1.48828 0.387695C2.47399 0.751207 3.79966 0.827571 5.16601 0.750977C6.60111 0.670504 7.97842 0.428235 8.86132 0.262695L9.95312 0.0585938L9.73535 1.14746Z">

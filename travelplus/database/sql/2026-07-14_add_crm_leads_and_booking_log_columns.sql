@@ -84,3 +84,23 @@ CREATE TABLE IF NOT EXISTS `crm_leads` (
   KEY `idx_crm_leads_booking_id` (`booking_id`),
   KEY `idx_crm_leads_updated_at` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `booking_email_logs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `booking_id` INT DEFAULT NULL,
+  `booking_code` VARCHAR(40) DEFAULT NULL,
+  `email_type` VARCHAR(80) NOT NULL,
+  `recipient_email` VARCHAR(190) NOT NULL,
+  `subject` VARCHAR(255) NOT NULL,
+  `status` VARCHAR(30) NOT NULL DEFAULT 'sent',
+  `error_message` TEXT DEFAULT NULL,
+  `sent_at` DATETIME DEFAULT NULL,
+  `created_at` DATETIME DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_booking_email_logs_booking_id` (`booking_id`),
+  KEY `idx_booking_email_logs_booking_code` (`booking_code`),
+  KEY `idx_booking_email_logs_email_type` (`email_type`),
+  KEY `idx_booking_email_logs_recipient_email` (`recipient_email`),
+  KEY `idx_booking_email_logs_status` (`status`),
+  KEY `idx_booking_email_logs_sent_at` (`sent_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
