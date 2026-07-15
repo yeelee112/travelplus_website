@@ -49,6 +49,10 @@ $styleAsset = (! $isLocalRequest && $hasMinifiedStyle)
     : 'assets/css/style.css';
 $styleVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . $styleAsset) ?: time();
 $mainJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/main.js') ?: time();
+$widgetCssVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/css/widgets.css') ?: time();
+$aiChatboxJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/ai-chatbox.js') ?: time();
+$tourToolsJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/tour-tools.js') ?: time();
+$cookieConsentJsVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/js/cookie-consent.js') ?: time();
 $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/icon/favicon.svg') ?: time();
 ?>
 <!doctype html>
@@ -134,6 +138,7 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap">
 <link rel="stylesheet" href="<?= base_url($styleAsset . '?v=' . $styleVersion) ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/widgets.css?v=' . $widgetCssVersion) ?>">
 <?php if ($usesSwiper): ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"/>
 
@@ -152,12 +157,15 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <?= $this->include('partials/footer') ?>
 <?php if ($showAiChatbox): ?>
 <?= $this->include('partials/ai-chatbox') ?>
+<script defer src="<?= base_url('assets/js/ai-chatbox.js?v=' . $aiChatboxJsVersion) ?>"></script>
 <?php endif; ?>
 <?php if ($showTourTools): ?>
 <?= $this->include('partials/tour-tools') ?>
+<script defer src="<?= base_url('assets/js/tour-tools.js?v=' . $tourToolsJsVersion) ?>"></script>
 <?php endif; ?>
 <?php if ($showCookieConsent): ?>
 <?= $this->include('partials/cookie-consent') ?>
+<script defer src="<?= base_url('assets/js/cookie-consent.js?v=' . $cookieConsentJsVersion) ?>"></script>
 <?php endif; ?>
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
