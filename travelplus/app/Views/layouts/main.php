@@ -27,9 +27,12 @@ $bodyClass = $requestPath === '' || ($currentLocale === 'en' && $requestPath ===
     ? 'is-home-page'
     : 'is-inner-page';
 $isContactPage = $requestPath === 'contact' || str_ends_with($requestPath, '/contact');
-$showAiChatbox = ! in_array($firstSegment, ['admin', 'api'], true);
-$showTourTools = ! in_array($firstSegment, ['admin', 'api'], true);
+$isFocusedFlow = in_array($firstSegment, ['account', 'auth', 'booking'], true);
+$showAiChatbox = ! in_array($firstSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
+$showTourTools = ! in_array($firstSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
 $showCookieConsent = ! in_array($firstSegment, ['admin', 'api'], true);
+$contentSection = $this->renderSection('content');
+$usesSwiper = str_contains($contentSection, 'swiper-wrapper');
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
 $isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
@@ -61,8 +64,8 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <meta name="csrf-token-name" content="<?= esc(csrf_token()) ?>">
 <meta name="csrf-token" content="<?= esc(csrf_hash()) ?>">
 <?php if (! $isLocalRequest && $googleAnalyticsId !== ''): ?>
-<script async src="https://www.googletagmanager.com/gtag/js?id=<?= esc($googleAnalyticsId, 'url') ?>"></script>
-<script>
+<script type="text/plain" data-cookie-category="analytics" async src="https://www.googletagmanager.com/gtag/js?id=<?= esc($googleAnalyticsId, 'url') ?>"></script>
+<script type="text/plain" data-cookie-category="analytics">
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -115,19 +118,24 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <?php endif; ?>
 
 <?php if ($bodyClass === 'is-home-page'): ?>
-<link rel="preload" as="image" href="<?= base_url('assets/images/home/banner01.png') ?>" fetchpriority="high">
+<link rel="preload" as="image" href="<?= base_url('assets/images/home/banner01.webp') ?>" type="image/webp" fetchpriority="high">
 <?php endif; ?>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <?php if ($isContactPage): ?>
 <link rel="preconnect" href="https://www.google.com">
 <?php endif; ?>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap">
 <link rel="stylesheet" href="<?= base_url($styleAsset . '?v=' . $styleVersion) ?>">
+<?php if ($usesSwiper): ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"/>
 
 <script defer src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+<?php endif; ?>
 </head>
 <body
     class="<?= esc($bodyClass) ?>"
@@ -137,7 +145,7 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
     data-csrf-token="<?= esc(csrf_hash(), 'attr') ?>">
 
 <?= $this->include('partials/header') ?>
-<?= $this->renderSection('content') ?>
+<?= $contentSection ?>
 <?= $this->include('partials/footer') ?>
 <?php if ($showAiChatbox): ?>
 <?= $this->include('partials/ai-chatbox') ?>

@@ -6,12 +6,17 @@ use App\Controllers\BaseController;
 use App\Services\CrmLeadCaptureService;
 use App\Services\GeminiWebsiteChatService;
 use RuntimeException;
+use Throwable;
 
 class ChatController extends BaseController
 {
     private const MAX_MESSAGE_LENGTH = 1000;
     private const RATE_LIMIT_WINDOW_SECONDS = 60;
     private const RATE_LIMIT_MAX_MESSAGES = 12;
+    private const RATE_LIMIT_MAX_MESSAGES_PER_IP = 30;
+    private const LOG_RETENTION_DAYS = 14;
+    private const LOG_MAX_FILE_BYTES = 5242880;
+    private const LOG_MAX_MESSAGE_LENGTH = 2000;
 
     private bool $chatDebugEnabled;
 
@@ -40,9 +45,6 @@ class ChatController extends BaseController
             ]);
         }
 
-        $this->logChatEntry('user', $locale, $message, $payload);
-        $this->captureLeadFromChat($locale, $message, $payload);
-
         if (! $this->passesRateLimit()) {
             return $this->response->setStatusCode(429)->setJSON([
                 'message' => $locale === 'en'
@@ -50,6 +52,9 @@ class ChatController extends BaseController
                     : 'Bạn đang gửi tin nhắn quá nhanh. Vui lòng thử lại sau ít phút.',
             ]);
         }
+
+        $this->logChatEntry('user', $locale, $message, $payload);
+        $this->captureLeadFromChat($locale, $message, $payload);
 
         $normalizedHistory = [];
 
@@ -307,7 +312,18 @@ class ChatController extends BaseController
         $hits[] = $now;
         $session->set('ai_chat_rate_hits', $hits);
 
-        return true;
+        try {
+            $ipKey = 'ai-chat-ip-' . hash('sha256', $this->request->getIPAddress());
+
+            return service('throttler')->check(
+                $ipKey,
+                self::RATE_LIMIT_MAX_MESSAGES_PER_IP,
+                self::RATE_LIMIT_WINDOW_SECONDS
+            );
+        } catch (Throwable) {
+            // The session limit still protects the endpoint if the cache is unavailable.
+            return true;
+        }
     }
 
     /**
@@ -322,27 +338,25 @@ class ChatController extends BaseController
             return;
         }
 
+        $this->cleanupChatLogs($directory);
+
         $session = session();
         $pageUrl = trim((string) ($payload['page_url'] ?? $payload['url'] ?? ''));
         $entry = [
             'timestamp' => date('c'),
             'role' => $role,
             'locale' => $locale,
-            'message' => $message,
-            'session_id' => session_id(),
-            'ip_address' => $this->request->getIPAddress(),
-            'user_agent' => mb_substr((string) $this->request->getUserAgent(), 0, 500),
-            'page_url' => $pageUrl,
+            'message' => $this->redactLogMessage(mb_substr($message, 0, self::LOG_MAX_MESSAGE_LENGTH)),
+            'session_hash' => $this->hashLogIdentifier(session_id()),
+            'ip_hash' => $this->hashLogIdentifier($this->request->getIPAddress()),
+            'user_agent' => mb_substr((string) $this->request->getUserAgent(), 0, 180),
+            'page_path' => $this->normalizeLogPagePath($pageUrl),
             'history_count' => is_array($payload['history'] ?? null) ? count($payload['history']) : 0,
         ];
 
-        $customerContext = $session->get('user');
-        if (is_array($customerContext)) {
-            $entry['customer'] = [
-                'id' => $customerContext['id'] ?? null,
-                'email' => $customerContext['email'] ?? null,
-                'name' => $customerContext['full_name'] ?? null,
-            ];
+        $customerContext = $session->get('auth_user');
+        if (is_array($customerContext) && ! empty($customerContext['id'])) {
+            $entry['customer_id'] = (int) $customerContext['id'];
         }
 
         if ($extra !== []) {
@@ -355,9 +369,77 @@ class ChatController extends BaseController
             return;
         }
 
-        $file = $directory . DIRECTORY_SEPARATOR . date('Y-m-d') . '.jsonl';
+        $file = $this->resolveChatLogFile($directory);
         if (file_put_contents($file, $json . PHP_EOL, FILE_APPEND | LOCK_EX) === false) {
             log_message('error', 'Unable to write AI chat log file: ' . $file);
+        }
+    }
+
+    private function redactLogMessage(string $message): string
+    {
+        $message = preg_replace('/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/iu', '[email]', $message) ?? $message;
+
+        return preg_replace('/(?<!\d)(?:\+?84|0)(?:[\s.()-]*\d){8,10}(?!\d)/u', '[phone]', $message) ?? $message;
+    }
+
+    private function hashLogIdentifier(string $value): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        $key = (string) (config('Encryption')->key ?? '');
+        if ($key === '') {
+            $key = (string) config('App')->baseURL;
+        }
+
+        return substr(hash_hmac('sha256', $value, $key), 0, 20);
+    }
+
+    private function normalizeLogPagePath(string $url): string
+    {
+        if ($url === '') {
+            return '';
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+
+        return is_string($path) ? mb_substr('/' . ltrim($path, '/'), 0, 500) : '';
+    }
+
+    private function resolveChatLogFile(string $directory): string
+    {
+        $baseName = date('Y-m-d');
+
+        for ($part = 1; $part <= 99; $part++) {
+            $suffix = $part === 1 ? '' : '-' . $part;
+            $file = $directory . DIRECTORY_SEPARATOR . $baseName . $suffix . '.jsonl';
+
+            if (! is_file($file) || (int) filesize($file) < self::LOG_MAX_FILE_BYTES) {
+                return $file;
+            }
+        }
+
+        return $directory . DIRECTORY_SEPARATOR . $baseName . '-' . date('His') . '.jsonl';
+    }
+
+    private function cleanupChatLogs(string $directory): void
+    {
+        $marker = $directory . DIRECTORY_SEPARATOR . '.cleanup';
+        $today = strtotime('today');
+        $lastCleanup = is_file($marker) ? (int) filemtime($marker) : 0;
+
+        if ($lastCleanup >= $today) {
+            return;
+        }
+
+        @touch($marker);
+        $cutoff = time() - (self::LOG_RETENTION_DAYS * 86400);
+
+        foreach (glob($directory . DIRECTORY_SEPARATOR . '*.jsonl') ?: [] as $file) {
+            if (is_file($file) && (int) filemtime($file) < $cutoff) {
+                @unlink($file);
+            }
         }
     }
 }

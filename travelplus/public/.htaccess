@@ -57,8 +57,15 @@ ErrorDocument 404 /errors/404
 	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
 	# RewriteBase /
 
-	# Drop malformed scanner requests before they reach CodeIgniter and flood its logs.
-	RewriteRule ^https&$ - [F,L,NC]
+	# Drop malformed paths and common scanner probes before they boot CodeIgniter.
+	# RewriteRule only inspects the URL path, so legitimate query-string separators
+	# are not affected by the ampersand rule.
+	RewriteRule ^.*&.*$ - [F,L,NC]
+	RewriteRule ^(?:\.env|\.git|\.svn|\.hg)(?:/|$) - [F,L,NC]
+	RewriteRule ^(?:wp-admin|wp-content|wp-includes)(?:/|$) - [F,L,NC]
+	RewriteRule ^(?:wp-login\.php|xmlrpc\.php|wp-cron\.php)(?:/|$) - [F,L,NC]
+	RewriteRule ^(?:phpmyadmin|pma|adminer)(?:/|$) - [F,L,NC]
+	RewriteRule ^(?:vendor/phpunit|cgi-bin|server-status|actuator)(?:/|$) - [F,L,NC]
 
 	# Block percent-encoded non-ASCII spam URLs before CodeIgniter handles them.
 	RewriteCond %{THE_REQUEST} \s/+[^\s?]*%[89A-Fa-f][0-9A-Fa-f] [NC]

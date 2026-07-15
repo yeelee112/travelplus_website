@@ -14,9 +14,9 @@ $dateHintLabel = $locale === 'en'
     ? 'Pick a rough travel window to find departures that match your plan.'
     : 'Chọn khoảng thời gian dự kiến để xem các tour có lịch khởi hành phù hợp.';
 $heroImages = [
-    'assets/images/home/banner01.png',
-    'assets/images/home/banner02.png',
-    'assets/images/home/banner03.png',
+    ['path' => 'assets/images/home/banner01.webp', 'width' => 1920, 'height' => 1024],
+    ['path' => 'assets/images/home/banner02.webp', 'width' => 1693, 'height' => 929],
+    ['path' => 'assets/images/home/banner03.webp', 'width' => 2012, 'height' => 782],
 ];
 
 $copy = $locale === 'en'
@@ -86,10 +86,10 @@ $copy = $locale === 'en'
         <?php foreach ($heroImages as $index => $heroImage): ?>
             <img
                 class="<?= $index === 0 ? 'is-active' : '' ?>"
-                src="<?= esc(base_url($heroImage), 'attr') ?>"
+                src="<?= esc(base_url((string) $heroImage['path']), 'attr') ?>"
                 alt=""
-                width="1920"
-                height="680"
+                width="<?= (int) $heroImage['width'] ?>"
+                height="<?= (int) $heroImage['height'] ?>"
                 loading="<?= $index === 0 ? 'eager' : 'lazy' ?>"
                 <?= $index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"' ?>
                 decoding="async">
