@@ -11,7 +11,7 @@ $c = is_array($content ?? null) ? $content : [];
                     <div class="about-content">
                         <div class="section-title">
                             <h4 class="pb-2"><?= esc($c['welcome'] ?? '') ?></h4>
-                            <h2><?= esc($c['title'] ?? '') ?></h2>
+                            <h1><?= esc($c['title'] ?? '') ?></h1>
                             <p><?= esc($c['intro_1'] ?? '') ?></p>
                             <p><?= esc($c['intro_2'] ?? '') ?></p>
                         </div>

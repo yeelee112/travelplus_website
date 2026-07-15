@@ -11,7 +11,7 @@ $termsUrl = \App\Data\LocalizedPathCatalog::url('legal.terms', $locale);
 $offices = \App\Data\OfficeLocationCatalog::getAll($locale);
 $repairText = static fn(string $value): string => \App\Services\TextEncodingService::repair($value);
 $officeImages = [
-    'assets/images/tp-ho-chi-minh.png',
+    'assets/images/tp-ho-chi-minh.webp',
     'assets/images/destination/ha-noi.webp',
     'assets/images/destination/da-nang.jpg',
 ];

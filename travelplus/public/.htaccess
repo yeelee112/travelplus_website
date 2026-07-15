@@ -3,7 +3,7 @@ Options -Indexes
 
 # Use branded pages for errors generated directly by Apache.
 ErrorDocument 403 /error-403.php
-ErrorDocument 404 /errors/404
+ErrorDocument 404 /error-404.php
 
 # Block accidental exposure of source maps, backups, local configs and VCS files.
 <FilesMatch "(^\.|\.map$|\.log$|\.sql$|\.bak$|\.old$|\.orig$|\.save$|\.swp$|\.tmp$|\.env$|\.ini$|\.ya?ml$|\.lock$|composer\.(json|lock)$|package(-lock)?\.json$)">
@@ -99,10 +99,11 @@ ErrorDocument 404 /errors/404
 	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
 	RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
 
-	# Missing static uploads should be plain 404s, not routed through CodeIgniter.
+	# Missing static files use the lightweight branded 404 page instead of
+	# booting CodeIgniter or falling back to LiteSpeed's default error page.
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^uploads/.+\.(?:avif|webp|png|jpe?g|gif|svg|ico|pdf|docx?|xlsx?)$ - [R=404,L,NC]
+	RewriteRule ^(?:assets|uploads)/.+\.(?:css|m?js|avif|webp|png|jpe?g|gif|svg|ico|pdf|docx?|xlsx?|woff2?|ttf|otf|map|json|xml|txt)$ error-404.php [L,NC]
 
 	# Checks to see if the user is attempting to access a valid file,
 	# such as an image or css document, if this isn't true it sends the

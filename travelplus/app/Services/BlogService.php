@@ -294,7 +294,7 @@ class BlogService
             'content' => TextEncodingService::repairNullableHtml($row['content'] ?? ''),
             'meta_title' => TextEncodingService::repairNullable($row['meta_title'] ?? ''),
             'meta_description' => TextEncodingService::repairNullable($row['meta_description'] ?? ''),
-            'link' => localized_url($basePath . '/' . (string) ($row['slug'] ?? '')),
+            'link' => localized_url_for($basePath . '/' . (string) ($row['slug'] ?? ''), $locale),
         ];
     }
 

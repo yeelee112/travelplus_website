@@ -7,11 +7,18 @@ function localized_url($path = '')
 {
     $locale = service('request')->getLocale();
 
+    return localized_url_for((string) $path, $locale ?: 'vi');
+}
+
+function localized_url_for(string $path = '', string $locale = 'vi'): string
+{
+    $path = ltrim($path, '/');
+
     if ($locale === 'en') {
-        return base_url('en/' . ltrim($path, '/'));
+        return base_url($path === '' ? 'en' : 'en/' . $path);
     }
 
-    return base_url(ltrim($path, '/'));
+    return base_url($path);
 }
 
 function switch_locale_url(string $targetLocale): string

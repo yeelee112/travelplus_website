@@ -1,7 +1,11 @@
 User-agent: *
 Disallow: /admin
 Disallow: /account
+Disallow: /auth
 Disallow: /booking
 Disallow: /api
+Disallow: /en/account
+Disallow: /en/auth
+Disallow: /en/booking
 
 Sitemap: https://travelplusvn.com/sitemap.xml

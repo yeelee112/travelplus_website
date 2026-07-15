@@ -75,6 +75,7 @@ $routes->GET('admin/reviews/(:num)', 'Admin\Reviews::show/$1');
 $routes->POST('admin/reviews/(:num)/status', 'Admin\Reviews::updateStatus/$1');
 $routes->POST('admin/reviews/(:num)/delete', 'Admin\Reviews::delete/$1');
 $routes->GET('admin/media-audit', 'Admin\MediaAudit::index');
+$routes->POST('admin/media-audit/optimize', 'Admin\MediaAudit::optimizeSelected');
 $routes->POST('admin/media-audit/delete-orphans', 'Admin\MediaAudit::deleteOrphans');
 $routes->GET('admin/users', 'Admin\Users::index');
 $routes->GET('admin/users/create', 'Admin\Users::create');

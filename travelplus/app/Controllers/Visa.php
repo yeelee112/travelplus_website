@@ -29,6 +29,11 @@ class Visa extends BaseController
         $data['meta_title'] = $t('visa.metaTitle');
         $data['meta_desc'] = $t('visa.metaDesc');
         $data['canonical_url'] = LocalizedPathCatalog::url('service.visa', $locale);
+        $data['alternate_links'] = [
+            ['hreflang' => 'vi', 'href' => base_url(LocalizedPathCatalog::path('service.visa', 'vi'))],
+            ['hreflang' => 'en', 'href' => base_url('en/' . LocalizedPathCatalog::path('service.visa', 'en'))],
+            ['hreflang' => 'x-default', 'href' => base_url(LocalizedPathCatalog::path('service.visa', 'vi'))],
+        ];
         $data['pageContent'] = VisaPageContent::get($locale);
         $data['meta_image'] = base_url('assets/images/visa-banner.png');
         $data['meta_image_alt'] = $t('common.visaService');

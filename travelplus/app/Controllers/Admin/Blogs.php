@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Data\LocalizedPathCatalog;
+use App\Services\ImageOptimizationService;
 use App\Services\TextEncodingService;
 use DOMDocument;
 use DOMElement;
@@ -777,7 +778,24 @@ class Blogs extends BaseAdminController
         }
 
         $fileName = $filePrefix . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
-        $file->move($absoluteDir, $fileName);
+        if (! $file->move($absoluteDir, $fileName)) {
+            return '';
+        }
+
+        $maxDimension = str_contains($relativeDir, '/thumbnail')
+            ? 1400
+            : (str_contains($relativeDir, 'blogs-editor/') ? 1800 : 2400);
+        $optimization = (new ImageOptimizationService())->optimizeToWebp(
+            $absoluteDir . DIRECTORY_SEPARATOR . $fileName,
+            $maxDimension,
+            $maxDimension,
+            82,
+            true
+        );
+
+        if ($optimization['success']) {
+            $fileName = basename((string) $optimization['output_path']);
+        }
 
         return $relativeDir . '/' . $fileName;
     }

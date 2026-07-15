@@ -102,7 +102,7 @@ class TourCatalogService
                 ->get()
                 ->getResultArray();
 
-            return $this->mapRowsToCards($rows);
+            return $this->mapRowsToCards($rows, $locale);
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Promotional tours load failed');
 
@@ -196,7 +196,7 @@ class TourCatalogService
         }
 
         try {
-            $cards = $this->mapRowsToCards([$row]);
+            $cards = $this->mapRowsToCards([$row], $locale);
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Tour detail card mapping failed');
 
@@ -268,7 +268,7 @@ class TourCatalogService
                 ->get()
                 ->getResultArray();
 
-            $relatedTours = $this->mapRowsToCards($rows);
+            $relatedTours = $this->mapRowsToCards($rows, $locale);
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Related tours load failed');
 
@@ -343,7 +343,7 @@ class TourCatalogService
             ->getResultArray();
 
             return [
-                'tours'    => $this->mapRowsToCards($rows),
+                'tours'    => $this->mapRowsToCards($rows, $locale),
                 'total'    => $total,
                 'page'     => $page,
                 'perPage'  => $perPage,
@@ -461,7 +461,7 @@ class TourCatalogService
             ->getResultArray();
 
             return [
-                'tours' => $this->mapRowsToCards($rows),
+                'tours' => $this->mapRowsToCards($rows, $locale),
                 'total' => $total,
                 'page' => $page,
                 'perPage' => $perPage,
@@ -523,7 +523,7 @@ class TourCatalogService
         }
 
         try {
-            return $this->mapRowsToCards($rows);
+            return $this->mapRowsToCards($rows, $locale);
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Tour catalog mapping failed');
 
@@ -907,11 +907,10 @@ class TourCatalogService
      * @param array<int, array<string, mixed>> $rows
      * @return array<int, array<string, mixed>>
      */
-    private function mapRowsToCards(array $rows): array
+    private function mapRowsToCards(array $rows, string $locale): array
     {
         $cards = [];
         $domesticRegionService = new DomesticRegionService();
-        $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
         $tourDestinations = $this->fetchTourDestinations(array_values(array_filter(array_map(
             static fn(array $row): int => (int) ($row['id'] ?? 0),
             $rows
@@ -940,21 +939,21 @@ class TourCatalogService
             $destinationName = TextEncodingService::repairNullable($row['destination_name'] ?? '');
             $locationName = TextEncodingService::repairNullable($row['continent_name'] ?? 'International');
             $departureLocationName = TextEncodingService::repairNullable($row['departure_location_name'] ?? '');
-            $locationLink = !empty($row['continent_slug']) ? localized_url((string) $row['continent_slug']) : '#';
+            $locationLink = !empty($row['continent_slug']) ? localized_url_for((string) $row['continent_slug'], $locale) : '#';
 
             if ($tourType === 'inbound' && $destinationId > 0) {
-                $region = $domesticRegionService->getRegionByProvinceId(service('request')->getLocale(), $destinationId);
+                $region = $domesticRegionService->getRegionByProvinceId($locale, $destinationId);
 
                 if ($region !== null) {
                     $locationName = TextEncodingService::repairNullable($region['name'] ?? '');
-                    $locationLink = localized_url('tour-trong-nuoc/' . $region['slug']);
+                    $locationLink = localized_url_for('tour-trong-nuoc/' . $region['slug'], $locale);
                 }
             }
 
             $tourSlug = (string) ($row['slug'] ?? ('tour-' . $id));
             $tourLink = $tourType === 'inbound'
-                ? localized_url('tour-trong-nuoc/' . ($region['slug'] ?? 'viet-nam') . '/tour/' . $tourSlug)
-                : localized_url('tour-nuoc-ngoai/' . ((string) ($row['continent_slug'] ?? '') ?: 'diem-den') . '/' . $tourSlug);
+                ? localized_url_for('tour-trong-nuoc/' . ($region['slug'] ?? 'viet-nam') . '/tour/' . $tourSlug, $locale)
+                : localized_url_for('tour-nuoc-ngoai/' . ((string) ($row['continent_slug'] ?? '') ?: 'diem-den') . '/' . $tourSlug, $locale);
             $coverPath = (string) ($tourMedia[$id]['cover'] ?? $row['thumbnail'] ?? '');
             $bannerPath = (string) ($tourMedia[$id]['banner'] ?? $coverPath);
 

@@ -1,3 +1,15 @@
+<?php
+$stats = is_array($report['stats'] ?? null) ? $report['stats'] : [];
+$optimizable = is_array($report['optimizable'] ?? null) ? $report['optimizable'] : [];
+$orphans = is_array($report['orphans'] ?? null) ? $report['orphans'] : [];
+$formatBytes = static function (int $bytes): string {
+    if ($bytes >= 1024 * 1024) {
+        return number_format($bytes / 1024 / 1024, 1, ',', '.') . ' MB';
+    }
+
+    return number_format($bytes / 1024, 0, ',', '.') . ' KB';
+};
+?>
 <!doctype html>
 <html lang="vi">
 <head>
@@ -7,90 +19,195 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
     <style>
-        body { background:#f4f6f8; color:#172033; }
-        .admin-shell { max-width:1320px; margin:32px auto; padding:0 16px; }
-        .admin-card { background:#fff; border:1px solid #e6ebf0; border-radius:18px; box-shadow:0 16px 40px rgba(23,32,51,.06); padding:28px; }
-        .stat-card { background:#fbfcfe; border:1px solid #e5ebf2; border-radius:16px; padding:20px; height:100%; }
-        .stat-label { color:#6b778c; font-size:13px; margin-bottom:8px; }
-        .stat-value { font-size:30px; font-weight:700; line-height:1; }
-        .dashboard-toolbar { flex-wrap:wrap; justify-content:flex-end; }
-        .table td,.table th { vertical-align:middle; }
-        .path-cell { font-family:Consolas,monospace; font-size:13px; word-break:break-all; }
+        body { background:#f5f7fa; color:#172033; }
+        .media-page { max-width:1320px; margin:28px auto; padding:0 16px; display:grid; gap:18px; }
+        .media-panel { background:#fff; border:1px solid #dfe6ee; border-radius:8px; box-shadow:0 8px 24px rgba(24,39,75,.05); }
+        .media-hero { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:24px; }
+        .media-hero h1 { margin:0 0 7px; color:#0b1f38; font-size:28px; font-weight:800; line-height:1.2; }
+        .media-hero p { max-width:820px; margin:0; color:#65748a; line-height:1.55; }
+        .media-summary { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); border-top:1px solid #e5ebf2; }
+        .media-stat { min-width:0; padding:18px 20px; border-right:1px solid #e5ebf2; }
+        .media-stat:last-child { border-right:0; }
+        .media-stat span { display:block; margin-bottom:7px; color:#69788d; font-size:12px; font-weight:800; text-transform:uppercase; }
+        .media-stat strong { display:block; color:#0b1f38; font-size:27px; line-height:1; }
+        .media-stat small { display:block; margin-top:7px; color:#77859a; }
+        .media-stat.is-action strong { color:#006eae; }
+        .media-stat.is-danger strong { color:#bd3434; }
+        .media-section { padding:22px 24px 24px; }
+        .media-section__head { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; margin-bottom:16px; }
+        .media-section__head h2 { margin:0 0 5px; color:#0b1f38; font-size:21px; font-weight:800; }
+        .media-section__head p { margin:0; color:#69788d; }
+        .media-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; padding:11px 13px; border:1px solid #dce6ef; border-radius:8px; background:#f8fafc; }
+        .media-toolbar__selection { color:#33445c; font-weight:700; }
+        .media-toolbar__selection strong { color:#006eae; }
+        .media-table { margin:0; }
+        .media-table th { color:#69788d; font-size:12px; font-weight:800; text-transform:uppercase; white-space:nowrap; }
+        .media-table td { vertical-align:middle; }
+        .media-path { max-width:660px; color:#253851; font-family:Consolas,monospace; font-size:13px; overflow-wrap:anywhere; }
+        .media-type { display:inline-flex; min-width:48px; justify-content:center; padding:4px 7px; border-radius:6px; background:#eaf4fb; color:#006eae; font-size:11px; font-weight:800; }
+        .media-empty { padding:30px 16px; text-align:center; color:#69788d; }
+        .media-danger-note { color:#9d3a3a; font-size:13px; }
+        @media (max-width: 991px) {
+            .media-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .media-stat { border-bottom:1px solid #e5ebf2; }
+        }
+        @media (max-width: 767px) {
+            .media-page { margin:16px auto; padding:0 12px; }
+            .media-hero, .media-section { padding:18px; }
+            .media-hero, .media-section__head, .media-toolbar { display:grid; }
+            .media-hero h1 { font-size:24px; }
+            .media-summary { grid-template-columns:1fr 1fr; }
+            .media-stat { padding:15px; }
+            .media-stat strong { font-size:23px; }
+            .media-toolbar .btn { width:100%; }
+        }
     </style>
 </head>
 <body class="admin-app">
-<?php $adminSection = 'media_audit'; ?>
-<?= view('admin/partials/app_start', ['adminSection' => $adminSection]) ?>
-<main class="admin-shell">
-    <div class="admin-card mb-4">
-        <div class="d-flex justify-content-between align-items-start gap-3">
+<?= view('admin/partials/app_start', ['adminSection' => 'media_audit']) ?>
+<main class="media-page">
+    <section class="media-panel">
+        <div class="media-hero">
             <div>
-                <h1 class="h3 mb-1">Kiểm tra media</h1>
-                <p class="text-muted mb-0">Quét file trong <code>uploads/blogs</code> và <code>uploads/tours</code>, đối chiếu với dữ liệu đang được tham chiếu trong database.</p>
+                <h1>Kiểm tra và tối ưu media</h1>
+                <p>Kiểm tra ảnh đang được blog và tour sử dụng, chuyển ảnh JPG/PNG dung lượng lớn sang WebP và nhận diện file không còn được database tham chiếu.</p>
             </div>
         </div>
-    </div>
+        <div class="media-summary">
+            <div class="media-stat"><span>Ảnh blog</span><strong><?= esc((string) ($stats['blog_referenced'] ?? 0)) ?></strong><small>đang tham chiếu</small></div>
+            <div class="media-stat"><span>Ảnh tour</span><strong><?= esc((string) ($stats['tour_referenced'] ?? 0)) ?></strong><small>đang tham chiếu</small></div>
+            <div class="media-stat"><span>File trên ổ đĩa</span><strong><?= esc((string) ((int) ($stats['blog_on_disk'] ?? 0) + (int) ($stats['tour_on_disk'] ?? 0))) ?></strong><small>blog và tour</small></div>
+            <div class="media-stat is-action"><span>Có thể tối ưu</span><strong><?= esc((string) ($stats['optimizable_total'] ?? 0)) ?></strong><small><?= esc($formatBytes((int) ($stats['optimizable_bytes'] ?? 0))) ?></small></div>
+            <div class="media-stat is-danger"><span>File thừa</span><strong><?= esc((string) ($stats['orphan_total'] ?? 0)) ?></strong><small>không còn tham chiếu</small></div>
+        </div>
+    </section>
 
     <?php if (! empty($success)): ?>
-        <div class="alert alert-success"><?= esc((string) $success) ?></div>
+        <div class="alert alert-success mb-0"><?= esc((string) $success) ?></div>
     <?php endif; ?>
     <?php if (! empty($error)): ?>
-        <div class="alert alert-danger"><?= esc((string) $error) ?></div>
+        <div class="alert alert-danger mb-0"><?= esc((string) $error) ?></div>
     <?php endif; ?>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-4 col-xl-2"><div class="stat-card"><div class="stat-label">Blog refs</div><div class="stat-value"><?= esc((string) ($report['stats']['blog_referenced'] ?? 0)) ?></div></div></div>
-        <div class="col-md-4 col-xl-2"><div class="stat-card"><div class="stat-label">Tour refs</div><div class="stat-value"><?= esc((string) ($report['stats']['tour_referenced'] ?? 0)) ?></div></div></div>
-        <div class="col-md-4 col-xl-2"><div class="stat-card"><div class="stat-label">Blog files</div><div class="stat-value"><?= esc((string) ($report['stats']['blog_on_disk'] ?? 0)) ?></div></div></div>
-        <div class="col-md-4 col-xl-2"><div class="stat-card"><div class="stat-label">Tour files</div><div class="stat-value"><?= esc((string) ($report['stats']['tour_on_disk'] ?? 0)) ?></div></div></div>
-        <div class="col-md-4 col-xl-2"><div class="stat-card border-danger-subtle bg-danger-subtle"><div class="stat-label">Orphans</div><div class="stat-value"><?= esc((string) ($report['stats']['orphan_total'] ?? 0)) ?></div></div></div>
-    </div>
-
-    <div class="admin-card">
-        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-            <div>
-                <h2 class="h5 mb-1">File không còn được tham chiếu</h2>
-                <p class="text-muted mb-0">Danh sách này chỉ bao gồm file trong phạm vi quản lý của blog và tour.</p>
+    <section class="media-panel" id="optimize-media">
+        <form class="media-section" method="post" action="<?= site_url('admin/media-audit/optimize') ?>" data-media-optimize-form>
+            <?= csrf_field() ?>
+            <div class="media-section__head">
+                <div>
+                    <h2>Ảnh đang dùng cần tối ưu</h2>
+                    <p>Chỉ liệt kê JPG/PNG từ 300 KB. Mỗi lượt xử lý tối đa 30 ảnh để phù hợp shared hosting.</p>
+                </div>
             </div>
-            <?php if (! empty($report['orphans'])): ?>
-                <form method="post" action="<?= site_url('admin/media-audit/delete-orphans') ?>" onsubmit="return confirm('Xóa toàn bộ file mồ côi đang hiển thị?');">
-                    <?= csrf_field() ?>
-                    <?php foreach ($report['orphans'] as $orphan): ?>
-                        <input type="hidden" name="files[]" value="<?= esc((string) $orphan['path']) ?>">
-                    <?php endforeach; ?>
-                    <button type="submit" class="btn btn-danger">Xóa tất cả file thừa</button>
-                </form>
-            <?php endif; ?>
-        </div>
 
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                <tr>
-                    <th style="width:60px">#</th>
-                    <th>Path</th>
-                    <th style="width:140px">Size</th>
-                    <th style="width:190px">Modified</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php if (empty($report['orphans'])): ?>
-                    <tr><td colspan="4" class="text-center text-muted py-4">Không có file mồ côi trong phạm vi audit hiện tại.</td></tr>
-                <?php else: ?>
-                    <?php foreach ($report['orphans'] as $index => $orphan): ?>
-                        <tr>
-                            <td><?= esc((string) ($index + 1)) ?></td>
-                            <td class="path-cell"><?= esc((string) $orphan['path']) ?></td>
-                            <td><?= esc(number_format(((int) $orphan['size']) / 1024, 1, ',', '.')) ?> KB</td>
-                            <td><?= esc((string) $orphan['modified_at']) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
+            <div class="media-toolbar">
+                <div class="media-toolbar__selection">Đã chọn <strong data-media-selected-count>0</strong>/<?= esc((string) count($optimizable)) ?> ảnh</div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-outline-primary btn-sm" type="button" data-media-select-all <?= $optimizable === [] ? 'disabled' : '' ?>>Chọn tất cả</button>
+                    <button class="btn btn-outline-secondary btn-sm" type="button" data-media-clear <?= $optimizable === [] ? 'disabled' : '' ?>>Bỏ chọn</button>
+                    <button class="btn btn-primary btn-sm" type="submit" data-media-optimize-submit disabled>Tối ưu ảnh đã chọn</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table media-table align-middle">
+                    <thead><tr><th style="width:44px"></th><th>File</th><th style="width:90px">Loại</th><th style="width:130px">Dung lượng</th></tr></thead>
+                    <tbody>
+                    <?php if ($optimizable === []): ?>
+                        <tr><td colspan="4" class="media-empty">Không có ảnh JPG/PNG lớn cần tối ưu.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($optimizable as $item): ?>
+                            <tr data-media-row>
+                                <td><input class="form-check-input" type="checkbox" name="files[]" value="<?= esc((string) $item['path'], 'attr') ?>" data-media-checkbox aria-label="Chọn ảnh <?= esc((string) $item['path'], 'attr') ?>"></td>
+                                <td class="media-path"><?= esc((string) $item['path']) ?></td>
+                                <td><span class="media-type"><?= esc((string) $item['type']) ?></span></td>
+                                <td><?= esc($formatBytes((int) $item['size'])) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </section>
+
+    <section class="media-panel">
+        <div class="media-section">
+            <div class="media-section__head">
+                <div>
+                    <h2>File không còn được tham chiếu</h2>
+                    <p>Chỉ xóa khi chắc chắn các file này không còn cần dùng.</p>
+                </div>
+                <?php if ($orphans !== []): ?>
+                    <form method="post" action="<?= site_url('admin/media-audit/delete-orphans') ?>" onsubmit="return confirm('Xóa toàn bộ file thừa đang hiển thị?');">
+                        <?= csrf_field() ?>
+                        <?php foreach ($orphans as $orphan): ?>
+                            <input type="hidden" name="files[]" value="<?= esc((string) $orphan['path'], 'attr') ?>">
+                        <?php endforeach; ?>
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Xóa tất cả file thừa</button>
+                    </form>
                 <?php endif; ?>
-                </tbody>
-            </table>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table media-table align-middle">
+                    <thead><tr><th>File</th><th style="width:130px">Dung lượng</th><th style="width:180px">Cập nhật</th></tr></thead>
+                    <tbody>
+                    <?php if ($orphans === []): ?>
+                        <tr><td colspan="3" class="media-empty">Không có file thừa trong phạm vi đang quản lý.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($orphans as $orphan): ?>
+                            <tr>
+                                <td class="media-path"><?= esc((string) $orphan['path']) ?></td>
+                                <td><?= esc($formatBytes((int) $orphan['size'])) ?></td>
+                                <td><?= esc((string) $orphan['modified_at']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php if ($orphans !== []): ?><div class="media-danger-note mt-2">Xóa file là thao tác không thể hoàn tác.</div><?php endif; ?>
         </div>
-    </div>
+    </section>
 </main>
 <?= view('admin/partials/app_end') ?>
+<script>
+(function () {
+    const form = document.querySelector('[data-media-optimize-form]');
+    if (!form) return;
+
+    const checkboxes = Array.from(form.querySelectorAll('[data-media-checkbox]'));
+    const rows = Array.from(form.querySelectorAll('[data-media-row]'));
+    const count = form.querySelector('[data-media-selected-count]');
+    const submit = form.querySelector('[data-media-optimize-submit]');
+
+    function update() {
+        const selected = checkboxes.filter((checkbox) => checkbox.checked).length;
+        if (count) count.textContent = String(selected);
+        if (submit) submit.disabled = selected === 0;
+        rows.forEach((row) => {
+            const checkbox = row.querySelector('[data-media-checkbox]');
+            row.classList.toggle('table-primary', Boolean(checkbox && checkbox.checked));
+        });
+    }
+
+    form.querySelector('[data-media-select-all]')?.addEventListener('click', () => {
+        checkboxes.forEach((checkbox) => { checkbox.checked = true; });
+        update();
+    });
+    form.querySelector('[data-media-clear]')?.addEventListener('click', () => {
+        checkboxes.forEach((checkbox) => { checkbox.checked = false; });
+        update();
+    });
+    checkboxes.forEach((checkbox) => checkbox.addEventListener('change', update));
+    form.addEventListener('submit', (event) => {
+        const selected = checkboxes.filter((checkbox) => checkbox.checked).length;
+        if (selected === 0 || !window.confirm(`Tối ưu ${Math.min(selected, 30)} ảnh đã chọn sang WebP?`)) {
+            event.preventDefault();
+        }
+    });
+    update();
+})();
+</script>
 </body>
 </html>

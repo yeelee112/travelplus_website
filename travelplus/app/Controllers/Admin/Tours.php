@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Services\DomesticRegionService;
+use App\Services\ImageOptimizationService;
 use Throwable;
 
 class Tours extends BaseAdminController
@@ -1400,6 +1401,19 @@ class Tours extends BaseAdminController
                 log_message('error', 'Tour media upload failed for tour #' . $tourId . ': could not move file to ' . $absoluteDir);
 
                 return '';
+            }
+
+            $maxDimension = in_array($safeType, ['cover', 'banner'], true) ? 2400 : 2000;
+            $optimization = (new ImageOptimizationService())->optimizeToWebp(
+                $absoluteDir . DIRECTORY_SEPARATOR . $fileName,
+                $maxDimension,
+                $maxDimension,
+                82,
+                true
+            );
+
+            if ($optimization['success']) {
+                $fileName = basename((string) $optimization['output_path']);
             }
         } catch (Throwable $exception) {
             log_message('error', 'Tour media upload failed for tour #' . $tourId . ': ' . $exception->getMessage());

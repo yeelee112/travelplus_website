@@ -12,7 +12,7 @@ class Sitemap extends Controller
     public function index()
     {
         $locales = ['vi', 'en'];
-        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"></urlset>');
         $urls = [];
         $staticLastmod = $this->lastModifiedFromFiles([
             APPPATH . 'Config/Routes.php',
@@ -59,6 +59,8 @@ class Sitemap extends Controller
                     'lastmod' => $staticLastmod,
                     'changefreq' => $path === '' || $path === 'en' ? 'daily' : 'weekly',
                     'priority' => $path === '' || $path === 'en' ? '1.0' : '0.8',
+                    'locale' => $locale,
+                    'group' => $path === '' || $path === 'en' ? 'static:home' : 'static:' . $this->staticPathGroup($path, $locale),
                 ];
             }
         }
@@ -76,6 +78,8 @@ class Sitemap extends Controller
                     'loc' => (string) $tour['link'],
                     'changefreq' => 'weekly',
                     'priority' => '0.7',
+                    'locale' => $locale,
+                    'group' => 'tour:' . (string) ($tour['id'] ?? md5((string) $tour['link'])),
                 ];
             }
         }
@@ -93,8 +97,21 @@ class Sitemap extends Controller
                         'lastmod' => $this->sitemapDate((string) ($blog['updated_at'] ?? $blog['published_at'] ?? '')),
                         'changefreq' => 'weekly',
                         'priority' => '0.6',
+                        'locale' => $locale,
+                        'group' => 'blog:' . (string) ($blog['id'] ?? md5((string) $blog['link'])),
                     ];
                 }
+            }
+        }
+
+        $alternateGroups = [];
+        foreach ($urls as $entry) {
+            $group = (string) ($entry['group'] ?? '');
+            $locale = (string) ($entry['locale'] ?? '');
+            $loc = (string) ($entry['loc'] ?? '');
+
+            if ($group !== '' && in_array($locale, $locales, true) && $loc !== '') {
+                $alternateGroups[$group][$locale] = $loc;
             }
         }
 
@@ -115,6 +132,21 @@ class Sitemap extends Controller
             }
             $url->addChild('changefreq', (string) ($entry['changefreq'] ?? 'weekly'));
             $url->addChild('priority', (string) ($entry['priority'] ?? '0.7'));
+
+            $alternates = $alternateGroups[(string) ($entry['group'] ?? '')] ?? [];
+            if (isset($alternates['vi'], $alternates['en'])) {
+                foreach (['vi', 'en'] as $alternateLocale) {
+                    $link = $url->addChild('link', null, 'http://www.w3.org/1999/xhtml');
+                    $link->addAttribute('rel', 'alternate');
+                    $link->addAttribute('hreflang', $alternateLocale);
+                    $link->addAttribute('href', $alternates[$alternateLocale]);
+                }
+
+                $defaultLink = $url->addChild('link', null, 'http://www.w3.org/1999/xhtml');
+                $defaultLink->addAttribute('rel', 'alternate');
+                $defaultLink->addAttribute('hreflang', 'x-default');
+                $defaultLink->addAttribute('href', $alternates['vi']);
+            }
         }
 
         return $this->response->setContentType('application/xml')->setBody($xml->asXML());
@@ -153,5 +185,31 @@ class Sitemap extends Controller
         $timestamp = strtotime($value);
 
         return $timestamp === false ? '' : gmdate('Y-m-d', $timestamp);
+    }
+
+    private function staticPathGroup(string $path, string $locale): string
+    {
+        $path = trim($path, '/');
+
+        if ($locale === 'en' && str_starts_with($path, 'en/')) {
+            $path = substr($path, 3);
+        }
+
+        foreach ([
+            'travel-inspiration' => 'cam-hung-du-lich',
+            'summer-tours' => 'tour-he',
+            'airline-ticket-service' => 'dich-vu-ve-may-bay',
+            'transport-service' => 'dich-vu-van-chuyen',
+            'translation-service' => 'dich-vu-dich-thuat',
+            'hotel-service' => 'dich-vu-khach-san',
+            'terms-of-service' => 'dieu-khoan-su-dung',
+            'privacy-statement' => 'chinh-sach-bao-mat',
+        ] as $englishPath => $vietnamesePath) {
+            if ($path === $englishPath) {
+                return $vietnamesePath;
+            }
+        }
+
+        return $path;
     }
 }

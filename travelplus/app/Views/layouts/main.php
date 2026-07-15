@@ -22,22 +22,25 @@ $schemaGraph = is_array($schema_graph ?? null) ? array_values(array_filter($sche
 $ogLocale = $currentLocale === 'en' ? 'en_US' : 'vi_VN';
 $requestUri = service('request')->getUri();
 $firstSegment = $requestUri->getSegment(1);
+$routeSegment = $currentLocale === 'en' && $firstSegment === 'en'
+    ? $requestUri->getSegment(2)
+    : $firstSegment;
 $requestPath = trim((string) $requestUri->getPath(), '/');
 $bodyClass = $requestPath === '' || ($currentLocale === 'en' && $requestPath === 'en')
     ? 'is-home-page'
     : 'is-inner-page';
 $isContactPage = $requestPath === 'contact' || str_ends_with($requestPath, '/contact');
-$isFocusedFlow = in_array($firstSegment, ['account', 'auth', 'booking'], true);
-$showAiChatbox = ! in_array($firstSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
-$showTourTools = ! in_array($firstSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
-$showCookieConsent = ! in_array($firstSegment, ['admin', 'api'], true);
+$isFocusedFlow = in_array($routeSegment, ['account', 'auth', 'booking'], true);
+$showAiChatbox = ! in_array($routeSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
+$showTourTools = ! in_array($routeSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
+$showCookieConsent = ! in_array($routeSegment, ['admin', 'api'], true);
 $contentSection = $this->renderSection('content');
 $usesSwiper = str_contains($contentSection, 'swiper-wrapper');
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
 $isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
 $googleAnalyticsId = 'G-W2FBGJD5YK';
-if (str_starts_with($requestHost, 'demo.') || in_array($firstSegment, ['account', 'auth', 'booking'], true)) {
+if (str_starts_with($requestHost, 'demo.') || $isFocusedFlow) {
     $metaRobots = 'noindex,nofollow,max-image-preview:large';
 }
 $hasMinifiedStyle = is_file($publicPath . DIRECTORY_SEPARATOR . 'assets/css/style.min.css');

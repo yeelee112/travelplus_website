@@ -271,7 +271,7 @@ class FeaturedDestinationCatalog
                         'subtitle' => ['vi' => 'Châu Đại Dương', 'en' => 'Oceania'],
                         'continent_slug' => ['vi' => 'chau-dai-duong', 'en' => 'oceania'],
                         'destination_slug' => ['vi' => 'new-zealand', 'en' => 'new-zealand'],
-                        'image' => 'assets/images/destination/new-zealand.png',
+                        'image' => 'assets/images/destination/new-zealand.webp',
                     ]
                 ],
             ]
