@@ -124,6 +124,30 @@ class SystemHealthService
     }
 
     /**
+     * @return array{status: string, upload_bytes: int, post_bytes: int, effective_bytes: int, bottleneck: string}
+     */
+    public static function evaluateUploadLimits(string $uploadValue, string $postValue): array
+    {
+        $uploadBytes = self::iniBytes($uploadValue);
+        $postBytes = self::iniBytes($postValue);
+        $postIsUnlimited = $postBytes === 0 && trim($postValue) === '0';
+        $effectiveBytes = $postIsUnlimited ? $uploadBytes : min($uploadBytes, $postBytes);
+        $bottleneck = $postIsUnlimited
+            ? 'upload_max_filesize'
+            : ($uploadBytes === $postBytes
+                ? 'both'
+                : ($uploadBytes < $postBytes ? 'upload_max_filesize' : 'post_max_size'));
+
+        return [
+            'status' => $effectiveBytes >= 8 * 1024 * 1024 ? self::STATUS_OK : self::STATUS_WARNING,
+            'upload_bytes' => $uploadBytes,
+            'post_bytes' => $postBytes,
+            'effective_bytes' => $effectiveBytes,
+            'bottleneck' => $bottleneck,
+        ];
+    }
+
+    /**
      * @return list<string>
      */
     public static function expectedIndexNames(): array
@@ -185,6 +209,7 @@ class SystemHealthService
                         : 'Đang thiếu: ' . implode(', ', $missingExtensions) . '.',
                     'Bật các extension còn thiếu trong PHP Selector của hosting.'
                 ),
+                $this->inspectPhpConfiguration(),
                 $this->inspectUploadLimit(),
             ]
         );
@@ -412,18 +437,54 @@ class SystemHealthService
      */
     private function inspectUploadLimit(): array
     {
-        $uploadBytes = $this->iniBytes((string) ini_get('upload_max_filesize'));
-        $postBytes = $this->iniBytes((string) ini_get('post_max_size'));
-        $effectiveBytes = min($uploadBytes, $postBytes);
-        $status = $effectiveBytes >= 8 * 1024 * 1024 ? self::STATUS_OK : self::STATUS_WARNING;
+        $uploadValue = (string) ini_get('upload_max_filesize');
+        $postValue = (string) ini_get('post_max_size');
+        $limits = self::evaluateUploadLimits($uploadValue, $postValue);
+        $status = $limits['status'];
+        $bottleneckLabel = match ($limits['bottleneck']) {
+            'upload_max_filesize' => 'upload_max_filesize đang là giới hạn thấp hơn.',
+            'post_max_size' => 'post_max_size đang là giới hạn thấp hơn.',
+            default => 'Hai giới hạn đang bằng nhau.',
+        };
 
         return $this->check(
             'upload_limit',
             'Giới hạn tải file',
             $status,
-            $this->formatBytes($effectiveBytes),
-            $status === self::STATUS_OK ? 'Đủ cho phần lớn ảnh tour và bài viết.' : 'Giới hạn thấp có thể làm upload ảnh dung lượng lớn thất bại.',
-            'Tăng upload_max_filesize và post_max_size lên tối thiểu 8M trong PHP Options.'
+            $this->formatBytes($limits['effective_bytes']) . ' hiệu lực',
+            'upload_max_filesize: ' . ($uploadValue !== '' ? $uploadValue : 'không xác định')
+                . ' · post_max_size: ' . ($postValue !== '' ? $postValue : 'không xác định')
+                . '. ' . $bottleneckLabel,
+            'Chỉnh đúng PHP handler/domain: upload_max_filesize tối thiểu 8M và post_max_size lớn hơn giới hạn mỗi file.'
+        );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function inspectPhpConfiguration(): array
+    {
+        $sapi = PHP_SAPI;
+        $loadedIni = php_ini_loaded_file();
+        $loadedIni = is_string($loadedIni) && $loadedIni !== '' ? $loadedIni : 'Không có php.ini được nạp';
+        $normalizedPath = strtolower(str_replace('\\', '/', $loadedIni));
+        $family = match (true) {
+            str_contains($normalizedPath, '/opt/alt/php') => 'CloudLinux Alt-PHP',
+            str_contains($normalizedPath, 'ea-php') => 'cPanel EA-PHP',
+            default => 'PHP hệ thống',
+        };
+        $scannedFiles = php_ini_scanned_files();
+        $scannedCount = is_string($scannedFiles) && trim($scannedFiles) !== ''
+            ? count(array_filter(array_map('trim', explode(',', $scannedFiles))))
+            : 0;
+
+        return $this->check(
+            'php_configuration',
+            'PHP handler và cấu hình',
+            self::STATUS_OK,
+            $family . ' · ' . $sapi,
+            'php.ini đang nạp: ' . $loadedIni . '. File INI bổ sung: ' . $scannedCount . '.',
+            ''
         );
     }
 
@@ -472,7 +533,7 @@ class SystemHealthService
         return compact('key', 'label', 'status', 'value', 'detail', 'action');
     }
 
-    private function iniBytes(string $value): int
+    private static function iniBytes(string $value): int
     {
         $value = trim($value);
         if ($value === '') {

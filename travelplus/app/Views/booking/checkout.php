@@ -41,11 +41,10 @@ if ($infantQuantity > 0) {
 
 $travelerSummary = $travelerParts !== [] ? implode(', ', $travelerParts) : '-';
 $durationLabelDisplay = trim((string) ($booking['duration_label'] ?? '-'));
-if ($locale !== 'en' && $durationLabelDisplay !== '' && $durationLabelDisplay !== '-') {
-    $durationLabelDisplay = strtr($durationLabelDisplay, [
-        'Ngay' => 'Ngày',
-        'Dem' => 'Đêm',
-    ]);
+if ($durationLabelDisplay !== '' && $durationLabelDisplay !== '-') {
+    $durationLabelDisplay = $locale === 'en'
+        ? strtr($durationLabelDisplay, ['Ngày' => 'Days', 'Ngay' => 'Days', 'Đêm' => 'Nights', 'Dem' => 'Nights'])
+        : strtr($durationLabelDisplay, ['Ngay' => 'Ngày', 'Dem' => 'Đêm']);
 }
 $couponUi = $locale === 'en'
     ? [
@@ -56,7 +55,7 @@ $couponUi = $locale === 'en'
         'discount' => 'Discount',
         'current' => 'Current coupon',
         'none' => 'No coupon applied',
-        'hint' => 'Enter a code and the final amount will update immediately.',
+        'hint' => $t('checkout.couponAlert'),
     ]
     : [
         'placeholder' => 'Nhập mã khuyến mãi',
@@ -66,7 +65,7 @@ $couponUi = $locale === 'en'
         'discount' => 'Giảm giá',
         'current' => 'Mã đang áp dụng',
         'none' => 'Chưa áp dụng mã',
-        'hint' => 'Nhập mã để hệ thống cập nhật ngay số tiền cần thanh toán.',
+        'hint' => $t('checkout.couponAlert'),
     ];
 $singleRoomLabel = $locale === 'en' ? 'Single room supplement' : 'Phụ thu phòng đơn';
 $tourPriceLabel = $locale === 'en' ? 'Tour price' : 'Giá tour';
@@ -223,7 +222,7 @@ $singleRoomValueLabel = $locale === 'en'
                                         </div>
                                         <div class="checkout-card-head__actions">
                                             <button type="button" class="checkout-text-btn" data-price-breakdown-toggle><?= esc($t('checkout.viewPriceBreakdown')) ?></button>
-                                            <button type="button" class="checkout-text-btn" data-step-prev="1">Chỉnh sửa thông tin</button>
+                                            <button type="button" class="checkout-text-btn" data-step-prev="1"><?= esc($t('checkout.editInfo')) ?></button>
                                         </div>
                                     </div>
 
@@ -270,24 +269,25 @@ $singleRoomValueLabel = $locale === 'en'
                                     <div class="checkout-coupon-row">
                                         <label for="checkout-coupon"><?= esc($t('checkout.couponCode')) ?></label>
                                         <div class="checkout-coupon-input">
-                                            <input type="text" id="checkout-coupon" value="<?= esc($couponCode, 'attr') ?>" placeholder="<?= esc($couponUi['placeholder'], 'attr') ?>"<?= $couponCode !== '' ? ' hidden' : '' ?>>
+                                            <input type="text" id="checkout-coupon" value="<?= esc($couponCode, 'attr') ?>" placeholder="<?= esc($couponUi['placeholder'], 'attr') ?>" maxlength="50" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="checkout-coupon-help checkout-coupon-feedback"<?= $couponCode !== '' ? ' hidden' : '' ?>>
                                             <button type="button" class="checkout-text-btn" data-coupon-apply<?= $couponCode !== '' ? ' hidden' : '' ?>><?= esc($t('checkout.apply')) ?></button>
                                             <div class="checkout-coupon-chip<?= $couponCode === '' ? ' hidden' : '' ?>" data-coupon-chip>
                                                 <span data-coupon-chip-text><?= esc($couponName !== '' ? $couponName . ' (' . $couponCode . ')' : $couponCode) ?></span>
                                                 <button type="button" class="checkout-coupon-chip__remove" data-coupon-remove aria-label="<?= esc($couponUi['remove'], 'attr') ?>">×</button>
                                             </div>
                                         </div>
-                                        <p class="small mb-0 checkout-coupon-feedback text-muted" data-coupon-message hidden></p>
+                                        <p class="checkout-coupon-hint" id="checkout-coupon-help"><?= esc($couponUi['hint']) ?></p>
+                                        <p class="small mb-0 checkout-coupon-feedback text-muted" id="checkout-coupon-feedback" data-coupon-message role="status" aria-live="polite" hidden></p>
                                     </div>
 
                                     <div class="checkout-summary-subpanel checkout-summary-subpanel--plans">
-                                        <div class="checkout-section-subtitle">Hình thức thanh toán</div>
+                                        <div class="checkout-section-subtitle"><?= esc($t('checkout.paymentPlan')) ?></div>
                                         <div class="checkout-plan-options">
                                             <label class="checkout-plan-option checkout-plan-option--inline">
                                                 <input type="radio" name="payment_plan" value="full" data-payment-plan="full">
                                                 <span class="checkout-plan-option__copy">
                                                     <strong><?= esc($t('checkout.payFull')) ?></strong>
-                                                    <small>Thanh toán đủ một lần.</small>
+                                                    <small><?= esc($t('checkout.payFullHint')) ?></small>
                                                 </span>
                                                 <span class="checkout-plan-option__amount" data-plan-preview="full"><?= esc($formatCurrency($grandTotal)) ?></span>
                                             </label>
@@ -295,7 +295,7 @@ $singleRoomValueLabel = $locale === 'en'
                                                 <input type="radio" name="payment_plan" value="deposit" data-payment-plan="deposit" checked>
                                                 <span class="checkout-plan-option__copy">
                                                     <strong><?= esc($t('checkout.payDeposit')) ?></strong>
-                                                    <small>Giữ chỗ trước, thanh toán phần còn lại sau.</small>
+                                                    <small><?= esc($t('checkout.payDepositHint')) ?></small>
                                                 </span>
                                                 <span class="checkout-plan-option__amount" data-plan-preview="deposit"><?= esc($formatCurrency($depositAmount)) ?></span>
                                             </label>
@@ -394,7 +394,7 @@ $singleRoomValueLabel = $locale === 'en'
                                             </div>
                                         </div>
                                         <div class="checkout-summary-group">
-                                            <div class="checkout-summary-section-title">Thanh toán</div>
+                                            <div class="checkout-summary-section-title"><?= esc($t('checkout.step2')) ?></div>
                                             <div class="checkout-summary-pricing">
                                                 <div class="checkout-summary-price-row">
                                                     <span><?= esc($tourPriceLabel) ?></span>
@@ -406,7 +406,7 @@ $singleRoomValueLabel = $locale === 'en'
                                                         <strong data-single-room-amount><?= esc($formatCurrency($singleRoomSupplementAmount)) ?></strong>
                                                     </div>
                                                 <?php endif; ?>
-                                                <div class="checkout-summary-price-row">
+                                                <div class="checkout-summary-price-row" data-discount-row<?= $discountAmount <= 0 ? ' hidden' : '' ?>>
                                                     <span><?= esc($couponUi['discount']) ?></span>
                                                     <strong data-discount-amount>-<?= esc($formatCurrency($discountAmount)) ?></strong>
                                                 </div>
@@ -473,6 +473,10 @@ $singleRoomValueLabel = $locale === 'en'
                                     <span><?= esc($couponUi['current']) ?></span>
                                     <strong data-coupon-current-finish><?= esc($couponCode !== '' ? ($couponName !== '' ? $couponName . ' (' . $couponCode . ')' : $couponCode) : $couponUi['none']) ?></strong>
                                 </div>
+                                <div class="checkout-finish-item" data-discount-row<?= $discountAmount <= 0 ? ' hidden' : '' ?>>
+                                    <span><?= esc($couponUi['discount']) ?></span>
+                                    <strong data-discount-amount>-<?= esc($formatCurrency($discountAmount)) ?></strong>
+                                </div>
                                 <?php if ($singleRoomSupplementAmount > 0): ?>
                                     <div class="checkout-finish-item" data-single-room-row>
                                         <span><?= esc($singleRoomLabel) ?></span>
@@ -537,6 +541,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const baseSubtotalOutputs = Array.from(root.querySelectorAll('[data-base-subtotal-amount]'));
     const singleRoomOutputs = Array.from(root.querySelectorAll('[data-single-room-amount]'));
     const discountOutputs = Array.from(root.querySelectorAll('[data-discount-amount]'));
+    const discountRows = Array.from(root.querySelectorAll('[data-discount-row]'));
     const singleRoomRows = Array.from(root.querySelectorAll('[data-single-room-row]'));
     const errorBox = root.querySelector('[data-step-error]');
     const termsCheckbox = root.querySelector('[data-agree-terms]');
@@ -787,6 +792,10 @@ document.addEventListener('DOMContentLoaded', function () {
             output.textContent = '-' + formatCurrency(Number(pricingState.discount) || 0);
         });
 
+        discountRows.forEach(function (row) {
+            row.hidden = (Number(pricingState.discount) || 0) <= 0;
+        });
+
         singleRoomRows.forEach(function (row) {
             row.hidden = (Number(pricingState.singleRoomSupplement) || 0) <= 0;
         });
@@ -868,7 +877,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-    const submitCouponCode = async function (couponCode) {
+    const submitCouponCode = async function (couponCode, action) {
         if (!couponApplyUrl || !couponInput) {
             return;
         }
@@ -880,6 +889,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData();
             appendCsrf(formData);
             formData.append('coupon_code', couponCode);
+            formData.append('action', action === 'remove' ? 'remove' : 'apply');
 
             const response = await fetch(couponApplyUrl, {
                 method: 'POST',
@@ -1427,13 +1437,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (couponApplyButton && couponInput) {
         couponApplyButton.addEventListener('click', async function () {
-            await submitCouponCode(couponInput.value.trim());
+            await submitCouponCode(couponInput.value.trim(), 'apply');
         });
     }
 
     if (couponRemoveButton) {
         couponRemoveButton.addEventListener('click', async function () {
-            await submitCouponCode('');
+            await submitCouponCode('', 'remove');
         });
     }
 
@@ -1444,7 +1454,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             event.preventDefault();
-            await submitCouponCode(couponInput.value.trim());
+            await submitCouponCode(couponInput.value.trim(), 'apply');
         });
     }
 

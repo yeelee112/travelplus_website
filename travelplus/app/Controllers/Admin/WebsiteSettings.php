@@ -34,6 +34,17 @@ class WebsiteSettings extends BaseAdminController
             'messenger_url' => trim((string) $this->request->getPost('messenger_url')),
             'youtube_url' => trim((string) $this->request->getPost('youtube_url')),
             'zalo_url' => trim((string) $this->request->getPost('zalo_url')),
+            'company_tax_id' => trim((string) $this->request->getPost('company_tax_id')),
+            'travel_license' => trim((string) $this->request->getPost('travel_license')),
+            'office_hcm_address_vi' => trim((string) $this->request->getPost('office_hcm_address_vi')),
+            'office_hcm_address_en' => trim((string) $this->request->getPost('office_hcm_address_en')),
+            'office_hcm_map_url' => trim((string) $this->request->getPost('office_hcm_map_url')),
+            'office_hanoi_address_vi' => trim((string) $this->request->getPost('office_hanoi_address_vi')),
+            'office_hanoi_address_en' => trim((string) $this->request->getPost('office_hanoi_address_en')),
+            'office_hanoi_map_url' => trim((string) $this->request->getPost('office_hanoi_map_url')),
+            'office_danang_address_vi' => trim((string) $this->request->getPost('office_danang_address_vi')),
+            'office_danang_address_en' => trim((string) $this->request->getPost('office_danang_address_en')),
+            'office_danang_map_url' => trim((string) $this->request->getPost('office_danang_map_url')),
         ];
         $errors = $this->validateValues($values);
 
@@ -45,7 +56,7 @@ class WebsiteSettings extends BaseAdminController
             return redirect()->back()->withInput()->with('error', 'Không thể lưu cấu hình. Hãy kiểm tra quyền ghi thư mục writable/stats.');
         }
 
-        return redirect()->to(site_url('admin/website-settings'))->with('success', 'Đã cập nhật thông tin liên hệ trên website.');
+        return redirect()->to(site_url('admin/website-settings'))->with('success', 'Đã cập nhật thông tin công khai trên website.');
     }
 
     /**
@@ -67,11 +78,24 @@ class WebsiteSettings extends BaseAdminController
         if (filter_var($values['email'], FILTER_VALIDATE_EMAIL) === false) {
             $errors[] = 'Email liên hệ không hợp lệ.';
         }
+        if (preg_match('/^[0-9-]{8,20}$/', $values['company_tax_id']) !== 1) {
+            $errors[] = 'Mã số thuế không hợp lệ.';
+        }
+        if ($values['travel_license'] === '' || mb_strlen($values['travel_license']) > 120) {
+            $errors[] = 'Số giấy phép lữ hành không hợp lệ.';
+        }
 
-        foreach (['facebook_url', 'messenger_url', 'youtube_url', 'zalo_url'] as $key) {
+        foreach (['facebook_url', 'messenger_url', 'youtube_url', 'zalo_url', 'office_hcm_map_url', 'office_hanoi_map_url', 'office_danang_map_url'] as $key) {
             $url = $values[$key];
             if (filter_var($url, FILTER_VALIDATE_URL) === false || ! str_starts_with(strtolower($url), 'https://')) {
-                $errors[] = 'Các liên kết mạng xã hội phải là URL HTTPS đầy đủ.';
+                $errors[] = 'Các liên kết mạng xã hội và bản đồ phải là URL HTTPS đầy đủ.';
+                break;
+            }
+        }
+
+        foreach (['office_hcm_address_vi', 'office_hcm_address_en', 'office_hanoi_address_vi', 'office_hanoi_address_en', 'office_danang_address_vi', 'office_danang_address_en'] as $key) {
+            if ($values[$key] === '' || mb_strlen($values[$key]) > 300) {
+                $errors[] = 'Địa chỉ văn phòng không được để trống và tối đa 300 ký tự.';
                 break;
             }
         }

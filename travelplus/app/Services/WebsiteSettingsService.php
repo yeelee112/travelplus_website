@@ -16,6 +16,17 @@ class WebsiteSettingsService
         'messenger_url' => 'https://m.me/uuthedulich.vietnam',
         'youtube_url' => 'https://www.youtube.com/@TravelPlus2023',
         'zalo_url' => 'https://zalo.me/84795681568',
+        'company_tax_id' => '0305475784',
+        'travel_license' => '79-114/2014/TCDL-GP LHQT',
+        'office_hcm_address_vi' => '3/30A đường Thích Quảng Đức, Phường Đức Nhuận, TP.HCM',
+        'office_hcm_address_en' => '3/30A Thich Quang Duc Street, Duc Nhuan Ward, Ho Chi Minh City',
+        'office_hcm_map_url' => 'https://maps.app.goo.gl/PkqKgEp4rthxbNUn9',
+        'office_hanoi_address_vi' => '47 đường Lê Văn Hưu, Phường Hai Bà Trưng, Hà Nội',
+        'office_hanoi_address_en' => '47 Le Van Huu Street, Hai Ba Trung Ward, Hanoi',
+        'office_hanoi_map_url' => 'https://maps.app.goo.gl/9Q5he5PYRqdr1bdEA',
+        'office_danang_address_vi' => 'Tầng 4 Tòa nhà Trực thăng Miền Trung, đường Nguyễn Văn Linh, Phường Hòa Cường, Đà Nẵng',
+        'office_danang_address_en' => '4th Floor, Mien Trung Helicopter Building, Nguyen Van Linh Street, Hoa Cuong Ward, Da Nang',
+        'office_danang_map_url' => 'https://maps.app.goo.gl/FFjiLtqRNWxAjvASA',
     ];
 
     /**

@@ -11141,7 +11141,12 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     font-size:18px;
     line-height:1;
     padding:0;}
-.checkout-coupon-feedback {min-height:20px;}
+.checkout-coupon-hint {margin:9px 0 0;
+    color:#6f7e8f;
+    font-size:12px;
+    line-height:1.5;}
+.checkout-coupon-feedback {min-height:20px;
+    margin-top:7px;}
 .checkout-text-btn {border:0;
     background:transparent;
     color:#0f2740;
@@ -11597,6 +11602,11 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
 .checkout-price-panel {padding:16px;}
 }
 @media (max-width: 767px) {
+    .checkout-stepper-page > .row {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
     .checkout-stepper-pane[data-step-pane="2"] .row.g-4 {
         gap: 18px;
     }

@@ -46,4 +46,26 @@ final class SystemHealthServiceTest extends CIUnitTestCase
         $this->assertSame(SystemHealthService::STATUS_ERROR, $missing['status']);
         $this->assertSame(0, $missing['installed']);
     }
+
+    public function testUploadLimitsReportTheEffectiveValueAndBottleneck(): void
+    {
+        $healthy = SystemHealthService::evaluateUploadLimits('8M', '256M');
+        $unlimitedPost = SystemHealthService::evaluateUploadLimits('8M', '0');
+        $uploadLimited = SystemHealthService::evaluateUploadLimits('2M', '256M');
+        $postLimited = SystemHealthService::evaluateUploadLimits('256M', '2M');
+
+        $this->assertSame(SystemHealthService::STATUS_OK, $healthy['status']);
+        $this->assertSame(8 * 1024 * 1024, $healthy['effective_bytes']);
+        $this->assertSame('upload_max_filesize', $healthy['bottleneck']);
+        $this->assertSame(8 * 1024 * 1024, $unlimitedPost['effective_bytes']);
+        $this->assertSame(SystemHealthService::STATUS_OK, $unlimitedPost['status']);
+
+        $this->assertSame(SystemHealthService::STATUS_WARNING, $uploadLimited['status']);
+        $this->assertSame('upload_max_filesize', $uploadLimited['bottleneck']);
+        $this->assertSame(2 * 1024 * 1024, $uploadLimited['effective_bytes']);
+
+        $this->assertSame(SystemHealthService::STATUS_WARNING, $postLimited['status']);
+        $this->assertSame('post_max_size', $postLimited['bottleneck']);
+        $this->assertSame(2 * 1024 * 1024, $postLimited['effective_bytes']);
+    }
 }

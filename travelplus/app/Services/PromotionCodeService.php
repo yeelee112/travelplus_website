@@ -70,22 +70,12 @@ class PromotionCodeService
             return $this->failure('tourMismatch', $subtotal, $subtotal);
         }
 
-        $discountType = (string) ($promotion['discount_type'] ?? 'fixed');
-        $discountValue = max(0, (float) ($promotion['discount_value'] ?? 0));
-        $discountAmount = 0.0;
-
-        if ($discountType === 'percent') {
-            $discountAmount = round($eligibleSubtotal * ($discountValue / 100), 0);
-            $maxDiscount = max(0, (float) ($promotion['max_discount_amount'] ?? 0));
-
-            if ($maxDiscount > 0) {
-                $discountAmount = min($discountAmount, $maxDiscount);
-            }
-        } else {
-            $discountAmount = $discountValue;
-        }
-
-        $discountAmount = min($eligibleSubtotal, max(0, $discountAmount));
+        $discountAmount = self::calculateDiscount(
+            (string) ($promotion['discount_type'] ?? 'fixed'),
+            (float) ($promotion['discount_value'] ?? 0),
+            $eligibleSubtotal,
+            (float) ($promotion['max_discount_amount'] ?? 0)
+        );
         $grandTotal = max(0, $subtotal - $discountAmount);
 
         if ($discountAmount <= 0) {
@@ -100,6 +90,31 @@ class PromotionCodeService
             'subtotal' => $subtotal,
             'grand_total' => $grandTotal,
         ];
+    }
+
+    public static function calculateDiscount(
+        string $discountType,
+        float $discountValue,
+        float $eligibleSubtotal,
+        float $maxDiscount = 0
+    ): float
+    {
+        $eligibleSubtotal = max(0, $eligibleSubtotal);
+        $discountValue = max(0, $discountValue);
+
+        if ($eligibleSubtotal <= 0 || $discountValue <= 0) {
+            return 0.0;
+        }
+
+        $discountAmount = $discountType === 'percent'
+            ? round($eligibleSubtotal * ($discountValue / 100), 0)
+            : $discountValue;
+
+        if ($discountType === 'percent' && $maxDiscount > 0) {
+            $discountAmount = min($discountAmount, $maxDiscount);
+        }
+
+        return min($eligibleSubtotal, max(0, $discountAmount));
     }
 
     private function failure(string $messageKey, float $subtotal, float $grandTotal): array

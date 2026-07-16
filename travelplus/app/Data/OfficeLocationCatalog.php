@@ -2,6 +2,8 @@
 
 namespace App\Data;
 
+use App\Services\WebsiteSettingsService;
+
 final class OfficeLocationCatalog
 {
     /**
@@ -9,32 +11,33 @@ final class OfficeLocationCatalog
      */
     public static function getAll(string $locale = 'vi'): array
     {
+        $settings = new WebsiteSettingsService();
         $offices = [
             [
                 'title_key' => 'Frontend.footer.office.hcm',
                 'address' => [
-                    'vi' => '3/30A đường Thích Quảng Đức, Phường Đức Nhuận, TP.HCM',
-                    'en' => '3/30A Thich Quang Duc Street, Duc Nhuan Ward, Ho Chi Minh City',
+                    'vi' => $settings->get('office_hcm_address_vi'),
+                    'en' => $settings->get('office_hcm_address_en'),
                 ],
-                'map_url' => 'https://maps.app.goo.gl/PkqKgEp4rthxbNUn9',
+                'map_url' => $settings->get('office_hcm_map_url'),
                 'class' => ' two',
             ],
             [
                 'title_key' => 'Frontend.footer.office.hanoi',
                 'address' => [
-                    'vi' => '47 đường Lê Văn Hưu, Phường Hai Bà Trưng, Hà Nội',
-                    'en' => '47 Le Van Huu Street, Hai Ba Trung Ward, Hanoi',
+                    'vi' => $settings->get('office_hanoi_address_vi'),
+                    'en' => $settings->get('office_hanoi_address_en'),
                 ],
-                'map_url' => 'https://maps.app.goo.gl/9Q5he5PYRqdr1bdEA',
+                'map_url' => $settings->get('office_hanoi_map_url'),
                 'class' => '',
             ],
             [
                 'title_key' => 'Frontend.footer.office.danang',
                 'address' => [
-                    'vi' => 'Tầng 4 Tòa nhà Trực thăng Miền Trung, đường Nguyễn Văn Linh, Phường Hòa Cường, Đà Nẵng',
-                    'en' => '4th Floor, Mien Trung Helicopter Building, Nguyen Van Linh Street, Hoa Cuong Ward, Da Nang',
+                    'vi' => $settings->get('office_danang_address_vi'),
+                    'en' => $settings->get('office_danang_address_en'),
                 ],
-                'map_url' => 'https://maps.app.goo.gl/FFjiLtqRNWxAjvASA',
+                'map_url' => $settings->get('office_danang_map_url'),
                 'class' => ' three',
             ],
         ];

@@ -214,7 +214,11 @@
         text-align:center;
         justify-content:center;}
 }
-@media (max-width: 767px){.checkout-stepper-pane[data-step-pane="2"] .row.g-4{
+@media (max-width: 767px){.checkout-stepper-page > .row{
+        margin-right: 0;
+        margin-left: 0;
+    }
+.checkout-stepper-pane[data-step-pane="2"] .row.g-4{
         gap: 18px;
     }
 .checkout-stepper-pane[data-step-pane="2"] .checkout-stepper-card{

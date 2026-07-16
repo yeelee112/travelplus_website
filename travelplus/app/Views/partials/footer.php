@@ -5,6 +5,8 @@ $websiteSettings = new \App\Services\WebsiteSettingsService();
 $contactPhone = $websiteSettings->get('hotline_e164');
 $contactPhoneDisplay = $websiteSettings->phoneDisplay($locale);
 $contactEmail = $websiteSettings->get('email');
+$companyTaxId = $websiteSettings->get('company_tax_id');
+$travelLicense = $websiteSettings->get('travel_license');
 $totalViews = (new \App\Services\VisitorCounterService())->getTotalViews();
 $offices = \App\Data\OfficeLocationCatalog::getAll($locale);
 
@@ -76,8 +78,8 @@ $socialLinks = [
     <meta itemprop="url" content="<?= esc(base_url(), 'attr') ?>">
     <meta itemprop="telephone" content="<?= esc($contactPhone, 'attr') ?>">
     <meta itemprop="email" content="<?= esc($contactEmail, 'attr') ?>">
-    <meta itemprop="taxID" content="0305475784">
-    <meta itemprop="identifier" content="79-114/2014/TCDL-GP LHQT">
+    <meta itemprop="taxID" content="<?= esc($companyTaxId, 'attr') ?>">
+    <meta itemprop="identifier" content="<?= esc($travelLicense, 'attr') ?>">
     <div class="container">
         <div class="travelplus-footer__cta">
             <div class="travelplus-footer__cta-copy">
@@ -104,8 +106,8 @@ $socialLinks = [
                 <p><?= esc($footerCopy['brandDesc']) ?></p>
                 <div class="travelplus-footer__contact" aria-label="<?= esc($footerCopy['contactTitle']) ?>">
                     <span class="travelplus-footer__legal-line">
-                        <span><?= esc($footerCopy['taxLabel']) ?>: <strong>0305475784</strong></span>
-                        <span><?= esc($footerCopy['travelLicenseLabel']) ?>: <strong>79-114/2014/TCDL-GP LHQT</strong></span>
+                        <span><?= esc($footerCopy['taxLabel']) ?>: <strong><?= esc($companyTaxId) ?></strong></span>
+                        <span><?= esc($footerCopy['travelLicenseLabel']) ?>: <strong><?= esc($travelLicense) ?></strong></span>
                     </span>
                     <a href="tel:<?= esc($contactPhone, 'attr') ?>"><i class="bi bi-telephone"></i> <?= esc($contactPhoneDisplay) ?></a>
                     <a href="mailto:<?= esc($contactEmail, 'attr') ?>"><i class="bi bi-envelope"></i> <?= esc($contactEmail) ?></a>

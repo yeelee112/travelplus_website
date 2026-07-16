@@ -160,24 +160,28 @@ class BookingController extends BaseController
 
     public function applyCoupon()
     {
+        $isEnglish = $this->request->getLocale() === 'en';
         $pendingBooking = $this->getPendingBooking();
 
         if ($pendingBooking === null) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
-                'message' => 'Không tìm thấy thông tin booking để áp dụng mã.',
+                'message' => $isEnglish
+                    ? 'Booking details were not found. Please restart the booking process.'
+                    : 'Không tìm thấy thông tin booking. Vui lòng bắt đầu lại quá trình đặt tour.',
             ]);
         }
 
         $code = trim((string) $this->request->getPost('coupon_code'));
+        $action = strtolower(trim((string) $this->request->getPost('action')));
 
-        if ($code === '') {
+        if ($action === 'remove') {
             $pendingBooking = $this->clearPendingBookingCoupon($pendingBooking);
             session()->set('pending_booking', $pendingBooking);
 
             return $this->response->setJSON([
                 'ok' => true,
-                'message' => 'Đã bỏ mã khuyến mãi.',
+                'message' => $isEnglish ? 'Coupon code removed.' : 'Đã bỏ mã khuyến mãi.',
                 'coupon' => null,
                 'subtotal' => (float) ($pendingBooking['subtotal_vnd'] ?? 0),
                 'discount_amount' => 0.0,

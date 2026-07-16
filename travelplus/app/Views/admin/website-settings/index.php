@@ -28,6 +28,10 @@ $value = static fn (string $key): string => (string) old($key, (string) ($settin
         .settings-field label { display:block; margin-bottom:7px; color:#34465d; font-size:13px; font-weight:800; }
         .settings-field small { display:block; margin-top:6px; color:#758398; line-height:1.45; }
         .settings-field .form-control { min-height:44px; border-color:#ccd8e5; }
+        .settings-offices { display:grid; gap:22px; }
+        .settings-office { display:grid; gap:14px; }
+        .settings-office + .settings-office { padding-top:22px; border-top:1px solid #e8edf3; }
+        .settings-office h3 { margin:0; color:#24364d; font-size:16px; font-weight:800; }
         .settings-actions { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:18px 24px; border-top:1px solid #e5ebf2; background:#f9fbfd; }
         .settings-actions p { margin:0; color:#6b7a90; font-size:13px; }
         .settings-actions .btn { min-width:150px; }
@@ -48,8 +52,8 @@ $value = static fn (string $key): string => (string) old($key, (string) ($settin
     <section class="settings-panel">
         <div class="settings-hero">
             <span class="settings-hero__eyebrow">Thông tin công khai</span>
-            <h1>Cấu hình liên hệ website</h1>
-            <p>Các giá trị này được dùng chung cho header, footer, hộp liên hệ, trang dịch vụ và email tự động. Không lưu mật khẩu hoặc API key tại đây.</p>
+            <h1>Cấu hình thông tin website</h1>
+            <p>Quản lý thông tin liên hệ, pháp lý và văn phòng đang hiển thị công khai trên toàn website. Không lưu mật khẩu hoặc API key tại đây.</p>
         </div>
     </section>
 
@@ -81,6 +85,55 @@ $value = static fn (string $key): string => (string) old($key, (string) ($settin
                     <label for="contactEmail">Email liên hệ</label>
                     <input class="form-control" id="contactEmail" type="email" name="email" value="<?= esc($value('email'), 'attr') ?>" maxlength="160" required>
                 </div>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <div class="settings-section__head">
+                <h2>Thông tin pháp lý</h2>
+                <p>Dùng chung ở footer, dữ liệu có cấu trúc và các trang chính sách.</p>
+            </div>
+            <div class="settings-grid">
+                <div class="settings-field">
+                    <label for="companyTaxId">Mã số thuế</label>
+                    <input class="form-control" id="companyTaxId" name="company_tax_id" value="<?= esc($value('company_tax_id'), 'attr') ?>" maxlength="20" inputmode="numeric" required>
+                </div>
+                <div class="settings-field">
+                    <label for="travelLicense">Giấy phép lữ hành quốc tế</label>
+                    <input class="form-control" id="travelLicense" name="travel_license" value="<?= esc($value('travel_license'), 'attr') ?>" maxlength="120" required>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <div class="settings-section__head">
+                <h2>Văn phòng</h2>
+                <p>Địa chỉ được dùng ở footer, trang liên hệ và câu trả lời của trợ lý AI.</p>
+            </div>
+            <div class="settings-offices">
+                <?php foreach ([
+                    ['key' => 'hcm', 'title' => 'TP. Hồ Chí Minh'],
+                    ['key' => 'hanoi', 'title' => 'Hà Nội'],
+                    ['key' => 'danang', 'title' => 'Đà Nẵng'],
+                ] as $office): ?>
+                    <div class="settings-office">
+                        <h3><?= esc($office['title']) ?></h3>
+                        <div class="settings-grid">
+                            <div class="settings-field">
+                                <label for="office<?= esc(ucfirst($office['key']), 'attr') ?>Vi">Địa chỉ tiếng Việt</label>
+                                <input class="form-control" id="office<?= esc(ucfirst($office['key']), 'attr') ?>Vi" name="office_<?= esc($office['key'], 'attr') ?>_address_vi" value="<?= esc($value('office_' . $office['key'] . '_address_vi'), 'attr') ?>" maxlength="300" required>
+                            </div>
+                            <div class="settings-field">
+                                <label for="office<?= esc(ucfirst($office['key']), 'attr') ?>En">Địa chỉ tiếng Anh</label>
+                                <input class="form-control" id="office<?= esc(ucfirst($office['key']), 'attr') ?>En" name="office_<?= esc($office['key'], 'attr') ?>_address_en" value="<?= esc($value('office_' . $office['key'] . '_address_en'), 'attr') ?>" maxlength="300" required>
+                            </div>
+                            <div class="settings-field settings-field--full">
+                                <label for="office<?= esc(ucfirst($office['key']), 'attr') ?>Map">Google Maps URL</label>
+                                <input class="form-control" id="office<?= esc(ucfirst($office['key']), 'attr') ?>Map" type="url" name="office_<?= esc($office['key'], 'attr') ?>_map_url" value="<?= esc($value('office_' . $office['key'] . '_map_url'), 'attr') ?>" maxlength="500" required>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </section>
 

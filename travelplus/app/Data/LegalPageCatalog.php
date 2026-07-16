@@ -48,6 +48,8 @@ final class LegalPageCatalog
         return self::replaceContactDetails($result, [
             '+84 79 568 1 568' => $settings->phoneDisplay($locale),
             'info@travelplusvn.com' => $settings->get('email'),
+            '0305475784' => $settings->get('company_tax_id'),
+            '79-114/2014/TCDL-GP LHQT' => $settings->get('travel_license'),
         ]);
     }
 

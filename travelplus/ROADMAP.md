@@ -59,3 +59,18 @@
    - Manage the public hotline, contact email and social links from one admin page.
    - Reuse the values across public pages, structured data and automated email templates without database queries.
    - Status: completed with JSON persistence for shared hosting; no SQL or command-line step is required.
+
+13. PHP runtime diagnostics
+   - Show the active PHP family, handler, loaded php.ini and additional INI file count in system health.
+   - Display upload_max_filesize and post_max_size separately, including the effective bottleneck.
+   - Status: completed with read-only diagnostics and unit coverage.
+
+14. Centralized company and office information
+   - Manage tax ID, tour operator license and bilingual office details from website settings.
+   - Reuse office details across contact pages, footer and AI knowledge without database queries.
+   - Status: completed with backward-compatible JSON defaults and no hosting command requirement.
+
+15. Checkout promotion code hardening
+   - Separate coupon apply and remove actions so an empty submission returns the correct validation message.
+   - Localize checkout feedback and show discount rows only when a discount is active.
+   - Status: completed with isolated discount calculation coverage and responsive checkout feedback.

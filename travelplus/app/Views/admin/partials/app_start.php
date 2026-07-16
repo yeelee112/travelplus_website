@@ -59,7 +59,7 @@ $sectionMeta = [
     'media_audit' => ['label' => 'Kiểm tra media', 'hint' => 'Rà soát file hình ảnh đang dùng và file thừa.'],
     'system_health' => ['label' => 'Trạng thái hệ thống', 'hint' => 'Kiểm tra cấu hình và khả năng vận hành trên hosting.'],
     'system_logs' => ['label' => 'Nhật ký lỗi', 'hint' => 'Theo dõi lỗi gần đây mà không cần mở File Manager.'],
-    'website_settings' => ['label' => 'Cấu hình website', 'hint' => 'Quản lý thông tin liên hệ công khai dùng chung.'],
+    'website_settings' => ['label' => 'Cấu hình website', 'hint' => 'Quản lý thông tin liên hệ, pháp lý và văn phòng dùng chung.'],
 ];
 $currentSectionMeta = $sectionMeta[$adminSection] ?? ['label' => 'Admin', 'hint' => 'Bảng điều khiển nội bộ.'];
 ?>

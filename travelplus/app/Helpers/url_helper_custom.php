@@ -22,7 +22,9 @@ function frontend_asset_url(string $source, ?string $minified = null): string
     $minifiedPath = $publicPath . str_replace('/', DIRECTORY_SEPARATOR, $minified);
     $asset = $useMinified && is_file($minifiedPath) ? $minified : $source;
     $assetPath = $publicPath . str_replace('/', DIRECTORY_SEPARATOR, $asset);
-    $version = @filemtime($assetPath) ?: 1;
+    $modifiedAt = @filemtime($assetPath) ?: 1;
+    $fileSize = @filesize($assetPath) ?: 0;
+    $version = $modifiedAt . '-' . $fileSize;
 
     return base_url($asset . '?v=' . $version);
 }

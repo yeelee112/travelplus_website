@@ -31,6 +31,8 @@ final class WebsiteSettingsServiceTest extends CIUnitTestCase
         $this->assertSame('+84795681568', $service->get('hotline_e164'));
         $this->assertSame('079 568 1 568', $service->phoneDisplay('vi'));
         $this->assertSame('(+84) 79 568 1 568', $service->phoneDisplay('en'));
+        $this->assertSame('0305475784', $service->get('company_tax_id'));
+        $this->assertStringContainsString('Thích Quảng Đức', $service->get('office_hcm_address_vi'));
     }
 
     public function testSavesAndReloadsAllowedSettingsOnly(): void
@@ -39,6 +41,8 @@ final class WebsiteSettingsServiceTest extends CIUnitTestCase
         $saved = $service->save([
             'email' => 'support@example.com',
             'facebook_url' => 'https://facebook.com/example',
+            'company_tax_id' => '0123456789',
+            'office_hanoi_address_en' => 'Updated Hanoi office',
             'unknown_secret' => 'must-not-be-saved',
         ]);
 
@@ -49,6 +53,8 @@ final class WebsiteSettingsServiceTest extends CIUnitTestCase
         $this->assertTrue($saved);
         $this->assertSame('support@example.com', $reloaded->get('email'));
         $this->assertSame('https://facebook.com/example', $reloaded->get('facebook_url'));
+        $this->assertSame('0123456789', $reloaded->get('company_tax_id'));
+        $this->assertSame('Updated Hanoi office', $reloaded->get('office_hanoi_address_en'));
         $this->assertStringNotContainsString('unknown_secret', $fileContent);
         $this->assertStringNotContainsString('must-not-be-saved', $fileContent);
     }
