@@ -78,6 +78,7 @@ $routes->GET('admin/media-audit', 'Admin\MediaAudit::index');
 $routes->POST('admin/media-audit/optimize', 'Admin\MediaAudit::optimizeSelected');
 $routes->POST('admin/media-audit/delete-orphans', 'Admin\MediaAudit::deleteOrphans');
 $routes->GET('admin/system-health', 'Admin\SystemHealth::index');
+$routes->GET('admin/system-logs', 'Admin\SystemLogs::index');
 $routes->GET('admin/users', 'Admin\Users::index');
 $routes->GET('admin/users/create', 'Admin\Users::create');
 $routes->POST('admin/users', 'Admin\Users::store');

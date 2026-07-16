@@ -100,6 +100,7 @@ $overallCopy = [
                 <p>Kiểm tra nhanh những cấu hình ảnh hưởng trực tiếp đến vận hành website trên shared hosting. Không mật khẩu hoặc khóa API nào được hiển thị.</p>
             </div>
             <div class="health-hero__actions">
+                <a class="btn btn-outline-secondary" href="<?= site_url('admin/system-logs') ?>">Xem nhật ký lỗi</a>
                 <a class="btn btn-primary" href="<?= site_url('admin/system-health') ?>">Kiểm tra lại</a>
             </div>
         </div>

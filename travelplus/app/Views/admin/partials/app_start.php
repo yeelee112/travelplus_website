@@ -17,6 +17,7 @@ $navItems = [
     ['key' => 'users', 'label' => 'Người dùng', 'url' => site_url('admin/users')],
     ['key' => 'media_audit', 'label' => 'Kiểm tra media', 'url' => site_url('admin/media-audit')],
     ['key' => 'system_health', 'label' => 'Trạng thái hệ thống', 'url' => site_url('admin/system-health')],
+    ['key' => 'system_logs', 'label' => 'Nhật ký lỗi', 'url' => site_url('admin/system-logs')],
 ];
 
 $sectionMeta = [
@@ -32,6 +33,7 @@ $sectionMeta = [
     'users' => ['label' => 'Người dùng', 'hint' => 'Quản lý tài khoản và quyền truy cập.'],
     'media_audit' => ['label' => 'Kiểm tra media', 'hint' => 'Rà soát file hình ảnh đang dùng và file thừa.'],
     'system_health' => ['label' => 'Trạng thái hệ thống', 'hint' => 'Kiểm tra cấu hình và khả năng vận hành trên hosting.'],
+    'system_logs' => ['label' => 'Nhật ký lỗi', 'hint' => 'Theo dõi lỗi gần đây mà không cần mở File Manager.'],
 ];
 $currentSectionMeta = $sectionMeta[$adminSection] ?? ['label' => 'Admin', 'hint' => 'Bảng điều khiển nội bộ.'];
 ?>

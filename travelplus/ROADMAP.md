@@ -44,3 +44,8 @@
    - Provide an admin-only status page for PHP, database indexes, email, HTTPS, writable directories and disk space.
    - Keep diagnostics read-only and available without command-line access.
    - Status: completed with actionable checks and no-cache responses.
+
+10. Admin error log viewer
+   - Read recent CodeIgniter warnings and errors without command-line or File Manager access.
+   - Limit file reads and result counts, support filters, and redact credentials and customer contact details.
+   - Status: completed with a read-only, admin-only log viewer.

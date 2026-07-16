@@ -47,7 +47,7 @@ php scripts/build-frontend-assets.php
 7. Upload day du cac bundle CSS/JS da build san trong `public/assets/`; hosting khong can chay lenh build.
 8. Bat Brotli hoac Gzip trong hosting panel neu nha cung cap cho phep; `public/.htaccess` co san fallback cho `mod_deflate`.
 
-Sau khi publish, kiem tra: trang chu VI/EN, booking lookup, form lien he, email, thanh toan, `/sitemap.xml`, `/robots.txt`, mot URL 404 va mot thu muc bi chan 403.
+Sau khi publish, kiem tra: trang chu VI/EN, booking lookup, form lien he, email, thanh toan, `/sitemap.xml`, `/robots.txt`, mot URL 404, mot thu muc bi chan 403, `/admin/system-health` va `/admin/system-logs`.
 
 Asset co `?v=` va file upload ten duy nhat duoc cache mot nam. Anh tinh cache mot thang, CSS/JS khong version cache bay ngay, tai lieu cong khai cache mot ngay; cac trang loi khong duoc cache.
 
