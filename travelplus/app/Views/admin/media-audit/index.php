@@ -95,7 +95,7 @@ $formatBytes = static function (int $bytes): string {
             <div class="media-section__head">
                 <div>
                     <h2>Ảnh đang dùng cần tối ưu</h2>
-                    <p>Chỉ liệt kê JPG/PNG/WebP từ 300 KB. Mỗi lượt xử lý tối đa 30 ảnh để phù hợp shared hosting.</p>
+                    <p>Chỉ liệt kê JPG/PNG/WebP từ 300 KB chưa được kiểm tra hoặc vừa thay đổi. Mỗi lượt xử lý tối đa 30 ảnh.</p>
                 </div>
             </div>
 

@@ -134,7 +134,12 @@ final class ImageOptimizationService
                 return $result;
             }
 
-            if (! $wasResized && $candidateBytes >= $result['original_bytes']) {
+            $savedBytes = $result['original_bytes'] - $candidateBytes;
+            $minimumSavedBytes = $mimeType === 'image/webp'
+                ? max(24 * 1024, (int) ceil($result['original_bytes'] * 0.08))
+                : max(8 * 1024, (int) ceil($result['original_bytes'] * 0.02));
+
+            if (! $wasResized && $savedBytes < $minimumSavedBytes) {
                 @unlink($temporaryPath);
                 $result['success'] = true;
                 $result['output_bytes'] = $result['original_bytes'];

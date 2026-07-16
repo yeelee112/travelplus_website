@@ -94,4 +94,35 @@ final class ImageOptimizationServiceTest extends CIUnitTestCase
             @unlink($sourcePath);
         }
     }
+
+    public function testDoesNotRepeatedlyReencodeAnAlreadyOptimizedWebp(): void
+    {
+        if (! function_exists('imagewebp')) {
+            $this->markTestSkipped('PHP GD WebP support is unavailable.');
+        }
+
+        $sourcePath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'travelplus-image-' . bin2hex(random_bytes(5)) . '.webp';
+        $image = imagecreatetruecolor(640, 400);
+        $background = imagecolorallocate($image, 236, 244, 249);
+        imagefill($image, 0, 0, $background);
+
+        for ($index = 0; $index < 80; $index++) {
+            $color = imagecolorallocate($image, ($index * 17) % 255, ($index * 37) % 255, ($index * 61) % 255);
+            imagefilledellipse($image, ($index * 83) % 640, ($index * 47) % 400, 80, 54, $color);
+        }
+
+        imagewebp($image, $sourcePath, 82);
+        imagedestroy($image);
+        $originalHash = hash_file('sha256', $sourcePath);
+
+        try {
+            $result = (new ImageOptimizationService())->optimizeToWebp($sourcePath, 640, 400, 82, true);
+
+            $this->assertTrue($result['success'], $result['error']);
+            $this->assertFalse($result['optimized']);
+            $this->assertSame($originalHash, hash_file('sha256', $sourcePath));
+        } finally {
+            @unlink($sourcePath);
+        }
+    }
 }

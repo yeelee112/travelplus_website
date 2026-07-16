@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Services\ImageOptimizationService;
+use App\Services\MediaOptimizationRegistry;
 
 class MediaAudit extends BaseAdminController
 {
@@ -66,9 +67,11 @@ class MediaAudit extends BaseAdminController
 
         $db = db_connect();
         $optimizer = new ImageOptimizationService();
+        $registry = new MediaOptimizationRegistry();
         $optimized = 0;
         $unchanged = 0;
         $failed = 0;
+        $registryPersistFailed = false;
         $savedBytes = 0;
 
         foreach ($files as $relativePath) {
@@ -98,11 +101,13 @@ class MediaAudit extends BaseAdminController
                 continue;
             }
             if (! $result['optimized']) {
+                $registry->markCurrent($relativePath, $absolutePath);
                 $unchanged++;
                 continue;
             }
 
             if ($extension === 'webp') {
+                $registry->markCurrent($relativePath, $absolutePath);
                 $optimized++;
                 $savedBytes += max(0, (int) $result['original_bytes'] - (int) $result['output_bytes']);
                 continue;
@@ -128,6 +133,7 @@ class MediaAudit extends BaseAdminController
             if ((string) $result['output_path'] !== $absolutePath) {
                 @unlink($absolutePath);
             }
+            $registry->markCurrent($newRelativePath, (string) $result['output_path']);
             $optimized++;
             $savedBytes += max(0, (int) $result['original_bytes'] - (int) $result['output_bytes']);
         }
@@ -139,6 +145,7 @@ class MediaAudit extends BaseAdminController
             } catch (\Throwable) {
             }
         }
+        $registryPersistFailed = ($optimized > 0 || $unchanged > 0) && ! $registry->persist();
 
         $message = 'Đã tối ưu ' . $optimized . ' ảnh, giảm khoảng ' . $this->formatBytes($savedBytes) . '.';
         if ($failed > 0) {
@@ -146,6 +153,9 @@ class MediaAudit extends BaseAdminController
         }
         if ($unchanged > 0) {
             $message .= ' Có ' . $unchanged . ' ảnh đã đủ nhẹ nên được giữ nguyên.';
+        }
+        if ($registryPersistFailed) {
+            $message .= ' Không lưu được trạng thái kiểm tra; hãy kiểm tra quyền ghi thư mục writable/stats.';
         }
         if ($skippedByLimit > 0) {
             $message .= ' Còn ' . $skippedByLimit . ' ảnh chưa xử lý để tránh timeout; hãy chạy lại lần nữa.';
@@ -210,6 +220,7 @@ class MediaAudit extends BaseAdminController
         $allOrphans = array_merge($orphanBlogFiles, $orphanTourFiles);
         $referencedFiles = array_values(array_unique(array_merge($referencedBlogFiles, $referencedTourFiles)));
         $optimizable = [];
+        $registry = new MediaOptimizationRegistry();
 
         foreach ($referencedFiles as $path) {
             $absolutePath = $this->resolveManagedFilePath($path, ['uploads/blogs/', 'uploads/tours/']);
@@ -217,6 +228,9 @@ class MediaAudit extends BaseAdminController
             $size = $absolutePath !== null ? (int) (filesize($absolutePath) ?: 0) : 0;
 
             if ($absolutePath === null || $size < self::OPTIMIZATION_THRESHOLD_BYTES || ! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                continue;
+            }
+            if ($registry->isCurrent($path, $absolutePath)) {
                 continue;
             }
 
