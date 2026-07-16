@@ -119,7 +119,7 @@ $singleRoomValueLabel = $locale === 'en'
                 <?php endif; ?>
 
                 <?php if ($authUser !== null): ?>
-                    <div class="alert alert-success">
+                    <div class="alert alert-success checkout-mode-note">
                         <?= esc($t('checkout.signedInAs')) ?> <strong><?= esc($authUser['full_name'] ?: $authUser['email']) ?></strong>
                         <form method="post" action="<?= \App\Data\LocalizedPathCatalog::url('auth.logout', $locale) ?>" class="checkout-inline-logout">
                             <?= csrf_field() ?>
@@ -127,7 +127,7 @@ $singleRoomValueLabel = $locale === 'en'
                         </form>
                     </div>
                 <?php else: ?>
-                    <div class="alert alert-secondary">
+                    <div class="alert alert-secondary checkout-mode-note">
                         <?= esc($t('checkout.checkoutMode')) ?>: <strong><?= esc($checkoutMode === 'member' ? $t('checkout.member') : $t('checkout.guest')) ?></strong>.
                     </div>
                 <?php endif; ?>
@@ -272,7 +272,8 @@ $singleRoomValueLabel = $locale === 'en'
                                             <input type="text" id="checkout-coupon" value="<?= esc($couponCode, 'attr') ?>" placeholder="<?= esc($couponUi['placeholder'], 'attr') ?>" maxlength="50" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="checkout-coupon-help checkout-coupon-feedback"<?= $couponCode !== '' ? ' hidden' : '' ?>>
                                             <button type="button" class="checkout-text-btn" data-coupon-apply<?= $couponCode !== '' ? ' hidden' : '' ?>><?= esc($t('checkout.apply')) ?></button>
                                             <div class="checkout-coupon-chip<?= $couponCode === '' ? ' hidden' : '' ?>" data-coupon-chip>
-                                                <span data-coupon-chip-text><?= esc($couponName !== '' ? $couponName . ' (' . $couponCode . ')' : $couponCode) ?></span>
+                                                <span class="checkout-coupon-chip__name" data-coupon-chip-name<?= $couponName === '' ? ' hidden' : '' ?>><?= esc($couponName) ?></span>
+                                                <span class="checkout-coupon-chip__code" data-coupon-chip-code><?= esc($couponCode) ?></span>
                                                 <button type="button" class="checkout-coupon-chip__remove" data-coupon-remove aria-label="<?= esc($couponUi['remove'], 'attr') ?>">×</button>
                                             </div>
                                         </div>
@@ -308,20 +309,20 @@ $singleRoomValueLabel = $locale === 'en'
                                         <h6 class="checkout-section-subtitle mb-0"><?= esc($t('checkout.paymentMethods')) ?></h6>
                                     </div>
                                     <div class="checkout-payment-options">
-                                        <label class="checkout-payment-option is-selected">
-                                            <input type="radio" name="payment_method" value="paypal" checked>
+                                        <label class="checkout-payment-option checkout-payment-option--paypal is-selected">
+                                            <input type="radio" name="payment_method" value="paypal" aria-label="PayPal" checked>
                                             <span class="checkout-payment-logo-wrap" aria-hidden="true">
                                                 <img src="<?= esc(base_url('assets/images/payments/Paypal-Logo.png')) ?>" alt="" class="checkout-payment-logo" loading="lazy" decoding="async" width="96" height="40">
                                             </span>
                                         </label>
                                         <label class="checkout-payment-option">
-                                            <input type="radio" name="payment_method" value="vnpay">
+                                            <input type="radio" name="payment_method" value="vnpay" aria-label="VNPay">
                                             <span class="checkout-payment-logo-wrap" aria-hidden="true">
                                                 <img src="<?= esc(base_url('assets/images/payments/VNPay-Logo.png')) ?>" alt="" class="checkout-payment-logo" loading="lazy" decoding="async" width="96" height="40">
                                             </span>
                                         </label>
                                         <label class="checkout-payment-option">
-                                            <input type="radio" name="payment_method" value="vietqr">
+                                            <input type="radio" name="payment_method" value="vietqr" aria-label="VietQR">
                                             <span class="checkout-payment-logo-wrap" aria-hidden="true">
                                                 <img src="<?= esc(base_url('assets/images/payments/VietQR-Logo.png')) ?>" alt="" class="checkout-payment-logo" loading="lazy" decoding="async" width="96" height="40">
                                             </span>
@@ -552,7 +553,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const couponInput = root.querySelector('#checkout-coupon');
     const couponApplyButton = root.querySelector('[data-coupon-apply]');
     const couponChip = root.querySelector('[data-coupon-chip]');
-    const couponChipText = root.querySelector('[data-coupon-chip-text]');
+    const couponChipName = root.querySelector('[data-coupon-chip-name]');
+    const couponChipCode = root.querySelector('[data-coupon-chip-code]');
     const couponRemoveButton = root.querySelector('[data-coupon-remove]');
     const couponCurrentOutputs = Array.from(root.querySelectorAll('[data-coupon-current-summary], [data-coupon-current-finish]'));
     const couponMessage = root.querySelector('[data-coupon-message]');
@@ -856,8 +858,13 @@ document.addEventListener('DOMContentLoaded', function () {
             ? couponText.none
             : (couponName !== '' ? couponName + ' (' + couponCode + ')' : couponCode);
 
-        if (couponChipText) {
-            couponChipText.textContent = label;
+        if (couponChipName) {
+            couponChipName.textContent = couponName;
+            couponChipName.hidden = couponName === '';
+        }
+
+        if (couponChipCode) {
+            couponChipCode.textContent = couponCode;
         }
 
         if (couponChip) {

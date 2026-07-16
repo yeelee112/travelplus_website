@@ -74,3 +74,13 @@
    - Separate coupon apply and remove actions so an empty submission returns the correct validation message.
    - Localize checkout feedback and show discount rows only when a discount is active.
    - Status: completed with isolated discount calculation coverage and responsive checkout feedback.
+
+16. Post-booking mobile usability
+   - Compact the booking lookup introduction and form so the primary action appears earlier on small screens.
+   - Keep empty, error and booking-result states readable at 320px in Vietnamese and English.
+   - Status: completed with responsive browser verification and no horizontal overflow.
+
+17. Responsive customer emails
+   - Stack booking details and label/value rows on narrow email clients instead of squeezing fixed desktop columns.
+   - Reduce mobile padding, hide the secondary promo image, widen the CTA and preserve the desktop email layout.
+   - Status: completed with 320px and desktop browser renders plus template regression coverage.

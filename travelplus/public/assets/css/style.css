@@ -11129,6 +11129,19 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     color:var(--title-color);
     font-weight:600;
     box-shadow:0 10px 22px rgba(14, 30, 37, 0.04);}
+.checkout-coupon-chip__name {min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;}
+.checkout-coupon-chip__code {flex:0 0 auto;
+    padding:3px 7px;
+    border-radius:6px;
+    background:rgba(11, 61, 145, 0.08);
+    color:#0b3d91;
+    font-size:12px;
+    font-weight:800;
+    line-height:1.2;
+    white-space:nowrap;}
 .checkout-coupon-chip__remove {border:0;
     width:26px;
     height:26px;
@@ -11602,9 +11615,99 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
 .checkout-price-panel {padding:16px;}
 }
 @media (max-width: 767px) {
+    .checkout-stepper-page {
+        padding: 20px 0 56px;
+    }
+
     .checkout-stepper-page > .row {
         margin-right: 0;
         margin-left: 0;
+    }
+
+    .checkout-stepper-page .package-details-warpper {
+        padding: 14px;
+    }
+
+    .checkout-stepper-page .section-title {
+        margin-bottom: 14px !important;
+    }
+
+    .checkout-stepper-page .section-title h2 {
+        font-size: 26px;
+        line-height: 1.2;
+    }
+
+    .checkout-mode-note {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        margin: 0 0 14px;
+        padding: 5px 10px;
+        border-color: #dce6ee;
+        border-radius: 999px;
+        background: #f5f8fa;
+        color: #526273;
+        font-size: 12px;
+        line-height: 1.3;
+    }
+
+    .checkout-stepper-header.mb-40 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        margin-bottom: 16px !important;
+        padding: 6px;
+        box-shadow: none;
+    }
+
+    .checkout-stepper-tab {
+        width: auto;
+        min-width: 0;
+        min-height: 38px;
+        justify-content: center;
+        gap: 7px;
+        padding: 5px 8px;
+        border-radius: 6px;
+    }
+
+    .checkout-stepper-tab.is-active {
+        background: #eef8fd;
+    }
+
+    .checkout-stepper-tab .step-number {
+        width: 26px;
+        height: 26px;
+        flex: 0 0 26px;
+        font-size: 12px;
+    }
+
+    .checkout-stepper-tab .step-label {
+        min-width: 0;
+        font-size: 13px;
+        line-height: 1.2;
+    }
+
+    .checkout-stepper-page .contact-form-wrap {
+        margin-bottom: 14px;
+        padding: 14px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="1"] .row {
+        --bs-gutter-y: 14px;
+    }
+
+    .checkout-stepper-page .form-inner label {
+        margin-bottom: 6px;
+        font-size: 11px;
+    }
+
+    .checkout-stepper-page .form-inner input {
+        height: 46px;
+        min-height: 46px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="1"] .checkout-stepper-actions {
+        margin-top: 10px;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .row.g-4 {
@@ -11639,9 +11742,13 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-card-head__actions .checkout-text-btn {
         min-width: 0;
-        min-height: 36px;
-        padding: 8px 7px;
-        font-size: clamp(11px, 3vw, 12px);
+        min-height: 40px;
+        padding: 9px 8px;
+        border-color: #d5e0e8;
+        background: #fff;
+        color: #263b50;
+        box-shadow: none;
+        font-size: 12px;
         line-height: 1.2;
         white-space: normal;
         overflow-wrap: anywhere;
@@ -11665,8 +11772,8 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-row {
         margin-bottom: 14px;
-        padding: 12px;
-        border-radius: 14px;
+        padding: 10px;
+        border-radius: 12px;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-row > label {
@@ -11682,15 +11789,43 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-input input {
         min-width: 0;
-        min-height: 44px;
+        min-height: 42px;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-input .checkout-text-btn {
         flex: 0 0 auto;
-        min-height: 44px;
-        padding: 9px 14px;
-        font-size: 13px;
+        min-height: 42px;
+        padding: 8px 13px;
+        font-size: 12px;
         white-space: nowrap;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-hint {
+        margin-top: 6px;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-chip {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+        padding: 7px 9px;
+        gap: 7px;
+        border-radius: 12px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-chip__name {
+        flex: 1 1 auto;
+        font-size: 13px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-chip__code {
+        font-size: 11px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-chip__remove {
+        flex: 0 0 26px;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-plan-options {
@@ -11698,7 +11833,7 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-plan-option {
-        min-height: 0;
+        min-height: 58px;
         padding: 12px;
         border-radius: 14px;
     }
@@ -11748,9 +11883,11 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option {
-        min-height: 54px;
-        padding: 10px;
-        border-radius: 14px;
+        min-height: 68px;
+        padding: 9px 4px;
+        border-radius: 12px;
+        justify-content: center;
+        gap: 0;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option input {
@@ -11760,41 +11897,77 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
         height: 12px;
     }
 
-    .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-logo-wrap {
-        width: 72px;
-        height: 28px;
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option > .checkout-payment-logo-wrap {
+        width: clamp(52px, 18vw, 72px);
+        min-width: 0;
+        max-width: clamp(52px, 18vw, 72px);
+        height: clamp(22px, 6vw, 27px);
+        flex: 0 0 clamp(52px, 18vw, 72px);
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option--paypal .checkout-payment-logo {
+        transform: scale(1.45);
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option.is-selected {
+        border-width: 2px;
+        background: #eef7ff;
+        box-shadow: 0 10px 22px rgba(11, 61, 145, 0.14);
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option.is-selected::after {
+        top: 5px;
+        right: 5px;
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-terms-wrap {
-        margin-top: 12px;
-        padding: 12px;
-        border-radius: 14px;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 12px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-terms-check {
+        font-size: 13px;
+        line-height: 1.5;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-booking-summary--minimal {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        column-gap: 10px;
         padding: 14px;
         border-radius: 16px;
     }
 
     .checkout-booking-summary .checkout-booking-image {
-        height: 90px;
-        min-height: 90px;
-        max-height: 90px;
-        margin-bottom: 8px;
-        border-radius: 12px;
+        grid-column: 1;
+        width: 72px;
+        height: 64px;
+        min-height: 64px;
+        max-height: 64px;
+        margin: 0;
+        padding-bottom: 0 !important;
+        border-radius: 8px;
+        object-fit: cover;
     }
 
     .checkout-booking-summary .checkout-card-title {
+        grid-column: 2;
+        align-self: center;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        margin-bottom: 8px;
+        margin-bottom: 0;
         font-size: 16px;
         line-height: 1.24;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-summary-list {
+        grid-column: 1 / -1;
         gap: 8px;
     }
 
@@ -11856,28 +12029,68 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-summary-price-row--grand strong {
         color: #0f2740;
-        font-size: 16px;
+        font-size: 20px;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-summary-price-row--due {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: center;
+        gap: 4px;
         margin-top: 6px;
-        padding: 10px 12px;
+        padding: 12px;
         border-radius: 12px;
+        text-align: center;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-summary-price-row--due strong {
-        font-size: clamp(20px, 6vw, 24px);
+        width: 100%;
+        font-size: clamp(22px, 6.5vw, 28px);
+        line-height: 1.12;
+        text-align: center;
         white-space: nowrap;
         overflow-wrap: normal;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-summary-price-row--due span {
         font-size: 12px;
+        line-height: 1.3;
         color: #0b3d91;
+        text-align: center;
+        white-space: nowrap;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-summary-cta {
+        grid-column: 1 / -1;
         margin-top: 12px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] > .checkout-stepper-actions {
+        flex-direction: row;
+        justify-content: center;
+        margin-top: 8px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] > .checkout-stepper-actions .primary-btn1.transparent {
+        width: auto !important;
+        min-width: 116px;
+        min-height: 40px;
+        padding: 8px 18px;
+        border: 1px solid #d5e0e8;
+        background: #fff;
+        color: #526273;
+        box-shadow: none;
+        font-size: 13px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] > .checkout-stepper-actions .primary-btn1.transparent:before {
+        background: #f2f6f9;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] > .checkout-stepper-actions .primary-btn1.transparent:hover,
+    .checkout-stepper-pane[data-step-pane="2"] > .checkout-stepper-actions .primary-btn1.transparent:focus-visible {
+        border-color: #b9c8d5;
+        color: #263b50;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-summary-cta .primary-btn1 {
@@ -11989,16 +12202,38 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
 }
 @media (max-width: 420px) {
     .checkout-card-head__actions {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-card-head__actions .checkout-text-btn {
         width: 100%;
+        font-size: clamp(10px, 3vw, 12px);
+        white-space: nowrap;
+        overflow-wrap: normal;
     }
 
     .checkout-stepper-pane[data-step-pane="2"] .checkout-coupon-input {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row;
+        align-items: center;
+    }
+}
+@media (max-width: 360px) {
+    .checkout-stepper-tab {
+        min-height: 42px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-plan-option--inline {
+        grid-template-columns: 18px minmax(0, 1fr);
+        min-height: 74px;
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-payment-option--paypal .checkout-payment-logo {
+        transform: scale(1.25);
+    }
+
+    .checkout-stepper-pane[data-step-pane="2"] .checkout-plan-option__amount {
+        grid-column: 2;
+        text-align: left;
     }
 }
 .modal-login-form-wrapper h6 {font-weight: 700;}
@@ -16197,6 +16432,15 @@ header.style-1.two .header-booking-lookup-btn:hover {
 }
 
 @media (max-width: 767px) {
+    .booking-lookup-page {
+        padding: 34px 0 64px;
+    }
+
+    .booking-lookup-hero {
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
     .booking-lookup-copy,
     .booking-lookup-form,
     .booking-lookup-message {
@@ -16204,20 +16448,65 @@ header.style-1.two .header-booking-lookup-btn:hover {
     }
 
     .booking-lookup-copy {
-        padding: 24px;
+        padding: 0 4px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .booking-lookup-copy span {
+        margin-bottom: 8px;
+        font-size: 13px;
     }
 
     .booking-lookup-copy h1 {
-        font-size: 34px;
+        font-size: 30px;
+        line-height: 1.15;
+    }
+
+    .booking-lookup-copy p {
+        margin-top: 12px;
+        font-size: 15px;
+        line-height: 1.55;
     }
 
     .booking-lookup-form {
-        padding: 20px;
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .booking-lookup-form label {
+        gap: 6px;
+    }
+
+    .booking-lookup-form input {
+        min-height: 50px;
+    }
+
+    .booking-lookup-form .primary-btn1 {
+        min-height: 48px;
     }
 
     .booking-lookup-message {
-        grid-template-columns: 1fr;
-        padding: 18px;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .booking-lookup-message i {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+
+    .booking-lookup-message strong {
+        font-size: 16px;
+    }
+
+    .booking-lookup-message p {
+        font-size: 14px;
+        line-height: 1.5;
     }
 
     .booking-lookup-list__head {
