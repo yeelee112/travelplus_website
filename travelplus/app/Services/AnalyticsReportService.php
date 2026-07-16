@@ -43,17 +43,14 @@ class AnalyticsReportService
             ->where('viewed_at >=', $since)
             ->countAllResults();
 
-        $visits = (int) $this->db->table('analytics_visits')
-            ->where('started_at >=', $since)
-            ->countAllResults();
-
-        $visitorRow = $this->db->table('analytics_visits')
-            ->select('COUNT(DISTINCT visitor_token) AS total', false)
+        $visitRow = $this->db->table('analytics_visits')
+            ->select('COUNT(*) AS visits, COUNT(DISTINCT visitor_token) AS visitors', false)
             ->where('started_at >=', $since)
             ->get()
             ->getRowArray();
 
-        $visitors = (int) ($visitorRow['total'] ?? 0);
+        $visits = (int) ($visitRow['visits'] ?? 0);
+        $visitors = (int) ($visitRow['visitors'] ?? 0);
         $avgPages = $visits > 0 ? round($pageviews / $visits, 1) : 0;
 
         return [

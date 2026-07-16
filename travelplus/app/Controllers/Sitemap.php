@@ -14,7 +14,7 @@ class Sitemap extends Controller
     public function index()
     {
         $contentCache = new PublicContentCacheService();
-        $cacheKey = 'sitemap:' . base_url();
+        $cacheKey = 'sitemap:v2:' . $this->stylesheetVersion() . ':' . base_url();
         $cachedXml = $contentCache->get($cacheKey);
         if (is_string($cachedXml) && $cachedXml !== '') {
             return $this->response
@@ -161,7 +161,7 @@ class Sitemap extends Controller
             }
         }
 
-        $xmlBody = (string) $xml->asXML();
+        $xmlBody = $this->renderXml($xml);
         if (! DatabaseAvailabilityService::isUnavailable()) {
             $contentCache->save($cacheKey, $xmlBody, 900);
         }
@@ -170,6 +170,33 @@ class Sitemap extends Controller
             ->setCache(['public', 'max-age' => 900])
             ->setContentType('application/xml')
             ->setBody($xmlBody);
+    }
+
+    private function renderXml(\SimpleXMLElement $xml): string
+    {
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $document->preserveWhiteSpace = false;
+        $document->formatOutput = true;
+
+        if (! $document->loadXML((string) $xml->asXML())) {
+            return (string) $xml->asXML();
+        }
+
+        $stylesheetUrl = base_url('assets/sitemap.xsl?v=' . $this->stylesheetVersion());
+        $instruction = $document->createProcessingInstruction(
+            'xml-stylesheet',
+            'type="text/xsl" href="' . $stylesheetUrl . '"'
+        );
+        $document->insertBefore($instruction, $document->documentElement);
+
+        return (string) $document->saveXML();
+    }
+
+    private function stylesheetVersion(): int
+    {
+        $stylesheetPath = FCPATH . 'assets/sitemap.xsl';
+
+        return is_file($stylesheetPath) ? (int) (filemtime($stylesheetPath) ?: 1) : 1;
     }
 
     /**

@@ -1122,7 +1122,7 @@ class BookingController extends BaseController
             ->where('tour_id', $tourId)
             ->where('status', 'open')
             ->where('departure_date >=', date('Y-m-d'))
-            ->where('DATE(departure_date)', $departureDate);
+            ->where('departure_date', $departureDate);
 
         $row = $builder
             ->orderBy('departure_date', 'ASC')

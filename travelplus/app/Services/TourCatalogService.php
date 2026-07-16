@@ -425,12 +425,12 @@ class TourCatalogService
         }
 
         if ($normalizedFrom !== null && $normalizedTo !== null) {
-            $builder->where('DATE(td.departure_date) >=', $normalizedFrom)
-                ->where('DATE(td.departure_date) <=', $normalizedTo);
+            $builder->where('td.departure_date >=', $normalizedFrom)
+                ->where('td.departure_date <=', $normalizedTo);
         } elseif ($normalizedFrom !== null) {
-            $builder->where('DATE(td.departure_date) >=', $normalizedFrom);
+            $builder->where('td.departure_date >=', $normalizedFrom);
         } elseif ($normalizedTo !== null) {
-            $builder->where('DATE(td.departure_date) <=', $normalizedTo);
+            $builder->where('td.departure_date <=', $normalizedTo);
         }
 
         $countRow = (clone $builder)

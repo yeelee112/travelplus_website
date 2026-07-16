@@ -41,12 +41,15 @@ php scripts/build-frontend-assets.php
 1. Upload code da co san thu muc `vendor/`; khong can upload `tests/`, `build/` va log local.
 2. Upload ca file an `.htaccess` o root va `public/.htaccess`.
 3. Giu `.env` rieng tren hosting, khong ghi de bang file local.
-4. Import cac file SQL can thiet bang phpMyAdmin thay cho `php spark migrate`.
+4. Import cac file SQL can thiet bang phpMyAdmin thay cho `php spark migrate`. Sau khi cap nhat phien ban nay, chay `database/sql/2026-07-16_add_query_performance_indexes.sql`; file an toan khi import lai.
 5. Dam bao `writable/` co quyen ghi; khong ghi de counter/log runtime dang co tren hosting.
 6. Neu domain dang tro vao root du an thay vi `public/`, giu nguyen rule rewrite root va kiem tra URL khong bi chen `/public/`.
 7. Upload day du cac bundle CSS/JS da build san trong `public/assets/`; hosting khong can chay lenh build.
+8. Bat Brotli hoac Gzip trong hosting panel neu nha cung cap cho phep; `public/.htaccess` co san fallback cho `mod_deflate`.
 
 Sau khi publish, kiem tra: trang chu VI/EN, booking lookup, form lien he, email, thanh toan, `/sitemap.xml`, `/robots.txt`, mot URL 404 va mot thu muc bi chan 403.
+
+Asset co `?v=` va file upload ten duy nhat duoc cache mot nam. Anh tinh cache mot thang, CSS/JS khong version cache bay ngay, tai lieu cong khai cache mot ngay; cac trang loi khong duoc cache.
 
 ## Bao mat
 

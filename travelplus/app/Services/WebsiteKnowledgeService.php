@@ -2648,7 +2648,7 @@ class WebsiteKnowledgeService
             ->join('tour_translations tt', 'tt.tour_id = t.id AND tt.locale = ' . $this->db->escape($locale), 'inner')
             ->join('tour_departures td', 'td.tour_id = t.id AND td.status = "open"', 'inner')
             ->where('t.status', 'published')
-            ->where('DATE(td.departure_date) >=', $today)
+            ->where('td.departure_date >=', $today)
             ->groupBy('t.id, t.tour_type, t.duration_days, t.duration_nights, t.base_price, tt.name, tt.slug')
             ->orderBy('MIN(td.departure_date)', 'ASC', false)
             ->limit(max(1, $limit))

@@ -318,20 +318,22 @@ class Bookings extends BaseAdminController
      */
     private function buildReconciliationStats(): array
     {
+        $row = db_connect()->table('bookings')
+            ->select(
+                "COALESCE(SUM(CASE WHEN payment_status IN ('pending_payment', 'pending_transfer') AND payment_method IN ('vietqr', 'vnpay') THEN 1 ELSE 0 END), 0) AS needs_reconciliation," .
+                "COALESCE(SUM(CASE WHEN payment_status = 'pending_transfer' THEN 1 ELSE 0 END), 0) AS pending_transfer," .
+                "COALESCE(SUM(CASE WHEN payment_status = 'pending_payment' THEN 1 ELSE 0 END), 0) AS pending_payment," .
+                "COALESCE(SUM(CASE WHEN payment_status IN ('failed', 'cancelled') THEN 1 ELSE 0 END), 0) AS failed_or_cancelled",
+                false
+            )
+            ->get()
+            ->getRowArray() ?? [];
+
         return [
-            'needs_reconciliation' => (new BookingModel())
-                ->whereIn('payment_status', ['pending_payment', 'pending_transfer'])
-                ->whereIn('payment_method', ['vietqr', 'vnpay'])
-                ->countAllResults(),
-            'pending_transfer' => (new BookingModel())
-                ->where('payment_status', 'pending_transfer')
-                ->countAllResults(),
-            'pending_payment' => (new BookingModel())
-                ->where('payment_status', 'pending_payment')
-                ->countAllResults(),
-            'failed_or_cancelled' => (new BookingModel())
-                ->whereIn('payment_status', ['failed', 'cancelled'])
-                ->countAllResults(),
+            'needs_reconciliation' => (int) ($row['needs_reconciliation'] ?? 0),
+            'pending_transfer' => (int) ($row['pending_transfer'] ?? 0),
+            'pending_payment' => (int) ($row['pending_payment'] ?? 0),
+            'failed_or_cancelled' => (int) ($row['failed_or_cancelled'] ?? 0),
         ];
     }
 

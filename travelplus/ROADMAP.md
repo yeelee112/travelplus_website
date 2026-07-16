@@ -29,3 +29,13 @@
    - Replace default README content with project-specific documentation.
    - Review sitemap, canonical tags, schema data, bilingual metadata, image alt text, and page speed.
    - Status: completed. Sitemap URLs and hreflang, private-flow noindex rules, bilingual metadata, schemas, image alt text, error pages and key image assets were audited and verified.
+
+7. Production readiness and HTTP hardening
+   - Verify robots, sitemap, public/private routes, branded errors, caching and compression under both supported hosting layouts.
+   - Hide framework version headers, enable HTTPS-only HSTS, and restrict unused browser permissions.
+   - Status: completed and verified locally; production headers take effect after publishing the updated `.htaccess` files.
+
+8. Database query and index optimization
+   - Consolidate repeated admin aggregates and analytics counts into fewer queries.
+   - Keep departure-date filters indexable and add composite indexes for booking lookup, CRM, catalog, media, reviews, translations, email logs and analytics journeys.
+   - Status: completed. The phpMyAdmin SQL is idempotent and the target queries were verified with MySQL EXPLAIN.
