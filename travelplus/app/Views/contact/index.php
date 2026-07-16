@@ -4,6 +4,7 @@
 
 <?php
 $locale = service('request')->getLocale() ?: 'vi';
+$websiteSettings = new \App\Services\WebsiteSettingsService();
 $contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $locale);
 $searchUrl = \App\Data\LocalizedPathCatalog::url('search', $locale);
 $privacyUrl = \App\Data\LocalizedPathCatalog::url('legal.privacy', $locale);
@@ -84,9 +85,9 @@ $labels += $locale === 'en'
         'termsLabel' => 'Điều khoản sử dụng',
     ];
 $recaptchaSiteKey = trim((string) env('recaptcha.siteKey', ''), " \t\n\r\0\x0B\"'");
-$phone = '+84795681568';
-$phoneDisplay = '+84 79 568 1 568';
-$email = 'info@travelplusvn.com';
+$phone = $websiteSettings->get('hotline_e164');
+$phoneDisplay = $websiteSettings->phoneDisplay($locale);
+$email = $websiteSettings->get('email');
 $customTourFields = $locale === 'en'
     ? [
         'travelersLabel' => 'Group size',

@@ -22,16 +22,18 @@ class SeoService
 
     public function organizationSchema(): array
     {
+        $websiteSettings = new WebsiteSettingsService();
+
         return [
             '@type' => 'Organization',
             '@id' => base_url('/#organization'),
             'name' => 'Travel Plus',
             'url' => base_url('/'),
             'logo' => base_url('assets/images/logo.svg'),
-            'email' => 'info@travelplusvn.com',
+            'email' => $websiteSettings->get('email'),
             'contactPoint' => [
                 '@type' => 'ContactPoint',
-                'telephone' => '+84795681568',
+                'telephone' => $websiteSettings->get('hotline_e164'),
                 'contactType' => 'customer service',
                 'areaServed' => ['VN'],
                 'availableLanguage' => ['vi', 'en'],

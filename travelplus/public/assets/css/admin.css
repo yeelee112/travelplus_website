@@ -47,10 +47,10 @@ body.admin-app {
     overscroll-behavior: contain;
     background: linear-gradient(180deg, #0f172a 0%, #132238 100%);
     color: #dce7f3;
-    padding: 24px 18px;
+    padding: 20px 16px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -59,6 +59,8 @@ body.admin-app {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    padding: 0 4px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .admin-sidebar__brand a {
@@ -85,7 +87,11 @@ body.admin-app {
 
 .admin-sidebar__section {
     display: grid;
-    gap: 10px;
+    gap: 8px;
+}
+
+.admin-sidebar__section--navigation {
+    flex: 0 0 auto;
 }
 
 .admin-sidebar__label {
@@ -96,40 +102,87 @@ body.admin-app {
     letter-spacing: .08em;
 }
 
-.admin-sidebar__nav,
+.admin-sidebar__nav {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-sidebar__group {
+    display: grid;
+    gap: 5px;
+}
+
+.admin-sidebar__group-label {
+    padding: 0 10px;
+    color: #7890aa;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.admin-sidebar__group.is-current .admin-sidebar__group-label {
+    color: #a9bfd6;
+}
+
+.admin-sidebar__group-links,
 .admin-sidebar__stack {
     display: grid;
-    gap: 8px;
+    gap: 2px;
 }
 
 .admin-sidebar__link,
 .admin-sidebar__sub-link {
     color: #dce7f3;
     text-decoration: none;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
     transition: .18s ease;
+}
+
+.admin-sidebar__link {
+    position: relative;
+    display: flex;
+    min-height: 34px;
+    align-items: center;
 }
 
 .admin-sidebar__sub-link {
     color: #b7c6d9;
     background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.06);
+    padding: 7px 10px;
 }
 
 .admin-sidebar__link:hover,
 .admin-sidebar__sub-link:hover,
 .admin-sidebar__link.is-active {
     color: #fff;
-    background: rgba(59, 130, 246, 0.18);
-    border-color: rgba(96, 165, 250, 0.35);
+    background: rgba(0, 156, 222, 0.18);
+    border-color: rgba(81, 190, 236, 0.3);
+}
+
+.admin-sidebar__link.is-active::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    bottom: 9px;
+    left: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: #43c2f3;
 }
 
 .admin-sidebar__profile {
     margin-top: auto;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 14px;
+    border-radius: 8px;
+    padding: 10px;
     background: rgba(255, 255, 255, 0.04);
     display: grid;
     gap: 4px;

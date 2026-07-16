@@ -108,7 +108,14 @@ $tourUrl = $url($isEnglish ? 'en/tour-search' : 'tim-kiem-tour');
 $contactUrl = $url($isEnglish ? 'en/contact' : 'contact');
 $logoUrl = $url('assets/images/logo.svg');
 $faviconUrl = $url('assets/images/icon/favicon.svg');
-$phoneDisplay = $isEnglish ? '(+84) 79 568 1 568' : '079 568 1 568';
+try {
+    $websiteSettings = new \App\Services\WebsiteSettingsService();
+    $contactPhone = $websiteSettings->get('hotline_e164');
+    $phoneDisplay = $websiteSettings->phoneDisplay($locale);
+} catch (\Throwable) {
+    $contactPhone = '+84795681568';
+    $phoneDisplay = $isEnglish ? '(+84) 79 568 1 568' : '079 568 1 568';
+}
 $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 $errorClass = 'error-code-' . max(0, $errorCode);
 ?>
@@ -405,7 +412,7 @@ $errorClass = 'error-code-' . max(0, $errorCode);
                 <img src="<?= $escape($logoUrl) ?>" alt="Travel Plus" width="154" height="45">
                 <span><?= $escape($languageCopy['brandLine']) ?></span>
             </a>
-            <a class="error-hotline" href="tel:+84795681568">
+            <a class="error-hotline" href="tel:<?= $escape($contactPhone) ?>">
                 <span><?= $escape($languageCopy['supportLabel']) ?></span>
                 <strong><?= $escape($phoneDisplay) ?></strong>
             </a>

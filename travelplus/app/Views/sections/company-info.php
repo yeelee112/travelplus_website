@@ -1,5 +1,8 @@
 <?php
 $locale = service('request')->getLocale() ?: 'vi';
+$websiteSettings = new \App\Services\WebsiteSettingsService();
+$contactPhone = $websiteSettings->get('hotline_e164');
+$contactPhoneDisplay = $websiteSettings->phoneDisplay($locale);
 $offices = \App\Data\OfficeLocationCatalog::getAll($locale);
 ?>
 <div class="row g-xl-4 g-lg-3 g-4 mb-100">
@@ -8,7 +11,7 @@ $offices = \App\Data\OfficeLocationCatalog::getAll($locale);
             <div class="single-contact<?= esc($office['class']) ?>">
                 <div class="icon"><svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M17.9981 1.125C15.0037 1.12887 12.133 2.32012 10.0156 4.4375C7.89824 6.55489 6.70699 9.42557 6.70313 12.42C6.70312 16.2056 10.7587 22.2638 13.92 26.4037C9.99937 27.0562 7.51875 28.6087 7.51875 30.4706C7.51875 32.9794 12.0244 34.875 17.9981 34.875C23.9719 34.875 28.4831 32.9794 28.4831 30.4706C28.4831 28.6087 26.0025 27.0562 22.0762 26.4037C25.2375 22.2581 29.2931 16.2056 29.2931 12.42C29.2893 9.42557 28.098 6.55489 25.9806 4.4375C23.8632 2.32012 20.9926 1.12887 17.9981 1.125ZM17.9981 29.6663C16.0237 27.3488 7.82812 17.415 7.82812 12.42C7.82812 9.72275 8.8996 7.13597 10.8068 5.22872C12.7141 3.32148 15.3009 2.25 17.9981 2.25C20.6954 2.25 23.2822 3.32148 25.1894 5.22872C27.0966 7.13597 28.1681 9.72275 28.1681 12.42C28.1681 17.415 19.9725 27.3488 17.9981 29.6663Z"></path><path d="M17.9966 18.1294C21.4853 18.1294 24.3134 15.3012 24.3134 11.8125C24.3134 8.3238 21.4853 5.49564 17.9966 5.49564C14.5078 5.49564 11.6797 8.3238 11.6797 11.8125C11.6797 15.3012 14.5078 18.1294 17.9966 18.1294Z"></path></svg></div>
                 <h4><?= esc($office['title']) ?></h4>
-                <h6><span><?= esc(lang('Frontend.footer.hotline', [], $locale)) ?>:</span> <a href="tel:+84795681568">(+84) 79 568 1 568</a></h6>
+                <h6><span><?= esc(lang('Frontend.footer.hotline', [], $locale)) ?>:</span> <a href="tel:<?= esc($contactPhone, 'attr') ?>"><?= esc($contactPhoneDisplay) ?></a></h6>
                 <p><?= esc($office['address']) ?></p>
             </div>
         </div>

@@ -5,6 +5,10 @@
 
 <?php
 $locale = service('request')->getLocale() ?: 'vi';
+$websiteSettings = new \App\Services\WebsiteSettingsService();
+$contactPhone = $websiteSettings->get('hotline_e164');
+$contactPhoneDisplay = $websiteSettings->phoneDisplay($locale);
+$contactEmail = $websiteSettings->get('email');
 $contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $locale);
 $pageTitle = $nav_label[$locale] ?? $nav_label['vi'];
 $t = static fn(string $key) => lang('Frontend.' . $key, [], $locale);
@@ -156,11 +160,11 @@ $t = static fn(string $key) => lang('Frontend.' . $key, [], $locale);
                 <div class="service-cta-contact">
                     <div class="service-cta-contact-item">
                         <small><?= esc(lang('Frontend.footer.hotline', [], $locale)) ?></small>
-                        <a href="tel:+84795681568">+84 79 568 1 568</a>
+                        <a href="tel:<?= esc($contactPhone, 'attr') ?>"><?= esc($contactPhoneDisplay) ?></a>
                     </div>
                     <div class="service-cta-contact-item">
                         <small><?= esc(lang('Frontend.footer.email', [], $locale)) ?></small>
-                        <a href="mailto:info@travelplusvn.com">info@travelplusvn.com</a>
+                        <a href="mailto:<?= esc($contactEmail, 'attr') ?>"><?= esc($contactEmail) ?></a>
                     </div>
                     <a class="primary-btn1" href="<?= esc($contactUrl) ?>">
                         <span><?= esc($t('services.sendNow')) ?></span>

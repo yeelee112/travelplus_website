@@ -422,7 +422,7 @@ return [
     'about.metaTitle' => 'Về chúng tôi | Travel Plus',
     'about.metaDesc' => 'Tìm hiểu về Travel Plus, các dịch vụ du lịch và cách chúng tôi xây dựng những hành trình ý nghĩa.',
     'visa.metaTitle' => 'Dịch vụ Visa Mỹ, Canada, Úc, Schengen | Travel Plus',
-    'visa.metaDesc' => 'Dịch vụ làm visa Mỹ, Canada, Úc, Schengen. Travel Plus gần 20 năm kinh nghiệm, hỗ trợ toàn quốc, kiểm tra hồ sơ miễn phí ban đầu. Hotline +84 79 568 1 568.',
+    'visa.metaDesc' => 'Dịch vụ làm visa Mỹ, Canada, Úc, Schengen. Travel Plus gần 20 năm kinh nghiệm, hỗ trợ toàn quốc và kiểm tra hồ sơ miễn phí ban đầu.',
     'mice.metaTitle' => 'Dịch vụ MICE Doanh nghiệp, Hội nghị Y khoa | Travel Plus',
     'mice.metaDesc' => 'Travel Plus tổ chức MICE, corporate event, Medical Congress, incentive tour, team building, gala dinner. Nhận proposal trong 24 giờ.',
     'blog.metaTitle' => 'Cảm hứng du lịch | Travel Plus',

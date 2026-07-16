@@ -1,5 +1,8 @@
 <?php
 $locale = service('request')->getLocale() ?: 'vi';
+$websiteSettings = new \App\Services\WebsiteSettingsService();
+$contactPhone = $websiteSettings->get('hotline_e164');
+$contactPhoneDisplay = $websiteSettings->phoneDisplay($locale);
 $contentLocale = $locale ?? (service('request')->getLocale() === 'en' ? 'en' : 'vi');
 $contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $contentLocale);
 $outboundUrl = \App\Data\LocalizedPathCatalog::url('outbound', $contentLocale);
@@ -365,7 +368,7 @@ $briefForm = $locale === 'en'
                     <h2><?= esc($c['brief_title'] ?? '') ?></h2>
                     <p><?= esc($c['brief_text'] ?? '') ?></p>
                     <div class="mice-page__brief-quick">
-                        <a href="tel:+84795681568"><?= esc($locale === 'en' ? 'Call now' : 'Gọi ngay') ?>: +84 79 568 1 568</a>
+                        <a href="tel:<?= esc($contactPhone, 'attr') ?>"><?= esc($locale === 'en' ? 'Call now' : 'Gọi ngay') ?>: <?= esc($contactPhoneDisplay) ?></a>
                         <a href="<?= esc($profileUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer"><?= esc($c['profile_button'] ?? '') ?></a>
                     </div>
                 </div>

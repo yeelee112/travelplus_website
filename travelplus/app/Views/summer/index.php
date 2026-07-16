@@ -19,6 +19,7 @@ $recaptchaSiteKey = trim((string) ($recaptchaSiteKey ?? ''));
 $contactFormToken = trim((string) ($contact_form_token ?? ''));
 
 $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
+$websiteSettings = new \App\Services\WebsiteSettingsService();
 $leadRedirectUrl = current_url() . '#summerLeadForm';
 $summerShowcase = $promoCollection !== [] ? $promoCollection : $featuredCollection;
 $summerShowcase = array_values($summerShowcase);
@@ -230,8 +231,8 @@ $leadFormCopy = $locale === 'en'
     ];
 $contactError = session()->getFlashdata('error');
 $contactSuccess = session()->getFlashdata('success');
-$phone = '+84795681568';
-$phoneDisplay = '+84 79 568 1 568';
+$phone = $websiteSettings->get('hotline_e164');
+$phoneDisplay = $websiteSettings->phoneDisplay($locale);
 ?>
 
 <div class="summer-landing-page"<?= $landingBackdropImage !== '' ? ' style="--summer-page-backdrop: url(\'' . esc($landingBackdropImage, 'attr') . '\');"' : '' ?>>

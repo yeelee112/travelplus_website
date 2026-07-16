@@ -2,6 +2,8 @@
 
 namespace App\Data;
 
+use App\Services\WebsiteSettingsService;
+
 final class LegalPageCatalog
 {
     /**
@@ -17,7 +19,7 @@ final class LegalPageCatalog
             return [];
         }
 
-        return [
+        $result = [
             'title' => self::localized($page['title'], $locale),
             'meta_title' => self::localized($page['meta_title'], $locale),
             'meta_desc' => self::localized($page['meta_desc'], $locale),
@@ -40,6 +42,34 @@ final class LegalPageCatalog
             'faqs' => self::localized($page['faqs'], $locale),
             'sections' => self::localized($page['sections'], $locale),
         ];
+
+        $settings = new WebsiteSettingsService();
+
+        return self::replaceContactDetails($result, [
+            '+84 79 568 1 568' => $settings->phoneDisplay($locale),
+            'info@travelplusvn.com' => $settings->get('email'),
+        ]);
+    }
+
+    /**
+     * @param mixed $value
+     * @param array<string, string> $replacements
+     * @return mixed
+     */
+    private static function replaceContactDetails($value, array $replacements)
+    {
+        if (is_string($value)) {
+            return strtr($value, $replacements);
+        }
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        foreach ($value as $key => $item) {
+            $value[$key] = self::replaceContactDetails($item, $replacements);
+        }
+
+        return $value;
     }
 
     /**

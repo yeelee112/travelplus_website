@@ -1,5 +1,6 @@
 <?php
 $currentLocale = $currentLocale ?? service('request')->getLocale() ?? 'vi';
+$websiteSettings = new \App\Services\WebsiteSettingsService();
 $chatUi = $currentLocale === 'en'
     ? [
         'button' => 'Travel Plus AI',
@@ -52,12 +53,10 @@ $contactUi = $currentLocale === 'en'
         'phone' => 'Gọi hotline',
         'zalo' => 'Zalo',
     ];
-$contactPhone = '+84795681568';
-$contactPhoneDisplay = $currentLocale === 'en'
-    ? '(+84) 79 568 1 568'
-    : '079 568 1 568';
-$messengerUrl = 'https://m.me/uuthedulich.vietnam';
-$zaloUrl = 'https://zalo.me/84795681568';
+$contactPhone = $websiteSettings->get('hotline_e164');
+$contactPhoneDisplay = $websiteSettings->phoneDisplay($currentLocale);
+$messengerUrl = $websiteSettings->get('messenger_url');
+$zaloUrl = $websiteSettings->get('zalo_url');
 ?>
 <div class="tp-ai-chatbox" id="tp-ai-chatbox" data-endpoint="<?= esc(base_url('api/ai-chat')) ?>" data-locale="<?= esc($currentLocale) ?>">
     <div class="tp-ai-chatbox__contact">

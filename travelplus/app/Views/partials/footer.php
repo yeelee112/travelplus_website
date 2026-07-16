@@ -1,6 +1,10 @@
 <?php
 $request = service('request');
 $locale = $request->getLocale() === 'en' ? 'en' : 'vi';
+$websiteSettings = new \App\Services\WebsiteSettingsService();
+$contactPhone = $websiteSettings->get('hotline_e164');
+$contactPhoneDisplay = $websiteSettings->phoneDisplay($locale);
+$contactEmail = $websiteSettings->get('email');
 $totalViews = (new \App\Services\VisitorCounterService())->getTotalViews();
 $offices = \App\Data\OfficeLocationCatalog::getAll($locale);
 
@@ -63,15 +67,15 @@ $infoLinks = [
 ];
 
 $socialLinks = [
-    ['label' => 'Facebook', 'url' => 'https://www.facebook.com/uuthedulich.vietnam', 'icon' => 'bi-facebook'],
-    ['label' => 'YouTube', 'url' => 'https://www.youtube.com/@TravelPlus2023', 'icon' => 'bi-youtube'],
+    ['label' => 'Facebook', 'url' => $websiteSettings->get('facebook_url'), 'icon' => 'bi-facebook'],
+    ['label' => 'YouTube', 'url' => $websiteSettings->get('youtube_url'), 'icon' => 'bi-youtube'],
 ];
 ?>
 <footer class="travelplus-footer" itemscope itemtype="https://schema.org/TravelAgency">
     <meta itemprop="name" content="Travel Plus Vietnam">
     <meta itemprop="url" content="<?= esc(base_url(), 'attr') ?>">
-    <meta itemprop="telephone" content="+84795681568">
-    <meta itemprop="email" content="info@travelplusvn.com">
+    <meta itemprop="telephone" content="<?= esc($contactPhone, 'attr') ?>">
+    <meta itemprop="email" content="<?= esc($contactEmail, 'attr') ?>">
     <meta itemprop="taxID" content="0305475784">
     <meta itemprop="identifier" content="79-114/2014/TCDL-GP LHQT">
     <div class="container">
@@ -103,8 +107,8 @@ $socialLinks = [
                         <span><?= esc($footerCopy['taxLabel']) ?>: <strong>0305475784</strong></span>
                         <span><?= esc($footerCopy['travelLicenseLabel']) ?>: <strong>79-114/2014/TCDL-GP LHQT</strong></span>
                     </span>
-                    <a href="tel:+84795681568"><i class="bi bi-telephone"></i> +84 79 568 1 568</a>
-                    <a href="mailto:info@travelplusvn.com"><i class="bi bi-envelope"></i> info@travelplusvn.com</a>
+                    <a href="tel:<?= esc($contactPhone, 'attr') ?>"><i class="bi bi-telephone"></i> <?= esc($contactPhoneDisplay) ?></a>
+                    <a href="mailto:<?= esc($contactEmail, 'attr') ?>"><i class="bi bi-envelope"></i> <?= esc($contactEmail) ?></a>
                 </div>
                 <div class="travelplus-footer__socials" aria-label="<?= esc($footerCopy['socialTitle']) ?>">
                     <?php foreach ($socialLinks as $social): ?>

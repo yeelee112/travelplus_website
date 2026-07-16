@@ -18,6 +18,9 @@ class EmailTemplateService
         string $ctaLabel = '',
         string $ctaUrl = ''
     ): string {
+        $websiteSettings = new WebsiteSettingsService();
+        $contactPhoneDisplay = $websiteSettings->get('hotline_en');
+        $contactEmail = $websiteSettings->get('email');
         $logoUrl = $this->assetUrl('assets/images/logo.svg');
         $companyProfileUrl = $this->assetUrl('assets/images/TravelPlus_CompanyProfile.png');
         $safeCtaUrl = $this->e($ctaUrl);
@@ -103,7 +106,7 @@ class EmailTemplateService
                     <tr>
                         <td style="background:#f8fcfe;border-top:1px solid #d7f0f8;padding:18px 28px;color:#64748b;font-size:13px;line-height:1.55;">
                             <strong style="color:#111827;">Travel Plus Vietnam</strong><br>
-                            Hotline: +84 79 568 1 568 &nbsp;|&nbsp; Email: info@travelplusvn.com<br>
+                            Hotline: ' . $this->e($contactPhoneDisplay) . ' &nbsp;|&nbsp; Email: ' . $this->e($contactEmail) . '<br>
                             Email này được gửi tự động từ hệ thống website Travel Plus.
                         </td>
                     </tr>

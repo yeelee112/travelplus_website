@@ -49,3 +49,13 @@
    - Read recent CodeIgniter warnings and errors without command-line or File Manager access.
    - Limit file reads and result counts, support filters, and redact credentials and customer contact details.
    - Status: completed with a read-only, admin-only log viewer.
+
+11. Admin navigation structure
+   - Group admin pages by overview, sales, content and system responsibilities.
+   - Keep active-page context clear and make the sidebar independently scrollable on shorter screens.
+   - Status: completed and verified on desktop and mobile.
+
+12. Centralized website contact settings
+   - Manage the public hotline, contact email and social links from one admin page.
+   - Reuse the values across public pages, structured data and automated email templates without database queries.
+   - Status: completed with JSON persistence for shared hosting; no SQL or command-line step is required.
