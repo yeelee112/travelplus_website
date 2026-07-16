@@ -92,12 +92,13 @@ $maxBlogViews = max(1, ...array_map(static fn($blog): int => (int) ($blog['view_
         .rank-bar { grid-column:1 / -1; height:6px; border-radius:999px; overflow:hidden; background:#edf4fb; }
         .rank-bar span { display:block; height:100%; border-radius:inherit; background:#009cde; }
         .empty-state { padding:28px 16px; border:1px dashed #cbd8e6; border-radius:14px; color:#64748b; text-align:center; background:#fbfdff; }
-        .quick-links { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; padding:0 24px 24px; }
+        .quick-links { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; padding:0 24px 24px; }
         .quick-links a { display:flex; min-height:48px; align-items:center; justify-content:center; padding:10px 12px; border:1px solid #dbe5ef; border-radius:12px; background:#fff; color:#10233d; text-decoration:none; font-weight:800; text-align:center; }
         .quick-links a:hover { border-color:#009cde; color:#0075b8; background:#f5fbff; }
         @media (max-width: 1180px) {
             .dashboard-priority, .metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
             .dashboard-layout { grid-template-columns:1fr; }
+            .quick-links { grid-template-columns:repeat(3,minmax(0,1fr)); }
         }
         @media (max-width: 767px) {
             .dashboard-hero, .section-head { grid-template-columns:1fr; display:grid; }
@@ -155,6 +156,7 @@ $maxBlogViews = max(1, ...array_map(static fn($blog): int => (int) ($blog['view_
                 <a href="<?= site_url('admin/leads') ?>">CRM leads</a>
                 <a href="<?= site_url('admin/promotion-codes') ?>">Mã giảm giá</a>
                 <a href="<?= site_url('admin/media-audit') ?>">Media audit</a>
+                <a href="<?= site_url('admin/system-health') ?>">Trạng thái hệ thống</a>
             </div>
         </section>
 

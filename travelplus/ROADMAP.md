@@ -39,3 +39,8 @@
    - Consolidate repeated admin aggregates and analytics counts into fewer queries.
    - Keep departure-date filters indexable and add composite indexes for booking lookup, CRM, catalog, media, reviews, translations, email logs and analytics journeys.
    - Status: completed. The phpMyAdmin SQL is idempotent and the target queries were verified with MySQL EXPLAIN.
+
+9. Shared-hosting system health
+   - Provide an admin-only status page for PHP, database indexes, email, HTTPS, writable directories and disk space.
+   - Keep diagnostics read-only and available without command-line access.
+   - Status: completed with actionable checks and no-cache responses.
