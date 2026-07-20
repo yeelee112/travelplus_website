@@ -28,8 +28,8 @@ final class SystemHealthServiceTest extends CIUnitTestCase
         $coverage = SystemHealthService::evaluateIndexCoverage(SystemHealthService::expectedIndexNames());
 
         $this->assertSame(SystemHealthService::STATUS_OK, $coverage['status']);
-        $this->assertSame(15, $coverage['installed']);
-        $this->assertSame(15, $coverage['expected']);
+        $this->assertSame(18, $coverage['installed']);
+        $this->assertSame(18, $coverage['expected']);
         $this->assertSame([], $coverage['missing']);
     }
 
@@ -42,7 +42,7 @@ final class SystemHealthServiceTest extends CIUnitTestCase
 
         $this->assertSame(SystemHealthService::STATUS_WARNING, $partial['status']);
         $this->assertSame(4, $partial['installed']);
-        $this->assertCount(11, $partial['missing']);
+        $this->assertCount(14, $partial['missing']);
         $this->assertSame(SystemHealthService::STATUS_ERROR, $missing['status']);
         $this->assertSame(0, $missing['installed']);
     }

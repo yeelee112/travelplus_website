@@ -6,6 +6,7 @@ use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
 use App\Models\PromotionCodeModel;
 use App\Services\BookingNotificationService;
+use App\Services\LoyaltyPointService;
 
 class Bookings extends BaseAdminController
 {
@@ -194,6 +195,10 @@ class Bookings extends BaseAdminController
 
         $bookingModel->update($bookingId, $update);
         $updated = $bookingModel->find($bookingId);
+
+        if (is_array($updated)) {
+            (new LoyaltyPointService())->syncBooking($updated);
+        }
 
         if ($previousStatus !== $status || $note !== '' || $status === 'paid') {
             $this->logStatusChange(

@@ -70,6 +70,66 @@ $authPrimaryLabel = $authUser
     : $loginLabel;
 $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
 $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
+$headerMemberName = trim((string) ($authUser['full_name'] ?? ''))
+    ?: trim((string) ($authUser['username'] ?? ''))
+    ?: $authPrimaryLabel;
+$headerMemberNameParts = preg_split('/\s+/u', $headerMemberName, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+$headerMemberInitials = $headerMemberNameParts !== []
+    ? mb_strtoupper(
+        mb_substr((string) $headerMemberNameParts[0], 0, 1, 'UTF-8')
+        . (count($headerMemberNameParts) > 1
+            ? mb_substr((string) $headerMemberNameParts[array_key_last($headerMemberNameParts)], 0, 1, 'UTF-8')
+            : ''),
+        'UTF-8'
+    )
+    : 'TP';
+$headerMemberTier = (string) ($headerMembership['tier_key'] ?? 'member');
+$headerMemberTierIcons = [
+    'member' => 'bi-person-fill',
+    'silver' => 'bi-stars',
+    'gold' => 'bi-award-fill',
+    'diamond' => 'bi-gem',
+    'signature' => 'bi-suit-diamond-fill',
+];
+$headerMemberTierIcon = $headerMemberTierIcons[$headerMemberTier] ?? $headerMemberTierIcons['member'];
+$megaMenuCountryLimit = 7;
+$megaMenuMoreLabel = $locale === 'en' ? 'Show %d more' : 'Xem thêm %d quốc gia';
+$megaMenuLessLabel = $locale === 'en' ? 'Show less' : 'Thu gọn';
+$headerAdminMenuItems = [
+    [
+        'label' => $locale === 'en' ? 'Dashboard' : 'Bảng điều khiển',
+        'url' => \App\Data\LocalizedPathCatalog::url('admin.dashboard', $locale),
+        'icon' => 'bi-grid-1x2-fill',
+    ],
+    [
+        'label' => $locale === 'en' ? 'Users' : 'Người dùng',
+        'url' => \App\Data\LocalizedPathCatalog::url('admin.users', $locale),
+        'icon' => 'bi-people-fill',
+    ],
+    [
+        'label' => $locale === 'en' ? 'Tours' : 'Quản lý tour',
+        'url' => \App\Data\LocalizedPathCatalog::url('admin.tours', $locale),
+        'icon' => 'bi-map-fill',
+    ],
+    [
+        'label' => $locale === 'en' ? 'Posts' : 'Bài viết',
+        'url' => \App\Data\LocalizedPathCatalog::url('admin.blogs', $locale),
+        'icon' => 'bi-file-earmark-text-fill',
+    ],
+    [
+        'label' => $locale === 'en' ? 'Reviews' : 'Đánh giá',
+        'url' => \App\Data\LocalizedPathCatalog::url('admin.reviews', $locale),
+        'icon' => 'bi-star-fill',
+    ],
+    [
+        'label' => $locale === 'en' ? 'Media optimization' : 'Tối ưu media',
+        'url' => \App\Data\LocalizedPathCatalog::url('admin.mediaAudit', $locale),
+        'icon' => 'bi-images',
+    ],
+];
+$headerAdminGroupLabel = $locale === 'en' ? 'Administration' : 'Quản trị';
+$headerPersonalGroupLabel = $locale === 'en' ? 'Personal' : 'Cá nhân';
+$headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi';
 ?>
 <div class="topbar-area two d-lg-block d-none">
     <div class="container-fluid">
@@ -127,37 +187,41 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
                 <div class="search-and-login">
                     <?php if ($authUser): ?>
                         <div class="account-dropdown">
-                            <div class="primary-btn1 three black-bg account-btn">
-                                <span>
-                                    <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
-                                        <g>
-                                            <path d="M7.50105 7.78913C9.64392 7.78913 11.3956 6.03744 11.3956 3.89456C11.3956 1.75169 9.64392 0 7.50105 0C5.35818 0 3.60652 1.75169 3.60652 3.89456C3.60652 6.03744 5.35821 7.78913 7.50105 7.78913ZM14.1847 10.9014C14.0827 10.6463 13.9467 10.4082 13.7936 10.1871C13.0113 9.0306 11.8038 8.2653 10.4433 8.07822C10.2732 8.06123 10.0861 8.09522 9.95007 8.19727C9.23578 8.72448 8.38546 8.99658 7.50108 8.99658C6.61671 8.99658 5.76638 8.72448 5.05209 8.19727C4.91603 8.09522 4.72895 8.04421 4.5589 8.07822C3.19835 8.2653 1.97387 9.0306 1.20857 10.1871C1.05551 10.4082 0.919443 10.6633 0.817424 10.9014C0.766415 11.0034 0.783407 11.1225 0.834416 11.2245C0.970484 11.4626 1.14054 11.7007 1.2936 11.9048C1.53168 12.2279 1.78679 12.517 2.07592 12.7891C2.31401 13.0272 2.58611 13.2483 2.85824 13.4694C4.20177 14.4728 5.81742 15 7.48409 15C9.15076 15 10.7664 14.4728 12.1099 13.4694C12.382 13.2653 12.6541 13.0272 12.8923 12.7891C13.1644 12.517 13.4365 12.2279 13.6746 11.9048C13.8446 11.6837 13.9977 11.4626 14.1338 11.2245C14.2188 11.1225 14.2358 11.0034 14.1847 10.9014Z"></path>
-                                        </g>
-                                    </svg><?= esc($authPrimaryLabel) ?>
+                            <button type="button" class="header-member-trigger account-btn" aria-label="<?= esc($authPrimaryLabel, 'attr') ?>">
+                                <span class="header-member-avatar header-member-avatar--<?= esc($headerMemberTier, 'attr') ?>" aria-hidden="true">
+                                    <span><?= esc($headerMemberInitials) ?></span>
+                                    <i class="bi <?= esc($headerMemberTierIcon, 'attr') ?>"></i>
                                 </span>
-                                <span>
-                                    <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
-                                        <g>
-                                            <path d="M7.50105 7.78913C9.64392 7.78913 11.3956 6.03744 11.3956 3.89456C11.3956 1.75169 9.64392 0 7.50105 0C5.35818 0 3.60652 1.75169 3.60652 3.89456C3.60652 6.03744 5.35821 7.78913 7.50105 7.78913ZM14.1847 10.9014C14.0827 10.6463 13.9467 10.4082 13.7936 10.1871C13.0113 9.0306 11.8038 8.2653 10.4433 8.07822C10.2732 8.06123 10.0861 8.09522 9.95007 8.19727C9.23578 8.72448 8.38546 8.99658 7.50108 8.99658C6.61671 8.99658 5.76638 8.72448 5.05209 8.19727C4.91603 8.09522 4.72895 8.04421 4.5589 8.07822C3.19835 8.2653 1.97387 9.0306 1.20857 10.1871C1.05551 10.4082 0.919443 10.6633 0.817424 10.9014C0.766415 11.0034 0.783407 11.1225 0.834416 11.2245C0.970484 11.4626 1.14054 11.7007 1.2936 11.9048C1.53168 12.2279 1.78679 12.517 2.07592 12.7891C2.31401 13.0272 2.58611 13.2483 2.85824 13.4694C4.20177 14.4728 5.81742 15 7.48409 15C9.15076 15 10.7664 14.4728 12.1099 13.4694C12.382 13.2653 12.6541 13.0272 12.8923 12.7891C13.1644 12.517 13.4365 12.2279 13.6746 11.9048C13.8446 11.6837 13.9977 11.4626 14.1338 11.2245C14.2188 11.1225 14.2358 11.0034 14.1847 10.9014Z"></path>
-                                        </g>
-                                    </svg><?= esc($authPrimaryLabel) ?>
-                                </span>
-                            </div>
+                                <strong><?= esc($headerMemberName) ?></strong>
+                                <i class="bi bi-caret-down-fill header-member-caret" aria-hidden="true"></i>
+                            </button>
                             <ul class="account-list">
                                 <?php if (! empty($isAdminUser)): ?>
-                                    <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.dashboard', $locale) ?>"><?= esc(lang('Frontend.auth.profile.adminPanel', [], $locale)) ?></a></li>
-                                    <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.dashboard', $locale) ?>">Dashboard</a></li>
-                                    <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.users', $locale) ?>">Users</a></li>
-                                    <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.tours', $locale) ?>">Tours</a></li>
-                                    <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.blogs', $locale) ?>">Blogs</a></li>
-                                    <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.reviews', $locale) ?>">Reviews</a></li>
-                                    <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.mediaAudit', $locale) ?>">Media audit</a></li>
+                                    <li class="account-menu-heading"><?= esc($headerAdminGroupLabel) ?></li>
+                                    <?php foreach ($headerAdminMenuItems as $headerAdminMenuItem): ?>
+                                        <li>
+                                            <a class="account-menu-link" href="<?= esc($headerAdminMenuItem['url']) ?>">
+                                                <i class="bi <?= esc($headerAdminMenuItem['icon'], 'attr') ?>" aria-hidden="true"></i>
+                                                <span><?= esc($headerAdminMenuItem['label']) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                    <li class="account-menu-divider" aria-hidden="true"></li>
                                 <?php endif; ?>
-                                <li><a href="<?= $profileUrl ?>"><?= esc($authPrimaryLabel) ?></a></li>
+                                <li class="account-menu-heading"><?= esc($headerPersonalGroupLabel) ?></li>
                                 <li>
+                                    <a class="account-menu-link" href="<?= $profileUrl ?>">
+                                        <i class="bi bi-person-circle" aria-hidden="true"></i>
+                                        <span><?= esc($headerProfileLabel) ?></span>
+                                    </a>
+                                </li>
+                                <li class="account-menu-logout">
                                     <form action="<?= esc($logoutUrl) ?>" method="post" class="header-logout-form">
                                         <?= csrf_field() ?>
-                                        <button type="submit" class="header-logout-button"><?= esc($logoutLabel) ?></button>
+                                        <button type="submit" class="header-logout-button">
+                                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                            <span><?= esc($logoutLabel) ?></span>
+                                        </button>
                                     </form>
                                 </li>
                             </ul>
@@ -216,7 +280,11 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
                         <div class="container">
                             <div class="menu-row">
                                 <?php foreach ($menu as $continent): ?>
-                                    <div class="menu-single-item">
+                                    <?php
+                                        $continentCountries = array_values((array) ($continent['countries'] ?? []));
+                                        $hiddenCountryCount = max(0, count($continentCountries) - $megaMenuCountryLimit);
+                                    ?>
+                                    <div class="menu-single-item<?= $hiddenCountryCount > 0 ? ' menu-single-item--long' : '' ?>">
                                         <div class="menu-title">
                                             <a href="<?= localized_url($continent['slug']) ?>">
                                                 <h5><?= esc($continent['name']) ?></h5>
@@ -224,7 +292,7 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
                                         </div>
                                         <i class="bi bi-plus dropdown-icon"></i>
                                         <ul class="none">
-                                            <?php foreach ($continent['countries'] as $country): ?>
+                                            <?php foreach ($continentCountries as $countryIndex => $country): ?>
                                                 <?php
                                                     $flagCode = strtolower((string) ($country['code'] ?? ''));
                                                     $countryName = trim((string) ($country['name'] ?? ''));
@@ -238,13 +306,27 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
                                                         $countryName = mb_convert_case($countryName, MB_CASE_TITLE, 'UTF-8');
                                                     }
                                                 ?>
-                                                <li>
+                                                <li class="mega-menu-country-item<?= $countryIndex >= $megaMenuCountryLimit ? ' mega-menu-country-item--extra' : '' ?>">
                                                     <a href="<?= localized_url($continent['slug'] . '/' . $country['slug']) ?>">
                                                         <img src="https://flagcdn.com/w20/<?= esc($flagCode) ?>.png" alt="<?= esc($country['name']) ?>" loading="lazy" decoding="async" width="20" height="15">
                                                         <?= esc($countryName) ?>
                                                     </a>
                                                 </li>
                                             <?php endforeach; ?>
+                                            <?php if ($hiddenCountryCount > 0): ?>
+                                                <li class="mega-menu-more">
+                                                    <button
+                                                        type="button"
+                                                        class="mega-menu-more-toggle"
+                                                        aria-expanded="false"
+                                                        data-more-label="<?= esc(sprintf($megaMenuMoreLabel, $hiddenCountryCount), 'attr') ?>"
+                                                        data-less-label="<?= esc($megaMenuLessLabel, 'attr') ?>"
+                                                    >
+                                                        <span><?= esc(sprintf($megaMenuMoreLabel, $hiddenCountryCount)) ?></span>
+                                                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                                                    </button>
+                                                </li>
+                                            <?php endif; ?>
                                         </ul>
                                     </div>
                                 <?php endforeach; ?>
@@ -332,29 +414,41 @@ $summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
 
                 <?php if ($authUser): ?>
                     <div class="account-dropdown">
-                        <div class="primary-btn1 three black-bg account-btn">
-                            <span>
-                                <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><g><path d="M7.50105 7.78913C9.64392 7.78913 11.3956 6.03744 11.3956 3.89456C11.3956 1.75169 9.64392 0 7.50105 0C5.35818 0 3.60652 1.75169 3.60652 3.89456C3.60652 6.03744 5.35821 7.78913 7.50105 7.78913ZM14.1847 10.9014C14.0827 10.6463 13.9467 10.4082 13.7936 10.1871C13.0113 9.0306 11.8038 8.2653 10.4433 8.07822C10.2732 8.06123 10.0861 8.09522 9.95007 8.19727C9.23578 8.72448 8.38546 8.99658 7.50108 8.99658C6.61671 8.99658 5.76638 8.72448 5.05209 8.19727C4.91603 8.09522 4.72895 8.04421 4.5589 8.07822C3.19835 8.2653 1.97387 9.0306 1.20857 10.1871C1.05551 10.4082 0.919443 10.6633 0.817424 10.9014C0.766415 11.0034 0.783407 11.1225 0.834416 11.2245C0.970484 11.4626 1.14054 11.7007 1.2936 11.9048C1.53168 12.2279 1.78679 12.517 2.07592 12.7891C2.31401 13.0272 2.58611 13.2483 2.85824 13.4694C4.20177 14.4728 5.81742 15 7.48409 15C9.15076 15 10.7664 14.4728 12.1099 13.4694C12.382 13.2653 12.6541 13.0272 12.8923 12.7891C13.1644 12.517 13.4365 12.2279 13.6746 11.9048C13.8446 11.6837 13.9977 11.4626 14.1338 11.2245C14.2188 11.1225 14.2358 11.0034 14.1847 10.9014Z"></path></g></svg><?= esc($authPrimaryLabel) ?>
+                        <button type="button" class="header-member-trigger account-btn" aria-label="<?= esc($authPrimaryLabel, 'attr') ?>">
+                            <span class="header-member-avatar header-member-avatar--<?= esc($headerMemberTier, 'attr') ?>" aria-hidden="true">
+                                <span><?= esc($headerMemberInitials) ?></span>
+                                <i class="bi <?= esc($headerMemberTierIcon, 'attr') ?>"></i>
                             </span>
-                            <span>
-                                <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><g><path d="M7.50105 7.78913C9.64392 7.78913 11.3956 6.03744 11.3956 3.89456C11.3956 1.75169 9.64392 0 7.50105 0C5.35818 0 3.60652 1.75169 3.60652 3.89456C3.60652 6.03744 5.35821 7.78913 7.50105 7.78913ZM14.1847 10.9014C14.0827 10.6463 13.9467 10.4082 13.7936 10.1871C13.0113 9.0306 11.8038 8.2653 10.4433 8.07822C10.2732 8.06123 10.0861 8.09522 9.95007 8.19727C9.23578 8.72448 8.38546 8.99658 7.50108 8.99658C6.61671 8.99658 5.76638 8.72448 5.05209 8.19727C4.91603 8.09522 4.72895 8.04421 4.5589 8.07822C3.19835 8.2653 1.97387 9.0306 1.20857 10.1871C1.05551 10.4082 0.919443 10.6633 0.817424 10.9014C0.766415 11.0034 0.783407 11.1225 0.834416 11.2245C0.970484 11.4626 1.14054 11.7007 1.2936 11.9048C1.53168 12.2279 1.78679 12.517 2.07592 12.7891C2.31401 13.0272 2.58611 13.2483 2.85824 13.4694C4.20177 14.4728 5.81742 15 7.48409 15C9.15076 15 10.7664 14.4728 12.1099 13.4694C12.382 13.2653 12.6541 13.0272 12.8923 12.7891C13.1644 12.517 13.4365 12.2279 13.6746 11.9048C13.8446 11.6837 13.9977 11.4626 14.1338 11.2245C14.2188 11.1225 14.2358 11.0034 14.1847 10.9014Z"></path></g></svg><?= esc($authPrimaryLabel) ?>
-                            </span>
-                            <i class="bi bi-caret-down-fill"></i>
-                        </div>
+                            <strong><?= esc($headerMemberName) ?></strong>
+                            <i class="bi bi-caret-down-fill header-member-caret" aria-hidden="true"></i>
+                        </button>
                         <ul class="account-list">
                             <?php if (! empty($isAdminUser)): ?>
-                                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.dashboard', $locale) ?>"><?= esc(lang('Frontend.auth.profile.adminPanel', [], $locale)) ?></a></li>
-                                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.dashboard', $locale) ?>">Dashboard</a></li>
-                                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.users', $locale) ?>">Users</a></li>
-                                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.tours', $locale) ?>">Tours</a></li>
-                                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.blogs', $locale) ?>">Blogs</a></li>
-                                <li><a href="<?= \App\Data\LocalizedPathCatalog::url('admin.reviews', $locale) ?>">Reviews</a></li>
+                                <li class="account-menu-heading"><?= esc($headerAdminGroupLabel) ?></li>
+                                <?php foreach ($headerAdminMenuItems as $headerAdminMenuItem): ?>
+                                    <li>
+                                        <a class="account-menu-link" href="<?= esc($headerAdminMenuItem['url']) ?>">
+                                            <i class="bi <?= esc($headerAdminMenuItem['icon'], 'attr') ?>" aria-hidden="true"></i>
+                                            <span><?= esc($headerAdminMenuItem['label']) ?></span>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                                <li class="account-menu-divider" aria-hidden="true"></li>
                             <?php endif; ?>
-                            <li><a href="<?= $profileUrl ?>"><?= esc($authPrimaryLabel) ?></a></li>
+                            <li class="account-menu-heading"><?= esc($headerPersonalGroupLabel) ?></li>
                             <li>
+                                <a class="account-menu-link" href="<?= $profileUrl ?>">
+                                    <i class="bi bi-person-circle" aria-hidden="true"></i>
+                                    <span><?= esc($headerProfileLabel) ?></span>
+                                </a>
+                            </li>
+                            <li class="account-menu-logout">
                                 <form action="<?= esc($logoutUrl) ?>" method="post" class="header-logout-form">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="header-logout-button"><?= esc($logoutLabel) ?></button>
+                                    <button type="submit" class="header-logout-button">
+                                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                        <span><?= esc($logoutLabel) ?></span>
+                                    </button>
                                 </form>
                             </li>
                         </ul>

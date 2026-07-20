@@ -6,6 +6,8 @@ use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
 use App\Models\UserModel;
 use App\Services\AuthSessionControlService;
+use App\Services\LoyaltyMembershipService;
+use App\Services\LoyaltyPointService;
 use App\Services\RememberLoginService;
 use App\Services\VietnamPhoneService;
 use Config\SocialAuth;
@@ -120,7 +122,7 @@ class AuthController extends BaseController
         $user = (new UserModel())->find((int) $authUser['id']);
 
         if ($user === null) {
-            session()->remove(['auth_user', 'checkout_mode']);
+            session()->remove(['auth_user', 'checkout_mode', 'header_membership']);
 
             return redirect()->to(LocalizedPathCatalog::url('auth.login', $locale))
                 ->with('auth_error', lang('Frontend.auth.profile.notFound', [], $locale));
@@ -176,14 +178,31 @@ class AuthController extends BaseController
                 ->with('auth_success', $locale === 'en' ? 'Account updated successfully.' : 'Đã cập nhật tài khoản thành công.');
         }
 
-        $bookings = (new BookingModel())
+        $bookingModel = new BookingModel();
+        $bookings = $bookingModel
             ->where('user_id', (int) $authUser['id'])
             ->orderBy('created_at', 'DESC')
             ->findAll(10);
+        $membershipBookings = (new BookingModel())
+            ->select('id, booking_code, user_id, payment_status, amount_paid_vnd, updated_at')
+            ->where('user_id', (int) $authUser['id'])
+            ->findAll();
+        $loyaltyPoints = new LoyaltyPointService();
+        $loyaltyPoints->syncBookings($membershipBookings);
+        $membership = (new LoyaltyMembershipService())->buildSnapshot(
+            $membershipBookings,
+            $loyaltyPoints->balanceForUser((int) $authUser['id'])
+        );
+        session()->set('header_membership', [
+            'user_id' => (int) $authUser['id'],
+            'tier_key' => (string) ($membership['current_tier']['key'] ?? 'member'),
+            'expires_at' => time() + 300,
+        ]);
 
         return view('auth/profile', [
             'user' => $user,
             'bookings' => $bookings,
+            'membership' => $membership,
         ]);
     }
 
@@ -297,7 +316,7 @@ class AuthController extends BaseController
     public function logout()
     {
         (new RememberLoginService())->clear();
-        session()->remove(['auth_user', 'checkout_mode']);
+        session()->remove(['auth_user', 'checkout_mode', 'header_membership']);
 
         return redirect()->to(localized_url('/'))
             ->withCookies()
@@ -317,7 +336,7 @@ class AuthController extends BaseController
         (new AuthSessionControlService())->invalidateAllSessions((int) $authUser['id']);
         $rememberService->revokeAllForUser((int) $authUser['id']);
         $rememberService->clear();
-        session()->remove(['auth_user', 'checkout_mode']);
+        session()->remove(['auth_user', 'checkout_mode', 'header_membership']);
 
         return redirect()->to(LocalizedPathCatalog::url('auth.login', $locale))->withCookies()->with(
             'auth_success',

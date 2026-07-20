@@ -8,6 +8,7 @@ use App\Models\PromotionCodeModel;
 use App\Models\UserModel;
 use App\Services\BookingNotificationService;
 use App\Services\CrmLeadCaptureService;
+use App\Services\LoyaltyPointService;
 use App\Services\PayPalSandboxService;
 use App\Services\PromotionCodeService;
 use App\Services\VietnamPhoneService;
@@ -739,6 +740,7 @@ class BookingController extends BaseController
 
             if (is_array($updatedBooking)) {
                 $this->incrementCouponUsage($booking, $updatedBooking);
+                (new LoyaltyPointService())->syncBooking($updatedBooking);
                 (new BookingNotificationService())->sendBookingEmails($updatedBooking);
             }
 
@@ -852,6 +854,7 @@ class BookingController extends BaseController
 
         if (is_array($updatedBooking)) {
             $this->incrementCouponUsage($booking, $updatedBooking);
+            (new LoyaltyPointService())->syncBooking($updatedBooking);
             (new BookingNotificationService())->sendBookingEmails($updatedBooking);
         }
 
@@ -912,6 +915,7 @@ class BookingController extends BaseController
 
         if (is_array($updatedBooking)) {
             $this->incrementCouponUsage($booking, $updatedBooking);
+            (new LoyaltyPointService())->syncBooking($updatedBooking);
             (new BookingNotificationService())->sendBookingEmails($updatedBooking);
         }
 

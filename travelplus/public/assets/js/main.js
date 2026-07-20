@@ -250,16 +250,34 @@
     languageList.addEventListener("click", (e) => e.stopPropagation());
   });
 
+  const closeAccountMenus = () => {
+    qsa(".account-list.active").forEach((list) => {
+      list.classList.remove("active");
+      qs(".account-btn", list.closest(".account-dropdown"))?.setAttribute(
+        "aria-expanded",
+        "false",
+      );
+    });
+  };
+
   qsa(".account-dropdown").forEach((area) => {
     const accountBtn = qs(".account-btn", area);
     const accountList = qs(".account-list", area);
 
     if (!accountBtn || !accountList) return;
 
+    accountBtn.setAttribute("aria-expanded", "false");
+
     accountBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      closeActive(".account-list.active");
-      accountList.classList.toggle("active");
+      const isOpen = accountList.classList.contains("active");
+
+      closeAccountMenus();
+
+      if (!isOpen) {
+        accountList.classList.add("active");
+        accountBtn.setAttribute("aria-expanded", "true");
+      }
     });
 
     accountList.addEventListener("click", (e) => e.stopPropagation());
@@ -345,6 +363,31 @@
 
       item.classList.toggle("active");
       dropdownIcon.classList.toggle("active");
+    });
+  });
+
+  qsa(".mega-menu-more-toggle").forEach((toggle) => {
+    const group = toggle.closest(".menu-single-item");
+    const label = qs("span", toggle);
+
+    if (!group || !label) return;
+
+    const extraCountries = qsa(".mega-menu-country-item--extra", group);
+
+    if (extraCountries.length === 0) return;
+
+    toggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+      const nextExpanded = !isExpanded;
+
+      group.classList.toggle("is-country-list-expanded", nextExpanded);
+      toggle.setAttribute("aria-expanded", nextExpanded ? "true" : "false");
+      label.textContent = nextExpanded
+        ? toggle.dataset.lessLabel || ""
+        : toggle.dataset.moreLabel || "";
     });
   });
 
@@ -585,7 +628,7 @@
     closeActive(
       ".language-list.active, .contact-list.active, .search-box.active, .search-input.active, .custom-select-wrap.active",
     );
-    closeActive(".account-list.active");
+    closeAccountMenus();
   });
 
   /* =====================================================

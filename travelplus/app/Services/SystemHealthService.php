@@ -34,6 +34,11 @@ class SystemHealthService
         'tours' => ['idx_tours_catalog'],
         'booking_email_logs' => ['idx_booking_email_logs_dedupe'],
         'booking_status_logs' => ['idx_booking_status_logs_timeline'],
+        'loyalty_point_transactions' => [
+            'uq_loyalty_point_event',
+            'idx_loyalty_points_user_created',
+            'idx_loyalty_points_booking',
+        ],
         'analytics_page_views' => ['idx_analytics_page_views_journey'],
         'analytics_search_queries' => ['idx_analytics_search_queries_journey'],
     ];
@@ -237,7 +242,15 @@ class SystemHealthService
                 ''
             );
 
-            $coreTables = ['users', 'tours', 'tour_translations', 'bookings', 'crm_leads', 'booking_email_logs'];
+            $coreTables = [
+                'users',
+                'tours',
+                'tour_translations',
+                'bookings',
+                'crm_leads',
+                'booking_email_logs',
+                'loyalty_point_transactions',
+            ];
             $missingTables = array_values(array_filter(
                 $coreTables,
                 static fn (string $table): bool => ! $db->tableExists($table)
@@ -260,7 +273,7 @@ class SystemHealthService
                 $coverage['missing'] === []
                     ? 'Đã cài đủ index tối ưu hiệu năng.'
                     : 'Còn thiếu ' . count($coverage['missing']) . ' index.',
-                'Import database/sql/2026-07-16_add_query_performance_indexes.sql bằng phpMyAdmin.'
+                'Import database/sql/2026-07-16_add_query_performance_indexes.sql và database/sql/2026-07-20_create_loyalty_point_transactions.sql bằng phpMyAdmin.'
             );
         } catch (\Throwable $exception) {
             log_message('error', 'System health database check failed: {message}', ['message' => $exception->getMessage()]);

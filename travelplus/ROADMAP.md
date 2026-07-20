@@ -84,3 +84,19 @@
    - Stack booking details and label/value rows on narrow email clients instead of squeezing fixed desktop columns.
    - Reduce mobile padding, hide the secondary promo image, widen the CTA and preserve the desktop email layout.
    - Status: completed with 320px and desktop browser renders plus template regression coverage.
+
+18. Post-payment mobile status page
+   - Compact booking confirmation and status sections while preserving the booking code and payment amount hierarchy.
+   - Keep pending and cancelled states readable at 320px in Vietnamese and English without affecting booking lookup results.
+   - Status: completed with responsive browser verification and no horizontal overflow.
+
+19. Customer account mobile usability
+   - Bring sign-in, registration and password recovery forms above the fold by removing duplicated promotional content on small screens.
+   - Present account bookings as compact mobile cards, keep the desktop table readable and separated from account settings, and prioritize the save action.
+   - Status: completed with Vietnamese and English checks at 320px/390px, populated booking states and no horizontal overflow.
+
+20. Loyalty-ready customer dashboard
+   - Replace the basic account form with an identity summary, booking metrics, editable personal details and a dedicated security section.
+   - Award 1 point per 10,000 VND actually paid and resolve Member, Silver, Gold, Diamond and Signature tiers from an idempotent transaction ledger.
+   - Present booking history as responsive transaction cards instead of a data table.
+   - Status: active; paid bookings earn points, status reversals remove previously earned points, and hosting setup uses one phpMyAdmin SQL file.

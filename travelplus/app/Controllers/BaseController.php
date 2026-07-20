@@ -12,6 +12,8 @@ use App\Services\AdminAccessService;
 use App\Services\AnalyticsTrackingService;
 use App\Services\AuthSessionControlService;
 use App\Services\DatabaseAvailabilityService;
+use App\Services\LoyaltyMembershipService;
+use App\Services\LoyaltyPointService;
 use App\Services\RememberLoginService;
 use Throwable;
 
@@ -53,7 +55,7 @@ abstract class BaseController extends Controller
         try {
             if (is_array($authUser) && ! empty($authUser['id']) && ! $sessionControl->isSessionUserValid($authUser)) {
                 (new RememberLoginService())->clear();
-                session()->remove(['auth_user', 'checkout_mode']);
+                session()->remove(['auth_user', 'checkout_mode', 'header_membership']);
                 $authUser = null;
             }
         } catch (Throwable $exception) {
@@ -103,10 +105,40 @@ abstract class BaseController extends Controller
             $isAdminUser = false;
         }
 
+        $headerMembership = null;
+        if ($usesSiteNavigation && is_array($authUser) && ! empty($authUser['id'])) {
+            $cachedMembership = session()->get('header_membership');
+            $userId = (int) $authUser['id'];
+
+            if (
+                is_array($cachedMembership)
+                && (int) ($cachedMembership['user_id'] ?? 0) === $userId
+                && (int) ($cachedMembership['expires_at'] ?? 0) > time()
+            ) {
+                $headerMembership = $cachedMembership;
+            } elseif (! DatabaseAvailabilityService::isUnavailable()) {
+                try {
+                    $points = (new LoyaltyPointService())->balanceForUser($userId);
+                    $snapshot = (new LoyaltyMembershipService())->buildSnapshot([], $points);
+                    $headerMembership = [
+                        'user_id' => $userId,
+                        'tier_key' => (string) ($snapshot['current_tier']['key'] ?? 'member'),
+                        'expires_at' => time() + 300,
+                    ];
+                    session()->set('header_membership', $headerMembership);
+                } catch (Throwable $exception) {
+                    log_message('error', 'Header membership load failed: {message}', [
+                        'message' => $exception->getMessage(),
+                    ]);
+                }
+            }
+        }
+
         service('renderer')->setVar('menu', $menu);
         service('renderer')->setVar('domesticMenu', $domesticMenu);
         service('renderer')->setVar('authUser', is_array($authUser) ? $authUser : null);
         service('renderer')->setVar('isAdminUser', $isAdminUser);
+        service('renderer')->setVar('headerMembership', $headerMembership);
         service('renderer')->setVar('currentLocale', $locale);
 
         if (! $isApiEndpoint && ! DatabaseAvailabilityService::isUnavailable()) {
