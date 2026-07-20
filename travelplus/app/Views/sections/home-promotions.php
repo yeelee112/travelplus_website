@@ -78,8 +78,6 @@ $featurePromotion = is_array($featureTour['promotion'] ?? null) ? $featureTour['
 $featureBadge = trim((string) ($featurePromotion['badge'] ?? ''));
 $featureEndsAt = trim((string) ($featurePromotion['ends_at_iso'] ?? $featurePromotion['ends_at'] ?? ''));
 $hasRealPromotion = $promotionalTours !== [];
-$promoCount = count($promoTours);
-$promoCountDisplay = str_pad((string) max(1, $promoCount), 2, '0', STR_PAD_LEFT);
 
 if ($featureEndsAt === '' && ! $hasRealPromotion && $featureTour !== null) {
     $featureEndsAt = date(DATE_ATOM, strtotime('+3 days'));
@@ -135,21 +133,16 @@ $copy = $locale === 'en'
 $copy['sectionTitle'] = $locale === 'en'
     ? 'Tour deals with clear schedules and limited-time pricing'
     : 'Tour khuyến mãi nổi bật hôm nay';
-$copy['signalCountLabel'] = $locale === 'en'
-    ? 'active tour deals'
-    : 'ưu đãi đang mở';
-$copy['signalDepartureLabel'] = $locale === 'en'
-    ? 'nearest departure'
-    : 'khởi hành gần nhất';
 $copy['featureCta'] = $locale === 'en' ? 'View deal' : 'Xem ưu đãi';
-$allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến mãi';
+$sideTourCount = count($sideTours);
+$allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
 ?>
 
-<section class="home-promo-section" aria-label="<?= esc($copy['title'], 'attr') ?>">
+<section class="home-promo-section home-promo-section--side-<?= esc((string) min(3, $sideTourCount), 'attr') ?>" aria-label="<?= esc($copy['title'], 'attr') ?>">
     <div class="container">
         <div class="home-promo-head">
             <div class="home-promo-head__copy">
-                <span><?= esc($copy['eyebrow']) ?></span>
+                <span><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i><?= esc($copy['eyebrow']) ?></span>
                 <h2><?= esc($copy['sectionTitle']) ?></h2>
                 <p><?= esc($copy['desc']) ?></p>
             </div>
@@ -158,7 +151,7 @@ $allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến
         <div class="home-promo-layout">
             <article class="home-promo-feature">
                 <a class="home-promo-feature__media" href="<?= esc($featureLink, 'attr') ?>">
-                    <span class="home-promo-feature__ribbon"><?= esc($copy['badge']) ?></span>
+                    <span class="home-promo-feature__ribbon"><i class="bi bi-fire" aria-hidden="true"></i><?= esc($copy['badge']) ?></span>
                     <img
                         src="<?= esc($featureImage, 'attr') ?>"
                         alt="<?= esc($featureTitle, 'attr') ?>"
@@ -169,7 +162,7 @@ $allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến
                 </a>
                 <div class="home-promo-feature__body">
                     <div class="home-promo-feature__top">
-                        <strong class="home-promo-feature__kicker"><?= esc($copy['kicker']) ?></strong>
+                        <strong class="home-promo-feature__kicker"><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i><?= esc($copy['kicker']) ?></strong>
                         <h3><a href="<?= esc($featureLink, 'attr') ?>"><?= esc($featureTitle) ?></a></h3>
                     </div>
 
@@ -183,8 +176,6 @@ $allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
-
-                    <p class="home-promo-feature__note"><?= esc($copy['featureNote']) ?></p>
 
                     <?php if ($featurePrice !== '' || $featureDeparture !== ''): ?>
                         <div class="home-promo-feature__facts">
@@ -213,7 +204,7 @@ $allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến
                             data-countdown
                             data-countdown-end="<?= esc($featureEndsAt, 'attr') ?>"
                             data-expired-label="<?= esc($copy['expired'], 'attr') ?>">
-                            <span class="home-promo-countdown__label"><?= esc($copy['countdownLabel']) ?></span>
+                            <span class="home-promo-countdown__label"><i class="bi bi-clock-history" aria-hidden="true"></i><?= esc($copy['countdownLabel']) ?></span>
                             <div class="home-promo-countdown__grid">
                                 <span><strong data-countdown-days>00</strong><small><?= esc($copy['days']) ?></small></span>
                                 <span><strong data-countdown-hours>00</strong><small><?= esc($copy['hours']) ?></small></span>
@@ -231,10 +222,14 @@ $allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến
                 </div>
             </article>
 
-            <aside class="home-promo-list" aria-label="<?= esc($copy['moreTitle'], 'attr') ?>">
+            <?php if ($sideTours !== []): ?>
+            <aside class="home-promo-list home-promo-list--count-<?= esc((string) min(3, $sideTourCount), 'attr') ?>" aria-label="<?= esc($copy['moreTitle'], 'attr') ?>">
                 <div class="home-promo-list__head">
                     <h3><?= esc($copy['moreTitle']) ?></h3>
-                    <a href="<?= esc($searchUrl, 'attr') ?>"><?= esc($allToursLabel) ?></a>
+                    <a href="<?= esc($searchUrl, 'attr') ?>">
+                        <?= esc($allToursCompactLabel) ?>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
                 </div>
 
                 <div class="home-promo-list__scroller">
@@ -251,48 +246,55 @@ $allToursLabel = $locale === 'en' ? 'All tour deals' : 'Tất cả tour khuyến
                         $tourDuration = (string) ($tour['duration']['label'] ?? '');
                         ?>
                         <article class="home-promo-card">
-                            <a class="home-promo-card__media" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
-                                <span><?= esc($tourBadge) ?></span>
-                                <img
-                                    src="<?= esc((string) ($tour['image'] ?? base_url('assets/images/avt-tour-01.webp')), 'attr') ?>"
-                                    alt="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>"
-                                    width="240"
-                                    height="180"
-                                    loading="lazy"
-                                    decoding="async">
-                            </a>
-                            <div class="home-promo-card__body">
-                                <h3><a href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>"><?= esc((string) ($tour['title'] ?? '')) ?></a></h3>
-                                <?php if ($tourContinent !== '' || $tourDuration !== '' || $tourDeparture !== ''): ?>
-                                    <div class="home-promo-card__meta">
-                                        <?php if ($tourContinent !== ''): ?>
-                                            <span><i class="bi bi-geo-alt"></i><?= esc($tourContinent) ?></span>
-                                        <?php endif; ?>
-                                        <?php if ($tourDuration !== ''): ?>
-                                            <span><i class="bi bi-clock"></i><?= esc($tourDuration) ?></span>
-                                        <?php endif; ?>
-                                        <?php if ($tourDeparture !== ''): ?>
-                                            <span><i class="bi bi-calendar3"></i><?= esc($copy['departureLabel']) ?>: <?= esc($tourDeparture) ?></span>
+                            <a
+                                class="home-promo-card__link-full"
+                                href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>"
+                                aria-label="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>">
+                                <div class="home-promo-card__media">
+                                    <span><?= esc($tourBadge) ?></span>
+                                    <img
+                                        src="<?= esc((string) ($tour['image'] ?? base_url('assets/images/avt-tour-01.webp')), 'attr') ?>"
+                                        alt=""
+                                        width="320"
+                                        height="220"
+                                        loading="lazy"
+                                        decoding="async">
+                                </div>
+                                <div class="home-promo-card__body">
+                                    <div class="home-promo-card__content">
+                                        <h3><?= esc((string) ($tour['title'] ?? '')) ?></h3>
+                                        <?php if ($tourContinent !== '' || $tourDuration !== '' || $tourDeparture !== ''): ?>
+                                            <div class="home-promo-card__meta">
+                                                <?php if ($tourContinent !== ''): ?>
+                                                    <span><i class="bi bi-geo-alt"></i><?= esc($tourContinent) ?></span>
+                                                <?php endif; ?>
+                                                <?php if ($tourDuration !== ''): ?>
+                                                    <span><i class="bi bi-clock"></i><?= esc($tourDuration) ?></span>
+                                                <?php endif; ?>
+                                                <?php if ($tourDeparture !== ''): ?>
+                                                    <span><i class="bi bi-calendar3"></i><?= esc($tourDeparture) ?></span>
+                                                <?php endif; ?>
+                                            </div>
                                         <?php endif; ?>
                                     </div>
-                                <?php endif; ?>
-                                <div class="home-promo-card__footer">
-                                    <?php if ($tourPrice !== ''): ?>
-                                        <div class="home-promo-card__price">
-                                            <span><?= esc($tourPriceLabel) ?></span>
-                                            <strong><?= esc($tourPrice) ?></strong>
-                                        </div>
-                                    <?php endif; ?>
-                                    <a class="home-promo-card__link" href="<?= esc((string) ($tour['link'] ?? $searchUrl), 'attr') ?>">
-                                        <?= esc($copy['moreCta']) ?>
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
+                                    <div class="home-promo-card__footer">
+                                        <?php if ($tourPrice !== ''): ?>
+                                            <div class="home-promo-card__price">
+                                                <span><?= esc($tourPriceLabel) ?></span>
+                                                <strong><?= esc($tourPrice) ?></strong>
+                                            </div>
+                                        <?php endif; ?>
+                                        <span class="home-promo-card__arrow" aria-hidden="true">
+                                            <i class="bi bi-arrow-up-right"></i>
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </article>
                     <?php endforeach; ?>
                 </div>
             </aside>
+            <?php endif; ?>
         </div>
     </div>
 </section>
