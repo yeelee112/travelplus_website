@@ -125,7 +125,10 @@
 
 <script>
 (() => {
-    const IMAGE_URL = <?= json_encode($invitationImage, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+    const IMAGE_URL = new URL(
+        <?= json_encode($invitationImage, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>,
+        document.baseURI
+    ).href;
     const canvas = document.getElementById('invitationCanvas');
     const ctx = canvas.getContext('2d');
     const input = document.getElementById('guestName');
