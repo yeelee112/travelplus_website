@@ -195,7 +195,20 @@
     invitation.src = IMAGE_URL;
     input.addEventListener('input', drawInvitation);
 
-    downloadButton.addEventListener('click', () => {
+    function canvasToBlob() {
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(blob => {
+                if (blob) {
+                    resolve(blob);
+                    return;
+                }
+
+                reject(new Error('Không thể tạo file PNG'));
+            }, 'image/png');
+        });
+    }
+
+    downloadButton.addEventListener('click', async () => {
         if (!imageReady) return;
         const guestName = normalizeName(input.value);
         if (!guestName) {
@@ -213,10 +226,42 @@
             .replace(/[^a-zA-Z0-9]+/g, '-')
             .replace(/^-|-$/g, '')
             .toLowerCase();
-        const link = document.createElement('a');
-        link.download = `thiep-moi-an-cuu-${safeName || 'khach-moi'}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const fileName = `thiep-moi-an-cuu-${safeName || 'khach-moi'}.png`;
+
+        downloadButton.disabled = true;
+        downloadButton.textContent = 'Đang tạo ảnh...';
+
+        try {
+            // Blob tiêu tốn ít bộ nhớ hơn data URL, ổn định hơn trên điện thoại.
+            const blob = await canvasToBlob();
+            const file = new File([blob], fileName, { type: 'image/png' });
+
+            // Mobile Safari/Chrome lưu file ổn định nhất qua bảng chia sẻ hệ thống.
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Thiệp mời An Cựu Residence',
+                });
+            } else {
+                const objectUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = objectUrl;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+            }
+        } catch (error) {
+            // Người dùng đóng bảng chia sẻ không phải là lỗi cần cảnh báo.
+            if (!error || error.name !== 'AbortError') {
+                alert('Điện thoại chưa thể lưu ảnh. Vui lòng thử lại hoặc mở trang bằng trình duyệt Safari/Chrome mới nhất.');
+            }
+        } finally {
+            downloadButton.disabled = false;
+            downloadButton.textContent = 'Tải thiệp PNG';
+        }
     });
 })();
 </script>
