@@ -20,6 +20,7 @@ $routes->GET('errors/404', 'ErrorPages::notFound');
 */
 
 $routes->GET('/', 'Home::index');
+$routes->GET('thiep-moi-an-cuu', 'Invitation::index');
 $routes->GET('api/destinations', 'Api\Destination::search');
 $routes->POST('api/ai-chat', 'Api\ChatController::message');
 $routes->GET('ve-chung-toi', 'AboutUs::index');

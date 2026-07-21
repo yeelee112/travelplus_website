@@ -139,6 +139,16 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
 ?>
 
 <section class="home-promo-section home-promo-section--side-<?= esc((string) min(3, $sideTourCount), 'attr') ?>" aria-label="<?= esc($copy['title'], 'attr') ?>">
+    <div class="home-promo-decor" aria-hidden="true">
+        <span class="home-promo-decor__route"><i class="bi bi-airplane-engines"></i></span>
+        <span class="home-promo-decor__route home-promo-decor__route--lower"><i class="bi bi-airplane-fill"></i></span>
+        <i class="home-promo-decor__compass bi bi-compass-fill"></i>
+        <i class="home-promo-decor__luggage bi bi-suitcase2"></i>
+        <i class="home-promo-decor__globe bi bi-globe2"></i>
+        <i class="home-promo-decor__camera bi bi-camera-fill"></i>
+        <i class="home-promo-decor__map bi bi-map-fill"></i>
+        <i class="home-promo-decor__pin bi bi-geo-alt-fill"></i>
+    </div>
     <div class="container">
         <div class="home-promo-head">
             <div class="home-promo-head__copy">
@@ -262,7 +272,7 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                                 </div>
                                 <div class="home-promo-card__body">
                                     <div class="home-promo-card__content">
-                                        <h3><?= esc((string) ($tour['title'] ?? '')) ?></h3>
+                                        <h3 title="<?= esc((string) ($tour['title'] ?? ''), 'attr') ?>"><?= esc((string) ($tour['title'] ?? '')) ?></h3>
                                         <?php if ($tourContinent !== '' || $tourDuration !== '' || $tourDeparture !== ''): ?>
                                             <div class="home-promo-card__meta">
                                                 <?php if ($tourContinent !== ''): ?>

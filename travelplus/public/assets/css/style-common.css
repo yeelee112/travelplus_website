@@ -11467,9 +11467,107 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
     position: relative;
     overflow: hidden;
     padding: 52px 0 42px;
-    border-top: 1px solid #a92431;
-    border-bottom: 1px solid #a92431;
+    border-top: 1px solid #941d31;
+    border-bottom: 1px solid #d45429;
     background: #b72d3b;
+    background: linear-gradient(118deg, #a82037 0%, #c3313a 46%, #e66a31 100%);
+}
+.home-promo-section > .container{
+    position: relative;
+    z-index: 2;
+}
+.home-promo-decor{
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+.home-promo-decor__route{
+    position: absolute;
+    top: 48px;
+    right: -54px;
+    width: 390px;
+    height: 190px;
+    border-top: 2px dashed rgba(255, 255, 255, .34);
+    border-right: 2px dashed rgba(255, 255, 255, .34);
+    border-radius: 0 190px 0 0;
+    transform: rotate(-8deg);
+}
+.home-promo-decor__route i{
+    position: absolute;
+    top: -18px;
+    left: 82px;
+    color: rgba(255, 255, 255, .4);
+    font-size: 42px;
+    transform: rotate(24deg);
+}
+.home-promo-decor__route--lower{
+    top: auto;
+    right: auto;
+    bottom: 38px;
+    left: -76px;
+    width: 360px;
+    height: 165px;
+    border-right: 0;
+    border-bottom: 2px dashed rgba(255, 255, 255, .28);
+    border-left: 2px dashed rgba(255, 255, 255, .28);
+    border-radius: 0 0 0 165px;
+    transform: rotate(8deg);
+}
+.home-promo-decor__route--lower i{
+    top: auto;
+    right: 62px;
+    bottom: -18px;
+    left: auto;
+    font-size: 36px;
+    transform: rotate(-18deg);
+}
+.home-promo-decor__compass,
+.home-promo-decor__luggage,
+.home-promo-decor__globe,
+.home-promo-decor__camera,
+.home-promo-decor__map,
+.home-promo-decor__pin{
+    position: absolute;
+    color: rgba(255, 255, 255, .18);
+    line-height: 1;
+}
+.home-promo-decor__compass{
+    top: 285px;
+    left: 48px;
+    font-size: 118px;
+    transform: rotate(-14deg);
+}
+.home-promo-decor__luggage{
+    right: 72px;
+    bottom: 82px;
+    font-size: 104px;
+    transform: rotate(9deg);
+}
+.home-promo-decor__globe{
+    top: 270px;
+    right: 34px;
+    font-size: 92px;
+    transform: rotate(8deg);
+}
+.home-promo-decor__camera{
+    top: 68px;
+    left: 58px;
+    font-size: 50px;
+    transform: rotate(-10deg);
+}
+.home-promo-decor__map{
+    bottom: 96px;
+    left: 46px;
+    font-size: 72px;
+    transform: rotate(7deg);
+}
+.home-promo-decor__pin{
+    top: 52%;
+    right: 126px;
+    font-size: 42px;
+    transform: rotate(12deg);
 }
 .home-promo-head{
     display: grid;
@@ -11985,15 +12083,15 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
     gap: 14px;
     align-items: center;
     padding: 12px 14px;
-    border-color: #b72d38;
-    background: #b72d38;
-    box-shadow: 0 13px 28px rgba(160, 35, 45, .2);
+    border-color: #e59b00;
+    background: #ffb627;
+    box-shadow: 0 13px 28px rgba(123, 72, 0, .24);
 }
 .home-promo-countdown__label{
     display: inline-flex;
     gap: 7px;
     align-items: center;
-    color: #fff;
+    color: #3c2a00;
     font-size: 11px;
     text-transform: uppercase;
 }
@@ -12006,16 +12104,16 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
     align-items: baseline;
     justify-content: center;
     padding: 6px;
-    border: 1px solid rgba(255, 255, 255, .18);
+    border: 1px solid rgba(132, 78, 0, .18);
     border-radius: 6px;
-    background: rgba(255, 255, 255, .1);
-    color: #fff;
+    background: rgba(255, 255, 255, .72);
+    color: #8f2f20;
 }
 .home-promo-countdown__grid strong{
     font-size: 17px;
 }
 .home-promo-countdown__grid small{
-    color: rgba(255, 255, 255, .7);
+    color: #684900;
     font-size: 9px;
 }
 @media (max-width: 1199px){.home-promo-head{
@@ -12197,15 +12295,15 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
     gap: 8px;
 }
 .home-promo-card h3{
-    display: -webkit-box;
+    display: block;
     overflow: hidden;
     margin: 0;
     color: var(--title-color);
     font-size: 17px;
     font-weight: 900;
     line-height: 1.28;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .home-promo-card__meta{
     display: flex;
@@ -12420,15 +12518,69 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
     }
 .home-promo-feature__facts{
         grid-template-columns: auto minmax(105px, 1fr) auto;
-        gap: 12px;
-        padding-top: 10px;
+        gap: 14px;
+        padding: 12px;
+        border: 2px solid #ffc84d;
+        border-bottom: 0;
+        border-radius: 8px 8px 0 0;
+        background: #fff4c9;
+        box-shadow: 0 16px 34px rgba(77, 24, 30, .2);
+    }
+.home-promo-feature__facts .home-promo-price{
+        padding: 11px 15px;
+        border: 0;
+        background: #df3f45;
+        box-shadow: 0 10px 22px rgba(176, 38, 45, .28);
+    }
+.home-promo-feature__facts .home-promo-price span,
+    .home-promo-feature__facts .home-promo-price strong{
+        color: #fff;
     }
 .home-promo-feature__facts .home-promo-price strong{
-        font-size: 25px;
+        font-size: 28px;
+    }
+.home-promo-feature__facts .home-promo-departure{
+        border-left-color: rgba(83, 59, 8, .2);
+    }
+.home-promo-feature__facts .home-promo-departure span{
+        color: #765916;
+    }
+.home-promo-feature__facts .home-promo-departure strong{
+        color: #1b2930;
+        font-size: 17px;
+    }
+.home-promo-feature__facts .home-promo-link{
+        min-height: 52px;
+        padding-inline: 20px;
+        border: 1px solid #d99b00;
+        background: #ffc42e;
+        color: #1d2a30;
+        box-shadow: 0 11px 24px rgba(154, 101, 0, .3);
+    }
+.home-promo-feature__facts .home-promo-link:hover{
+        background: #ffd55c;
+        color: #111b20;
     }
 .home-promo-countdown{
-        margin-top: 0;
-        padding: 8px 10px;
+        position: relative;
+        z-index: 1;
+        margin-top: -10px;
+        padding: 11px 13px;
+        border: 0;
+        border-radius: 0 0 8px 8px;
+        background: #ffb627;
+        box-shadow: 0 16px 30px rgba(123, 72, 0, .3);
+    }
+.home-promo-countdown__label{
+        color: #3c2a00;
+    }
+.home-promo-countdown__grid span{
+        border-color: rgba(132, 78, 0, .18);
+        background: rgba(255, 255, 255, .72);
+        color: #8f2f20;
+    }
+.home-promo-countdown__grid small{
+        color: #684900;
     }
 .home-promo-list{
         gap: 10px;
@@ -12482,5 +12634,20 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
         height: 32px;
         flex-basis: 32px;
         font-size: 14px;
+    }
+}
+@media (max-width: 767px){.home-promo-decor__route{
+        top: 32px;
+        right: -180px;
+        opacity: .7;
+    }
+.home-promo-decor__route--lower,
+    .home-promo-decor__compass,
+    .home-promo-decor__luggage,
+    .home-promo-decor__globe,
+    .home-promo-decor__camera,
+    .home-promo-decor__map,
+    .home-promo-decor__pin{
+        display: none;
     }
 }
