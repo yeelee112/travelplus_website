@@ -1,0 +1,301 @@
+.travelplus-legal-shell{max-width: 980px;
+    margin: 0 auto;}
+.travelplus-legal-head{margin-right: auto;
+    margin-left: auto;
+    text-align: center;}
+.travelplus-legal-head p{margin: 14px 0 0;
+    color: rgba(var(--title-color-opc), .68);
+    font-size: 17px;
+    line-height: 1.7;}
+.travelplus-legal-head time{display: inline-flex;
+    margin-top: 14px;
+    padding: 8px 12px;
+    border: 1px solid #d7edf6;
+    border-radius: 999px;
+    background: #fff;
+    color: rgba(var(--title-color-opc), .68);
+    font-size: 13px;
+    font-weight: 800;}
+.travelplus-legal-page .legal-content{padding: 34px;
+    border: 1px solid #d7edf6;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 18px 48px rgba(0, 38, 61, .07);}
+.travelplus-legal-section{padding-bottom: 30px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e2f1f7;}
+.travelplus-legal-section:last-child{padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;}
+.travelplus-legal-section h2{margin: 0 0 14px;
+    color: var(--title-color);
+    font-size: 26px;
+    font-weight: 850;
+    line-height: 1.25;}
+.travelplus-legal-subsection{margin-top: 22px;}
+.travelplus-legal-subsection h3{margin: 0 0 10px;
+    color: var(--title-color);
+    font-size: 20px;
+    font-weight: 850;}
+.travelplus-legal-page .legal-content p, .travelplus-legal-page .legal-bullet-list li{color: rgba(var(--title-color-opc), .72);
+    font-size: 16px;
+    line-height: 1.8;}
+.travelplus-legal-page .legal-bullet-list{display: grid;
+    gap: 8px;
+    margin: 14px 0 0;
+    padding-left: 20px;}
+.travelplus-legal-shell{max-width: 1180px;}
+.travelplus-legal-head{position: relative;
+    max-width: 880px;
+    margin-bottom: 34px;}
+.travelplus-legal-head p{max-width: 760px;
+    margin-right: auto;
+    margin-left: auto;}
+.travelplus-legal-meta{display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;}
+.travelplus-legal-meta span, .travelplus-legal-meta time{display: inline-flex;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid #d7edf6;
+    border-radius: 999px;
+    background: #fff;
+    color: rgba(var(--title-color-opc), .72);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-transform: none;}
+.travelplus-legal-layout{display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;}
+.travelplus-legal-sidebar{position: sticky;
+    top: 104px;}
+.travelplus-legal-sidebar__card{padding: 22px;
+    border: 1px solid #d7edf6;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 18px 48px rgba(0, 38, 61, .07);}
+.travelplus-legal-sidebar__card h2, .travelplus-legal-related h3{margin: 0 0 14px;
+    color: var(--title-color);
+    font-size: 16px;
+    font-weight: 850;
+    line-height: 1.25;}
+.travelplus-legal-toc{display: grid;
+    gap: 8px;}
+.travelplus-legal-toc a{display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 10px 11px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: rgba(var(--title-color-opc), .74);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.35;
+    text-decoration: none;}
+.travelplus-legal-toc a span{display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #eef9fe;
+    color: var(--primary-color1);
+    font-size: 12px;
+    font-weight: 850;}
+.travelplus-legal-toc a:hover, .travelplus-legal-toc a.is-active{border-color: #bfe7f6;
+    background: #f2fbff;
+    color: var(--title-color);}
+.travelplus-legal-related{margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e2f1f7;}
+.travelplus-legal-related a{display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 0;
+    color: rgba(var(--title-color-opc), .72);
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;}
+.travelplus-legal-related a:hover{color: var(--primary-color1);}
+.travelplus-legal-main{display: grid;
+    gap: 18px;
+    min-width: 0;}
+.travelplus-legal-tools{padding: 18px;
+    border: 1px solid #d7edf6;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 14px 38px rgba(0, 38, 61, .055);}
+.travelplus-legal-tools label{display: block;
+    margin-bottom: 9px;
+    color: var(--title-color);
+    font-size: 14px;
+    font-weight: 850;}
+.travelplus-legal-search{display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 15px;
+    border: 1px solid #cfeaf5;
+    border-radius: 8px;
+    background: #f8fdff;}
+.travelplus-legal-search i{color: var(--primary-color1);}
+.travelplus-legal-search input{width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--title-color);
+    font-size: 15px;
+    font-weight: 700;}
+.travelplus-legal-highlight, .travelplus-legal-note{display: grid;
+    gap: 8px;
+    padding: 16px 18px;
+    border: 1px solid rgba(255, 123, 36, .34);
+    border-left: 4px solid #ff7a1a;
+    border-radius: 8px;
+    background: #fff8ef;}
+.travelplus-legal-highlight strong{color: #b74300;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;}
+.travelplus-legal-highlight p, .travelplus-legal-note p{margin: 0;
+    color: rgba(var(--title-color-opc), .78);
+    font-size: 15px;
+    line-height: 1.7;}
+.travelplus-legal-page .legal-content{padding: 34px 38px;}
+.travelplus-legal-section{scroll-margin-top: 120px;}
+.travelplus-legal-section[hidden]{display: none;}
+.travelplus-legal-section h2{display: flex;
+    align-items: center;
+    gap: 8px;}
+.travelplus-legal-anchor{display: inline-flex;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: rgba(var(--title-color-opc), .3);
+    font-size: 18px;
+    text-decoration: none;
+    opacity: 0;
+    transition: color .18s ease, background .18s ease, opacity .18s ease;}
+.travelplus-legal-section:hover .travelplus-legal-anchor, .travelplus-legal-anchor:focus{opacity: 1;}
+.travelplus-legal-anchor:hover{background: #eef9fe;
+    color: var(--primary-color1);}
+.travelplus-legal-note{grid-template-columns: 22px minmax(0, 1fr);
+    align-items: start;
+    margin: 16px 0 0;
+    border-color: #bfe7f6;
+    border-left-color: var(--primary-color1);
+    background: #f2fbff;}
+.travelplus-legal-note i{margin-top: 4px;
+    color: var(--primary-color1);}
+.travelplus-legal-subsection{padding: 18px 0 0;}
+.travelplus-legal-subsection h3{font-size: 19px;}
+.travelplus-legal-faq, .travelplus-legal-cta{padding: 30px;
+    border: 1px solid #d7edf6;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 18px 48px rgba(0, 38, 61, .07);}
+.travelplus-legal-faq h2, .travelplus-legal-cta h2{margin: 0 0 16px;
+    color: var(--title-color);
+    font-size: 28px;
+    font-weight: 850;
+    line-height: 1.22;}
+.travelplus-legal-faq__list{display: grid;
+    gap: 10px;}
+.travelplus-legal-faq details{border: 1px solid #d7edf6;
+    border-radius: 8px;
+    background: #f9fdff;}
+.travelplus-legal-faq summary{display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px 18px;
+    color: var(--title-color);
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 850;
+    line-height: 1.4;}
+.travelplus-legal-faq summary::after{content: "\F282";
+    font-family: bootstrap-icons;
+    color: var(--primary-color1);
+    font-size: 14px;}
+.travelplus-legal-faq details[open] summary::after{content: "\F286";}
+.travelplus-legal-faq details p{margin: 0;
+    padding: 0 18px 18px;
+    color: rgba(var(--title-color-opc), .72);
+    font-size: 15px;
+    line-height: 1.75;}
+.travelplus-legal-cta{background: linear-gradient(135deg, #f2fbff 0%, #fff 58%, #fff8ef 100%);}
+.travelplus-legal-cta > span{display: inline-flex;
+    margin-bottom: 10px;
+    color: var(--primary-color1);
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;}
+.travelplus-legal-cta h2{max-width: 760px;
+    margin-bottom: 10px;}
+.travelplus-legal-cta p{max-width: 760px;
+    margin: 0;
+    color: rgba(var(--title-color-opc), .72);
+    font-size: 16px;
+    line-height: 1.7;}
+.travelplus-legal-cta__actions{display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 22px;}
+.travelplus-legal-cta__secondary{display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 12px 20px;
+    border: 1px solid #bfe7f6;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--primary-color1);
+    font-size: 15px;
+    font-weight: 850;
+    line-height: 1.2;
+    text-decoration: none;}
+.travelplus-legal-cta__secondary:hover{border-color: rgba(var(--primary-color1-opc), .42);
+    color: var(--primary-color1);}
+@media (max-width: 991px){.travelplus-legal-layout{grid-template-columns: 1fr;}
+.travelplus-legal-sidebar{position: static;}
+.travelplus-legal-toc{grid-template-columns: repeat(2, minmax(0, 1fr));}
+}
+@media (max-width: 767px){.travelplus-legal-head{margin-bottom: 24px;}
+.travelplus-legal-meta{justify-content: flex-start;}
+.travelplus-legal-layout{gap: 18px;}
+.travelplus-legal-sidebar__card, .travelplus-legal-tools, .travelplus-legal-highlight, .travelplus-legal-faq, .travelplus-legal-cta{padding: 18px;}
+.travelplus-legal-toc{grid-template-columns: 1fr;
+        max-height: 360px;
+        overflow: auto;}
+.travelplus-legal-page .legal-content{padding: 22px;}
+.travelplus-legal-section h2{font-size: 23px;}
+.travelplus-legal-anchor{opacity: 1;}
+.travelplus-legal-page .legal-content p, .travelplus-legal-page .legal-bullet-list li{font-size: 15px;
+        line-height: 1.75;}
+.travelplus-legal-faq h2, .travelplus-legal-cta h2{font-size: 24px;}
+.travelplus-legal-faq summary{padding: 14px 15px;
+        font-size: 15px;}
+.travelplus-legal-faq details p{padding: 0 15px 15px;}
+}
+@media print{.travelplus-legal-page{padding: 0;
+        background: #fff;}
+.travelplus-legal-shell{max-width: none;}
+.travelplus-legal-head{text-align: left;}
+.travelplus-legal-layout{display: block;}
+.travelplus-legal-page .legal-content, .travelplus-legal-faq{padding: 0;
+        border: 0;
+        box-shadow: none;}
+.travelplus-legal-section{break-inside: avoid;}
+}

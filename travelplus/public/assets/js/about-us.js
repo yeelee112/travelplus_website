@@ -3,16 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
     
   new Swiper(".about-page-journey-slider", {
     slidesPerView: "auto",
-    speed: 1500,
+    speed: 450,
     spaceBetween: 24,
-    autoplay: {
-      delay: 2500,
-      pauseOnMouseEnter: true,
-      disableOnInteraction: false,
-    },
+    grabCursor: true,
     breakpoints: {
-      280: { slidesPerView: 1 },
-      350: { slidesPerView: 2, spaceBetween: 10 },
+      280: { slidesPerView: 1.45, spaceBetween: 8 },
+      350: { slidesPerView: 2.25, spaceBetween: 8 },
       576: { slidesPerView: 3 },
       768: { slidesPerView: 4, spaceBetween: 10 },
       992: { slidesPerView: 5, spaceBetween: 15 },

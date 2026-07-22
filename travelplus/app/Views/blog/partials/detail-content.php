@@ -5,6 +5,7 @@ $locale = service('request')->getLocale() ?: 'vi';
 $t = static fn(string $key) => lang('Frontend.' . $key, [], $locale);
 $listUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
 $blogImage = ! empty($blog['image']) ? base_url((string) $blog['image']) : base_url('assets/images/home/banner02.webp');
+$blogImageSrcset = responsive_image_srcset($blogImage, [480, 960, 1440]);
 $title = trim((string) ($blog['title'] ?? ''));
 $excerpt = trim((string) ($blog['excerpt'] ?? ''));
 $content = trim((string) ($blog['content'] ?? ''));
@@ -58,12 +59,12 @@ $labels = $locale === 'en'
                     <?php if ($publishedLabel !== ''): ?>
                         <li>
                             <i class="bi bi-calendar3"></i>
-                            <span><?= esc($labels['published']) ?>: <time datetime="<?= esc($publishedIso, 'attr') ?>"><?= esc($publishedLabel) ?></time></span>
+                            <span><span class="travelplus-blog-meta-label"><?= esc($labels['published']) ?>: </span><time datetime="<?= esc($publishedIso, 'attr') ?>"><?= esc($publishedLabel) ?></time></span>
                         </li>
                     <?php endif; ?>
                     <li>
                         <i class="bi bi-person-circle"></i>
-                        <span><?= esc($labels['by']) ?> <?= esc($author) ?></span>
+                        <span><span class="travelplus-blog-meta-label"><?= esc($labels['by']) ?> </span><?= esc($author) ?></span>
                     </li>
                     <li>
                         <i class="bi bi-clock"></i>
@@ -72,7 +73,15 @@ $labels = $locale === 'en'
                 </ul>
             </div>
             <figure class="travelplus-blog-cover">
-                <img src="<?= esc($blogImage, 'attr') ?>" alt="<?= esc($title, 'attr') ?>" width="760" height="500" loading="eager" decoding="async" fetchpriority="high">
+                <img
+                    src="<?= esc($blogImage, 'attr') ?>"
+                    <?php if ($blogImageSrcset !== ''): ?>srcset="<?= esc($blogImageSrcset, 'attr') ?>" sizes="(max-width: 991px) calc(100vw - 40px), 760px"<?php endif; ?>
+                    alt="<?= esc($title, 'attr') ?>"
+                    width="760"
+                    height="500"
+                    loading="eager"
+                    decoding="async"
+                    fetchpriority="high">
             </figure>
         </div>
     </div>
@@ -108,12 +117,16 @@ $labels = $locale === 'en'
                 </div>
 
                 <?php if ($relatedBlogs !== []): ?>
-                    <div class="travelplus-blog-side-card">
+                    <div class="travelplus-blog-side-card travelplus-blog-side-card--related">
                         <h2><?= esc($t('blog.relatedPosts')) ?></h2>
                         <div class="travelplus-blog-related-list">
                             <?php foreach ($relatedBlogs as $relatedBlog): ?>
+                                <?php
+                                $relatedImageUrl = base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.webp'));
+                                $relatedImageSrcset = responsive_image_srcset($relatedImageUrl, [480]);
+                                ?>
                                 <a class="travelplus-blog-related-item" href="<?= esc((string) $relatedBlog['link'], 'attr') ?>">
-                                    <img src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.webp')), 'attr') ?>" alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="92" height="72" loading="lazy" decoding="async">
+                                    <img src="<?= esc($relatedImageUrl, 'attr') ?>" <?php if ($relatedImageSrcset !== ''): ?>srcset="<?= esc($relatedImageSrcset, 'attr') ?>" sizes="92px"<?php endif; ?> alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="92" height="72" loading="lazy" decoding="async">
                                     <span>
                                         <small><?= esc((string) $relatedBlog['published_label']) ?></small>
                                         <strong><?= esc((string) $relatedBlog['title']) ?></strong>
@@ -134,8 +147,12 @@ $labels = $locale === 'en'
                 </div>
                 <div class="travelplus-blog-more-grid">
                     <?php foreach (array_slice($relatedBlogs, 0, 3) as $relatedBlog): ?>
+                        <?php
+                        $relatedImageUrl = base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.webp'));
+                        $relatedImageSrcset = responsive_image_srcset($relatedImageUrl, [480, 960]);
+                        ?>
                         <a class="travelplus-blog-more-card" href="<?= esc((string) $relatedBlog['link'], 'attr') ?>">
-                            <img src="<?= esc(base_url((string) ($relatedBlog['image'] ?? 'assets/images/home/banner02.webp')), 'attr') ?>" alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="420" height="280" loading="lazy" decoding="async">
+                            <img src="<?= esc($relatedImageUrl, 'attr') ?>" <?php if ($relatedImageSrcset !== ''): ?>srcset="<?= esc($relatedImageSrcset, 'attr') ?>" sizes="(max-width: 767px) calc(100vw - 40px), 420px"<?php endif; ?> alt="<?= esc((string) $relatedBlog['title'], 'attr') ?>" width="420" height="280" loading="lazy" decoding="async">
                             <span><?= esc((string) $relatedBlog['published_label']) ?></span>
                             <h3><?= esc((string) $relatedBlog['title']) ?></h3>
                             <?php if (! empty($relatedBlog['excerpt'])): ?>

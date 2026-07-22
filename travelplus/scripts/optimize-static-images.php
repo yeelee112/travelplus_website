@@ -53,4 +53,23 @@ foreach ($images as [$relativePath, $maxDimension]) {
     fwrite(STDOUT, "ok\t{$relativePath}\t-{$savedBytes} bytes" . PHP_EOL);
 }
 
+$responsiveImages = [
+    'public/assets/images/home/banner01.webp',
+    'public/assets/images/home/banner02.webp',
+    'public/assets/images/home/banner03.webp',
+];
+
+foreach ($responsiveImages as $relativePath) {
+    $sourcePath = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
+    $variants = $optimizer->generateResponsiveVariants($sourcePath, [768, 1280, 1600], 78);
+
+    if (count($variants) !== 3) {
+        $failed = true;
+        fwrite(STDERR, "fail\t{$relativePath}\tResponsive variants could not be generated." . PHP_EOL);
+        continue;
+    }
+
+    fwrite(STDOUT, "responsive\t{$relativePath}\t" . count($variants) . " variants" . PHP_EOL);
+}
+
 exit($failed ? 1 : 0);

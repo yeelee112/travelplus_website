@@ -72,6 +72,17 @@ $visaLeadForm = $locale === 'en'
         'submit' => 'Gửi hồ sơ để Travel Plus tư vấn',
         'loading' => 'Đang gửi...',
     ];
+$visaLeadOptionalTitle = $locale === 'en' ? 'Additional application details' : 'Thông tin hồ sơ bổ sung';
+$visaLeadOptionalDesc = $locale === 'en'
+    ? 'Applicant count, expected timing, refusal history and notes'
+    : 'Số người, thời gian dự kiến, lịch sử từ chối và ghi chú';
+$visaLeadOptionalOpen = false;
+foreach (['travelers', 'estimated_time', 'visa_refusal', 'message'] as $optionalField) {
+    if (trim((string) old($optionalField)) !== '') {
+        $visaLeadOptionalOpen = true;
+        break;
+    }
+}
 $metricIcons = [
     '<svg width="50" height="50" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M9 2h6a2 2 0 0 1 2 2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1a2 2 0 0 1 2-2Zm0 2v2h6V4H9Zm-3 2v14h12V6h-1v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V6H6Zm9.7 5.3a1 1 0 0 1 0 1.4l-4.2 4.2a1 1 0 0 1-1.4 0l-2-2a1 1 0 1 1 1.4-1.4l1.3 1.29 3.49-3.49a1 1 0 0 1 1.41 0Z"></path></svg>',
     '<svg width="50" height="50" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M11 3a8 8 0 0 1 6.32 12.9l3.39 3.39a1 1 0 0 1-1.42 1.42l-3.39-3.39A8 8 0 1 1 11 3Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm3.7 3.3a1 1 0 0 1 0 1.4l-4.2 4.2a1 1 0 0 1-1.4 0l-1.8-1.8a1 1 0 1 1 1.4-1.4l1.1 1.09 3.49-3.49a1 1 0 0 1 1.41 0Z"></path></svg>',
@@ -251,15 +262,24 @@ $flagMap = [
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label>
+                </div>
+
+                <details class="visa-lead-optional" <?= $visaLeadOptionalOpen ? 'open' : '' ?>>
+                    <summary>
+                        <span><?= esc($visaLeadOptionalTitle) ?></span>
+                        <small><?= esc($visaLeadOptionalDesc) ?></small>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </summary>
+                    <div class="visa-lead-optional-grid">
+                        <label>
                         <span><?= esc($visaLeadForm['travelersLabel']) ?></span>
                         <input type="text" name="travelers" value="<?= esc((string) old('travelers'), 'attr') ?>" placeholder="<?= esc($visaLeadForm['travelersPlaceholder'], 'attr') ?>">
-                    </label>
-                    <label>
+                        </label>
+                        <label>
                         <span><?= esc($visaLeadForm['timingLabel']) ?></span>
                         <input type="text" name="estimated_time" value="<?= esc((string) old('estimated_time'), 'attr') ?>" placeholder="<?= esc($visaLeadForm['timingPlaceholder'], 'attr') ?>">
-                    </label>
-                    <label>
+                        </label>
+                        <label>
                         <span><?= esc($visaLeadForm['refusalLabel']) ?></span>
                         <select name="visa_refusal">
                             <?php foreach ($visaLeadForm['refusalOptions'] as $option): ?>
@@ -268,12 +288,13 @@ $flagMap = [
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                    </label>
-                    <label class="visa-lead-message">
+                        </label>
+                        <label class="visa-lead-message">
                         <span><?= esc($visaLeadForm['messageLabel']) ?></span>
                         <textarea name="message" rows="4" placeholder="<?= esc($visaLeadForm['messagePlaceholder'], 'attr') ?>"><?= esc((string) old('message')) ?></textarea>
-                    </label>
-                </div>
+                        </label>
+                    </div>
+                </details>
 
                 <label class="visa-lead-check" for="visaLeadPrivacyAgree">
                     <input type="checkbox" name="privacy_agree" value="1" id="visaLeadPrivacyAgree" <?= old('privacy_agree') ? 'checked' : '' ?> required>

@@ -32,6 +32,8 @@ $labels = $locale === 'en'
         ],
         'formTitle' => 'Send a consultation request',
         'formDesc' => 'The more context you share, the more accurately Travel Plus can advise.',
+        'optionalTitle' => 'Trip details (optional)',
+        'optionalDesc' => 'Destination, group size, timing and hotel standard',
         'officeTitle' => 'Travel Plus offices',
         'officeDesc' => 'Work with Travel Plus in Ho Chi Minh City, Hanoi or Da Nang for travel consultation, visa support and MICE operations.',
         'mapTitle' => 'Visit Travel Plus',
@@ -56,6 +58,8 @@ $labels = $locale === 'en'
         ],
         'formTitle' => 'Gửi yêu cầu tư vấn',
         'formDesc' => 'Bạn mô tả càng rõ nhu cầu, Travel Plus càng tư vấn chính xác.',
+        'optionalTitle' => 'Thông tin chuyến đi (không bắt buộc)',
+        'optionalDesc' => 'Điểm đến, số khách, thời gian và tiêu chuẩn khách sạn',
         'officeTitle' => 'Văn phòng Travel Plus',
         'officeDesc' => 'Travel Plus hỗ trợ khách hàng tại TP.HCM, Hà Nội và Đà Nẵng cho tour, visa và vận hành MICE.',
         'mapTitle' => 'Ghé Travel Plus',
@@ -144,7 +148,7 @@ $customTourFields = $locale === 'en'
                             <strong><?= esc((string) ($index + 1)) ?></strong>
                             <span>
                                 <b><?= esc($step[0]) ?></b>
-                                <?= esc($step[1]) ?>
+                                <small><?= esc($step[1]) ?></small>
                             </span>
                         </li>
                     <?php endforeach; ?>
@@ -227,34 +231,52 @@ $customTourFields = $locale === 'en'
                         </label>
                         <label>
                             <span><?= esc(lang('Frontend.contact.phone', [], $locale)) ?></span>
-                            <input type="tel" name="phone" value="<?= esc((string) old('phone'), 'attr') ?>" placeholder="+84..." autocomplete="tel" required>
+                            <input
+                                type="tel"
+                                name="phone"
+                                value="<?= esc((string) old('phone'), 'attr') ?>"
+                                placeholder="<?= esc($locale === 'en' ? '(+84) 79 123 4567' : '079 123 4567', 'attr') ?>"
+                                autocomplete="tel"
+                                inputmode="tel"
+                                required>
                         </label>
-                        <label>
-                            <span><?= esc(lang('Frontend.contact.destination', [], $locale)) ?></span>
-                            <input type="text" name="destination" value="<?= esc((string) old('destination'), 'attr') ?>" placeholder="<?= esc(lang('Frontend.contact.destinationPlaceholder', [], $locale), 'attr') ?>">
-                        </label>
-                        <label>
-                            <span><?= esc($customTourFields['travelersLabel']) ?></span>
-                            <input type="text" name="travelers" value="<?= esc((string) old('travelers'), 'attr') ?>" placeholder="<?= esc($customTourFields['travelersPlaceholder'], 'attr') ?>">
-                        </label>
-                        <label>
-                            <span><?= esc($customTourFields['estimatedTimeLabel']) ?></span>
-                            <input type="text" name="estimated_time" value="<?= esc((string) old('estimated_time'), 'attr') ?>" placeholder="<?= esc($customTourFields['estimatedTimePlaceholder'], 'attr') ?>">
-                        </label>
-                        <label>
-                            <span><?= esc($customTourFields['tripLengthLabel']) ?></span>
-                            <input type="text" name="trip_length" value="<?= esc((string) old('trip_length'), 'attr') ?>" placeholder="<?= esc($customTourFields['tripLengthPlaceholder'], 'attr') ?>">
-                        </label>
-                        <label>
-                            <span><?= esc($customTourFields['hotelRatingLabel']) ?></span>
-                            <select name="hotel_rating">
-                                <?php foreach ($customTourFields['hotelOptions'] as $optionValue => $optionLabel): ?>
-                                    <option value="<?= esc((string) $optionValue, 'attr') ?>" <?= old('hotel_rating') === (string) $optionValue ? 'selected' : '' ?>>
-                                        <?= esc((string) $optionLabel) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </label>
+                        <details class="travelplus-contact-optional"<?= old('destination') || old('travelers') || old('estimated_time') || old('trip_length') || old('hotel_rating') ? ' open' : '' ?>>
+                            <summary>
+                                <span>
+                                    <strong><?= esc($labels['optionalTitle']) ?></strong>
+                                    <small><?= esc($labels['optionalDesc']) ?></small>
+                                </span>
+                                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                            </summary>
+                            <div class="travelplus-contact-optional-grid">
+                                <label>
+                                    <span><?= esc(lang('Frontend.contact.destination', [], $locale)) ?></span>
+                                    <input type="text" name="destination" value="<?= esc((string) old('destination'), 'attr') ?>" placeholder="<?= esc(lang('Frontend.contact.destinationPlaceholder', [], $locale), 'attr') ?>">
+                                </label>
+                                <label>
+                                    <span><?= esc($customTourFields['travelersLabel']) ?></span>
+                                    <input type="text" name="travelers" value="<?= esc((string) old('travelers'), 'attr') ?>" placeholder="<?= esc($customTourFields['travelersPlaceholder'], 'attr') ?>">
+                                </label>
+                                <label>
+                                    <span><?= esc($customTourFields['estimatedTimeLabel']) ?></span>
+                                    <input type="text" name="estimated_time" value="<?= esc((string) old('estimated_time'), 'attr') ?>" placeholder="<?= esc($customTourFields['estimatedTimePlaceholder'], 'attr') ?>">
+                                </label>
+                                <label>
+                                    <span><?= esc($customTourFields['tripLengthLabel']) ?></span>
+                                    <input type="text" name="trip_length" value="<?= esc((string) old('trip_length'), 'attr') ?>" placeholder="<?= esc($customTourFields['tripLengthPlaceholder'], 'attr') ?>">
+                                </label>
+                                <label>
+                                    <span><?= esc($customTourFields['hotelRatingLabel']) ?></span>
+                                    <select name="hotel_rating">
+                                        <?php foreach ($customTourFields['hotelOptions'] as $optionValue => $optionLabel): ?>
+                                            <option value="<?= esc((string) $optionValue, 'attr') ?>" <?= old('hotel_rating') === (string) $optionValue ? 'selected' : '' ?>>
+                                                <?= esc((string) $optionLabel) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </label>
+                            </div>
+                        </details>
                         <label class="travelplus-contact-form-message">
                             <span><?= esc(lang('Frontend.contact.message', [], $locale)) ?></span>
                             <textarea name="message" rows="6" placeholder="<?= esc(lang('Frontend.contact.messagePlaceholder', [], $locale), 'attr') ?>" required><?= esc((string) old('message')) ?></textarea>

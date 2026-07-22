@@ -24,6 +24,9 @@
     .tp-ai-chatbox__contact-option--phone{grid-template-columns:44px minmax(0,1fr);min-height:62px;border-color:#e64532;background:linear-gradient(135deg,#ff7a2f 0%,#ef3f45 100%);box-shadow:0 12px 28px rgba(239,63,69,.32)}
     .tp-ai-chatbox__contact-option--phone i{grid-row:1;width:44px;height:44px;background:#fff;color:#ef493b;font-size:19px;box-shadow:0 5px 14px rgba(125,32,28,.2)}
     .tp-ai-chatbox__contact-option--phone strong{color:#fff;font-size:20px;font-weight:900;line-height:1.15}
+    .tp-ai-chatbox__contact-option--phone-en{grid-template-columns:42px minmax(0,1fr);gap:2px 10px}
+    .tp-ai-chatbox__contact-option--phone-en i{width:42px;height:42px}
+    .tp-ai-chatbox__contact-option--phone-en strong{font-size:17px;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums}
     .tp-ai-chatbox__contact-option--phone:hover{border-color:#d9362e;background:linear-gradient(135deg,#ff6a26 0%,#dd303a 100%);color:#fff;box-shadow:0 16px 34px rgba(239,63,69,.4)}
     .tp-ai-chatbox__contact-option--zalo i{background:#0068ff}
     .tp-ai-chatbox__toggle{display:flex;align-items:center;gap:12px;min-width:0;border:1px solid #d8e6f4;padding:14px 18px;border-radius:999px;background:linear-gradient(180deg,#ffffff 0%,#eef7ff 100%);color:#12324a;box-shadow:0 18px 40px rgba(15,23,42,.14)}
@@ -84,6 +87,7 @@
         .tp-ai-chatbox__contact{bottom:70px}
         .tp-ai-chatbox__contact-toggle{width:52px;height:52px;font-size:20px;box-shadow:0 16px 32px rgba(255,107,53,.36),0 10px 22px rgba(226,55,55,.28)}
         .tp-ai-chatbox__contact-panel{bottom:58px;width:min(272px,calc(100vw - 24px))}
+        .tp-ai-chatbox__contact-option--phone-en strong{font-size:16px}
         .tp-ai-chatbox__toggle{width:48px;height:48px;min-width:48px;gap:0;padding:0;justify-content:center;border-radius:999px;box-shadow:0 14px 30px rgba(15,23,42,.16)}
         .tp-ai-chatbox__toggle-icon{width:48px;height:48px;border-radius:999px;font-size:17px;flex:0 0 48px}
         .tp-ai-chatbox__toggle-copy{display:none}
@@ -121,5 +125,4 @@
     .travelplus-footer__cookie-button:hover{color:var(--primary-color1)}
     body.tp-cookie-panel-open .tp-ai-chatbox{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px)}
     @media (max-width:991px){.tp-cookie-consent__panel{grid-template-columns:1fr}.tp-cookie-consent__actions{justify-content:flex-start}.tp-cookie-consent__choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:767px){.tp-cookie-consent{padding:10px}.tp-cookie-consent__panel{gap:14px;padding:16px;border-radius:18px}.tp-cookie-consent h2{font-size:19px}.tp-cookie-consent p{font-size:13px;line-height:1.55}.tp-cookie-consent__actions{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:8px}.tp-cookie-btn{width:100%;min-height:40px;padding:9px 12px;font-size:12px}.tp-cookie-btn--link,.tp-cookie-consent__actions [data-cookie-save]{grid-column:1 / -1}.tp-cookie-consent__choices{grid-template-columns:1fr;max-height:44vh;overflow:auto;padding-right:2px}.tp-cookie-choice{min-height:0;padding:12px}}
-
+    @media (max-width:767px){.tp-cookie-consent{padding:10px}.tp-cookie-consent__panel{gap:14px;padding:16px;border-radius:18px}.tp-cookie-consent h2{font-size:19px}.tp-cookie-consent p{font-size:13px;line-height:1.55}.tp-cookie-consent__actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:8px}.tp-cookie-btn{width:100%;min-width:0;min-height:40px;padding:9px 10px;font-size:12px;white-space:normal}.tp-cookie-btn--link,.tp-cookie-consent__actions [data-cookie-save]{grid-column:1 / -1}.tp-cookie-consent__choices{grid-template-columns:1fr;max-height:44vh;overflow:auto;padding-right:2px}.tp-cookie-choice{min-height:0;padding:12px}}

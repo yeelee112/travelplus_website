@@ -89,10 +89,15 @@ $articleCards = $featuredBlog !== null
             </div>
         <?php else: ?>
             <?php if ($featuredBlog !== null): ?>
+                <?php
+                $featuredImageUrl = $imageUrl((string) ($featuredBlog['image'] ?? ''));
+                $featuredImageSrcset = responsive_image_srcset($featuredImageUrl, [480, 960, 1440]);
+                ?>
                 <article class="travelplus-blog-featured">
                     <a class="travelplus-blog-featured-image" href="<?= esc((string) $featuredBlog['link'], 'attr') ?>" aria-label="<?= esc((string) $featuredBlog['title'], 'attr') ?>">
                         <img
-                            src="<?= esc($imageUrl((string) ($featuredBlog['image'] ?? '')), 'attr') ?>"
+                            src="<?= esc($featuredImageUrl, 'attr') ?>"
+                            <?php if ($featuredImageSrcset !== ''): ?>srcset="<?= esc($featuredImageSrcset, 'attr') ?>" sizes="(max-width: 991px) calc(100vw - 40px), 760px"<?php endif; ?>
                             alt="<?= esc((string) $featuredBlog['title'], 'attr') ?>"
                             width="760"
                             height="500"
@@ -143,10 +148,15 @@ $articleCards = $featuredBlog !== null
 
                     <div class="travelplus-blog-card-grid">
                         <?php foreach ($articleCards as $blog): ?>
+                            <?php
+                            $cardImageUrl = $imageUrl((string) ($blog['image'] ?? ''));
+                            $cardImageSrcset = responsive_image_srcset($cardImageUrl, [480, 960]);
+                            ?>
                             <article class="travelplus-blog-list-card">
                                 <a class="travelplus-blog-list-card-image" href="<?= esc((string) $blog['link'], 'attr') ?>">
                                     <img
-                                        src="<?= esc($imageUrl((string) ($blog['image'] ?? '')), 'attr') ?>"
+                                        src="<?= esc($cardImageUrl, 'attr') ?>"
+                                        <?php if ($cardImageSrcset !== ''): ?>srcset="<?= esc($cardImageSrcset, 'attr') ?>" sizes="(max-width: 767px) calc(100vw - 40px), 420px"<?php endif; ?>
                                         alt="<?= esc((string) $blog['title'], 'attr') ?>"
                                         width="420"
                                         height="280"
@@ -162,6 +172,14 @@ $articleCards = $featuredBlog !== null
                                     </span>
                                 </a>
                                 <div class="travelplus-blog-list-card-body">
+                                    <div class="travelplus-blog-card-meta" aria-label="<?= esc($locale === 'en' ? 'Article information' : 'Thông tin bài viết', 'attr') ?>">
+                                        <?php if (! empty($blog['category'])): ?>
+                                            <span><i class="bi bi-folder2-open" aria-hidden="true"></i><?= esc((string) $blog['category']) ?></span>
+                                        <?php endif; ?>
+                                        <?php if (! empty($blog['published_label'])): ?>
+                                            <time><i class="bi bi-calendar3" aria-hidden="true"></i><?= esc((string) $blog['published_label']) ?></time>
+                                        <?php endif; ?>
+                                    </div>
                                     <h3><a href="<?= esc((string) $blog['link'], 'attr') ?>"><?= esc((string) $blog['title']) ?></a></h3>
                                     <?php if (! empty($blog['excerpt'])): ?>
                                         <p><?= esc((string) $blog['excerpt']) ?></p>
@@ -227,7 +245,7 @@ $articleCards = $featuredBlog !== null
                             <h2><?= esc($labels['topics']) ?></h2>
                             <div class="travelplus-blog-topic-list">
                                 <?php foreach ($categories as $category): ?>
-                                    <a href="<?= esc($listUrl, 'attr') ?>"><?= esc($category) ?></a>
+                                    <span><?= esc($category) ?></span>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -244,13 +262,18 @@ $articleCards = $featuredBlog !== null
                     </div>
 
                     <?php if ($recentBlogs !== []): ?>
-                        <div class="travelplus-blog-list-panel">
+                        <div class="travelplus-blog-list-panel travelplus-blog-list-panel--recent">
                             <h2><?= esc($labels['recent']) ?></h2>
                             <div class="travelplus-blog-list-recent">
                                 <?php foreach ($recentBlogs as $recentBlog): ?>
+                                    <?php
+                                    $recentImageUrl = $imageUrl((string) ($recentBlog['image'] ?? ''));
+                                    $recentImageSrcset = responsive_image_srcset($recentImageUrl, [480]);
+                                    ?>
                                     <a href="<?= esc((string) $recentBlog['link'], 'attr') ?>">
                                         <img
-                                            src="<?= esc($imageUrl((string) ($recentBlog['image'] ?? '')), 'attr') ?>"
+                                            src="<?= esc($recentImageUrl, 'attr') ?>"
+                                            <?php if ($recentImageSrcset !== ''): ?>srcset="<?= esc($recentImageSrcset, 'attr') ?>" sizes="92px"<?php endif; ?>
                                             alt="<?= esc((string) $recentBlog['title'], 'attr') ?>"
                                             width="92"
                                             height="72"

@@ -9,6 +9,7 @@ class SearchAnalyticsService
 {
     private const VISITOR_TOKEN_KEY = 'analytics_visitor_token';
     private const VISIT_TOKEN_KEY = 'analytics_visit_token';
+    private const VISIT_ID_KEY = 'analytics_visit_id';
 
     private BaseConnection $db;
 
@@ -31,7 +32,8 @@ class SearchAnalyticsService
             return;
         }
 
-        if (! $this->db->tableExists('analytics_search_queries')) {
+        $schema = new DatabaseSchemaCacheService($this->db);
+        if (! $schema->tableExists('analytics_search_queries')) {
             return;
         }
 
@@ -42,12 +44,15 @@ class SearchAnalyticsService
         $session = session();
         $visitorToken = (string) $session->get(self::VISITOR_TOKEN_KEY);
         $visitToken = (string) $session->get(self::VISIT_TOKEN_KEY);
-        $visitId = $this->resolveVisitId($visitToken);
+        $visitId = (int) $session->get(self::VISIT_ID_KEY);
+        if ($visitId <= 0) {
+            $visitId = $this->resolveVisitId($visitToken, $schema) ?? 0;
+        }
         $userId = (int) (($authUser['id'] ?? 0) ?: 0) ?: null;
         $now = date('Y-m-d H:i:s');
 
         $this->db->table('analytics_search_queries')->insert([
-            'visit_id' => $visitId,
+            'visit_id' => $visitId > 0 ? $visitId : null,
             'visitor_token' => $visitorToken !== '' ? $visitorToken : null,
             'user_id' => $userId,
             'query_term' => $query !== '' ? $query : null,
@@ -63,9 +68,9 @@ class SearchAnalyticsService
         ]);
     }
 
-    private function resolveVisitId(string $visitToken): ?int
+    private function resolveVisitId(string $visitToken, DatabaseSchemaCacheService $schema): ?int
     {
-        if ($visitToken === '' || ! $this->db->tableExists('analytics_visits')) {
+        if ($visitToken === '' || ! $schema->tableExists('analytics_visits')) {
             return null;
         }
 

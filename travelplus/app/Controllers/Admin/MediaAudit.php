@@ -9,6 +9,7 @@ class MediaAudit extends BaseAdminController
 {
     private const OPTIMIZATION_THRESHOLD_BYTES = 300 * 1024;
     private const MAX_OPTIMIZATIONS_PER_REQUEST = 30;
+    private const RESPONSIVE_WIDTHS = [480, 960, 1440];
 
     public function index()
     {
@@ -100,6 +101,11 @@ class MediaAudit extends BaseAdminController
                 $failed++;
                 continue;
             }
+            $optimizer->generateResponsiveVariants(
+                (string) $result['output_path'],
+                self::RESPONSIVE_WIDTHS,
+                78
+            );
             if (! $result['optimized']) {
                 $registry->markCurrent($relativePath, $absolutePath);
                 $unchanged++;
@@ -164,6 +170,58 @@ class MediaAudit extends BaseAdminController
         return redirect()->to(site_url('admin/media-audit'))->with($optimized > 0 || $unchanged > 0 ? 'success' : 'error', $message);
     }
 
+    public function generateResponsive()
+    {
+        if ($redirect = $this->requireAdmin()) {
+            return $redirect;
+        }
+
+        $requestedFiles = $this->request->getPost('files');
+        $requestedFiles = is_array($requestedFiles)
+            ? array_values(array_unique(array_filter(array_map(fn ($path): string => $this->normalizeRelativePath((string) $path), $requestedFiles))))
+            : [];
+        $files = array_slice($requestedFiles, 0, self::MAX_OPTIMIZATIONS_PER_REQUEST);
+
+        if ($files === []) {
+            return redirect()->to(site_url('admin/media-audit'))->with('error', 'Chưa chọn ảnh cần tạo kích thước responsive.');
+        }
+
+        $db = db_connect();
+        $optimizer = new ImageOptimizationService();
+        $completed = 0;
+        $failed = 0;
+
+        foreach ($files as $relativePath) {
+            $absolutePath = $this->resolveManagedFilePath($relativePath, ['uploads/blogs/', 'uploads/tours/']);
+            $extension = strtolower(pathinfo($relativePath, PATHINFO_EXTENSION));
+
+            if ($absolutePath === null
+                || ! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)
+                || $this->countMediaReferences($db, $relativePath) < 1) {
+                $failed++;
+                continue;
+            }
+
+            $optimizer->generateResponsiveVariants($absolutePath, self::RESPONSIVE_WIDTHS, 78);
+            if ($this->missingResponsiveWidths($absolutePath) === []) {
+                $completed++;
+            } else {
+                $failed++;
+            }
+        }
+
+        $skippedByLimit = max(0, count($requestedFiles) - count($files));
+        $message = 'Đã tạo ảnh responsive cho ' . $completed . ' file.';
+        if ($failed > 0) {
+            $message .= ' Có ' . $failed . ' file không thể xử lý.';
+        }
+        if ($skippedByLimit > 0) {
+            $message .= ' Còn ' . $skippedByLimit . ' file; hãy chạy thêm một lượt để tránh timeout hosting.';
+        }
+
+        return redirect()->to(site_url('admin/media-audit'))->with($completed > 0 ? 'success' : 'error', $message);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -220,12 +278,25 @@ class MediaAudit extends BaseAdminController
         $allOrphans = array_merge($orphanBlogFiles, $orphanTourFiles);
         $referencedFiles = array_values(array_unique(array_merge($referencedBlogFiles, $referencedTourFiles)));
         $optimizable = [];
+        $responsiveMissing = [];
         $registry = new MediaOptimizationRegistry();
 
         foreach ($referencedFiles as $path) {
             $absolutePath = $this->resolveManagedFilePath($path, ['uploads/blogs/', 'uploads/tours/']);
             $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
             $size = $absolutePath !== null ? (int) (filesize($absolutePath) ?: 0) : 0;
+
+            if ($absolutePath !== null && in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                $missingWidths = $this->missingResponsiveWidths($absolutePath);
+                if ($missingWidths !== []) {
+                    $responsiveMissing[] = [
+                        'path' => $path,
+                        'size' => $size,
+                        'type' => strtoupper($extension),
+                        'missing_widths' => $missingWidths,
+                    ];
+                }
+            }
 
             if ($absolutePath === null || $size < self::OPTIMIZATION_THRESHOLD_BYTES || ! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
                 continue;
@@ -242,6 +313,7 @@ class MediaAudit extends BaseAdminController
         }
 
         usort($optimizable, static fn(array $left, array $right): int => ((int) $right['size']) <=> ((int) $left['size']));
+        usort($responsiveMissing, static fn(array $left, array $right): int => ((int) $right['size']) <=> ((int) $left['size']));
 
         return [
             'stats' => [
@@ -252,8 +324,10 @@ class MediaAudit extends BaseAdminController
                 'orphan_total' => count($allOrphans),
                 'optimizable_total' => count($optimizable),
                 'optimizable_bytes' => array_sum(array_column($optimizable, 'size')),
+                'responsive_missing_total' => count($responsiveMissing),
             ],
             'optimizable' => $optimizable,
+            'responsive_missing' => $responsiveMissing,
             'orphans' => array_map(function (string $path): array {
                 $absolutePath = $this->absolutePath($path);
 
@@ -286,6 +360,10 @@ class MediaAudit extends BaseAdminController
                 continue;
             }
 
+            if (preg_match('/-\d+w\.webp$/i', $item->getFilename()) === 1) {
+                continue;
+            }
+
             $absolutePath = str_replace('\\', '/', $item->getPathname());
             $root = str_replace('\\', '/', rtrim(FCPATH, '\\/'));
             $relativePath = ltrim(substr($absolutePath, strlen($root)), '/');
@@ -305,7 +383,18 @@ class MediaAudit extends BaseAdminController
             return false;
         }
 
-        return @unlink($absolutePath);
+        $deleted = @unlink($absolutePath);
+        if ($deleted) {
+            $directory = dirname($absolutePath);
+            $stem = pathinfo($absolutePath, PATHINFO_FILENAME);
+            foreach (glob($directory . DIRECTORY_SEPARATOR . $stem . '-*w.webp') ?: [] as $variantPath) {
+                if (preg_match('/-\d+w\.webp$/i', basename($variantPath)) === 1) {
+                    @unlink($variantPath);
+                }
+            }
+        }
+
+        return $deleted;
     }
 
     /**
@@ -415,6 +504,34 @@ class MediaAudit extends BaseAdminController
         }
 
         return 2000;
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function missingResponsiveWidths(string $absolutePath): array
+    {
+        $imageInfo = @getimagesize($absolutePath);
+        $sourceWidth = (int) ($imageInfo[0] ?? 0);
+        if ($sourceWidth < 1) {
+            return [];
+        }
+
+        $directory = dirname($absolutePath);
+        $stem = pathinfo($absolutePath, PATHINFO_FILENAME);
+        $missing = [];
+
+        foreach (self::RESPONSIVE_WIDTHS as $width) {
+            if ($width >= $sourceWidth) {
+                continue;
+            }
+
+            if (! is_file($directory . DIRECTORY_SEPARATOR . $stem . '-' . $width . 'w.webp')) {
+                $missing[] = $width;
+            }
+        }
+
+        return $missing;
     }
 
     private function formatBytes(int $bytes): string

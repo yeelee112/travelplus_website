@@ -183,16 +183,22 @@ class AuthController extends BaseController
             ->where('user_id', (int) $authUser['id'])
             ->orderBy('created_at', 'DESC')
             ->findAll(10);
-        $membershipBookings = (new BookingModel())
-            ->select('id, booking_code, user_id, payment_status, amount_paid_vnd, updated_at')
+        $bookingStats = db_connect()
+            ->table('bookings')
+            ->select('COUNT(*) AS booking_count', false)
+            ->select("SUM(CASE WHEN payment_status = 'paid' THEN 1 ELSE 0 END) AS paid_booking_count", false)
+            ->select("SUM(CASE WHEN payment_status IN ('draft', 'pending_payment', 'pending_transfer') THEN 1 ELSE 0 END) AS pending_booking_count", false)
             ->where('user_id', (int) $authUser['id'])
-            ->findAll();
+            ->get()
+            ->getRowArray() ?? [];
         $loyaltyPoints = new LoyaltyPointService();
-        $loyaltyPoints->syncBookings($membershipBookings);
-        $membership = (new LoyaltyMembershipService())->buildSnapshot(
-            $membershipBookings,
+        $membership = (new LoyaltyMembershipService())->buildSnapshotFromCounts(
+            (int) ($bookingStats['booking_count'] ?? 0),
+            (int) ($bookingStats['paid_booking_count'] ?? 0),
+            (int) ($bookingStats['pending_booking_count'] ?? 0),
             $loyaltyPoints->balanceForUser((int) $authUser['id'])
         );
+        $loyaltyHistory = $loyaltyPoints->historyForUser((int) $authUser['id'], 20);
         session()->set('header_membership', [
             'user_id' => (int) $authUser['id'],
             'tier_key' => (string) ($membership['current_tier']['key'] ?? 'member'),
@@ -203,6 +209,7 @@ class AuthController extends BaseController
             'user' => $user,
             'bookings' => $bookings,
             'membership' => $membership,
+            'loyaltyHistory' => $loyaltyHistory,
         ]);
     }
 

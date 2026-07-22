@@ -21,4 +21,12 @@ final class LoyaltyPointServiceTest extends CIUnitTestCase
     {
         $this->assertSame(0, (new LoyaltyPointService())->calculatePoints(-100000));
     }
+
+    public function testPreviewUsesTheSameRuleAsAwardedPoints(): void
+    {
+        $service = new LoyaltyPointService();
+
+        $this->assertSame(2599, LoyaltyPointService::previewPoints(25999000));
+        $this->assertSame($service->calculatePoints(160000000), LoyaltyPointService::previewPoints(160000000));
+    }
 }

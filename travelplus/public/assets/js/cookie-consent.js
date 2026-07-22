@@ -1,5 +1,28 @@
 (function () {
     const cookieName = 'tp_cookie_consent';
+    const analyticsQueue = [];
+    const flushAnalyticsQueue = function () {
+        if (typeof window.gtag !== 'function') {
+            return;
+        }
+
+        while (analyticsQueue.length > 0) {
+            const event = analyticsQueue.shift();
+            window.gtag('event', event.name, event.params);
+        }
+    };
+    window.travelplusTrackEvent = function (name, params) {
+        if (!name) {
+            return;
+        }
+
+        if (typeof window.gtag === 'function') {
+            window.gtag('event', name, params || {});
+            return;
+        }
+
+        analyticsQueue.push({ name: name, params: params || {} });
+    };
     const root = document.querySelector('[data-cookie-consent]');
 
     if (!root) {
@@ -64,12 +87,14 @@
         window.dispatchEvent(new CustomEvent('travelplus:cookie-consent', {
             detail: { categories: categories }
         }));
+        window.setTimeout(flushAnalyticsQueue, 0);
         closePanel();
     };
 
     const existingConsent = parseConsent();
     if (existingConsent.length > 0) {
         enableDeferredScripts(existingConsent);
+        window.setTimeout(flushAnalyticsQueue, 0);
     } else {
         root.hidden = false;
         document.body.classList.add('tp-cookie-panel-open');
@@ -121,4 +146,3 @@
         applyConsent(selected);
     });
 })();
-

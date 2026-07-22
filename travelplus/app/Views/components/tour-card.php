@@ -30,6 +30,7 @@ $copy = [
 $title = trim((string) ($tour['title'] ?? ''));
 $link = trim((string) ($tour['link'] ?? '#'));
 $image = trim((string) ($tour['image'] ?? '')) ?: base_url('assets/images/home/banner02.webp');
+$imageSrcset = responsive_image_srcset($image, [480, 960]);
 $badge = trim((string) ($tour['badge'] ?? ''));
 $promotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
 $promotionBadge = trim((string) ($promotion['badge'] ?? ''));
@@ -55,6 +56,11 @@ $departureLabel = trim((string) ($tour['departure'] ?? ''));
 $priceLabel = trim((string) ($tour['price']['label'] ?? ''));
 $priceAmount = (float) ($tour['price']['amount'] ?? 0);
 $priceCurrency = trim((string) ($tour['price']['currency'] ?? 'VND')) ?: 'VND';
+$loyaltyPoints = \App\Services\LoyaltyPointService::previewPoints($priceAmount);
+$loyaltyPointsLabel = number_format($loyaltyPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
+$loyaltyCopy = $locale === 'en'
+    ? 'Earn ' . $loyaltyPointsLabel . '+ member points'
+    : 'Từ ' . $loyaltyPointsLabel . ' điểm thành viên';
 $ariaLabel = $title !== '' ? $t('tourCard.viewDetails', [$title]) : $t('tourCard.cta');
 $tourToolCopy = [
     'wishlist' => $locale === 'en' ? 'Save tour' : 'Lưu tour',
@@ -106,7 +112,14 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
 
     <div class="package-img-wrap tp-tour-card__media">
         <a class="package-img tp-tour-card__image" href="<?= esc($link, 'attr') ?>" aria-label="<?= esc($ariaLabel, 'attr') ?>">
-            <img src="<?= esc($image, 'attr') ?>" alt="<?= esc($title, 'attr') ?>" loading="lazy" decoding="async" width="420" height="280">
+            <img
+                src="<?= esc($image, 'attr') ?>"
+                <?php if ($imageSrcset !== ''): ?>srcset="<?= esc($imageSrcset, 'attr') ?>" sizes="(max-width: 575px) calc(100vw - 40px), (max-width: 991px) 50vw, 420px"<?php endif; ?>
+                alt="<?= esc($title, 'attr') ?>"
+                loading="lazy"
+                decoding="async"
+                width="420"
+                height="280">
         </a>
 
         <div class="tp-tour-card__media-top">
@@ -114,6 +127,29 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
                 <span class="tp-tour-card__badge"><?= esc($badgeText) ?></span>
             <?php endif; ?>
             <span class="tp-tour-card__type"><?= esc($typeLabel) ?></span>
+        </div>
+
+        <div class="tp-tour-card__tools" aria-label="<?= esc($tourToolCopy['toolsLabel'], 'attr') ?>">
+            <button
+                type="button"
+                class="tp-tour-tool-btn"
+                data-tour-action="wishlist"
+                data-label-add="<?= esc($tourToolCopy['wishlist'], 'attr') ?>"
+                data-label-remove="<?= esc($tourToolCopy['wishlistSaved'], 'attr') ?>"
+                aria-pressed="false">
+                <i class="bi bi-heart" aria-hidden="true"></i>
+                <span data-tour-action-text><?= esc($tourToolCopy['wishlist']) ?></span>
+            </button>
+            <button
+                type="button"
+                class="tp-tour-tool-btn"
+                data-tour-action="compare"
+                data-label-add="<?= esc($tourToolCopy['compare'], 'attr') ?>"
+                data-label-remove="<?= esc($tourToolCopy['compareSaved'], 'attr') ?>"
+                aria-pressed="false">
+                <i class="bi bi-bar-chart" aria-hidden="true"></i>
+                <span data-tour-action-text><?= esc($tourToolCopy['compare']) ?></span>
+            </button>
         </div>
     </div>
 
@@ -155,33 +191,16 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
                 <?php endif; ?>
             </div>
 
-            <div class="tp-tour-card__tools" aria-label="<?= esc($tourToolCopy['toolsLabel'], 'attr') ?>">
-                <button
-                    type="button"
-                    class="tp-tour-tool-btn"
-                    data-tour-action="wishlist"
-                    data-label-add="<?= esc($tourToolCopy['wishlist'], 'attr') ?>"
-                    data-label-remove="<?= esc($tourToolCopy['wishlistSaved'], 'attr') ?>"
-                    aria-pressed="false">
-                    <i class="bi bi-heart" aria-hidden="true"></i>
-                    <span data-tour-action-text><?= esc($tourToolCopy['wishlist']) ?></span>
-                </button>
-                <button
-                    type="button"
-                    class="tp-tour-tool-btn"
-                    data-tour-action="compare"
-                    data-label-add="<?= esc($tourToolCopy['compare'], 'attr') ?>"
-                    data-label-remove="<?= esc($tourToolCopy['compareSaved'], 'attr') ?>"
-                    aria-pressed="false">
-                    <i class="bi bi-bar-chart" aria-hidden="true"></i>
-                    <span data-tour-action-text><?= esc($tourToolCopy['compare']) ?></span>
-                </button>
-            </div>
-
             <div class="tp-tour-card__footer" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
                 <div class="tp-tour-card__price">
                     <span><?= esc($copy['pricePrefix']) ?></span>
                     <strong><?= esc($priceLabel !== '' ? $priceLabel : $t('tour.sidebar.checkAvailability')) ?></strong>
+                    <?php if ($loyaltyPoints > 0): ?>
+                        <small class="tp-tour-card__points" title="<?= esc($locale === 'en' ? 'Actual points are based on the paid booking amount.' : 'Điểm thực nhận được tính theo số tiền booking đã thanh toán.', 'attr') ?>">
+                            <i class="bi bi-stars" aria-hidden="true"></i>
+                            <?= esc($loyaltyCopy) ?>
+                        </small>
+                    <?php endif; ?>
                     <?php if ($priceAmount > 0): ?>
                         <meta itemprop="price" content="<?= esc((string) $priceAmount, 'attr') ?>">
                         <meta itemprop="priceCurrency" content="<?= esc($priceCurrency, 'attr') ?>">

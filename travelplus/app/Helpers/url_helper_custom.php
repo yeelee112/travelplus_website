@@ -29,6 +29,95 @@ function frontend_asset_url(string $source, ?string $minified = null): string
     return base_url($asset . '?v=' . $version);
 }
 
+/**
+ * Builds a srcset from responsive WebP files stored next to an uploaded image.
+ * Variants use the "image-480w.webp" naming convention.
+ *
+ * @param list<int> $widths
+ */
+function responsive_image_srcset(string $source, array $widths = [480, 960, 1440]): string
+{
+    static $resolved = [];
+
+    $source = trim(html_entity_decode($source, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    $widths = array_values(array_unique(array_filter(array_map('intval', $widths), static fn (int $width): bool => $width >= 320)));
+    sort($widths);
+    $cacheKey = $source . '|' . implode(',', $widths);
+
+    if (isset($resolved[$cacheKey])) {
+        return $resolved[$cacheKey];
+    }
+
+    if ($source === '' || $widths === []) {
+        return $resolved[$cacheKey] = '';
+    }
+
+    $sourceParts = parse_url($source);
+    if ($sourceParts === false) {
+        return $resolved[$cacheKey] = '';
+    }
+
+    $sourceHost = strtolower((string) ($sourceParts['host'] ?? ''));
+    $baseHost = strtolower((string) (parse_url(base_url('/'), PHP_URL_HOST) ?? ''));
+    if ($sourceHost !== '' && $baseHost !== '' && $sourceHost !== $baseHost) {
+        return $resolved[$cacheKey] = '';
+    }
+
+    $urlPath = rawurldecode((string) ($sourceParts['path'] ?? ''));
+    $basePath = '/' . trim((string) (parse_url(base_url('/'), PHP_URL_PATH) ?? ''), '/');
+    if ($basePath !== '/' && str_starts_with($urlPath, $basePath . '/')) {
+        $urlPath = substr($urlPath, strlen($basePath));
+    }
+
+    $relativePath = ltrim(str_replace('\\', '/', $urlPath), '/');
+    if ($relativePath === '' || str_contains($relativePath, '..')) {
+        return $resolved[$cacheKey] = '';
+    }
+
+    $sourcePath = rtrim(FCPATH, '\\/') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
+    $sourceRealPath = realpath($sourcePath);
+    $publicRealPath = realpath(FCPATH);
+    if ($sourceRealPath === false || $publicRealPath === false) {
+        return $resolved[$cacheKey] = '';
+    }
+
+    $sourceRealPath = str_replace('\\', '/', $sourceRealPath);
+    $publicRealPath = rtrim(str_replace('\\', '/', $publicRealPath), '/') . '/';
+    if (! str_starts_with($sourceRealPath, $publicRealPath)) {
+        return $resolved[$cacheKey] = '';
+    }
+
+    $imageInfo = @getimagesize($sourceRealPath);
+    $sourceWidth = (int) ($imageInfo[0] ?? 0);
+    if ($sourceWidth < 1) {
+        return $resolved[$cacheKey] = '';
+    }
+
+    $directory = dirname($relativePath);
+    $stem = pathinfo($relativePath, PATHINFO_FILENAME);
+    $candidates = [];
+
+    foreach ($widths as $width) {
+        if ($width >= $sourceWidth) {
+            continue;
+        }
+
+        $variantRelativePath = ($directory === '.' ? '' : $directory . '/') . $stem . '-' . $width . 'w.webp';
+        $variantAbsolutePath = rtrim(FCPATH, '\\/') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $variantRelativePath);
+        if (is_file($variantAbsolutePath)) {
+            $candidates[] = base_url($variantRelativePath) . ' ' . $width . 'w';
+        }
+    }
+
+    if ($candidates === []) {
+        return $resolved[$cacheKey] = '';
+    }
+
+    $candidates[] = $source . ' ' . $sourceWidth . 'w';
+
+    return $resolved[$cacheKey] = implode(', ', $candidates);
+}
+
 function localized_url($path = '')
 {
     $locale = service('request')->getLocale();

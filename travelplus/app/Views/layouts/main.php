@@ -39,7 +39,13 @@ $usesSwiper = str_contains($contentSection, 'swiper-wrapper');
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
 $isLocalRequest = in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true);
-$googleAnalyticsId = 'G-W2FBGJD5YK';
+$googleAnalyticsId = trim((string) env('analytics.ga4MeasurementId', 'G-W2FBGJD5YK'));
+$googleSiteVerification = trim((string) env('seo.googleSiteVerification', ''));
+$analyticsEvents = is_array($analytics_events ?? null) ? $analytics_events : [];
+$flashAnalyticsEvent = session()->getFlashdata('analytics_event');
+if (is_array($flashAnalyticsEvent) && ! empty($flashAnalyticsEvent['name'])) {
+    $analyticsEvents[] = $flashAnalyticsEvent;
+}
 if (str_starts_with($requestHost, 'demo.') || $isFocusedFlow) {
     $metaRobots = 'noindex,nofollow,max-image-preview:large';
 }
@@ -50,6 +56,9 @@ $aiChatboxJsAssetUrl = frontend_asset_url('assets/js/ai-chatbox.js');
 $tourToolsJsAssetUrl = frontend_asset_url('assets/js/tour-tools.js');
 $cookieConsentJsAssetUrl = frontend_asset_url('assets/js/cookie-consent.js');
 $pageStyleAssets = [];
+if ($bodyClass === 'is-home-page') {
+    $pageStyleAssets[] = 'home';
+}
 if (str_contains($contentSection, 'visa-lead-') || str_contains($contentSection, 'visa-seo-')) {
     $pageStyleAssets[] = 'visa';
 }
@@ -73,6 +82,17 @@ if (str_contains($contentSection, 'checkout-stepper-')
 if (str_contains($contentSection, 'about-page-') || str_contains($contentSection, 'journey-pane')) {
     $pageStyleAssets[] = 'about';
 }
+if (str_contains($contentSection, 'travelplus-blog')) {
+    $pageStyleAssets[] = 'blog';
+}
+if (str_contains($contentSection, 'travelplus-legal')) {
+    $pageStyleAssets[] = 'legal';
+}
+if (str_contains($contentSection, 'travelplus-account-')
+    || str_contains($contentSection, 'travelplus-membership-')
+    || str_contains($contentSection, 'travelplus-auth-')) {
+    $pageStyleAssets[] = 'account';
+}
 $pageStyleAssetUrls = array_map(
     static fn (string $asset): string => frontend_asset_url('assets/css/style-' . $asset . '.css'),
     array_values(array_unique($pageStyleAssets))
@@ -90,6 +110,9 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <meta name="googlebot" content="<?= esc($metaRobots) ?>">
 <meta name="application-name" content="<?= esc($siteName) ?>">
 <meta name="theme-color" content="#0aa7df">
+<?php if ($googleSiteVerification !== ''): ?>
+<meta name="google-site-verification" content="<?= esc($googleSiteVerification, 'attr') ?>">
+<?php endif; ?>
 <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/icon/favicon.svg?v=' . $faviconVersion) ?>">
 <link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/icon/favicon.svg?v=' . $faviconVersion) ?>">
 <meta name="csrf-token-name" content="<?= esc(csrf_token()) ?>">
@@ -102,6 +125,30 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
   gtag('js', new Date());
   gtag('config', '<?= esc($googleAnalyticsId) ?>');
 </script>
+<?php foreach ($analyticsEvents as $analyticsEvent): ?>
+<?php
+$analyticsEventName = preg_replace('/[^a-z0-9_]/', '', strtolower((string) ($analyticsEvent['name'] ?? ''))) ?? '';
+$analyticsEventParams = is_array($analyticsEvent['params'] ?? null) ? $analyticsEvent['params'] : [];
+$analyticsEventDedupeKey = trim((string) ($analyticsEvent['dedupe_key'] ?? ''));
+if ($analyticsEventName === '') {
+    continue;
+}
+?>
+<script type="text/plain" data-cookie-category="analytics">
+(function () {
+  var eventName = <?= json_encode($analyticsEventName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+  var eventParams = <?= json_encode($analyticsEventParams, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+  var dedupeKey = <?= json_encode($analyticsEventDedupeKey, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+  try {
+    if (dedupeKey && window.localStorage.getItem('tp_ga4_' + dedupeKey)) return;
+    gtag('event', eventName, eventParams);
+    if (dedupeKey) window.localStorage.setItem('tp_ga4_' + dedupeKey, '1');
+  } catch (error) {
+    gtag('event', eventName, eventParams);
+  }
+})();
+</script>
+<?php endforeach; ?>
 <?php endif; ?>
 <link rel="canonical" href="<?= esc($canonicalUrl) ?>">
 <?php if (! empty($paginationLinks['prev'])): ?>
@@ -149,7 +196,19 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <?php endif; ?>
 
 <?php if ($bodyClass === 'is-home-page'): ?>
-<link rel="preload" as="image" href="<?= base_url('assets/images/home/banner01.webp') ?>" type="image/webp" fetchpriority="high">
+<link
+    rel="preload"
+    as="image"
+    href="<?= base_url('assets/images/home/banner01.webp') ?>"
+    imagesrcset="<?= esc(implode(', ', [
+        base_url('assets/images/home/banner01-768w.webp') . ' 768w',
+        base_url('assets/images/home/banner01-1280w.webp') . ' 1280w',
+        base_url('assets/images/home/banner01-1600w.webp') . ' 1600w',
+        base_url('assets/images/home/banner01.webp') . ' 1920w',
+    ]), 'attr') ?>"
+    imagesizes="100vw"
+    type="image/webp"
+    fetchpriority="high">
 <?php endif; ?>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>

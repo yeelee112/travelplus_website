@@ -3,10 +3,17 @@
 namespace App\Services;
 
 use CodeIgniter\Database\BaseConnection;
+use Throwable;
 
 class AnalyticsReportService
 {
+    private const SCHEMA_READY_CACHE_KEY = 'analytics_report_schema_ready_v1';
+    private const SEARCH_READY_CACHE_KEY = 'analytics_report_search_ready_v1';
+    private const REPORT_CACHE_TTL = 30;
+
     private BaseConnection $db;
+    private static ?bool $analyticsReady = null;
+    private static ?bool $searchReady = null;
 
     public function __construct()
     {
@@ -15,13 +22,27 @@ class AnalyticsReportService
 
     public function isReady(): bool
     {
-        return $this->db->tableExists('analytics_visits')
-            && $this->db->tableExists('analytics_page_views');
+        if (self::$analyticsReady !== null) {
+            return self::$analyticsReady;
+        }
+
+        return self::$analyticsReady = $this->rememberSchemaFlag(
+            self::SCHEMA_READY_CACHE_KEY,
+            fn (): bool => $this->db->tableExists('analytics_visits')
+                && $this->db->tableExists('analytics_page_views')
+        );
     }
 
     public function isSearchReady(): bool
     {
-        return $this->db->tableExists('analytics_search_queries');
+        if (self::$searchReady !== null) {
+            return self::$searchReady;
+        }
+
+        return self::$searchReady = $this->rememberSchemaFlag(
+            self::SEARCH_READY_CACHE_KEY,
+            fn (): bool => $this->db->tableExists('analytics_search_queries')
+        );
     }
 
     /**
@@ -38,27 +59,28 @@ class AnalyticsReportService
             ];
         }
 
-        $since = $this->sinceDate($days);
-        $pageviews = (int) $this->db->table('analytics_page_views')
-            ->where('viewed_at >=', $since)
-            ->countAllResults();
+        return $this->rememberReport('summary:' . $days, function () use ($days): array {
+            $since = $this->sinceDate($days);
+            $pageviews = (int) $this->db->table('analytics_page_views')
+                ->where('viewed_at >=', $since)
+                ->countAllResults();
 
-        $visitRow = $this->db->table('analytics_visits')
-            ->select('COUNT(*) AS visits, COUNT(DISTINCT visitor_token) AS visitors', false)
-            ->where('started_at >=', $since)
-            ->get()
-            ->getRowArray();
+            $visitRow = $this->db->table('analytics_visits')
+                ->select('COUNT(*) AS visits, COUNT(DISTINCT visitor_token) AS visitors', false)
+                ->where('started_at >=', $since)
+                ->get()
+                ->getRowArray();
 
-        $visits = (int) ($visitRow['visits'] ?? 0);
-        $visitors = (int) ($visitRow['visitors'] ?? 0);
-        $avgPages = $visits > 0 ? round($pageviews / $visits, 1) : 0;
+            $visits = (int) ($visitRow['visits'] ?? 0);
+            $visitors = (int) ($visitRow['visitors'] ?? 0);
 
-        return [
-            'pageviews' => $pageviews,
-            'visits' => $visits,
-            'visitors' => $visitors,
-            'avg_pages_per_visit' => $avgPages,
-        ];
+            return [
+                'pageviews' => $pageviews,
+                'visits' => $visits,
+                'visitors' => $visitors,
+                'avg_pages_per_visit' => $visits > 0 ? round($pageviews / $visits, 1) : 0,
+            ];
+        });
     }
 
     /**
@@ -70,16 +92,18 @@ class AnalyticsReportService
             return [];
         }
 
-        $since = $this->sinceDate($days);
+        return $this->rememberReport('top-pages:' . $days . ':' . $limit, function () use ($days, $limit): array {
+            $since = $this->sinceDate($days);
 
-        return $this->db->table('analytics_page_views')
-            ->select('path, page_type, COUNT(*) AS views, COUNT(DISTINCT visitor_token) AS visitors, MAX(viewed_at) AS last_viewed_at', false)
-            ->where('viewed_at >=', $since)
-            ->groupBy('path, page_type')
-            ->orderBy('views', 'DESC')
-            ->limit($limit)
-            ->get()
-            ->getResultArray();
+            return $this->db->table('analytics_page_views')
+                ->select('path, page_type, COUNT(*) AS views, COUNT(DISTINCT visitor_token) AS visitors, MAX(viewed_at) AS last_viewed_at', false)
+                ->where('viewed_at >=', $since)
+                ->groupBy('path, page_type')
+                ->orderBy('views', 'DESC')
+                ->limit($limit)
+                ->get()
+                ->getResultArray();
+        });
     }
 
     /**
@@ -91,18 +115,20 @@ class AnalyticsReportService
             return [];
         }
 
-        $since = $this->sinceDate($days);
+        return $this->rememberReport('top-referrers:' . $days . ':' . $limit, function () use ($days, $limit): array {
+            $since = $this->sinceDate($days);
 
-        return $this->db->table('analytics_visits')
-            ->select('referrer, COUNT(*) AS visits', false)
-            ->where('started_at >=', $since)
-            ->where('referrer IS NOT NULL', null, false)
-            ->where('referrer !=', '')
-            ->groupBy('referrer')
-            ->orderBy('visits', 'DESC')
-            ->limit($limit)
-            ->get()
-            ->getResultArray();
+            return $this->db->table('analytics_visits')
+                ->select('referrer, COUNT(*) AS visits', false)
+                ->where('started_at >=', $since)
+                ->where('referrer IS NOT NULL', null, false)
+                ->where('referrer !=', '')
+                ->groupBy('referrer')
+                ->orderBy('visits', 'DESC')
+                ->limit($limit)
+                ->get()
+                ->getResultArray();
+        });
     }
 
     /**
@@ -227,6 +253,59 @@ class AnalyticsReportService
     {
         $days = max(1, $days);
         return date('Y-m-d H:i:s', strtotime('-' . $days . ' days'));
+    }
+
+    private function rememberSchemaFlag(string $key, callable $resolver): bool
+    {
+        try {
+            $cached = cache()->get($key);
+            if ($cached === 1 || $cached === '1') {
+                return true;
+            }
+            if ($cached === 0 || $cached === '0') {
+                return false;
+            }
+        } catch (Throwable) {
+        }
+
+        try {
+            $ready = (bool) $resolver();
+            try {
+                cache()->save($key, $ready ? 1 : 0, $ready ? 3600 : 300);
+            } catch (Throwable) {
+            }
+
+            return $ready;
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Analytics report schema check failed');
+
+            return false;
+        }
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private function rememberReport(string $key, callable $resolver): array
+    {
+        $cacheKey = 'analytics_report_' . sha1($key);
+
+        try {
+            $cached = cache()->get($cacheKey);
+            if (is_array($cached)) {
+                return $cached;
+            }
+        } catch (Throwable) {
+        }
+
+        $result = $resolver();
+
+        try {
+            cache()->save($cacheKey, $result, self::REPORT_CACHE_TTL);
+        } catch (Throwable) {
+        }
+
+        return $result;
     }
 
     /**

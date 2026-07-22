@@ -51,6 +51,7 @@ $paymentLabels = [
     'zalopay' => 'ZaloPay',
 ];
 $membership = is_array($membership ?? null) ? $membership : [];
+$loyaltyHistory = is_array($loyaltyHistory ?? null) ? $loyaltyHistory : [];
 $membershipTiers = is_array($membership['tiers'] ?? null) ? $membership['tiers'] : [];
 $membershipTierLabels = $locale === 'en'
     ? [
@@ -306,6 +307,70 @@ $accountInitials = mb_strtoupper($firstInitial . $lastInitial, 'UTF-8');
                     </div>
                 </form>
             </div>
+
+            <?php if ($membershipProgramActive): ?>
+                <details class="travelplus-account-card travelplus-loyalty-history">
+                    <summary>
+                        <span class="travelplus-loyalty-history-icon" aria-hidden="true">
+                            <i class="bi bi-clock-history"></i>
+                        </span>
+                        <span class="travelplus-loyalty-history-heading">
+                            <strong><?= esc($locale === 'en' ? 'Points history' : 'Lịch sử điểm') ?></strong>
+                            <small><?= esc($locale === 'en'
+                                ? 'Track points earned and adjusted from your paid bookings.'
+                                : 'Theo dõi điểm được cộng và điều chỉnh từ các booking đã thanh toán.') ?></small>
+                        </span>
+                        <span class="travelplus-loyalty-history-count">
+                            <?= esc(number_format(count($loyaltyHistory), 0, ',', '.')) ?>
+                            <?= esc($locale === 'en' ? 'entries' : 'giao dịch') ?>
+                        </span>
+                        <i class="bi bi-chevron-down travelplus-loyalty-history-chevron" aria-hidden="true"></i>
+                    </summary>
+
+                    <div class="travelplus-loyalty-history-body">
+                        <?php if ($loyaltyHistory === []): ?>
+                            <div class="travelplus-loyalty-history-empty">
+                                <i class="bi bi-stars" aria-hidden="true"></i>
+                                <span><?= esc($locale === 'en'
+                                    ? 'Your first paid booking will appear here.'
+                                    : 'Booking thanh toán đầu tiên của bạn sẽ được ghi nhận tại đây.') ?></span>
+                            </div>
+                        <?php else: ?>
+                            <div class="travelplus-loyalty-history-list">
+                                <?php foreach ($loyaltyHistory as $transaction): ?>
+                                    <?php
+                                    $transactionPoints = (int) ($transaction['points'] ?? 0);
+                                    $isCredit = $transactionPoints > 0;
+                                    $transactionType = (string) ($transaction['type'] ?? '');
+                                    $transactionTitle = match ($transactionType) {
+                                        'booking_earned' => $locale === 'en' ? 'Points earned from booking' : 'Cộng điểm từ booking',
+                                        'booking_reversed' => $locale === 'en' ? 'Booking points adjusted' : 'Điều chỉnh điểm booking',
+                                        default => $locale === 'en' ? 'Points adjustment' : 'Điều chỉnh điểm',
+                                    };
+                                    ?>
+                                    <div class="travelplus-loyalty-transaction travelplus-loyalty-transaction--<?= $isCredit ? 'credit' : 'debit' ?>">
+                                        <span class="travelplus-loyalty-transaction-icon" aria-hidden="true">
+                                            <i class="bi <?= $isCredit ? 'bi-plus-lg' : 'bi-arrow-counterclockwise' ?>"></i>
+                                        </span>
+                                        <span class="travelplus-loyalty-transaction-copy">
+                                            <strong><?= esc($transactionTitle) ?></strong>
+                                            <small>
+                                                <?= esc(trim((string) ($transaction['description'] ?? '')) ?: ($locale === 'en' ? 'Travel Plus booking' : 'Booking Travel Plus')) ?>
+                                                <span aria-hidden="true">&middot;</span>
+                                                <?= esc(app_datetime((string) ($transaction['created_at'] ?? ''), 'd/m/Y H:i', '-')) ?>
+                                            </small>
+                                        </span>
+                                        <strong class="travelplus-loyalty-transaction-points">
+                                            <?= $transactionPoints > 0 ? '+' : '' ?><?= esc(number_format($transactionPoints, 0, ',', '.')) ?>
+                                            <small><?= esc($locale === 'en' ? 'pts' : 'điểm') ?></small>
+                                        </strong>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </details>
+            <?php endif; ?>
 
             <form
                 id="logout-all-devices-form"

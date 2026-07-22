@@ -197,14 +197,6 @@ class TourController extends BaseController
             'message' => trim((string) ($post['message'] ?? '')),
         ];
 
-        $notificationService = new TourEnquiryNotificationService();
-        if (! $notificationService->sendEnquiryEmails($enquiry)) {
-            return $this->response->setStatusCode(500)->setJSON([
-                'ok' => false,
-                'message' => lang('Frontend.tour.enquiry.mailFailed', [], $locale),
-            ]);
-        }
-
         (new CrmLeadCaptureService())->capture([
             'source' => 'tour_enquiry',
             'stage' => 'new',
@@ -224,9 +216,21 @@ class TourController extends BaseController
             ],
         ]);
 
+        $notificationService = new TourEnquiryNotificationService();
+        if (! $notificationService->sendEnquiryEmails($enquiry)) {
+            log_message('warning', 'Tour enquiry lead captured but email notification could not be sent.');
+        }
+
         return $this->response->setJSON([
             'ok' => true,
             'message' => lang('Frontend.tour.enquiry.success', [], $locale),
+            'analytics_event' => [
+                'name' => 'generate_lead',
+                'params' => [
+                    'lead_source' => 'tour_enquiry',
+                    'tour_id' => (string) $enquiry['tour_id'],
+                ],
+            ],
         ]);
     }
 

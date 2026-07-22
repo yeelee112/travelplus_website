@@ -92,15 +92,6 @@ class Contact extends BaseController
             return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.recaptchaFailed', [], $locale), true);
         }
 
-        $emailConfig = config(EmailConfig::class);
-        $recipient = trim((string) env('booking.notifyEmail', $emailConfig->recipients));
-        $fromEmail = trim((string) $emailConfig->fromEmail);
-        $fromName = trim((string) ($emailConfig->fromName ?: 'Travel Plus'));
-
-        if ($recipient === '' || $fromEmail === '') {
-            return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.smtpMissing', [], $locale), true);
-        }
-
         $name = trim((string) $this->request->getPost('name'));
         $email = trim((string) $this->request->getPost('email'));
         $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
@@ -126,6 +117,44 @@ class Contact extends BaseController
         $eventType = trim((string) $this->request->getPost('event_type'));
         $conferenceName = trim((string) $this->request->getPost('conference_name'));
         $budget = trim((string) $this->request->getPost('budget'));
+
+        (new CrmLeadCaptureService())->capture([
+            'source' => $isVisaRequest ? 'visa_form' : ($isMiceRequest ? 'mice_form' : 'contact_form'),
+            'stage' => 'new',
+            'priority' => $isMiceRequest || $isVisaRequest ? 'high' : 'normal',
+            'customer_name' => $name,
+            'customer_email' => $email,
+            'customer_phone' => $phone,
+            'service_type' => $serviceType !== '' ? $serviceType : 'tour',
+            'interest_title' => $isVisaRequest ? 'Visa consultation' : ($isMiceRequest ? 'MICE proposal' : 'Contact request'),
+            'interest_url' => $redirectTarget ?? LocalizedPathCatalog::url('contact', $locale),
+            'destination' => $destination,
+            'travel_date' => $estimatedTime,
+            'travelers' => $travelers,
+            'budget' => $budget,
+            'message' => $message,
+            'metadata' => [
+                'locale' => $locale,
+                'company_name' => $companyName,
+                'event_type' => $eventType,
+                'conference_name' => $conferenceName,
+                'visa_type' => $visaType,
+                'visa_refusal' => $visaRefusal,
+                'trip_length' => $tripLength,
+                'hotel_rating' => $hotelRating,
+            ],
+        ]);
+
+        $emailConfig = config(EmailConfig::class);
+        $recipient = trim((string) env('booking.notifyEmail', $emailConfig->recipients));
+        $fromEmail = trim((string) $emailConfig->fromEmail);
+        $fromName = trim((string) ($emailConfig->fromName ?: 'Travel Plus'));
+
+        if ($recipient === '' || $fromEmail === '') {
+            log_message('warning', 'Contact lead captured but email notification is not configured.');
+
+            return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale));
+        }
 
         $mailer = service('email');
         $mailer->clear(true);
@@ -159,35 +188,8 @@ class Contact extends BaseController
         if (! $mailer->send()) {
             log_message('error', 'Contact form email failed: {debug}', ['debug' => print_r($mailer->printDebugger(['headers']), true)]);
 
-            return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.sendFailed', [], $locale), true);
+            return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale));
         }
-
-        (new CrmLeadCaptureService())->capture([
-            'source' => 'contact_form',
-            'stage' => 'new',
-            'priority' => $isMiceRequest || $isVisaRequest ? 'high' : 'normal',
-            'customer_name' => $name,
-            'customer_email' => $email,
-            'customer_phone' => $phone,
-            'service_type' => $serviceType !== '' ? $serviceType : 'tour',
-            'interest_title' => $isVisaRequest ? 'Visa consultation' : ($isMiceRequest ? 'MICE proposal' : 'Contact request'),
-            'interest_url' => $redirectTarget ?? LocalizedPathCatalog::url('contact', $locale),
-            'destination' => $destination,
-            'travel_date' => $estimatedTime,
-            'travelers' => $travelers,
-            'budget' => $budget,
-            'message' => $message,
-            'metadata' => [
-                'locale' => $locale,
-                'company_name' => $companyName,
-                'event_type' => $eventType,
-                'conference_name' => $conferenceName,
-                'visa_type' => $visaType,
-                'visa_refusal' => $visaRefusal,
-                'trip_length' => $tripLength,
-                'hotel_rating' => $hotelRating,
-            ],
-        ]);
 
         return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale));
     }
@@ -217,6 +219,19 @@ class Contact extends BaseController
 
         if ($withInput) {
             $redirect = $redirect->withInput();
+        }
+
+        if ($flashKey === 'success') {
+            $serviceType = strtolower(trim((string) $this->request->getPost('service_type')));
+            $leadSource = $serviceType === 'visa' ? 'visa_form' : ($serviceType === 'mice' ? 'mice_form' : 'contact_form');
+            $redirect = $redirect->with('analytics_event', [
+                'name' => 'generate_lead',
+                'dedupe_key' => 'contact_' . hash('sha256', (string) $this->request->getPost('contact_form_token')),
+                'params' => [
+                    'lead_source' => $leadSource,
+                    'service_type' => $serviceType !== '' ? $serviceType : 'tour',
+                ],
+            ]);
         }
 
         return $redirect->with($flashKey, $message);

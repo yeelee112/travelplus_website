@@ -1,6 +1,14 @@
 <?php
 $locale = service('request')->getLocale() ?: 'vi';
 $rawBreadcrumbs = is_array($breadcrumbs ?? null) ? $breadcrumbs : [];
+$pageSchemaGraph = is_array($schema_graph ?? null) ? $schema_graph : [];
+$hasBreadcrumbSchema = false;
+foreach ($pageSchemaGraph as $schemaNode) {
+    if (is_array($schemaNode) && ($schemaNode['@type'] ?? null) === 'BreadcrumbList') {
+        $hasBreadcrumbSchema = true;
+        break;
+    }
+}
 $crumbs = [];
 
 foreach ($rawBreadcrumbs as $crumb) {
@@ -69,9 +77,11 @@ if ($crumbs !== []):
         </nav>
     </div>
 
+    <?php if (! $hasBreadcrumbSchema): ?>
     <script type="application/ld+json"><?= json_encode([
         '@context' => 'https://schema.org',
         '@type' => 'BreadcrumbList',
         'itemListElement' => $schemaItems,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
+    <?php endif; ?>
 <?php endif; ?>

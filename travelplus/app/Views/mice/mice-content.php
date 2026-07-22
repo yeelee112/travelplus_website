@@ -80,6 +80,17 @@ $briefForm = $locale === 'en'
         'submit' => 'Gửi brief để được tư vấn',
         'loading' => 'Đang gửi...',
     ];
+$briefOptionalTitle = $locale === 'en' ? 'Additional program details' : 'Thông tin chương trình bổ sung';
+$briefOptionalDesc = $locale === 'en'
+    ? 'Conference name, guest count, destination, timing, budget and objectives'
+    : 'Tên chương trình, số khách, điểm đến, thời gian, ngân sách và mục tiêu';
+$briefOptionalOpen = false;
+foreach (['conference_name', 'travelers', 'destination', 'estimated_time', 'budget', 'message'] as $optionalField) {
+    if (trim((string) old($optionalField)) !== '') {
+        $briefOptionalOpen = true;
+        break;
+    }
+}
 ?>
 
 <div class="mice-page">
@@ -435,31 +446,41 @@ $briefForm = $locale === 'en'
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <label>
+                    </div>
+
+                    <details class="mice-page__brief-optional" <?= $briefOptionalOpen ? 'open' : '' ?>>
+                        <summary>
+                            <span><?= esc($briefOptionalTitle) ?></span>
+                            <small><?= esc($briefOptionalDesc) ?></small>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </summary>
+                        <div class="mice-page__brief-optional-grid">
+                            <label>
                             <span><?= esc($briefForm['conferenceNameLabel']) ?></span>
                             <input type="text" name="conference_name" value="<?= esc((string) old('conference_name'), 'attr') ?>" placeholder="<?= esc($briefForm['conferenceNamePlaceholder'], 'attr') ?>">
-                        </label>
-                        <label>
+                            </label>
+                            <label>
                             <span><?= esc($briefForm['guestsLabel']) ?></span>
                             <input type="text" name="travelers" value="<?= esc((string) old('travelers'), 'attr') ?>" placeholder="<?= esc($briefForm['guestsPlaceholder'], 'attr') ?>">
-                        </label>
-                        <label>
+                            </label>
+                            <label>
                             <span><?= esc($briefForm['destinationLabel']) ?></span>
                             <input type="text" name="destination" value="<?= esc((string) old('destination'), 'attr') ?>" placeholder="<?= esc($briefForm['destinationPlaceholder'], 'attr') ?>">
-                        </label>
-                        <label>
+                            </label>
+                            <label>
                             <span><?= esc($briefForm['timeLabel']) ?></span>
                             <input type="text" name="estimated_time" value="<?= esc((string) old('estimated_time'), 'attr') ?>" placeholder="<?= esc($briefForm['timePlaceholder'], 'attr') ?>">
-                        </label>
-                        <label>
+                            </label>
+                            <label>
                             <span><?= esc($briefForm['budgetLabel']) ?></span>
                             <input type="text" name="budget" value="<?= esc((string) old('budget'), 'attr') ?>" placeholder="<?= esc($briefForm['budgetPlaceholder'], 'attr') ?>">
-                        </label>
-                        <label class="mice-page__brief-message">
+                            </label>
+                            <label class="mice-page__brief-message">
                             <span><?= esc($briefForm['messageLabel']) ?></span>
                             <textarea name="message" rows="4" placeholder="<?= esc($briefForm['messagePlaceholder'], 'attr') ?>"><?= esc((string) old('message')) ?></textarea>
-                        </label>
-                    </div>
+                            </label>
+                        </div>
+                    </details>
 
                     <label class="mice-page__brief-check" for="miceBriefPrivacyAgree">
                         <input type="checkbox" name="privacy_agree" value="1" id="miceBriefPrivacyAgree" <?= old('privacy_agree') ? 'checked' : '' ?> required>

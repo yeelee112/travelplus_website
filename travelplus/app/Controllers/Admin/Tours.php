@@ -1421,6 +1421,11 @@ class Tours extends BaseAdminController
 
             if ($optimization['success']) {
                 $fileName = basename((string) $optimization['output_path']);
+                (new ImageOptimizationService())->generateResponsiveVariants(
+                    (string) $optimization['output_path'],
+                    [480, 960, 1440],
+                    78
+                );
             }
         } catch (Throwable $exception) {
             log_message('error', 'Tour media upload failed for tour #' . $tourId . ': ' . $exception->getMessage());

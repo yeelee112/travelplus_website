@@ -57,14 +57,27 @@ $copy = $locale === 'en'
 <section class="home-modern-hero" aria-labelledby="home-hero-title">
     <div class="home-modern-hero__media" aria-hidden="true" data-hero-rotator data-interval="7000">
         <?php foreach ($heroImages as $index => $heroImage): ?>
-            <?php $heroImageUrl = base_url((string) $heroImage['path']); ?>
+            <?php
+            $heroImagePath = (string) $heroImage['path'];
+            $heroImageUrl = base_url($heroImagePath);
+            $heroImageStem = preg_replace('/\.webp$/i', '', $heroImagePath) ?: $heroImagePath;
+            $heroImageSrcset = implode(', ', [
+                base_url($heroImageStem . '-768w.webp') . ' 768w',
+                base_url($heroImageStem . '-1280w.webp') . ' 1280w',
+                base_url($heroImageStem . '-1600w.webp') . ' 1600w',
+                $heroImageUrl . ' ' . (int) $heroImage['width'] . 'w',
+            ]);
+            ?>
             <img
                 class="<?= $index === 0 ? 'is-active' : '' ?>"
                 <?php if ($index === 0): ?>
                 src="<?= esc($heroImageUrl, 'attr') ?>"
+                srcset="<?= esc($heroImageSrcset, 'attr') ?>"
                 <?php else: ?>
                 data-hero-src="<?= esc($heroImageUrl, 'attr') ?>"
+                data-hero-srcset="<?= esc($heroImageSrcset, 'attr') ?>"
                 <?php endif; ?>
+                sizes="100vw"
                 alt=""
                 width="<?= (int) $heroImage['width'] ?>"
                 height="<?= (int) $heroImage['height'] ?>"

@@ -20,7 +20,7 @@ final class LoyaltyPointService
         }
 
         try {
-            return $this->available = $this->database()->tableExists(self::TABLE);
+            return $this->available = (new DatabaseSchemaCacheService($this->database()))->tableExists(self::TABLE);
         } catch (\Throwable $exception) {
             log_message('error', 'Unable to inspect loyalty point storage: {message}', [
                 'message' => $exception->getMessage(),
@@ -32,7 +32,12 @@ final class LoyaltyPointService
 
     public function calculatePoints(float $amountPaidVnd): int
     {
-        return (int) floor(max(0, $amountPaidVnd) / self::VND_PER_POINT);
+        return self::previewPoints($amountPaidVnd);
+    }
+
+    public static function previewPoints(float $amountVnd): int
+    {
+        return (int) floor(max(0, $amountVnd) / self::VND_PER_POINT);
     }
 
     /**
@@ -81,42 +86,12 @@ final class LoyaltyPointService
             $status = strtolower(trim((string) ($booking['payment_status'] ?? '')));
             $amountPaid = max(0, (float) ($booking['amount_paid_vnd'] ?? 0));
             $targetPoints = $status === 'paid' ? $this->calculatePoints($amountPaid) : 0;
-            $pointDelta = $targetPoints - $current['points'];
 
-            if ($pointDelta === 0) {
+            if ($targetPoints === $current['points']) {
                 continue;
             }
 
-            $eventSeed = implode('|', [
-                'booking',
-                $bookingId,
-                $current['count'],
-                $current['points'],
-                $targetPoints,
-                (string) ($booking['updated_at'] ?? ''),
-            ]);
-
-            $payload = [
-                'user_id' => (int) $booking['user_id'],
-                'booking_id' => $bookingId,
-                'event_key' => hash('sha256', $eventSeed),
-                'type' => $pointDelta > 0 ? 'booking_earned' : 'booking_reversed',
-                'points' => $pointDelta,
-                'amount_vnd' => $amountPaid,
-                'description' => trim((string) ($booking['booking_code'] ?? '')) ?: 'Booking #' . $bookingId,
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-
-            try {
-                $this->database()->table(self::TABLE)->insert($payload);
-            } catch (\Throwable $exception) {
-                if (! $this->eventExists($payload['event_key'])) {
-                    log_message('error', 'Unable to synchronize loyalty points for booking {bookingId}: {message}', [
-                        'bookingId' => $bookingId,
-                        'message' => $exception->getMessage(),
-                    ]);
-                }
-            }
+            $this->syncEligibleBooking($booking, $targetPoints, $amountPaid);
         }
     }
 
@@ -142,6 +117,85 @@ final class LoyaltyPointService
             ->getRowArray();
 
         return max(0, (int) ($row['balance'] ?? 0));
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function historyForUser(int $userId, int $limit = 20): array
+    {
+        if ($userId <= 0 || ! $this->isAvailable()) {
+            return [];
+        }
+
+        return $this->database()
+            ->table(self::TABLE)
+            ->select('id, booking_id, type, points, amount_vnd, description, created_at')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->limit(max(1, min(100, $limit)))
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * @param array<string, mixed> $booking
+     */
+    private function syncEligibleBooking(array $booking, int $targetPoints, float $amountPaid): void
+    {
+        $bookingId = (int) ($booking['id'] ?? 0);
+        $db = $this->database();
+        $eventKey = '';
+
+        try {
+            $db->transBegin();
+            $db->query('SELECT id FROM bookings WHERE id = ? FOR UPDATE', [$bookingId]);
+
+            $currentRow = $db->table(self::TABLE)
+                ->select('COALESCE(SUM(points), 0) AS current_points, COUNT(*) AS transaction_count', false)
+                ->where('booking_id', $bookingId)
+                ->get()
+                ->getRowArray();
+            $currentPoints = (int) ($currentRow['current_points'] ?? 0);
+            $transactionCount = (int) ($currentRow['transaction_count'] ?? 0);
+            $pointDelta = $targetPoints - $currentPoints;
+
+            if ($pointDelta === 0) {
+                $db->transCommit();
+
+                return;
+            }
+
+            $eventKey = hash('sha256', implode('|', [
+                'booking',
+                $bookingId,
+                $transactionCount,
+                $currentPoints,
+                $targetPoints,
+            ]));
+
+            $db->table(self::TABLE)->insert([
+                'user_id' => (int) $booking['user_id'],
+                'booking_id' => $bookingId,
+                'event_key' => $eventKey,
+                'type' => $pointDelta > 0 ? 'booking_earned' : 'booking_reversed',
+                'points' => $pointDelta,
+                'amount_vnd' => $amountPaid,
+                'description' => trim((string) ($booking['booking_code'] ?? '')) ?: 'Booking #' . $bookingId,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+            $db->transCommit();
+        } catch (\Throwable $exception) {
+            $db->transRollback();
+
+            if ($eventKey === '' || ! $this->eventExists($eventKey)) {
+                log_message('error', 'Unable to synchronize loyalty points for booking {bookingId}: {message}', [
+                    'bookingId' => $bookingId,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
     }
 
     private function eventExists(string $eventKey): bool

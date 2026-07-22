@@ -110,9 +110,13 @@ $testimonials = $locale === 'en'
                 <h2 id="home-testimonial-title"><?= esc($copy['title']) ?></h2>
                 <p><?= esc($copy['desc']) ?></p>
             </div>
-            <div class="home-testimonial-nav" aria-label="Testimonial navigation">
-                <button type="button" class="testimonial-slider-prev" aria-label="Previous review"><i class="bi bi-arrow-left"></i></button>
-                <button type="button" class="testimonial-slider-next" aria-label="Next review"><i class="bi bi-arrow-right"></i></button>
+            <div class="home-testimonial-nav" aria-label="<?= $locale === 'en' ? 'Testimonial navigation' : 'Điều hướng đánh giá' ?>">
+                <button type="button" class="testimonial-slider-prev" aria-label="<?= $locale === 'en' ? 'Previous review' : 'Đánh giá trước' ?>">
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="testimonial-slider-next" aria-label="<?= $locale === 'en' ? 'Next review' : 'Đánh giá tiếp theo' ?>">
+                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
             </div>
         </div>
 

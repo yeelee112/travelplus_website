@@ -122,3 +122,41 @@
 .about-page-journey-event time{white-space: normal;}
 }
 .about-page-journey-section .jouney-content-wrapper .tab-content .tab-pane p span{color: var(--title-color)}
+@media (max-width: 576px){.about-page-journey-section{padding: 48px 0 52px;}
+.about-page-journey-section.mb-100{margin-bottom: 56px;}
+.about-page-journey-section .row.mb-50{margin-bottom: 28px;}
+.about-page-journey-section .section-title h2{font-size: 28px;
+        line-height: 1.2;}
+.about-page-journey-section .section-title p{font-size: 15px;
+        line-height: 1.7;}
+.about-page-journey-section .jouney-content-wrapper .nav-area{margin-bottom: 24px;}
+.about-page-journey-section .jouney-content-wrapper .nav-area .nav-pills .nav-item .nav-link{width: 100%;
+        min-height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0;
+        padding: 8px 10px;
+        border: 1px solid rgba(var(--primary-color1-opc), .18);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, .72);}
+.about-page-journey-section .jouney-content-wrapper .nav-area .nav-pills .nav-item .nav-link img,
+    .about-page-journey-section .jouney-content-wrapper .nav-area .nav-pills .nav-item .dot,
+    .about-page-journey-section .jouney-content-wrapper .nav-area::before{display: none;}
+.about-page-journey-section .jouney-content-wrapper .nav-area .nav-pills .nav-item .nav-link h4{font-size: 15px;
+        line-height: 1.2;
+        font-weight: 800;}
+.about-page-journey-section .jouney-content-wrapper .nav-area .nav-pills .nav-item .nav-link.active{color: #fff;
+        border-color: var(--primary-color1);
+        background: var(--primary-color1);
+        box-shadow: 0 8px 18px rgba(var(--primary-color1-opc), .18);}
+.about-page-journey-section .jouney-content-wrapper .nav-area .nav-pills .nav-item .nav-link.active h4{color: #fff;}
+.about-page-journey-section .jouney-content-wrapper .tab-content .tab-pane{border-radius: 6px;}
+.about-page-journey-card{padding: 22px 18px 22px 22px;}
+.about-page-journey-section .jouney-content-wrapper .tab-content .tab-pane h4{font-size: 21px;
+        line-height: 1.32;
+        margin-bottom: 12px;}
+.about-page-journey-event{padding: 11px 0;}
+.about-page-journey-event p{font-size: 15px !important;
+        line-height: 1.65 !important;}
+}

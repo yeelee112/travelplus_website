@@ -14,6 +14,8 @@ if (is_string($authError) && stripos($authError, 'csrf') !== false) {
         : 'Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.';
 }
 $authKicker = $locale === 'en' ? 'Travel Plus Account' : 'Tài khoản Travel Plus';
+$showPasswordLabel = $locale === 'en' ? 'Show password' : 'Hiện mật khẩu';
+$hidePasswordLabel = $locale === 'en' ? 'Hide password' : 'Ẩn mật khẩu';
 $authHighlights = $locale === 'en'
     ? ['Continue checkout without re-entering details', 'Track recent bookings and payment status', 'Receive faster support from Travel Plus']
     : ['Tiếp tục thanh toán không cần nhập lại thông tin', 'Theo dõi booking và trạng thái thanh toán', 'Nhận hỗ trợ nhanh hơn từ Travel Plus'];
@@ -55,7 +57,18 @@ $authHighlights = $locale === 'en'
                     </label>
                     <label class="travelplus-auth-field">
                         <span><?= esc($t('auth.loginPage.password')) ?></span>
-                        <input type="password" name="password" autocomplete="current-password" required>
+                        <span class="travelplus-auth-password">
+                            <input type="password" name="password" autocomplete="current-password" required>
+                            <button
+                                type="button"
+                                data-password-toggle
+                                data-show-label="<?= esc($showPasswordLabel, 'attr') ?>"
+                                data-hide-label="<?= esc($hidePasswordLabel, 'attr') ?>"
+                                aria-label="<?= esc($showPasswordLabel, 'attr') ?>"
+                                aria-pressed="false">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </button>
+                        </span>
                     </label>
                     <div class="travelplus-auth-row">
                         <label class="travelplus-auth-check" for="rememberMe">

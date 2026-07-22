@@ -70,7 +70,16 @@ $fallbackTitle = $locale === 'en'
 $featureTitle = (string) ($featureTour['title'] ?? $fallbackTitle);
 $featureLink = (string) ($featureTour['link'] ?? $searchUrl);
 $featureImage = (string) ($featureTour['image'] ?? base_url('assets/images/home/banner02.webp'));
+$featureImageSrcset = responsive_image_srcset($featureImage, [480, 960, 1440]);
 $featurePrice = (string) ($featureTour['price']['label'] ?? '');
+$featurePoints = \App\Services\LoyaltyPointService::previewPoints((float) ($featureTour['price']['amount'] ?? 0));
+$formatPoints = static fn(int $points): string => number_format($points, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
+$pointsCopy = static fn(int $points): string => $locale === 'en'
+    ? 'Earn ' . $formatPoints($points) . '+ member points'
+    : 'Từ ' . $formatPoints($points) . ' điểm thành viên';
+$pointsTitle = $locale === 'en'
+    ? 'Actual points are based on the paid booking amount.'
+    : 'Điểm thực nhận được tính theo số tiền booking đã thanh toán.';
 $featureDeparture = (string) ($featureTour['departure'] ?? '');
 $featureContinent = (string) ($featureTour['continent'] ?? '');
 $featureDuration = (string) ($featureTour['duration']['label'] ?? '');
@@ -164,6 +173,7 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                     <span class="home-promo-feature__ribbon"><i class="bi bi-fire" aria-hidden="true"></i><?= esc($copy['badge']) ?></span>
                     <img
                         src="<?= esc($featureImage, 'attr') ?>"
+                        <?php if ($featureImageSrcset !== ''): ?>srcset="<?= esc($featureImageSrcset, 'attr') ?>" sizes="(max-width: 767px) calc(100vw - 40px), 720px"<?php endif; ?>
                         alt="<?= esc($featureTitle, 'attr') ?>"
                         width="720"
                         height="460"
@@ -193,6 +203,11 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                                 <div class="home-promo-price">
                                     <span><?= esc($copy['priceLabel']) ?></span>
                                     <strong><?= esc($featurePrice) ?></strong>
+                                    <?php if ($featurePoints > 0): ?>
+                                        <small class="home-promo-points" title="<?= esc($pointsTitle, 'attr') ?>">
+                                            <i class="bi bi-stars" aria-hidden="true"></i><?= esc($pointsCopy($featurePoints)) ?>
+                                        </small>
+                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
                             <?php if ($featureDeparture !== ''): ?>
@@ -248,12 +263,15 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                         $tourPromotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
                         $tourBadge = trim((string) ($tourPromotion['badge'] ?? '')) ?: (string) $copy['moreBadge'];
                         $tourPrice = (string) ($tour['price']['label'] ?? '');
+                        $tourPoints = \App\Services\LoyaltyPointService::previewPoints((float) ($tour['price']['amount'] ?? 0));
                         $tourPriceLabel = $tourPromotion !== []
                             ? (string) $copy['priceLabel']
                             : ($locale === 'en' ? 'Tour price' : 'Giá tour');
                         $tourDeparture = (string) ($tour['departure'] ?? '');
                         $tourContinent = (string) ($tour['continent'] ?? '');
                         $tourDuration = (string) ($tour['duration']['label'] ?? '');
+                        $tourImage = (string) ($tour['image'] ?? base_url('assets/images/avt-tour-01.webp'));
+                        $tourImageSrcset = responsive_image_srcset($tourImage, [480, 960]);
                         ?>
                         <article class="home-promo-card">
                             <a
@@ -263,7 +281,8 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                                 <div class="home-promo-card__media">
                                     <span><?= esc($tourBadge) ?></span>
                                     <img
-                                        src="<?= esc((string) ($tour['image'] ?? base_url('assets/images/avt-tour-01.webp')), 'attr') ?>"
+                                        src="<?= esc($tourImage, 'attr') ?>"
+                                        <?php if ($tourImageSrcset !== ''): ?>srcset="<?= esc($tourImageSrcset, 'attr') ?>" sizes="(max-width: 767px) calc(100vw - 40px), 320px"<?php endif; ?>
                                         alt=""
                                         width="320"
                                         height="220"
@@ -292,6 +311,11 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                                             <div class="home-promo-card__price">
                                                 <span><?= esc($tourPriceLabel) ?></span>
                                                 <strong><?= esc($tourPrice) ?></strong>
+                                                <?php if ($tourPoints > 0): ?>
+                                                    <small class="home-promo-points" title="<?= esc($pointsTitle, 'attr') ?>">
+                                                        <i class="bi bi-stars" aria-hidden="true"></i><?= esc($pointsCopy($tourPoints)) ?>
+                                                    </small>
+                                                <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
                                         <span class="home-promo-card__arrow" aria-hidden="true">

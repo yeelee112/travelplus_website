@@ -15,6 +15,9 @@ $c = is_array($content ?? null) ? $content : [];
                             <p><?= esc($c['intro_1'] ?? '') ?></p>
                             <p><?= esc($c['intro_2'] ?? '') ?></p>
                         </div>
+                        <div class="about-img about-img--mobile">
+                            <img src="<?= base_url('assets/images/about.webp') ?>" alt="<?= esc(lang('Frontend.common.alt.aboutTravelPlus', [], $locale)) ?>" loading="lazy" decoding="async" width="640" height="520">
+                        </div>
                         <div class="founder-area">
                             <div class="founder-info">
                                 <h6><?= esc($c['founder'] ?? '') ?></h6>
@@ -80,10 +83,10 @@ $c = is_array($content ?? null) ? $content : [];
                                 <?php $active = $index === 0; $tabId = 'pills-' . ($index + 1); ?>
                                 <div class="swiper-slide">
                                     <div class="nav-item" role="presentation">
-                                        <div class="nav-link <?= $active ? 'active' : '' ?>" id="<?= esc($tabId) ?>-tab" data-bs-toggle="pill" data-bs-target="#<?= esc($tabId) ?>" role="tab" aria-controls="<?= esc($tabId) ?>" aria-selected="<?= $active ? 'true' : 'false' ?>">
+                                        <button class="nav-link <?= $active ? 'active' : '' ?>" id="<?= esc($tabId) ?>-tab" type="button" data-bs-toggle="pill" data-bs-target="#<?= esc($tabId) ?>" role="tab" aria-controls="<?= esc($tabId) ?>" aria-selected="<?= $active ? 'true' : 'false' ?>">
                                             <img src="<?= base_url('assets/images/logo.svg') ?>" alt="Travel Plus logo" loading="lazy" decoding="async" width="120" height="48">
                                             <h4><?= esc($item['year']) ?></h4>
-                                        </div>
+                                        </button>
                                         <span class="dot"></span>
                                     </div>
                                 </div>

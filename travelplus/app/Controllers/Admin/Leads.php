@@ -9,7 +9,7 @@ use App\Services\CrmLeadCaptureService;
 class Leads extends BaseAdminController
 {
     private const STAGES = ['new', 'consulting', 'won', 'lost'];
-    private const SOURCES = ['contact_form', 'tour_enquiry', 'ai_chat', 'booking', 'manual'];
+    private const SOURCES = ['contact_form', 'visa_form', 'mice_form', 'tour_enquiry', 'ai_chat', 'booking', 'manual'];
     private const PER_PAGE = 12;
     private const STATS_CACHE_KEY = 'admin_crm_leads_stage_stats';
     private const STATS_CACHE_TTL = 60;

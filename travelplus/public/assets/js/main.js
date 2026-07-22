@@ -14,6 +14,136 @@
     qsa(selector).forEach((el) => el.classList.remove("active"));
   };
 
+  const footerNavToggles = qsa(".travelplus-footer__nav-toggle");
+
+  if (footerNavToggles.length > 0) {
+    const footerNavMedia = window.matchMedia("(max-width: 767px)");
+
+    const setFooterNavState = (toggle, expanded) => {
+      const list = document.getElementById(toggle.getAttribute("aria-controls"));
+
+      toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+      toggle.disabled = !footerNavMedia.matches;
+
+      if (list) {
+        list.hidden = footerNavMedia.matches && !expanded;
+      }
+    };
+
+    const syncFooterNavs = () => {
+      footerNavToggles.forEach((toggle) => {
+        setFooterNavState(toggle, !footerNavMedia.matches);
+      });
+    };
+
+    footerNavToggles.forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        if (!footerNavMedia.matches) {
+          return;
+        }
+
+        const shouldOpen = toggle.getAttribute("aria-expanded") !== "true";
+
+        footerNavToggles.forEach((otherToggle) => {
+          setFooterNavState(otherToggle, otherToggle === toggle && shouldOpen);
+        });
+      });
+    });
+
+    footerNavMedia.addEventListener("change", syncFooterNavs);
+    syncFooterNavs();
+  }
+
+  qsa("[data-password-toggle]").forEach((toggle) => {
+    const wrapper = toggle.closest(".travelplus-auth-password");
+    const input = wrapper ? qs("input", wrapper) : null;
+    const icon = qs("i", toggle);
+
+    if (!input) {
+      return;
+    }
+
+    toggle.addEventListener("click", () => {
+      const shouldShow = input.type === "password";
+      input.type = shouldShow ? "text" : "password";
+      toggle.setAttribute("aria-pressed", shouldShow ? "true" : "false");
+      toggle.setAttribute("aria-label", shouldShow
+        ? (toggle.dataset.hideLabel || "Hide password")
+        : (toggle.dataset.showLabel || "Show password"));
+
+      if (icon) {
+        icon.className = shouldShow ? "bi bi-eye-slash" : "bi bi-eye";
+      }
+    });
+  });
+
+  qsa(".booking-lookup-form").forEach((form) => {
+    const modeInputs = qsa('[name="lookup_mode"]', form);
+    const fields = qsa("[data-booking-lookup-field]", form);
+
+    if (modeInputs.length === 0 || fields.length === 0) {
+      return;
+    }
+
+    const updateLookupMode = (focusField = false) => {
+      const activeMode = modeInputs.find((input) => input.checked)?.value || "code";
+
+      fields.forEach((field) => {
+        const isActive = field.dataset.bookingLookupField === activeMode;
+        const input = qs("input", field);
+        field.hidden = !isActive;
+
+        if (input) {
+          input.disabled = !isActive;
+
+          if (isActive && focusField) {
+            input.focus();
+          }
+        }
+      });
+    };
+
+    modeInputs.forEach((input) => {
+      input.addEventListener("change", () => updateLookupMode(true));
+    });
+
+    updateLookupMode();
+  });
+
+  qsa(".travelplus-blog-content h2, .travelplus-blog-content h3, .travelplus-blog-content h4, .travelplus-blog-content p").forEach((element) => {
+    const visibleText = element.textContent.replace(/\u00a0/g, " ").trim();
+
+    if (visibleText === "" && !qs("img", element)) {
+      element.remove();
+    }
+  });
+
+  qsa(".travelplus-blog-content img").forEach((image) => {
+    image.dataset.contentImageStatus = "loading";
+
+    const removeBrokenImage = () => {
+      const followingNode = image.nextSibling;
+      image.remove();
+
+      if (followingNode?.nodeType === Node.ELEMENT_NODE && followingNode.nodeName === "BR") {
+        followingNode.remove();
+      }
+    };
+
+    const revealImage = () => {
+      delete image.dataset.contentImageStatus;
+    };
+
+    image.addEventListener("error", removeBrokenImage, { once: true });
+    image.addEventListener("load", revealImage, { once: true });
+
+    if (image.complete && image.naturalWidth === 0) {
+      removeBrokenImage();
+    } else if (image.complete) {
+      revealImage();
+    }
+  });
+
   /* =====================================================
      SIMPLE IMAGE LIGHTBOX
   ===================================================== */
@@ -200,15 +330,36 @@
   qsa("[data-tour-filter-toggle]").forEach((toggle) => {
     const panelId = toggle.getAttribute("aria-controls");
     const panel = panelId ? document.getElementById(panelId) : null;
+    const label = qs("span", toggle);
+    const icon = qs("i", toggle);
+    const openLabel = toggle.dataset.openLabel || "Filters";
+    const closeLabel = toggle.dataset.closeLabel || "Close filters";
 
     if (!panel) {
       return;
     }
 
-    toggle.addEventListener("click", () => {
-      const isOpen = panel.classList.toggle("is-open");
+    const setFilterOpen = (isOpen) => {
+      panel.classList.toggle("is-open", isOpen);
       toggle.classList.toggle("is-active", isOpen);
       toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      if (label) {
+        label.textContent = isOpen ? closeLabel : openLabel;
+      }
+      if (icon) {
+        icon.className = isOpen ? "bi bi-x-lg" : "bi bi-sliders2";
+      }
+    };
+
+    toggle.addEventListener("click", () => {
+      setFilterOpen(!panel.classList.contains("is-open"));
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && panel.classList.contains("is-open")) {
+        setFilterOpen(false);
+        toggle.focus();
+      }
     });
   });
 
@@ -945,6 +1096,7 @@
 
       const loadHeroSlide = (slide) => new Promise((resolve) => {
         const pendingSource = slide.dataset.heroSrc || "";
+        const pendingSourceSet = slide.dataset.heroSrcset || "";
 
         if (pendingSource === "") {
           resolve(slide.complete && slide.naturalWidth > 0);
@@ -953,6 +1105,7 @@
 
         const handleLoad = () => {
           delete slide.dataset.heroSrc;
+          delete slide.dataset.heroSrcset;
           resolve(true);
         };
         const handleError = () => {
@@ -962,6 +1115,9 @@
 
         slide.addEventListener("load", handleLoad, { once: true });
         slide.addEventListener("error", handleError, { once: true });
+        if (pendingSourceSet !== "") {
+          slide.srcset = pendingSourceSet;
+        }
         slide.src = pendingSource;
       });
 
@@ -1239,6 +1395,10 @@
   const testimonialSlider = document.querySelector(".home-page__testimonial-slider");
 
   if (testimonialSlider) {
+    const testimonialSection = testimonialSlider.closest(".home-page__testimonials");
+    const testimonialPrev = testimonialSection?.querySelector(".testimonial-slider-prev");
+    const testimonialNext = testimonialSection?.querySelector(".testimonial-slider-next");
+
     new Swiper(testimonialSlider, {
       slidesPerView: "auto",
       speed: 1500,
@@ -1251,8 +1411,8 @@
       },
 
       navigation: {
-        nextEl: ".testimonial-slider-next",
-        prevEl: ".testimonial-slider-prev",
+        nextEl: testimonialNext,
+        prevEl: testimonialPrev,
       },
 
       breakpoints: {

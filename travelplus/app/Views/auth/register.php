@@ -14,6 +14,8 @@ if (is_string($authError) && stripos($authError, 'csrf') !== false) {
         : 'Phiên làm việc đã hết hạn. Vui lòng thử lại.';
 }
 $authKicker = $locale === 'en' ? 'Travel Plus Account' : 'Tài khoản Travel Plus';
+$showPasswordLabel = $locale === 'en' ? 'Show password' : 'Hiện mật khẩu';
+$hidePasswordLabel = $locale === 'en' ? 'Hide password' : 'Ẩn mật khẩu';
 $authHighlights = $locale === 'en'
     ? ['Save traveler details for future bookings', 'Track tour payment and booking status', 'Get support faster for tours, visa and MICE']
     : ['Lưu thông tin khách cho các lần đặt sau', 'Theo dõi thanh toán và trạng thái booking', 'Nhận hỗ trợ tour, visa và MICE nhanh hơn'];
@@ -60,11 +62,33 @@ $authHighlights = $locale === 'en'
                     <div class="travelplus-auth-field-grid">
                         <label class="travelplus-auth-field">
                             <span><?= esc($t('auth.register.password')) ?></span>
-                            <input type="password" name="password" autocomplete="new-password" required>
+                            <span class="travelplus-auth-password">
+                                <input type="password" name="password" autocomplete="new-password" required>
+                                <button
+                                    type="button"
+                                    data-password-toggle
+                                    data-show-label="<?= esc($showPasswordLabel, 'attr') ?>"
+                                    data-hide-label="<?= esc($hidePasswordLabel, 'attr') ?>"
+                                    aria-label="<?= esc($showPasswordLabel, 'attr') ?>"
+                                    aria-pressed="false">
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
+                                </button>
+                            </span>
                         </label>
                         <label class="travelplus-auth-field">
                             <span><?= esc($t('auth.register.passwordConfirm')) ?></span>
-                            <input type="password" name="password_confirm" autocomplete="new-password" required>
+                            <span class="travelplus-auth-password">
+                                <input type="password" name="password_confirm" autocomplete="new-password" required>
+                                <button
+                                    type="button"
+                                    data-password-toggle
+                                    data-show-label="<?= esc($showPasswordLabel, 'attr') ?>"
+                                    data-hide-label="<?= esc($hidePasswordLabel, 'attr') ?>"
+                                    aria-label="<?= esc($showPasswordLabel, 'attr') ?>"
+                                    aria-pressed="false">
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
+                                </button>
+                            </span>
                         </label>
                     </div>
                     <button type="submit" class="primary-btn1 two travelplus-auth-submit">

@@ -55,7 +55,8 @@ $copy = $locale === 'en'
         'inbound' => 'Domestic tours',
         'submit' => 'Search tours',
         'clear' => 'Clear',
-        'mobileToggle' => 'Search',
+        'mobileToggle' => 'Tour filters',
+        'mobileClose' => 'Close filters',
     ]
     : [
         'eyebrow' => 'Tìm tour',
@@ -74,18 +75,35 @@ $copy = $locale === 'en'
         'inbound' => 'Tour trong nước',
         'submit' => 'Tìm tour',
         'clear' => 'Xóa lọc',
-        'mobileToggle' => 'Tìm tour',
+        'mobileToggle' => 'Bộ lọc tour',
+        'mobileClose' => 'Đóng bộ lọc',
     ];
 
 $searchUrl = \App\Data\LocalizedPathCatalog::url('search', $locale);
 $clearUrl = $searchState['promotion_only'] ? ($searchUrl . '?promotion=1') : $searchUrl;
+$filterTotal = (int) (($pagination['total'] ?? null) ?? count($tours ?? []));
 ?>
 
 <section class="tour-list-filter" aria-labelledby="tour-list-filter-title">
-    <button class="tour-list-filter__mobile-toggle" type="button" data-tour-filter-toggle aria-expanded="false" aria-controls="tour-list-filter-panel">
-        <i class="bi bi-search"></i>
-        <?= esc($copy['mobileToggle']) ?>
-    </button>
+    <div class="tour-list-filter__mobile-toolbar">
+        <?php if ($filterTotal > 0): ?>
+            <span class="tour-list-filter__mobile-count">
+                <strong><?= esc((string) $filterTotal) ?></strong>
+                <?= esc($locale === 'en' ? 'matching tours' : 'tour phù hợp') ?>
+            </span>
+        <?php endif; ?>
+        <button
+            class="tour-list-filter__mobile-toggle"
+            type="button"
+            data-tour-filter-toggle
+            data-open-label="<?= esc($copy['mobileToggle'], 'attr') ?>"
+            data-close-label="<?= esc($copy['mobileClose'], 'attr') ?>"
+            aria-expanded="false"
+            aria-controls="tour-list-filter-panel">
+            <i class="bi bi-sliders2" aria-hidden="true"></i>
+            <span><?= esc($copy['mobileToggle']) ?></span>
+        </button>
+    </div>
 
     <div class="container">
         <div class="tour-list-filter__panel" id="tour-list-filter-panel" data-tour-filter-panel>

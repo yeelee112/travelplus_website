@@ -259,6 +259,7 @@ class TourCatalogService
                     'MIN(dltn.slug) AS destination_slug,' .
                     'MIN(td.departure_date) AS departure_date,' .
                     'MIN(t.base_price) AS min_price,' .
+                    'MAX(COALESCE(t.updated_at, t.created_at)) AS updated_at,' .
                     'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
                     'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug,' .
                     'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name'
@@ -334,6 +335,7 @@ class TourCatalogService
                 'MIN(dltn.slug) AS destination_slug,' .
                 'MIN(td.departure_date) AS departure_date,' .
                 'MIN(t.base_price) AS min_price,' .
+                'MAX(COALESCE(t.updated_at, t.created_at)) AS updated_at,' .
                 'MIN(COALESCE(dlgptn.name, dlptn.name, dltn.name, t.tour_type)) AS continent_name,' .
                 'MIN(COALESCE(dlgptn.slug, dlptn.slug, dltn.slug)) AS continent_slug,' .
                 'MIN(COALESCE(depltn.name, depl.code)) AS departure_location_name'
@@ -1006,6 +1008,7 @@ class TourCatalogService
                     'currency' => 'VND',
                     'label'    => number_format($price, 0, ',', '.') . 'đ',
                 ],
+                'updated_at' => (string) ($row['updated_at'] ?? ''),
             ];
         }
 

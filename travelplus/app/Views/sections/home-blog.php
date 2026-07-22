@@ -42,10 +42,15 @@ $copy = $locale === 'en'
         <?php else: ?>
             <div class="home-blog-layout">
                 <?php if ($featuredBlog !== null): ?>
+                    <?php
+                    $featuredBlogImage = base_url((string) ($featuredBlog['image'] ?? 'assets/images/home/banner02.webp'));
+                    $featuredBlogSrcset = responsive_image_srcset($featuredBlogImage, [480, 960, 1440]);
+                    ?>
                     <article class="home-blog-feature">
                         <a class="home-blog-feature__media" href="<?= esc((string) $featuredBlog['link'], 'attr') ?>">
                             <img
-                                src="<?= esc(base_url((string) ($featuredBlog['image'] ?? 'assets/images/home/banner02.webp')), 'attr') ?>"
+                                src="<?= esc($featuredBlogImage, 'attr') ?>"
+                                <?php if ($featuredBlogSrcset !== ''): ?>srcset="<?= esc($featuredBlogSrcset, 'attr') ?>" sizes="(max-width: 767px) calc(100vw - 40px), 760px"<?php endif; ?>
                                 alt="<?= esc((string) $featuredBlog['title'], 'attr') ?>"
                                 width="760"
                                 height="460"
@@ -75,10 +80,15 @@ $copy = $locale === 'en'
 
                 <div class="home-blog-list">
                     <?php foreach ($sideBlogs as $blog): ?>
+                        <?php
+                        $sideBlogImage = base_url((string) ($blog['image'] ?? 'assets/images/home/banner02.webp'));
+                        $sideBlogSrcset = responsive_image_srcset($sideBlogImage, [480, 960]);
+                        ?>
                         <article class="home-blog-card">
                             <a class="home-blog-card__media" href="<?= esc((string) $blog['link'], 'attr') ?>">
                                 <img
-                                    src="<?= esc(base_url((string) ($blog['image'] ?? 'assets/images/home/banner02.webp')), 'attr') ?>"
+                                    src="<?= esc($sideBlogImage, 'attr') ?>"
+                                    <?php if ($sideBlogSrcset !== ''): ?>srcset="<?= esc($sideBlogSrcset, 'attr') ?>" sizes="(max-width: 767px) calc(100vw - 40px), 280px"<?php endif; ?>
                                     alt="<?= esc((string) $blog['title'], 'attr') ?>"
                                     width="280"
                                     height="200"

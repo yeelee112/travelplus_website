@@ -6,10 +6,10 @@ final class LoyaltyMembershipService
 {
     private const TIERS = [
         ['key' => 'member', 'minimum_points' => 0],
-        ['key' => 'silver', 'minimum_points' => 1000],
-        ['key' => 'gold', 'minimum_points' => 5000],
-        ['key' => 'diamond', 'minimum_points' => 15000],
-        ['key' => 'signature', 'minimum_points' => 30000],
+        ['key' => 'silver', 'minimum_points' => 5000],
+        ['key' => 'gold', 'minimum_points' => 20000],
+        ['key' => 'diamond', 'minimum_points' => 60000],
+        ['key' => 'signature', 'minimum_points' => 150000],
     ];
 
     /**
@@ -18,6 +18,34 @@ final class LoyaltyMembershipService
      */
     public function buildSnapshot(array $bookings, ?int $points = null): array
     {
+        $paidBookings = 0;
+        $pendingBookings = 0;
+
+        foreach ($bookings as $booking) {
+            $status = strtolower(trim((string) ($booking['payment_status'] ?? '')));
+
+            if ($status === 'paid') {
+                $paidBookings++;
+            } elseif (in_array($status, ['draft', 'pending_payment', 'pending_transfer'], true)) {
+                $pendingBookings++;
+            }
+        }
+
+        return $this->buildSnapshotFromCounts(count($bookings), $paidBookings, $pendingBookings, $points);
+    }
+
+    /**
+     * Builds the membership snapshot from aggregate booking counts so account
+     * pages do not need to load every historical booking into PHP.
+     *
+     * @return array<string, mixed>
+     */
+    public function buildSnapshotFromCounts(
+        int $bookingCount,
+        int $paidBookingCount,
+        int $pendingBookingCount,
+        ?int $points = null
+    ): array {
         $programActive = $points !== null;
         $points = max(0, $points ?? 0);
         $currentTierIndex = 0;
@@ -42,19 +70,6 @@ final class LoyaltyMembershipService
             $remainingPoints = max(0, $nextTier['minimum_points'] - $points);
         }
 
-        $paidBookings = 0;
-        $pendingBookings = 0;
-
-        foreach ($bookings as $booking) {
-            $status = strtolower(trim((string) ($booking['payment_status'] ?? '')));
-
-            if ($status === 'paid') {
-                $paidBookings++;
-            } elseif (in_array($status, ['draft', 'pending_payment', 'pending_transfer'], true)) {
-                $pendingBookings++;
-            }
-        }
-
         return [
             'program_active' => $programActive,
             'points' => $points,
@@ -63,9 +78,9 @@ final class LoyaltyMembershipService
             'progress' => $programActive ? $progress : 0,
             'remaining_points' => $remainingPoints,
             'tiers' => self::TIERS,
-            'booking_count' => count($bookings),
-            'paid_booking_count' => $paidBookings,
-            'pending_booking_count' => $pendingBookings,
+            'booking_count' => max(0, $bookingCount),
+            'paid_booking_count' => max(0, $paidBookingCount),
+            'pending_booking_count' => max(0, $pendingBookingCount),
         ];
     }
 }

@@ -15,7 +15,7 @@ class CrmLeadCaptureService
     {
         $db = db_connect();
 
-        if (! $db->tableExists('crm_leads')) {
+        if (! (new DatabaseSchemaCacheService($db))->tableExists('crm_leads')) {
             return;
         }
 
@@ -51,7 +51,17 @@ class CrmLeadCaptureService
         ];
 
         $model = new CrmLeadModel();
-        $existing = $this->findExistingLead($model, $email, $phone, $bookingId, $bookingCode);
+        $existing = $this->findExistingLead(
+            $model,
+            $source,
+            (string) ($payload['service_type'] ?? ''),
+            (string) ($payload['interest_url'] ?? ''),
+            (string) ($payload['interest_title'] ?? ''),
+            $email,
+            $phone,
+            $bookingId,
+            $bookingCode
+        );
 
         if (is_array($existing)) {
             $payload['stage'] = $this->resolveStage((string) ($existing['stage'] ?? 'new'), $stage);
@@ -133,8 +143,17 @@ class CrmLeadCaptureService
         ];
     }
 
-    private function findExistingLead(CrmLeadModel $model, string $email, string $phone, int $bookingId, string $bookingCode): ?array
-    {
+    private function findExistingLead(
+        CrmLeadModel $model,
+        string $source,
+        string $serviceType,
+        string $interestUrl,
+        string $interestTitle,
+        string $email,
+        string $phone,
+        int $bookingId,
+        string $bookingCode
+    ): ?array {
         if ($bookingId > 0) {
             $lead = $model->where('booking_id', $bookingId)->first();
 
@@ -151,23 +170,37 @@ class CrmLeadCaptureService
             }
         }
 
+        if ($email === '' && $phone === '') {
+            return null;
+        }
+
+        $model->groupStart();
         if ($email !== '') {
-            $lead = $model->where('customer_email', $email)->first();
-
-            if (is_array($lead)) {
-                return $lead;
-            }
+            $model->where('customer_email', $email);
         }
-
         if ($phone !== '') {
-            $lead = $model->where('customer_phone', $phone)->first();
-
-            if (is_array($lead)) {
-                return $lead;
+            if ($email !== '') {
+                $model->orWhere('customer_phone', $phone);
+            } else {
+                $model->where('customer_phone', $phone);
             }
         }
+        $model->groupEnd()
+            ->where('source', $source)
+            ->where('updated_at >=', date('Y-m-d H:i:s', time() - 172800));
 
-        return null;
+        if ($serviceType !== '') {
+            $model->where('service_type', $serviceType);
+        }
+        if ($interestUrl !== '') {
+            $model->where('interest_url', $interestUrl);
+        } elseif ($interestTitle !== '') {
+            $model->where('interest_title', $interestTitle);
+        }
+
+        $lead = $model->orderBy('updated_at', 'DESC')->first();
+
+        return is_array($lead) ? $lead : null;
     }
 
     /**

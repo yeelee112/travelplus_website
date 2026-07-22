@@ -99,4 +99,4 @@
    - Replace the basic account form with an identity summary, booking metrics, editable personal details and a dedicated security section.
    - Award 1 point per 10,000 VND actually paid and resolve Member, Silver, Gold, Diamond and Signature tiers from an idempotent transaction ledger.
    - Present booking history as responsive transaction cards instead of a data table.
-   - Status: active; paid bookings earn points, status reversals remove previously earned points, and hosting setup uses one phpMyAdmin SQL file.
+   - Status: completed. Paid bookings earn points, status reversals remove previously earned points, duplicate events are blocked, members can review their point history, and tiers use premium-travel thresholds from 5,000 points for Silver to 150,000 points for Signature.

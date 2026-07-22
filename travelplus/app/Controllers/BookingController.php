@@ -125,6 +125,7 @@ class BookingController extends BaseController
         $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
         $bookingCode = strtoupper(trim((string) $this->request->getPost('booking_code')));
         $contact = trim((string) $this->request->getPost('contact'));
+        $lookupMode = (string) $this->request->getPost('lookup_mode') === 'contact' ? 'contact' : 'code';
         $bookings = [];
         $error = '';
         $submitted = strtolower($this->request->getMethod()) === 'post';
@@ -151,6 +152,7 @@ class BookingController extends BaseController
             'submitted' => $submitted,
             'bookingCode' => $bookingCode,
             'contact' => $contact,
+            'lookupMode' => $lookupMode,
             'lookupAction' => LocalizedPathCatalog::url('booking.lookup', $locale),
             'meta_title' => $locale === 'en' ? 'Booking lookup | Travel Plus' : 'Tra cứu booking | Travel Plus',
             'meta_desc' => $locale === 'en'
@@ -236,10 +238,43 @@ class BookingController extends BaseController
             return redirect()->to(localized_url('/'));
         }
 
+        $status = strtolower((string) ($booking['payment_status'] ?? ''));
+        $analyticsEvents = [];
+        if ($status === 'paid') {
+            $analyticsEvents[] = [
+                'name' => 'purchase',
+                'dedupe_key' => 'booking_purchase_' . (int) ($booking['id'] ?? 0),
+                'params' => [
+                    'transaction_id' => (string) ($booking['booking_code'] ?? ''),
+                    'currency' => 'VND',
+                    'value' => (float) ($booking['amount_paid_vnd'] ?? 0),
+                    'payment_type' => (string) ($booking['payment_method'] ?? ''),
+                    'items' => [[
+                        'item_id' => (string) ($booking['tour_id'] ?? ''),
+                        'item_name' => (string) ($booking['tour_title'] ?? 'Tour'),
+                        'price' => (float) ($booking['amount_paid_vnd'] ?? 0),
+                        'quantity' => 1,
+                    ]],
+                ],
+            ];
+        } elseif (in_array($status, ['draft', 'pending_payment', 'pending_transfer'], true)) {
+            $analyticsEvents[] = [
+                'name' => 'generate_lead',
+                'dedupe_key' => 'booking_lead_' . (int) ($booking['id'] ?? 0),
+                'params' => [
+                    'lead_source' => 'booking',
+                    'currency' => 'VND',
+                    'value' => (float) ($booking['amount_due_vnd'] ?? $booking['grand_total'] ?? 0),
+                    'tour_id' => (string) ($booking['tour_id'] ?? ''),
+                ],
+            ];
+        }
+
         return view('booking/success', [
             'booking' => $booking,
             'departureFrom' => $this->resolveBookingDepartureFrom((int) ($booking['tour_id'] ?? 0), $this->request->getLocale()),
             'bookingTourType' => $this->resolveBookingTourType((int) ($booking['tour_id'] ?? 0)),
+            'analytics_events' => $analyticsEvents,
         ]);
     }
 

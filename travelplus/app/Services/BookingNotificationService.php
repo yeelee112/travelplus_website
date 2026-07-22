@@ -123,26 +123,15 @@ class BookingNotificationService
      */
     public function hasSuccessfulCustomerEmail(array $booking, string $type): bool
     {
-        $bookingId = (int) ($booking['id'] ?? 0);
         $recipient = trim((string) ($booking['customer_email'] ?? ''));
 
-        if ($bookingId <= 0 || $recipient === '' || ! $this->hasEmailLogTable()) {
-            return false;
-        }
-
-        return db_connect()
-            ->table('booking_email_logs')
-            ->where('booking_id', $bookingId)
-            ->where('email_type', $type)
-            ->where('recipient_email', $recipient)
-            ->where('status', 'sent')
-            ->countAllResults() > 0;
+        return $this->hasSuccessfulEmail($booking, $type, $recipient);
     }
 
     public function hasEmailLogTable(): bool
     {
         try {
-            return db_connect()->tableExists('booking_email_logs');
+            return (new DatabaseSchemaCacheService())->tableExists('booking_email_logs');
         } catch (\Throwable $exception) {
             log_message('error', 'Unable to check booking_email_logs table: {error}', ['error' => $exception->getMessage()]);
 
@@ -203,11 +192,41 @@ class BookingNotificationService
      */
     private function sendAndLog(array $booking, string $type, string $to, string $subject, string $message): bool
     {
+        if ($this->hasSuccessfulEmail($booking, $type, $to)) {
+            log_message('info', 'Duplicate booking email skipped for {type} to {recipient}.', [
+                'type' => $type,
+                'recipient' => $to,
+            ]);
+
+            return true;
+        }
+
         $result = $this->deliver($to, $subject, $message);
 
         $this->logEmail($booking, $type, $to, $subject, $result['ok'] ? 'sent' : 'failed', $result['error']);
 
         return $result['ok'];
+    }
+
+    /**
+     * @param array<string, mixed> $booking
+     */
+    private function hasSuccessfulEmail(array $booking, string $type, string $recipient): bool
+    {
+        $bookingId = (int) ($booking['id'] ?? 0);
+        $recipient = strtolower(trim($recipient));
+
+        if ($bookingId <= 0 || $recipient === '' || ! $this->hasEmailLogTable()) {
+            return false;
+        }
+
+        return db_connect()
+            ->table('booking_email_logs')
+            ->where('booking_id', $bookingId)
+            ->where('email_type', $type)
+            ->where('recipient_email', $recipient)
+            ->where('status', 'sent')
+            ->countAllResults() > 0;
     }
 
     /**

@@ -15,13 +15,18 @@ class EntityViewService
 
     public function incrementOncePerSession(string $table, int $entityId, string $sessionKeyPrefix = ''): void
     {
-        if ($entityId <= 0 || ! $this->db->tableExists($table) || ! $this->db->fieldExists('view_count', $table)) {
+        if ($entityId <= 0) {
             return;
         }
 
         $sessionKey = 'viewed_' . ($sessionKeyPrefix !== '' ? $sessionKeyPrefix : $table) . '_' . $entityId;
 
         if (session()->get($sessionKey)) {
+            return;
+        }
+
+        $schema = new DatabaseSchemaCacheService($this->db);
+        if (! $schema->tableExists($table) || ! $schema->fieldExists('view_count', $table)) {
             return;
         }
 

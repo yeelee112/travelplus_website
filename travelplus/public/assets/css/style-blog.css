@@ -1,0 +1,787 @@
+.travelplus-blog-hero{padding: 42px 0 56px;
+    background: linear-gradient(180deg, rgba(14, 169, 208, 0.08), rgba(255, 255, 255, 0));}
+.travelplus-blog-list-hero{padding: 30px 0 34px;
+    border-bottom: 1px solid rgba(var(--primary-color1-opc), 0.12);
+    background: linear-gradient(180deg, rgba(var(--primary-color1-opc), 0.06), rgba(255, 255, 255, 0));}
+.travelplus-blog-list-hero-inner{max-width: 940px;}
+.travelplus-blog-list-hero-copy{position: relative;
+    max-width: 860px;
+    padding-left: 18px;}
+.travelplus-blog-list-hero-copy::before{content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 7px;
+    left: 0;
+    width: 4px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--primary-color1), var(--primary-color3));}
+.travelplus-blog-list-hero-copy > span, .travelplus-blog-section-head span, .travelplus-blog-featured-copy > span, .travelplus-blog-list-cta > span{display: inline-flex;
+    margin-bottom: 12px;
+    color: var(--primary-color1);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;}
+.travelplus-blog-list-hero h1{margin: 0;
+    color: var(--title-color);
+    font-size: clamp(31px, 4vw, 46px);
+    line-height: 1.12;
+    font-weight: 850;}
+.travelplus-blog-list-hero p{max-width: 760px;
+    margin: 12px 0 0;
+    color: rgba(var(--title-color-opc), 0.74);
+    font-size: 17px;
+    line-height: 1.68;}
+.travelplus-blog-list-wrap{padding: 46px 0 100px;}
+.travelplus-blog-empty{max-width: 720px;
+    margin: 0 auto;
+    padding: 44px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.18);
+    border-radius: 8px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);}
+.travelplus-blog-empty h2{margin: 0 0 10px;
+    color: var(--title-color);
+    font-size: 32px;
+    font-weight: 850;}
+.travelplus-blog-empty p{margin: 0 auto 20px;
+    max-width: 520px;
+    color: rgba(var(--title-color-opc), 0.68);
+    line-height: 1.7;}
+.travelplus-blog-empty a{display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--primary-color1);
+    color: #fff;
+    font-weight: 800;}
+.travelplus-blog-featured{display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.82fr);
+    gap: 34px;
+    align-items: center;
+    margin-bottom: 56px;
+    padding: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);}
+.travelplus-blog-featured-image{display: block;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f3f7f9;}
+.travelplus-blog-featured-image img{display: block;
+    width: 100%;
+    aspect-ratio: 1.52 / 1;
+    height: auto;
+    object-fit: cover;
+    transition: transform 0.45s ease;}
+.travelplus-blog-featured:hover .travelplus-blog-featured-image img{transform: scale(1.035);}
+.travelplus-blog-featured-copy{padding: 14px 16px 14px 0;}
+.travelplus-blog-featured-copy h2{margin: 0;
+    color: var(--title-color);
+    font-size: clamp(25px, 2vw, 40px);
+    line-height: 1.13;
+    font-weight: 850;}
+.travelplus-blog-featured-copy h2 a{color: inherit;}
+.travelplus-blog-featured-copy p{display: -webkit-box;
+    overflow: hidden;
+    margin: 18px 0 0;
+    color: rgba(var(--title-color-opc), 0.72);
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;}
+.travelplus-blog-featured-copy ul{display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;}
+.travelplus-blog-featured-copy li{display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 7px 11px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 999px;
+    background: #f8fbfd;
+    color: rgba(var(--title-color-opc), 0.72);
+    font-size: 13px;
+    font-weight: 700;}
+.travelplus-blog-featured-copy li i{color: var(--primary-color1);}
+.travelplus-blog-seo-intro{display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 52px;
+    padding: 28px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.18);
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(var(--primary-color1-opc), 0.07), #fff 56%, rgba(var(--primary-color3-opc), 0.08));}
+.travelplus-blog-seo-intro h2{margin: 0;
+    color: var(--title-color);
+    font-size: 28px;
+    line-height: 1.25;
+    font-weight: 850;}
+.travelplus-blog-seo-intro p{max-width: 850px;
+    margin: 10px 0 0;
+    color: rgba(var(--title-color-opc), 0.72);
+    font-size: 16px;
+    line-height: 1.75;}
+.travelplus-blog-seo-intro div{display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;}
+.travelplus-blog-seo-intro a{display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-weight: 850;
+    white-space: nowrap;}
+.travelplus-blog-seo-intro a:first-child{background: var(--primary-color1);
+    color: #fff;}
+.travelplus-blog-seo-intro a:last-child{border: 1px solid rgba(var(--primary-color1-opc), 0.25);
+    background: #fff;
+    color: var(--primary-color1);}
+.travelplus-blog-readmore, .travelplus-blog-card-link{display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-color1);
+    font-weight: 850;}
+.travelplus-blog-readmore{margin-top: 26px;}
+.travelplus-blog-list-layout{display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    gap: 42px;
+    align-items: start;}
+.travelplus-blog-section-head{margin-bottom: 22px;}
+.travelplus-blog-section-head h2{margin: 0;
+    color: var(--title-color);
+    font-size: 34px;
+    line-height: 1.2;
+    font-weight: 850;}
+.travelplus-blog-card-grid{display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;}
+.travelplus-blog-list-card{display: flex;
+    min-width: 0;
+    overflow: hidden;
+    flex-direction: column;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.06);}
+.travelplus-blog-list-card-image{position: relative;
+    display: block;
+    overflow: hidden;
+    background: #f3f7f9;}
+.travelplus-blog-list-card-image img{display: block;
+    width: 100%;
+    aspect-ratio: 1.5 / 1;
+    height: auto;
+    object-fit: cover;
+    transition: transform 0.45s ease;}
+.travelplus-blog-list-card:hover .travelplus-blog-list-card-image img{transform: scale(1.04);}
+.travelplus-blog-card-badges{position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    z-index: 2;}
+.travelplus-blog-card-badges span, .travelplus-blog-card-badges time{display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.68);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--title-color);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(8px);}
+.travelplus-blog-card-badges i{color: var(--primary-color1);
+    font-size: 12px;
+    line-height: 1;}
+.travelplus-blog-card-badges time{color: rgba(var(--title-color-opc), 0.78);}
+.travelplus-blog-card-badges time i{color: var(--primary-color3);}
+.travelplus-blog-card-meta{display: none;}
+.travelplus-blog-list-card-body{display: flex;
+    flex: 1;
+    min-height: 220px;
+    flex-direction: column;
+    padding: 20px;}
+.travelplus-blog-list-card h3{margin: 0;
+    color: var(--title-color);
+    font-size: 20px;
+    line-height: 1.35;
+    font-weight: 850;}
+.travelplus-blog-list-card h3 a{display: -webkit-box;
+    overflow: hidden;
+    color: inherit;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;}
+.travelplus-blog-list-card p{display: -webkit-box;
+    overflow: hidden;
+    margin: 12px 0 20px;
+    color: rgba(var(--title-color-opc), 0.68);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;}
+.travelplus-blog-card-link{margin-top: auto;
+    width: fit-content;}
+.travelplus-blog-pagination{display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 34px;}
+.travelplus-blog-pagination__pages{display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;}
+.travelplus-blog-pagination a, .travelplus-blog-pagination span{display: inline-flex;
+    min-width: 42px;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 13px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--title-color);
+    font-size: 14px;
+    font-weight: 850;
+    line-height: 1;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);}
+.travelplus-blog-pagination a:hover, .travelplus-blog-pagination .is-active{border-color: rgba(var(--primary-color1-opc), 0.24);
+    background: var(--primary-color1);
+    color: #fff;}
+.travelplus-blog-pagination__arrow{gap: 7px;
+    min-width: 112px;}
+.travelplus-blog-pagination__pages > span:not(.is-active){border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    color: rgba(var(--title-color-opc), 0.48);}
+.travelplus-blog-list-aside{position: sticky;
+    top: 110px;
+    display: grid;
+    gap: 18px;}
+.travelplus-blog-list-panel{padding: 22px;
+    border: 1px solid rgba(15, 23, 42, 0.09);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);}
+.travelplus-blog-list-panel h2{margin: 0 0 16px;
+    color: var(--title-color);
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 850;}
+.travelplus-blog-topic-list{display: flex;
+    flex-wrap: wrap;
+    gap: 9px;}
+.travelplus-blog-topic-list a, .travelplus-blog-topic-list > span{display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 7px 12px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.18);
+    border-radius: 999px;
+    background: rgba(var(--primary-color1-opc), 0.06);
+    color: var(--primary-color1);
+    font-size: 13px;
+    font-weight: 800;}
+.travelplus-blog-list-cta{border-color: rgba(var(--primary-color1-opc), 0.22);
+    background: linear-gradient(145deg, rgba(var(--primary-color1-opc), 0.08), #fff 52%, rgba(var(--primary-color3-opc), 0.1));}
+.travelplus-blog-list-cta p{margin: 0 0 18px;
+    color: rgba(var(--title-color-opc), 0.72);
+    font-size: 15px;
+    line-height: 1.7;}
+.travelplus-blog-list-cta div{display: grid;
+    gap: 10px;}
+.travelplus-blog-list-cta a{display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-weight: 850;}
+.travelplus-blog-list-cta a:first-child{background: var(--primary-color1);
+    color: #fff;}
+.travelplus-blog-list-cta a:last-child{border: 1px solid rgba(var(--primary-color1-opc), 0.25);
+    background: #fff;
+    color: var(--primary-color1);}
+.travelplus-blog-list-recent{display: grid;
+    gap: 14px;}
+.travelplus-blog-list-recent a{display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;}
+.travelplus-blog-list-recent img{width: 92px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f3f7f9;}
+.travelplus-blog-list-recent small{display: block;
+    margin-bottom: 4px;
+    color: var(--primary-color1);
+    font-size: 12px;
+    font-weight: 800;}
+.travelplus-blog-list-recent strong{display: -webkit-box;
+    overflow: hidden;
+    color: var(--title-color);
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 850;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;}
+.travelplus-blog-hero-grid{display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+    gap: 44px;
+    align-items: center;}
+.travelplus-blog-hero-copy{max-width: 760px;}
+.travelplus-blog-category{display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin-bottom: 18px;
+    padding: 8px 14px;
+    border: 1px solid rgba(var(--primary-color1-opc), 0.2);
+    border-radius: 999px;
+    background: rgba(var(--primary-color1-opc), 0.08);
+    color: var(--primary-color1);
+    font-size: 14px;
+    font-weight: 700;}
+.travelplus-blog-category:hover{border-color: rgba(var(--primary-color3-opc), 0.35);
+    background: rgba(var(--primary-color3-opc), 0.1);
+    color: var(--primary-color3);}
+.travelplus-blog-hero h1{max-width: 820px;
+    margin: 0;
+    color: var(--title-color);
+    font-size: clamp(34px, 4vw, 58px);
+    line-height: 1.08;
+    font-weight: 800;}
+.travelplus-blog-excerpt{max-width: 760px;
+    margin: 20px 0 0;
+    color: rgba(var(--title-color-opc), 0.74);
+    font-size: 18px;
+    line-height: 1.75;}
+.travelplus-blog-meta{display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 26px 0 0;
+    padding: 0;
+    list-style: none;}
+.travelplus-blog-meta li{display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 999px;
+    background: #fff;
+    color: rgba(var(--title-color-opc), 0.78);
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);}
+.travelplus-blog-meta i{color: var(--primary-color1);}
+.travelplus-blog-cover{position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #eef7fb;
+    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.14);}
+.travelplus-blog-cover::after{content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: inherit;
+    pointer-events: none;}
+.travelplus-blog-cover img{display: block;
+    width: 100%;
+    aspect-ratio: 1.52 / 1;
+    height: auto;
+    object-fit: cover;}
+.travelplus-blog-detail-wrap{padding: 34px 0 100px;}
+.travelplus-blog-layout{display: grid;
+    grid-template-columns: minmax(0, 820px) minmax(280px, 360px);
+    column-gap: 48px;
+    row-gap: 42px;
+    align-items: start;
+    justify-content: space-between;}
+.travelplus-blog-article{min-width: 0;
+    max-width: 820px;}
+.travelplus-blog-content{color: rgba(var(--title-color-opc), 0.82);
+    font-size: 18px;
+    line-height: 1.88;
+    overflow-wrap: anywhere;}
+.travelplus-blog-content > *:first-child{margin-top: 0;}
+.travelplus-blog-content p{margin: 0 0 24px;}
+.travelplus-blog-content h2, .travelplus-blog-content h3, .travelplus-blog-content h4{margin: 42px 0 16px;
+    color: var(--title-color);
+    font-weight: 800;
+    line-height: 1.24;}
+.travelplus-blog-content h2{font-size: 30px;}
+.travelplus-blog-content h3{font-size: 24px;}
+.travelplus-blog-content h4{font-size: 20px;}
+.travelplus-blog-content a{color: var(--primary-color1);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;}
+.travelplus-blog-content ul, .travelplus-blog-content ol{margin: 0 0 28px;
+    padding-left: 24px;}
+.travelplus-blog-content li{margin-bottom: 10px;}
+.travelplus-blog-content blockquote{margin: 34px 0;
+    padding: 24px 28px;
+    border-left: 4px solid var(--primary-color3);
+    border-radius: 0 8px 8px 0;
+    background: rgba(var(--primary-color3-opc), 0.08);
+    color: var(--title-color);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.65;}
+.travelplus-blog-content figure{margin: 38px 0;}
+.travelplus-blog-content img{display: block;
+    width: 100%;
+    height: auto;
+    max-height: 680px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f3f7f9;}
+.travelplus-blog-content img[data-content-image-status="loading"]{opacity: 0;}
+.travelplus-blog-content figcaption{margin-top: 10px;
+    color: rgba(var(--title-color-opc), 0.58);
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;}
+.travelplus-blog-aside{position: sticky;
+    top: 110px;
+    display: grid;
+    gap: 18px;}
+.travelplus-blog-side-card{border: 1px solid rgba(15, 23, 42, 0.09);
+    border-radius: 8px;
+    background: #fff;
+    padding: 22px;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);}
+.travelplus-blog-side-card h2{margin: 0 0 16px;
+    color: var(--title-color);
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.3;}
+.travelplus-blog-cta-card{border-color: rgba(var(--primary-color1-opc), 0.22);
+    background: linear-gradient(145deg, rgba(var(--primary-color1-opc), 0.08), #fff 52%, rgba(var(--primary-color3-opc), 0.1));}
+.travelplus-blog-cta-card > span, .travelplus-blog-more-head span{display: inline-flex;
+    margin-bottom: 10px;
+    color: var(--primary-color1);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;}
+.travelplus-blog-cta-card p{margin: 0 0 18px;
+    color: rgba(var(--title-color-opc), 0.72);
+    font-size: 15px;
+    line-height: 1.7;}
+.travelplus-blog-cta-actions{display: grid;
+    gap: 10px;}
+.travelplus-blog-cta-actions a{display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-weight: 800;}
+.travelplus-blog-cta-actions a:first-child{background: var(--primary-color1);
+    color: #fff;}
+.travelplus-blog-cta-actions a:last-child{border: 1px solid rgba(var(--primary-color1-opc), 0.25);
+    color: var(--primary-color1);
+    background: #fff;}
+.travelplus-blog-related-list{display: grid;
+    gap: 14px;}
+.travelplus-blog-related-item{display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    color: var(--title-color);}
+.travelplus-blog-related-item img{width: 92px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f3f7f9;}
+.travelplus-blog-related-item small{display: block;
+    margin-bottom: 4px;
+    color: var(--primary-color1);
+    font-size: 12px;
+    font-weight: 800;}
+.travelplus-blog-related-item strong{display: -webkit-box;
+    overflow: hidden;
+    color: var(--title-color);
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 800;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;}
+.travelplus-blog-more{margin-top: 82px;}
+.travelplus-blog-more-head{max-width: 720px;
+    margin-bottom: 24px;}
+.travelplus-blog-more-head h2{margin: 0;
+    color: var(--title-color);
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.2;}
+.travelplus-blog-more-grid{display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;}
+.travelplus-blog-more-card{display: block;
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.09);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--title-color);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);}
+.travelplus-blog-more-card img{display: block;
+    width: 100%;
+    aspect-ratio: 1.5 / 1;
+    height: auto;
+    object-fit: cover;
+    background: #f3f7f9;}
+.travelplus-blog-more-card span, .travelplus-blog-more-card h3, .travelplus-blog-more-card p{display: block;
+    margin-left: 18px;
+    margin-right: 18px;}
+.travelplus-blog-more-card span{margin-top: 18px;
+    color: var(--primary-color1);
+    font-size: 13px;
+    font-weight: 800;}
+.travelplus-blog-more-card h3{display: -webkit-box;
+    overflow: hidden;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    color: var(--title-color);
+    font-size: 20px;
+    line-height: 1.35;
+    font-weight: 800;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;}
+.travelplus-blog-more-card p{display: -webkit-box;
+    overflow: hidden;
+    margin-bottom: 20px;
+    color: rgba(var(--title-color-opc), 0.68);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;}
+@media (max-width: 1199px){.travelplus-blog-featured, .travelplus-blog-list-layout{grid-template-columns: 1fr;}
+.travelplus-blog-featured-copy{padding: 4px 4px 10px;}
+.travelplus-blog-list-aside{position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));}
+.travelplus-blog-hero-grid, .travelplus-blog-layout{grid-template-columns: 1fr;}
+.travelplus-blog-aside{position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));}
+}
+@media (max-width: 991px){.travelplus-blog-list-hero{padding: 24px 0 30px;}
+.travelplus-blog-list-hero h1{font-size: 34px;}
+.travelplus-blog-list-hero p{font-size: 17px;}
+.travelplus-blog-list-wrap{padding: 34px 0 78px;}
+.travelplus-blog-card-grid, .travelplus-blog-list-aside, .travelplus-blog-seo-intro{grid-template-columns: 1fr;}
+.travelplus-blog-seo-intro div{justify-content: flex-start;}
+.travelplus-blog-list-card-body{min-height: auto;}
+.travelplus-blog-hero{padding: 28px 0 42px;}
+.travelplus-blog-hero-grid{gap: 28px;}
+.travelplus-blog-hero h1{font-size: 36px;}
+.travelplus-blog-excerpt, .travelplus-blog-content{font-size: 17px;}
+.travelplus-blog-more-grid, .travelplus-blog-aside{grid-template-columns: 1fr;}
+}
+@media (max-width: 575px){.travelplus-blog-list-hero{padding: 18px 0 24px;}
+.travelplus-blog-list-hero-copy{padding-left: 14px;}
+.travelplus-blog-list-hero-copy::before{width: 3px;}
+.travelplus-blog-list-hero h1{font-size: 31px;
+        line-height: 1.14;}
+.travelplus-blog-list-wrap > .container{display: flex;
+        flex-direction: column;}
+.travelplus-blog-featured{order: 1;
+        gap: 15px;
+        margin-bottom: 32px;
+        padding: 10px;}
+.travelplus-blog-featured-image img{aspect-ratio: 1.8 / 1;}
+.travelplus-blog-featured-copy{padding: 2px 4px 8px;}
+.travelplus-blog-featured-copy > span{margin-bottom: 8px;}
+.travelplus-blog-featured-copy h2{display: -webkit-box;
+        overflow: hidden;
+        font-size: 25px;
+        line-height: 1.22;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;}
+.travelplus-blog-featured-copy p{margin-top: 11px;
+        font-size: 15px;
+        line-height: 1.58;
+        -webkit-line-clamp: 2;}
+.travelplus-blog-featured-copy ul{gap: 7px;
+        margin-top: 14px;}
+.travelplus-blog-featured-copy li{min-height: 32px;
+        padding: 6px 9px;
+        border-radius: 7px;
+        font-size: 12px;}
+.travelplus-blog-featured-copy li:nth-child(n+3){display: none;}
+.travelplus-blog-readmore{margin-top: 17px;}
+.travelplus-blog-list-layout{order: 2;}
+.travelplus-blog-section-head h2{font-size: 28px;}
+.travelplus-blog-seo-intro{order: 3;
+        margin: 36px 0 0;
+        padding: 18px;}
+.travelplus-blog-seo-intro h2{font-size: 22px;}
+.travelplus-blog-seo-intro p{display: -webkit-box;
+        overflow: hidden;
+        font-size: 14px;
+        line-height: 1.6;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;}
+.travelplus-blog-seo-intro div{display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;}
+.travelplus-blog-seo-intro a{min-width: 0;
+        padding-right: 8px;
+        padding-left: 8px;}
+.travelplus-blog-card-grid{gap: 12px;}
+.travelplus-blog-list-card{display: grid;
+        grid-template-columns: 118px minmax(0, 1fr);
+        min-height: 158px;}
+.travelplus-blog-list-card-image{min-height: 100%;}
+.travelplus-blog-list-card-image img{width: 100%;
+        height: 100%;
+        aspect-ratio: auto;}
+.travelplus-blog-card-badges{display: none;}
+.travelplus-blog-card-meta{display: flex;
+        min-width: 0;
+        flex-wrap: wrap;
+        gap: 5px 9px;
+        margin-bottom: 7px;
+        color: rgba(var(--title-color-opc), .62);
+        font-size: 10px;
+        font-weight: 750;
+        line-height: 1.25;}
+.travelplus-blog-card-meta span, .travelplus-blog-card-meta time{display: inline-flex;
+        min-width: 0;
+        align-items: center;
+        gap: 4px;}
+.travelplus-blog-card-meta i{flex: 0 0 auto;
+        color: var(--primary-color1);
+        font-size: 10px;}
+.travelplus-blog-list-card-body{min-height: 0;
+        padding: 13px;}
+.travelplus-blog-list-card h3{font-size: 15px;
+        line-height: 1.35;}
+.travelplus-blog-list-card h3 a{-webkit-line-clamp: 3;}
+.travelplus-blog-list-card p{display: none;}
+.travelplus-blog-card-link{gap: 5px;
+        margin-top: auto;
+        font-size: 12px;}
+.travelplus-blog-list-panel, .travelplus-blog-empty{padding: 18px;}
+.travelplus-blog-list-panel--recent{display: none;}
+.travelplus-blog-pagination{justify-content: stretch;
+        gap: 8px;}
+.travelplus-blog-pagination__pages{order: -1;
+        width: 100%;}
+.travelplus-blog-pagination__arrow{flex: 1;
+        min-width: 0;}
+.travelplus-blog-hero{padding: 18px 0 30px;}
+.travelplus-blog-hero-grid{gap: 20px;}
+.travelplus-blog-category{min-height: 34px;
+        margin-bottom: 14px;
+        padding: 7px 11px;
+        font-size: 13px;}
+.travelplus-blog-hero h1{font-size: 30px;
+        line-height: 1.14;}
+.travelplus-blog-excerpt{margin-top: 14px;
+        font-size: 16px;
+        line-height: 1.65;}
+.travelplus-blog-meta{display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0;
+        margin-top: 18px;
+        padding: 7px;
+        border: 1px solid rgba(var(--primary-color1-opc), .18);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .94);
+        box-shadow: 0 10px 24px rgba(18, 64, 83, .08);}
+.travelplus-blog-meta li{width: 100%;
+        min-width: 0;
+        min-height: 40px;
+        justify-content: center;
+        gap: 5px;
+        padding: 4px 6px;
+        border: 0;
+        border-right: 1px solid rgba(var(--title-color-opc), .1);
+        border-radius: 0;
+        background: transparent;
+        color: var(--title-color);
+        font-size: 12px;
+        font-weight: 800;
+        box-shadow: none;
+        white-space: nowrap;}
+.travelplus-blog-meta li:last-child{border-right: 0;}
+.travelplus-blog-meta li i{display: inline-flex;
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: rgba(var(--primary-color1-opc), .11);
+        color: var(--primary-color1);
+        font-size: 11px;}
+.travelplus-blog-meta li:nth-child(2) i{background: #edf7e5;
+        color: #5c962e;}
+.travelplus-blog-meta li:nth-child(3) i{background: #fff1d2;
+        color: #c77a00;}
+.travelplus-blog-meta-label{display: none;}
+.travelplus-blog-cover{box-shadow: 0 16px 36px rgba(15, 23, 42, .12);}
+.travelplus-blog-detail-wrap{padding: 24px 0 72px;}
+.travelplus-blog-content{line-height: 1.75;}
+.travelplus-blog-content p{margin-bottom: 20px;}
+.travelplus-blog-content h2, .travelplus-blog-content h3, .travelplus-blog-content h4{margin-top: 32px;
+        margin-bottom: 12px;}
+.travelplus-blog-content h2{font-size: 25px;}
+.travelplus-blog-content h3{font-size: 21px;}
+.travelplus-blog-content blockquote{padding: 20px;
+        font-size: 18px;}
+.travelplus-blog-side-card{padding: 18px;}
+.travelplus-blog-side-card--related{display: none;}
+.travelplus-blog-more{margin-top: 44px;}
+.travelplus-blog-more-head h2{font-size: 28px;}
+.travelplus-blog-more-grid{gap: 12px;}
+.travelplus-blog-more-card{display: grid;
+        grid-template-columns: 118px minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+        min-height: 152px;}
+.travelplus-blog-more-card img{grid-row: 1 / 3;
+        width: 100%;
+        height: 100%;
+        aspect-ratio: auto;}
+.travelplus-blog-more-card span{grid-column: 2;
+        margin: 14px 13px 0;
+        font-size: 11px;}
+.travelplus-blog-more-card h3{grid-column: 2;
+        align-self: start;
+        margin: 6px 13px 14px;
+        font-size: 15px;
+        line-height: 1.4;
+        -webkit-line-clamp: 4;}
+.travelplus-blog-more-card p{display: none;}
+}
+@media (max-width: 360px){.travelplus-blog-meta li{gap: 4px;
+        padding-right: 2px;
+        padding-left: 2px;
+        font-size: 11px;}
+.travelplus-blog-meta li i{width: 20px;
+        height: 20px;
+        flex-basis: 20px;
+        font-size: 10px;}
+}

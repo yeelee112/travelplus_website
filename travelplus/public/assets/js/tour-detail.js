@@ -941,6 +941,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     messageBox.textContent = payload.message || messages.enquirySent;
                 }
 
+                if (payload.analytics_event && typeof window.travelplusTrackEvent === 'function') {
+                    window.travelplusTrackEvent(
+                        payload.analytics_event.name,
+                        payload.analytics_event.params || {}
+                    );
+                }
+
                 enquiryForm.reset();
 
                 setTimeout(() => {

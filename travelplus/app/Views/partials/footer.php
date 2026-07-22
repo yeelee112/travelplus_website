@@ -125,8 +125,13 @@ $socialLinks = [
             </div>
 
             <nav class="travelplus-footer__nav" aria-label="<?= esc(lang('Frontend.footer.title.tours')) ?>">
-                <h3><?= esc(lang('Frontend.footer.title.tours')) ?></h3>
-                <ul>
+                <h3>
+                    <button class="travelplus-footer__nav-toggle" type="button" aria-expanded="true" aria-controls="footer-tour-links">
+                        <span><?= esc(lang('Frontend.footer.title.tours')) ?></span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+                </h3>
+                <ul id="footer-tour-links">
                     <?php foreach ($tourLinks as $link): ?>
                         <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
                     <?php endforeach; ?>
@@ -134,8 +139,13 @@ $socialLinks = [
             </nav>
 
             <nav class="travelplus-footer__nav" aria-label="<?= esc(lang('Frontend.footer.title.services')) ?>">
-                <h3><?= esc(lang('Frontend.footer.title.services')) ?></h3>
-                <ul>
+                <h3>
+                    <button class="travelplus-footer__nav-toggle" type="button" aria-expanded="true" aria-controls="footer-service-links">
+                        <span><?= esc(lang('Frontend.footer.title.services')) ?></span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+                </h3>
+                <ul id="footer-service-links">
                     <?php foreach ($serviceLinks as $link): ?>
                         <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
                     <?php endforeach; ?>
@@ -144,8 +154,13 @@ $socialLinks = [
 
             <div class="travelplus-footer__side">
                 <nav class="travelplus-footer__nav" aria-label="<?= esc(lang('Frontend.footer.title.contactLegal')) ?>">
-                    <h3><?= esc(lang('Frontend.footer.title.contactLegal')) ?></h3>
-                    <ul>
+                    <h3>
+                        <button class="travelplus-footer__nav-toggle" type="button" aria-expanded="true" aria-controls="footer-info-links">
+                            <span><?= esc(lang('Frontend.footer.title.contactLegal')) ?></span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </button>
+                    </h3>
+                    <ul id="footer-info-links">
                         <?php foreach ($infoLinks as $link): ?>
                             <li><a href="<?= esc($link['url']) ?>"><?= esc($link['label']) ?></a></li>
                         <?php endforeach; ?>

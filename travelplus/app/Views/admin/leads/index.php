@@ -65,6 +65,8 @@ $stageLabels = [
 ];
 $sourceLabels = [
     'contact_form' => 'Contact',
+    'visa_form' => 'Visa',
+    'mice_form' => 'MICE',
     'tour_enquiry' => 'Tư vấn tour',
     'ai_chat' => 'AI chat',
     'booking' => 'Booking',
@@ -96,7 +98,7 @@ $hasNextPage = ! empty($hasNextPage);
         <div class="crm-head">
             <div>
                 <h1 class="h3 mb-1">CRM leads</h1>
-                <p class="text-muted mb-0">Theo dõi lead từ contact form, tư vấn tour, AI chat và booking chưa thanh toán. Ưu tiên xử lý lead mới và lead đang tư vấn.</p>
+                <p class="text-muted mb-0">Theo dõi lead từ contact, visa, MICE, tư vấn tour, AI chat và booking. Ưu tiên xử lý lead mới và lead đang tư vấn.</p>
             </div>
             <div class="d-flex gap-2 flex-wrap justify-content-end">
                 <a class="btn btn-primary" href="<?= esc($syncUrl, 'attr') ?>">Đồng bộ booking</a>

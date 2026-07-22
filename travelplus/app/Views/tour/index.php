@@ -110,6 +110,23 @@ if (function_exists('mb_strlen') && mb_strlen($heroIntro) > 180) {
     $heroIntro = rtrim(mb_substr($heroIntro, 0, 177)) . '...';
 }
 $priceDisplay = $adultPrice > 0 ? number_format($adultPrice, 0, ',', '.') . 'đ' : (string) ($tour['price']['label'] ?? '');
+$loyaltyPreviewPoints = \App\Services\LoyaltyPointService::previewPoints($adultPrice);
+$loyaltyPreviewLabel = number_format($loyaltyPreviewPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
+$loyaltyPreviewCopy = $locale === 'en'
+    ? $loyaltyPreviewLabel . '+ points'
+    : '+' . $loyaltyPreviewLabel . ' điểm';
+$authUser = session()->get('auth_user');
+$isLoggedIn = is_array($authUser) && (int) ($authUser['id'] ?? 0) > 0;
+$loyaltyPreviewTooltip = $locale === 'en'
+    ? ($isLoggedIn
+        ? 'Estimated points will be added to your account after the booking is paid.'
+        : 'Sign in to earn points after your booking is paid.')
+    : ($isLoggedIn
+        ? 'Điểm tạm tính sẽ tự động cộng vào tài khoản sau khi booking được thanh toán.'
+        : 'Đăng nhập để tích điểm sau khi booking được thanh toán.');
+$loyaltyAccountUrl = $isLoggedIn
+    ? \App\Data\LocalizedPathCatalog::url('auth.profile', $locale)
+    : \App\Data\LocalizedPathCatalog::url('auth.login', $locale) . '?return_to=' . rawurlencode(current_url());
 $destinationLabel = trim((string) ($tour['continent'] ?? ''));
 $departureFrom = trim((string) ($tour['departure_from'] ?? ''));
 $heroMetaItems = array_values(array_filter([
@@ -201,6 +218,8 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
     $includedItems
 ))), 0, 3));
 $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) : [];
+$tourHeroImage = (string) ($tour['image'] ?? '');
+$tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
 ?>
 
 <section
@@ -223,7 +242,17 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
     data-tour-highlight="<?= esc($tourToolHighlight, 'attr') ?>"
     data-tour-included="<?= esc($tourToolIncluded, 'attr') ?>">
     <div class="tour-detail-hero__media">
-        <img class="tour-detail-hero__image" src="<?= esc($tour['image']) ?>" alt="<?= esc($tour['title']) ?>" loading="eager" fetchpriority="high" decoding="async" width="1920" height="760" itemprop="image">
+        <img
+            class="tour-detail-hero__image"
+            src="<?= esc($tourHeroImage, 'attr') ?>"
+            <?php if ($tourHeroSrcset !== ''): ?>srcset="<?= esc($tourHeroSrcset, 'attr') ?>" sizes="100vw"<?php endif; ?>
+            alt="<?= esc($tour['title']) ?>"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            width="1920"
+            height="760"
+            itemprop="image">
     </div>
     <div class="tour-detail-hero__shade"></div>
     <div class="container">
@@ -297,6 +326,16 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                 <span><?= esc($t('tour.sidebar.price')) ?></span>
                 <?php if ($priceDisplay !== ''): ?>
                     <strong><?= esc($priceDisplay) ?><small><?= esc($t('tour.booking.perPerson')) ?></small></strong>
+                <?php endif; ?>
+                <?php if ($loyaltyPreviewPoints > 0): ?>
+                    <a
+                        class="tour-detail-loyalty-preview tour-detail-loyalty-preview--hero"
+                        href="<?= esc($loyaltyAccountUrl, 'attr') ?>"
+                        data-loyalty-tooltip="<?= esc($loyaltyPreviewTooltip, 'attr') ?>"
+                        aria-label="<?= esc($loyaltyPreviewCopy . '. ' . $loyaltyPreviewTooltip, 'attr') ?>">
+                        <i class="bi bi-stars" aria-hidden="true"></i><?= esc($loyaltyPreviewCopy) ?>
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    </a>
                 <?php endif; ?>
                 <?php if ($departureLabel !== ''): ?>
                     <p><i class="bi bi-calendar-check" aria-hidden="true"></i><?= esc($departureLabel) ?></p>
@@ -812,10 +851,18 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                             <div class="swiper package-dt-location-slider">
                                 <div class="swiper-wrapper">
                                     <?php foreach ($gallery as $item): ?>
+                                        <?php $gallerySrcset = responsive_image_srcset((string) ($item['url'] ?? ''), [480, 960]); ?>
                                         <div class="swiper-slide">
                                             <div class="location-card">
                                                 <div class="location-img">
-                                                    <img src="<?= esc($item['url']) ?>" alt="<?= esc($item['alt_text'] ?: $tour['title']) ?>" loading="lazy" decoding="async" width="640" height="420">
+                                                    <img
+                                                        src="<?= esc($item['url'], 'attr') ?>"
+                                                        <?php if ($gallerySrcset !== ''): ?>srcset="<?= esc($gallerySrcset, 'attr') ?>" sizes="(max-width: 767px) calc(100vw - 40px), 640px"<?php endif; ?>
+                                                        alt="<?= esc($item['alt_text'] ?: $tour['title']) ?>"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        width="640"
+                                                        height="420">
                                                 </div>
                                                 <?php if (! empty($item['alt_text'])): ?>
                                                     <div class="location-content">
@@ -1098,6 +1145,16 @@ $heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) :
                             <h6><?= esc($t('tour.sidebar.price')) ?></h6>
                             <span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub><?= esc($t('tour.booking.perPerson')) ?></sub>
                             </span> 
+                            <?php if ($loyaltyPreviewPoints > 0): ?>
+                                <a
+                                    class="tour-detail-loyalty-preview tour-detail-loyalty-preview--sidebar"
+                                    href="<?= esc($loyaltyAccountUrl, 'attr') ?>"
+                                    data-loyalty-tooltip="<?= esc($loyaltyPreviewTooltip, 'attr') ?>"
+                                    aria-label="<?= esc($loyaltyPreviewCopy . '. ' . $loyaltyPreviewTooltip, 'attr') ?>">
+                                    <i class="bi bi-stars" aria-hidden="true"></i><?= esc($loyaltyPreviewCopy) ?>
+                                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                                </a>
+                            <?php endif; ?>
                         <!-- <br><del>125,900,000 đ</del><sub>/người</sub> -->
                         </div>
                         <ul>

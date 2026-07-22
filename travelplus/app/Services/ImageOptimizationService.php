@@ -181,6 +181,118 @@ final class ImageOptimizationService
         }
     }
 
+    /**
+     * @param list<int> $widths
+     * @return array<int, string> Generated variant paths indexed by pixel width.
+     */
+    public function generateResponsiveVariants(
+        string $sourcePath,
+        array $widths = [768, 1280, 1600],
+        int $quality = 78
+    ): array {
+        if (! is_file($sourcePath) || ! function_exists('imagewebp')) {
+            return [];
+        }
+
+        $imageInfo = @getimagesize($sourcePath);
+        $sourceWidth = (int) ($imageInfo[0] ?? 0);
+        $sourceHeight = (int) ($imageInfo[1] ?? 0);
+        $mimeType = strtolower((string) ($imageInfo['mime'] ?? ''));
+
+        if ($sourceWidth < 1 || $sourceHeight < 1 || ($sourceWidth * $sourceHeight) > self::MAX_SOURCE_PIXELS) {
+            return [];
+        }
+
+        $sourceImage = match ($mimeType) {
+            'image/jpeg' => @imagecreatefromjpeg($sourcePath),
+            'image/png' => @imagecreatefrompng($sourcePath),
+            'image/webp' => @imagecreatefromwebp($sourcePath),
+            default => false,
+        };
+
+        if (! $sourceImage instanceof \GdImage) {
+            return [];
+        }
+
+        if ($mimeType === 'image/jpeg') {
+            $sourceImage = $this->applyExifOrientation($sourceImage, $sourcePath);
+            $sourceWidth = imagesx($sourceImage);
+            $sourceHeight = imagesy($sourceImage);
+        }
+
+        $normalizedWidths = array_values(array_unique(array_filter(
+            array_map('intval', $widths),
+            static fn (int $width): bool => $width >= 320 && $width < $sourceWidth
+        )));
+        sort($normalizedWidths);
+
+        $sourceModifiedAt = (int) (filemtime($sourcePath) ?: 0);
+        $directory = dirname($sourcePath);
+        $stem = pathinfo($sourcePath, PATHINFO_FILENAME);
+        $quality = max(45, min(88, $quality));
+        $variants = [];
+
+        try {
+            foreach ($normalizedWidths as $targetWidth) {
+                $targetHeight = max(1, (int) round($sourceHeight * ($targetWidth / $sourceWidth)));
+                $destinationPath = $directory . DIRECTORY_SEPARATOR . $stem . '-' . $targetWidth . 'w.webp';
+
+                if (is_file($destinationPath) && (int) (filemtime($destinationPath) ?: 0) >= $sourceModifiedAt) {
+                    $variants[$targetWidth] = $destinationPath;
+                    continue;
+                }
+
+                $resizedImage = imagecreatetruecolor($targetWidth, $targetHeight);
+                if (! $resizedImage instanceof \GdImage) {
+                    continue;
+                }
+
+                imagealphablending($resizedImage, false);
+                imagesavealpha($resizedImage, true);
+                $transparent = imagecolorallocatealpha($resizedImage, 0, 0, 0, 127);
+                imagefill($resizedImage, 0, 0, $transparent);
+                imagecopyresampled(
+                    $resizedImage,
+                    $sourceImage,
+                    0,
+                    0,
+                    0,
+                    0,
+                    $targetWidth,
+                    $targetHeight,
+                    $sourceWidth,
+                    $sourceHeight
+                );
+
+                $temporaryPath = $destinationPath . '.tmp-' . bin2hex(random_bytes(4));
+                $written = @imagewebp($resizedImage, $temporaryPath, $quality);
+                imagedestroy($resizedImage);
+
+                if (! $written || ! is_file($temporaryPath) || (int) (filesize($temporaryPath) ?: 0) < 1) {
+                    @unlink($temporaryPath);
+                    continue;
+                }
+
+                if (! @copy($temporaryPath, $destinationPath)) {
+                    @unlink($temporaryPath);
+                    continue;
+                }
+
+                @unlink($temporaryPath);
+                $variants[$targetWidth] = $destinationPath;
+            }
+        } catch (Throwable $exception) {
+            log_message('error', 'Unable to generate responsive image variants for {path}: {message}', [
+                'path' => $sourcePath,
+                'message' => $exception->getMessage(),
+            ]);
+        } finally {
+            imagedestroy($sourceImage);
+        }
+
+        return $variants;
+    }
+
     private function applyExifOrientation(\GdImage $image, string $sourcePath): \GdImage
     {
         if (! function_exists('exif_read_data')) {

@@ -14,6 +14,9 @@ $error = trim((string) ($error ?? ''));
 $lookupAction = (string) ($lookupAction ?? \App\Data\LocalizedPathCatalog::url('booking.lookup', $locale));
 $bookingCodeInput = (string) ($bookingCode ?? '');
 $contactInput = (string) ($contact ?? '');
+$lookupMode = in_array((string) ($lookupMode ?? ''), ['code', 'contact'], true)
+    ? (string) $lookupMode
+    : ($contactInput !== '' && $bookingCodeInput === '' ? 'contact' : 'code');
 $contactLink = \App\Data\LocalizedPathCatalog::url('contact', $locale);
 $homeLink = localized_url('');
 $formatCurrency = static fn(float $amount): string => number_format($amount, 0, ',', '.') . ' VND';
@@ -30,6 +33,9 @@ $labels = $locale === 'en'
         'title' => 'Look up your booking',
         'desc' => 'Enter a booking code, email, or phone number used at checkout to review payment status and trip details.',
         'code' => 'Booking code',
+        'methodLabel' => 'Look up by',
+        'methodCode' => 'Booking code',
+        'methodContact' => 'Email or phone',
         'codePlaceholder' => 'Example: BK260714ABC123',
         'contact' => 'Email or phone number',
         'contactPlaceholder' => 'Email or phone used for booking',
@@ -74,6 +80,9 @@ $labels = $locale === 'en'
         'title' => 'Tra cứu booking',
         'desc' => 'Nhập mã booking, email hoặc số điện thoại đã dùng khi thanh toán để xem trạng thái thanh toán và thông tin chuyến đi.',
         'code' => 'Mã booking',
+        'methodLabel' => 'Tra cứu bằng',
+        'methodCode' => 'Mã booking',
+        'methodContact' => 'Email hoặc SĐT',
         'codePlaceholder' => 'Ví dụ: BK260714ABC123',
         'contact' => 'Email hoặc số điện thoại',
         'contactPlaceholder' => 'Email hoặc số điện thoại đặt tour',
@@ -243,13 +252,26 @@ if ($booking !== null) {
 
             <form action="<?= esc($lookupAction) ?>" method="post" class="booking-lookup-form">
                 <?= csrf_field() ?>
-                <label>
+                <fieldset class="booking-lookup-method" data-booking-lookup-method>
+                    <legend><?= esc($labels['methodLabel']) ?></legend>
+                    <div class="booking-lookup-method__options">
+                        <label>
+                            <input type="radio" name="lookup_mode" value="code"<?= $lookupMode === 'code' ? ' checked' : '' ?>>
+                            <span><?= esc($labels['methodCode']) ?></span>
+                        </label>
+                        <label>
+                            <input type="radio" name="lookup_mode" value="contact"<?= $lookupMode === 'contact' ? ' checked' : '' ?>>
+                            <span><?= esc($labels['methodContact']) ?></span>
+                        </label>
+                    </div>
+                </fieldset>
+                <label data-booking-lookup-field="code"<?= $lookupMode !== 'code' ? ' hidden' : '' ?>>
                     <span><?= esc($labels['code']) ?></span>
-                    <input type="text" name="booking_code" value="<?= esc($bookingCodeInput, 'attr') ?>" placeholder="<?= esc($labels['codePlaceholder'], 'attr') ?>" autocomplete="off">
+                    <input type="text" name="booking_code" value="<?= esc($bookingCodeInput, 'attr') ?>" placeholder="<?= esc($labels['codePlaceholder'], 'attr') ?>" autocomplete="off" autocapitalize="characters" enterkeyhint="search"<?= $lookupMode !== 'code' ? ' disabled' : '' ?>>
                 </label>
-                <label>
+                <label data-booking-lookup-field="contact"<?= $lookupMode !== 'contact' ? ' hidden' : '' ?>>
                     <span><?= esc($labels['contact']) ?></span>
-                    <input type="text" name="contact" value="<?= esc($contactInput, 'attr') ?>" placeholder="<?= esc($labels['contactPlaceholder'], 'attr') ?>" autocomplete="email">
+                    <input type="text" name="contact" value="<?= esc($contactInput, 'attr') ?>" placeholder="<?= esc($labels['contactPlaceholder'], 'attr') ?>" autocomplete="on" enterkeyhint="search"<?= $lookupMode !== 'contact' ? ' disabled' : '' ?>>
                 </label>
                 <button type="submit" class="primary-btn1 two">
                     <span><?= esc($labels['submit']) ?><i class="bi bi-search" aria-hidden="true"></i></span>
