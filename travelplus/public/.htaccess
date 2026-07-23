@@ -71,6 +71,13 @@ ErrorDocument 404 /error-404.php
 	Options +FollowSymlinks
 	RewriteEngine On
 
+	# Reject malformed scanner/crawler paths before CodeIgniter validates the URI.
+	RewriteRule ^(?:app|frontend)_dev\.php(?:/|$) - [F,L,NC]
+	RewriteCond %{THE_REQUEST} \s/+[^?\s]*(?:\$|%24) [NC]
+	RewriteRule ^ - [F,L]
+	RewriteCond %{THE_REQUEST} \s/+[^?\s]*%20[0-9]+w(?:,|%2C)%20https?(?::|%3A) [NC]
+	RewriteRule ^ - [F,L]
+
 	# Versioned bundles and uniquely named uploads can be cached permanently.
 	RewriteCond %{QUERY_STRING} (^|&)v=[0-9]+(&|$) [NC]
 	RewriteRule ^ - [E=immutable_asset:1]
