@@ -1,5 +1,0 @@
-2026/07/22-11:45:08.186 74d0 Creating DB E:\WORK\laragon\www\travelplus\writable\edge-footer-qa-2\Default\EdgeCoupons/coupons_data.db since it was missing.
-2026/07/22-11:45:08.472 74d0 Reusing MANIFEST E:\WORK\laragon\www\travelplus\writable\edge-footer-qa-2\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/07/22-11:45:14.137 73f4 Level-0 table #5: started
-2026/07/22-11:45:14.212 73f4 Level-0 table #5: 683052 bytes OK
-2026/07/22-11:45:14.295 73f4 Delete type=0 #3

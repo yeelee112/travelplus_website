@@ -1511,105 +1511,17 @@ body.home-search-layer-open .tp-ai-chatbox{z-index: 12;
     padding: 52px 0 42px;
     border-top: 1px solid #941d31;
     border-bottom: 1px solid #d45429;
-    background: #b72d3b;
-    background: linear-gradient(118deg, #a82037 0%, #c3313a 46%, #e66a31 100%);
+    background-color: #df0824;
+    background-image:
+        linear-gradient(100deg, rgba(112, 0, 18, .2), rgba(207, 0, 27, .04) 58%, rgba(117, 0, 17, .14)),
+        url("../images/campaigns/home-promotion-1717w.webp");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 .home-promo-section > .container{
     position: relative;
     z-index: 2;
-}
-.home-promo-decor{
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    overflow: hidden;
-    pointer-events: none;
-}
-.home-promo-decor__route{
-    position: absolute;
-    top: 48px;
-    right: -54px;
-    width: 390px;
-    height: 190px;
-    border-top: 2px dashed rgba(255, 255, 255, .34);
-    border-right: 2px dashed rgba(255, 255, 255, .34);
-    border-radius: 0 190px 0 0;
-    transform: rotate(-8deg);
-}
-.home-promo-decor__route i{
-    position: absolute;
-    top: -18px;
-    left: 82px;
-    color: rgba(255, 255, 255, .4);
-    font-size: 42px;
-    transform: rotate(24deg);
-}
-.home-promo-decor__route--lower{
-    top: auto;
-    right: auto;
-    bottom: 38px;
-    left: -76px;
-    width: 360px;
-    height: 165px;
-    border-right: 0;
-    border-bottom: 2px dashed rgba(255, 255, 255, .28);
-    border-left: 2px dashed rgba(255, 255, 255, .28);
-    border-radius: 0 0 0 165px;
-    transform: rotate(8deg);
-}
-.home-promo-decor__route--lower i{
-    top: auto;
-    right: 62px;
-    bottom: -18px;
-    left: auto;
-    font-size: 36px;
-    transform: rotate(-18deg);
-}
-.home-promo-decor__compass,
-.home-promo-decor__luggage,
-.home-promo-decor__globe,
-.home-promo-decor__camera,
-.home-promo-decor__map,
-.home-promo-decor__pin{
-    position: absolute;
-    color: rgba(255, 255, 255, .18);
-    line-height: 1;
-}
-.home-promo-decor__compass{
-    top: 285px;
-    left: 48px;
-    font-size: 118px;
-    transform: rotate(-14deg);
-}
-.home-promo-decor__luggage{
-    right: 72px;
-    bottom: 82px;
-    font-size: 104px;
-    transform: rotate(9deg);
-}
-.home-promo-decor__globe{
-    top: 270px;
-    right: 34px;
-    font-size: 92px;
-    transform: rotate(8deg);
-}
-.home-promo-decor__camera{
-    top: 68px;
-    left: 58px;
-    font-size: 50px;
-    transform: rotate(-10deg);
-}
-.home-promo-decor__map{
-    bottom: 96px;
-    left: 46px;
-    font-size: 72px;
-    transform: rotate(7deg);
-}
-.home-promo-decor__pin{
-    top: 52%;
-    right: 126px;
-    font-size: 42px;
-    transform: rotate(12deg);
 }
 .home-promo-head{
     display: grid;
@@ -2189,6 +2101,11 @@ body.home-search-layer-open .tp-ai-chatbox{z-index: 12;
 }
 @media (max-width: 767px){.home-promo-section{
         padding: 56px 0;
+        background-image:
+            linear-gradient(180deg, rgba(112, 0, 18, .12), rgba(194, 0, 25, .16)),
+            url("../images/campaigns/home-promotion-768w.webp");
+        background-position: center top;
+        background-size: auto 610px;
     }
 .home-promo-head{
         gap: 20px;
@@ -2700,19 +2617,220 @@ body.home-search-layer-open .tp-ai-chatbox{z-index: 12;
         font-size: 14px;
     }
 }
-@media (max-width: 767px){.home-promo-decor__route{
-        top: 32px;
-        right: -180px;
-        opacity: .7;
+.home-summer-section{
+    overflow: hidden;
+    padding: 52px 0 64px;
+    background: #eef9fd;
+}
+.home-summer-spotlight{
+    position: relative;
+    display: grid;
+    min-height: 300px;
+    overflow: hidden;
+    align-items: center;
+    padding: 36px 42px;
+    border: 1px solid rgba(255, 255, 255, .72);
+    border-radius: 8px;
+    background-color: #096aa2;
+    background-image:
+        linear-gradient(90deg, rgba(4, 66, 108, .96) 0%, rgba(4, 83, 132, .88) 42%, rgba(4, 83, 132, .3) 72%, rgba(4, 83, 132, .08) 100%),
+        url("../images/landing/summer/Background_Landing_W1920xH5000px.webp");
+    background-position: center, center 58%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    box-shadow: 0 22px 52px rgba(20, 96, 133, .2);
+}
+.home-summer-spotlight__copy{
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 13px;
+    width: min(650px, 58%);
+}
+.home-summer-spotlight__eyebrow{
+    display: inline-flex;
+    width: fit-content;
+    min-height: 30px;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .14);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;
+}
+.home-summer-spotlight__eyebrow i{
+    color: #ffd34f;
+}
+.home-summer-spotlight h2{
+    max-width: 610px;
+    margin: 0;
+    color: #fff;
+    font-size: clamp(31px, 3vw, 43px);
+    font-weight: 900;
+    line-height: 1.1;
+}
+.home-summer-spotlight p{
+    max-width: 600px;
+    margin: 0;
+    color: rgba(255, 255, 255, .86);
+    font-size: 15px;
+    line-height: 1.65;
+}
+.home-summer-spotlight__highlights{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.home-summer-spotlight__highlights li{
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, .12);
+    color: rgba(255, 255, 255, .9);
+    font-size: 12px;
+    font-weight: 800;
+}
+.home-summer-spotlight__highlights i{
+    color: #62d6ff;
+}
+.home-summer-spotlight__actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 3px;
+}
+.home-summer-spotlight__primary,
+.home-summer-spotlight__secondary{
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 17px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 900;
+}
+.home-summer-spotlight__primary{
+    border: 1px solid #ffbf28;
+    background: #ffb51b;
+    color: #173b51;
+    box-shadow: 0 12px 28px rgba(5, 40, 61, .28);
+}
+.home-summer-spotlight__primary:hover{
+    background: #ffc746;
+    color: #102f42;
+}
+.home-summer-spotlight__secondary{
+    border: 1px solid rgba(255, 255, 255, .56);
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+}
+.home-summer-spotlight__secondary:hover{
+    background: #fff;
+    color: #075b8e;
+}
+.home-summer-list-head{
+    display: flex;
+    min-height: 54px;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 24px 0 16px;
+}
+.home-summer-list-head h3{
+    margin: 0;
+    color: var(--title-color);
+    font-size: 22px;
+    font-weight: 900;
+}
+.home-summer-list-head a{
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--primary-color1);
+    font-size: 14px;
+    font-weight: 900;
+}
+.home-summer-list-head a i{
+    transition: transform .18s ease;
+}
+.home-summer-list-head a:hover i{
+    transform: translateX(3px);
+}
+.home-summer-section .home-tour-grid{
+    gap: 18px;
+}
+@media (max-width: 991px){.home-summer-spotlight{
+        min-height: 310px;
+        padding: 30px;
+        background-image:
+            linear-gradient(90deg, rgba(4, 66, 108, .96) 0%, rgba(4, 83, 132, .88) 54%, rgba(4, 83, 132, .28) 100%),
+            url("../images/landing/summer/Background_Landing_W1920xH5000px.webp");
     }
-.home-promo-decor__route--lower,
-    .home-promo-decor__compass,
-    .home-promo-decor__luggage,
-    .home-promo-decor__globe,
-    .home-promo-decor__camera,
-    .home-promo-decor__map,
-    .home-promo-decor__pin{
-        display: none;
+.home-summer-spotlight__copy{
+        width: min(680px, 78%);
+    }
+}
+@media (max-width: 767px){.home-summer-section{
+        padding: 42px 0 50px;
+    }
+.home-summer-section .container{
+        max-width: 100%;
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+.home-summer-spotlight{
+        min-height: 390px;
+        align-items: end;
+        padding: 24px 20px;
+        background-image:
+            linear-gradient(180deg, rgba(4, 66, 108, .14) 0%, rgba(4, 66, 108, .64) 42%, rgba(4, 66, 108, .97) 100%),
+            url("../images/landing/summer/Background_Landing_W1920xH5000px.webp");
+        background-position: center, center 35%;
+    }
+.home-summer-spotlight__copy{
+        width: 100%;
+    }
+.home-summer-spotlight h2{
+        font-size: 30px;
+    }
+.home-summer-spotlight__highlights{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+.home-summer-spotlight__actions{
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+.home-summer-list-head{
+        min-height: 0;
+        align-items: center;
+        margin: 22px 0 14px;
+    }
+.home-summer-list-head h3{
+        font-size: 20px;
+    }
+.home-summer-list-head a{
+        font-size: 12px;
+    }
+}
+@media (max-width: 420px){.home-summer-spotlight{
+        min-height: 430px;
+    }
+.home-summer-spotlight__highlights{
+        grid-template-columns: 1fr;
     }
 }
 .home-page__featured-destinations{
