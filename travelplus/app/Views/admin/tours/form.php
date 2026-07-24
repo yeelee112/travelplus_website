@@ -546,7 +546,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 <div class="itinerary-importer__head">
                     <div>
                         <h3 class="itinerary-importer__title">Import lịch trình từ Word</h3>
-                        <p class="itinerary-importer__hint">Copy toàn bộ lịch trình từ Word rồi dán vào ô rich text bên dưới. Bold, bullet và xuống dòng sẽ được giữ lại trong mô tả từng ngày.</p>
+                        <p class="itinerary-importer__hint">Copy toàn bộ lịch trình từ Word rồi dán vào ô rich text bên dưới. Bold, bullet và xuống dòng sẽ được giữ lại trong mô tả từng ngày. Import chỉ cập nhật ngôn ngữ đang chọn.</p>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="clearItineraryImport">Xóa nội dung dán</button>
                 </div>
@@ -573,7 +573,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."
                 ></div>
                 <div class="itinerary-importer__actions">
                     <button type="button" class="btn btn-outline-primary" id="previewItineraryImport">Xem trước</button>
-                    <button type="button" class="btn btn-primary" id="replaceItineraryImport">Import thay thế lịch trình hiện tại</button>
+                    <button type="button" class="btn btn-primary" id="replaceItineraryImport">Import thay thế ngôn ngữ đã chọn</button>
                     <button type="button" class="btn btn-outline-success" id="appendItineraryImport">Import thêm vào cuối</button>
                 </div>
                 <div class="itinerary-importer__preview" id="itineraryImportPreview" aria-live="polite"></div>
@@ -1688,6 +1688,27 @@ function appendImportedItineraryRow(data = {}) {
   itineraryIndex++;
 }
 
+function setItineraryRowLocaleContent(rowElement, data, locale) {
+  const titleInput = rowElement.querySelector(`[name$="[title_${locale}]"]`);
+  const descriptionSource = rowElement.querySelector(`[name$="[description_${locale}]"]`);
+  const descriptionEditor = descriptionSource?.closest('.col-md-6')?.querySelector('.js-rich-editor');
+  const title = data[`title_${locale}`] || '';
+  const description = data[`description_${locale}`] || '';
+
+  if (titleInput) titleInput.value = title;
+  if (descriptionSource) descriptionSource.value = description;
+  if (descriptionEditor) descriptionEditor.innerHTML = description;
+}
+
+function itineraryRowHasLocaleContent(rowElement, locale) {
+  const title = rowElement.querySelector(`[name$="[title_${locale}]"]`)?.value.trim() || '';
+  const descriptionSource = rowElement.querySelector(`[name$="[description_${locale}]"]`);
+  const descriptionEditor = descriptionSource?.closest('.col-md-6')?.querySelector('.js-rich-editor');
+  const description = htmlToPlainText(descriptionEditor?.innerHTML || descriptionSource?.value || '');
+
+  return title !== '' || description !== '';
+}
+
 function importItineraryRows(mode) {
   const input = document.getElementById('itineraryImportContent');
   const locale = document.getElementById('itineraryImportLocale')?.value === 'en' ? 'en' : 'vi';
@@ -1697,21 +1718,45 @@ function importItineraryRows(mode) {
   if (!rows.length) return;
 
   if (mode === 'replace') {
-    const existingCount = countRows('#itineraryRows .itinerary-row');
-    if (existingCount > 0 && !window.confirm(`Thay thế ${existingCount} ngày lịch trình hiện tại bằng ${rows.length} ngày vừa import?`)) {
+    const container = document.getElementById('itineraryRows');
+    const existingRows = Array.from(container.querySelectorAll('.itinerary-row'));
+    const localeLabel = locale === 'en' ? 'English' : 'Tiếng Việt';
+    const otherLocale = locale === 'en' ? 'vi' : 'en';
+
+    if (existingRows.length > 0 && !window.confirm(`Thay thế nội dung ${localeLabel} hiện tại bằng ${rows.length} ngày vừa import? Nội dung ngôn ngữ còn lại sẽ được giữ nguyên.`)) {
       return;
     }
-    document.getElementById('itineraryRows').innerHTML = '';
-    itineraryIndex = 0;
-  }
 
-  const currentCount = countRows('#itineraryRows .itinerary-row');
-  rows.forEach((row, index) => {
-    appendImportedItineraryRow({
-      ...row,
-      day_number: mode === 'append' ? currentCount + index + 1 : index + 1,
+    rows.forEach((row, index) => {
+      const existingRow = existingRows[index];
+
+      if (existingRow) {
+        setItineraryRowLocaleContent(existingRow, row, locale);
+        return;
+      }
+
+      appendImportedItineraryRow({
+        ...row,
+        day_number: index + 1,
+      });
     });
-  });
+
+    existingRows.slice(rows.length).forEach(existingRow => {
+      setItineraryRowLocaleContent(existingRow, {}, locale);
+
+      if (!itineraryRowHasLocaleContent(existingRow, otherLocale)) {
+        existingRow.remove();
+      }
+    });
+  } else {
+    const currentCount = countRows('#itineraryRows .itinerary-row');
+    rows.forEach((row, index) => {
+      appendImportedItineraryRow({
+        ...row,
+        day_number: currentCount + index + 1,
+      });
+    });
+  }
 
   refreshSummaryMetrics();
   scheduleDraftSave();

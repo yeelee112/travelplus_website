@@ -119,6 +119,7 @@ class DomesticRegionService
         'DN' => 'VN-48',
         'DNG' => 'VN-48',
         'QNA' => 'VN-48',
+        'HA' => 'VN-48',
         'QNG' => 'VN-51',
         'KT' => 'VN-51',
         'GL' => 'VN-52',
