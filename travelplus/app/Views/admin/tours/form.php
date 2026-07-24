@@ -144,7 +144,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
 
         <?php if (! empty($success)): ?><div class="alert alert-success"><?= esc($success) ?></div><?php endif; ?>
         <?php if (! empty($errors)): ?>
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" role="alert" tabindex="-1" data-tour-form-errors>
                 <?php foreach ($errors as $error): ?><div><?= esc($error) ?></div><?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -819,6 +819,7 @@ const mediaUploadLimitBytes = <?= (int) $mediaUploadLimitBytes ?>;
 const mediaUploadLimitMb = <?= (int) $mediaUploadLimitMb ?>;
 const postMaxBytes = <?= (int) $postMaxBytes ?>;
 const csrfTokenName = <?= json_encode(csrf_token()) ?>;
+const draftStorageKey = 'tour-form-draft-<?= $tourId ? 'edit-' . (int) $tourId : 'create' ?>';
 let destinationIndex = <?= count($destinationsRows) ?>;
 let departureIndex = <?= count($departureRows) ?>;
 let itineraryIndex = <?= count($itineraryRows) ?>;
@@ -1368,9 +1369,22 @@ document.getElementById('tourForm').addEventListener('submit', event => {
     return;
   }
   localStorage.removeItem(draftStorageKey);
+  const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.setAttribute('aria-disabled', 'true');
+    submitButton.textContent = 'Đang lưu...';
+  }
 });
 refreshSummaryMetrics();
 initDraftRestore();
+const formErrorAlert = document.querySelector('[data-tour-form-errors]');
+if (formErrorAlert) {
+  window.requestAnimationFrame(() => {
+    formErrorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    formErrorAlert.focus({ preventScroll: true });
+  });
+}
 
 document.getElementById('addDestination').addEventListener('click', () => {
   const wrapper = document.createElement('div');

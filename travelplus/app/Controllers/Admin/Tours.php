@@ -419,10 +419,13 @@ class Tours extends BaseAdminController
     private function saveTour(?int $tourId = null)
     {
         $isUpdate = $tourId !== null;
+        $formUrl = $isUpdate
+            ? site_url('admin/tours/' . $tourId . '/edit')
+            : site_url('admin/tours/create');
 
         $payloadLimitError = $this->validatePostPayloadSize();
         if ($payloadLimitError !== null) {
-            return redirect()->back()->withInput()->with('errors', [$payloadLimitError]);
+            return redirect()->to($formUrl)->withInput()->with('errors', [$payloadLimitError]);
         }
 
         $rules = [
@@ -437,21 +440,26 @@ class Tours extends BaseAdminController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->to($formUrl)->withInput()->with('errors', $this->validator->getErrors());
         }
 
         $post = $this->request->getPost();
         $departureErrors = $this->validateDepartureRows($post);
         if ($departureErrors !== []) {
-            return redirect()->back()->withInput()->with('errors', $departureErrors);
+            return redirect()->to($formUrl)->withInput()->with('errors', $departureErrors);
         }
 
         $mediaErrors = $this->validateTourMediaUploads();
         if ($mediaErrors !== []) {
-            return redirect()->back()->withInput()->with('errors', $mediaErrors);
+            return redirect()->to($formUrl)->withInput()->with('errors', $mediaErrors);
         }
 
         $db = db_connect();
+        $slugErrors = $this->validateUniqueTourSlugs($db, $post, $tourId);
+        if ($slugErrors !== []) {
+            return redirect()->to($formUrl)->withInput()->with('errors', $slugErrors);
+        }
+
         $oldTour = $tourId === null ? null : $db->table('tours')->where('id', $tourId)->get()->getRowArray();
         $oldThumbnail = trim((string) ($oldTour['thumbnail'] ?? ''));
         $oldMediaPaths = [];
@@ -467,6 +475,13 @@ class Tours extends BaseAdminController
         $db->transStart();
 
         $tourId = $this->persistTour($db, $tourId, $post, $now);
+        if ($tourId <= 0) {
+            $db->transComplete();
+            log_message('error', 'Admin tour insert did not return a valid tour ID.');
+
+            return redirect()->to($formUrl)->withInput()->with('errors', ['Không thể tạo tour mới vì hệ thống không nhận được mã tour hợp lệ. Vui lòng thử lại hoặc kiểm tra nhật ký hệ thống.']);
+        }
+
         $this->replaceTourTranslations($db, $tourId, $post);
         $this->replaceTourDestinations($db, $tourId, $post);
         $this->replaceTourDepartures($db, $tourId, $post, $now);
@@ -478,7 +493,9 @@ class Tours extends BaseAdminController
         $db->transComplete();
 
         if (! $db->transStatus()) {
-            return redirect()->back()->withInput()->with('errors', ['Không thể lưu tour. Vui lòng kiểm tra dữ liệu.']);
+            log_message('error', 'Admin tour save transaction failed for ' . ($isUpdate ? 'tour #' . $tourId : 'a new tour') . '.');
+
+            return redirect()->to($formUrl)->withInput()->with('errors', ['Không thể lưu tour. Vui lòng kiểm tra dữ liệu hoặc nhật ký hệ thống.']);
         }
 
         $this->clearNavigationCaches();
@@ -503,6 +520,49 @@ class Tours extends BaseAdminController
 
         return redirect()->to(site_url('admin/tours/' . $tourId . '/edit'))
             ->with('success', ($isUpdate ? 'Đã cập nhật' : 'Đã tạo') . ' tour #' . $tourId);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function validateUniqueTourSlugs($db, array $post, ?int $tourId): array
+    {
+        $tourType = (string) ($post['tour_type'] ?? 'outbound');
+        $nameVi = trim((string) ($post['name_vi'] ?? ''));
+        $nameEn = trim((string) ($post['name_en'] ?? '')) ?: $nameVi;
+        $slugs = [
+            'vi' => trim((string) ($post['slug_vi'] ?? '')) ?: $this->slugify($nameVi),
+            'en' => trim((string) ($post['slug_en'] ?? '')) ?: $this->slugify($nameEn),
+        ];
+        $labels = ['vi' => 'tiếng Việt', 'en' => 'tiếng Anh'];
+        $errors = [];
+
+        foreach ($slugs as $locale => $slug) {
+            if ($slug === '') {
+                continue;
+            }
+
+            $builder = $db->table('tour_translations tt')
+                ->select('tt.tour_id, tt.name')
+                ->join('tours t', 't.id = tt.tour_id', 'inner')
+                ->where('tt.locale', $locale)
+                ->where('tt.slug', $slug)
+                ->where('t.tour_type', $tourType);
+
+            if ($tourId !== null) {
+                $builder->where('tt.tour_id !=', $tourId);
+            }
+
+            $existing = $builder->limit(1)->get()->getRowArray();
+            if (! is_array($existing)) {
+                continue;
+            }
+
+            $errors[] = 'Slug ' . $labels[$locale] . ' "' . $slug . '" đang được dùng bởi tour #'
+                . (int) $existing['tour_id'] . ' (' . (string) $existing['name'] . '). Vui lòng đổi slug để tránh mở nhầm tour.';
+        }
+
+        return $errors;
     }
 
     private function persistTour($db, ?int $tourId, array $post, string $now): int
@@ -540,7 +600,9 @@ class Tours extends BaseAdminController
 
         if ($tourId === null) {
             $data['created_at'] = $now;
-            $db->table('tours')->insert($data);
+            if (! $db->table('tours')->insert($data)) {
+                return 0;
+            }
 
             return (int) $db->insertID();
         }
