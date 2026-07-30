@@ -23,6 +23,48 @@
 
         analyticsQueue.push({ name: name, params: params || {} });
     };
+
+    document.addEventListener('click', function (event) {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        const link = event.target.closest('a');
+        if (!link) {
+            return;
+        }
+
+        const href = (link.getAttribute('href') || '').trim().toLowerCase();
+        let channel = (link.dataset.contactChannel || '').trim().toLowerCase();
+        if (!channel && href.startsWith('tel:')) {
+            channel = 'phone';
+        } else if (!channel && href.startsWith('mailto:')) {
+            channel = 'email';
+        }
+
+        if (!channel) {
+            return;
+        }
+
+        let placement = (link.dataset.contactPlacement || '').trim().toLowerCase();
+        if (!placement) {
+            placement = link.closest('.tp-ai-chatbox')
+                ? 'floating_contact'
+                : link.closest('header')
+                    ? 'header'
+                    : link.closest('footer')
+                        ? 'footer'
+                        : 'page_content';
+        }
+
+        window.travelplusTrackEvent('contact', {
+            method: channel,
+            placement: placement,
+            language: document.documentElement.lang || 'vi',
+            page_path: window.location.pathname
+        });
+    });
+
     const root = document.querySelector('[data-cookie-consent]');
 
     if (!root) {

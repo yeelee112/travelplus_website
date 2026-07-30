@@ -9,6 +9,11 @@ $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args,
 $bookings = is_array($bookings ?? null) ? $bookings : [];
 $authSuccess = session()->getFlashdata('auth_success');
 $authError = session()->getFlashdata('auth_error');
+$administrativeProvinces = is_array($administrativeProvinces ?? null) ? $administrativeProvinces : [];
+$addressDataUrl = (string) ($addressDataUrl ?? '');
+$selectedProvinceCode = (string) old('province_code', $user['province_code'] ?? '');
+$selectedWardCode = (string) old('ward_code', $user['ward_code'] ?? '');
+$selectedAddressLine = (string) old('address_line', $user['address_line'] ?? '');
 $statusValue = strtolower(trim((string) ($user['status'] ?? 'active')));
 $statusLabel = match ($statusValue) {
     'active' => $locale === 'en' ? 'Active' : 'Đang hoạt động',
@@ -244,7 +249,15 @@ $accountInitials = mb_strtoupper($firstInitial . $lastInitial, 'UTF-8');
                                 <p><?= esc($locale === 'en' ? 'Keep your contact details accurate for booking support.' : 'Cập nhật thông tin để được hỗ trợ booking chính xác hơn.') ?></p>
                             </div>
                         </div>
-                        <div class="row g-3">
+                        <div
+                            class="row g-3"
+                            data-address-selector
+                            data-address-source="<?= esc($addressDataUrl, 'attr') ?>"
+                            data-selected-ward="<?= esc($selectedWardCode, 'attr') ?>"
+                            data-ward-first="<?= esc($locale === 'en' ? 'Select province/city first' : 'Chọn tỉnh/thành phố trước', 'attr') ?>"
+                            data-ward-placeholder="<?= esc($locale === 'en' ? 'Select ward/commune' : 'Chọn phường/xã', 'attr') ?>"
+                            data-loading="<?= esc($locale === 'en' ? 'Loading address data...' : 'Đang tải dữ liệu địa chỉ...', 'attr') ?>"
+                            data-error="<?= esc($locale === 'en' ? 'Address data could not be loaded.' : 'Không thể tải dữ liệu địa chỉ.', 'attr') ?>">
                             <div class="col-md-6">
                                 <div class="form-inner">
                                     <label><?= esc($t('auth.profile.fullName')) ?></label>
@@ -254,7 +267,37 @@ $accountInitials = mb_strtoupper($firstInitial . $lastInitial, 'UTF-8');
                             <div class="col-md-6">
                                 <div class="form-inner">
                                     <label><?= esc($t('auth.profile.phone')) ?></label>
-                                    <input type="text" name="phone" value="<?= esc((string) ($user['phone'] ?? '')) ?>">
+                                    <input type="tel" name="phone" value="<?= esc((string) ($user['phone'] ?? '')) ?>" autocomplete="tel" inputmode="tel" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-inner">
+                                    <label><?= esc($locale === 'en' ? 'Province/City' : 'Tỉnh/Thành phố') ?></label>
+                                    <select name="province_code" required data-address-province>
+                                        <option value=""><?= esc($locale === 'en' ? 'Select province/city' : 'Chọn tỉnh/thành phố') ?></option>
+                                        <?php foreach ($administrativeProvinces as $province): ?>
+                                            <option
+                                                value="<?= esc((string) ($province['code'] ?? ''), 'attr') ?>"
+                                                <?= $selectedProvinceCode === (string) ($province['code'] ?? '') ? 'selected' : '' ?>>
+                                                <?= esc((string) ($province['name'] ?? '')) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-inner">
+                                    <label><?= esc($locale === 'en' ? 'Ward/Commune' : 'Phường/Xã') ?></label>
+                                    <select name="ward_code" required disabled data-address-ward>
+                                        <option value=""><?= esc($locale === 'en' ? 'Select province/city first' : 'Chọn tỉnh/thành phố trước') ?></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-inner">
+                                    <label><?= esc($locale === 'en' ? 'Street address' : 'Số nhà, tên đường') ?></label>
+                                    <input type="text" name="address_line" value="<?= esc($selectedAddressLine) ?>" autocomplete="street-address" maxlength="255" required data-address-line>
+                                    <small class="travelplus-address-status" data-address-status aria-live="polite"></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -472,4 +515,5 @@ $accountInitials = mb_strtoupper($firstInitial . $lastInitial, 'UTF-8');
     </div>
     </div>
 </section>
+<script defer src="<?= esc(frontend_asset_url('assets/js/address-selector.js'), 'attr') ?>"></script>
 <?= $this->endSection() ?>

@@ -68,4 +68,26 @@ final class SystemHealthServiceTest extends CIUnitTestCase
         $this->assertSame('post_max_size', $postLimited['bottleneck']);
         $this->assertSame(2 * 1024 * 1024, $postLimited['effective_bytes']);
     }
+
+    public function testMeasurementConfigurationRecognizesConfiguredServices(): void
+    {
+        $configuration = SystemHealthService::evaluateMeasurementConfiguration(
+            'g-w2fbgjd5yk',
+            'google-site-verification-token'
+        );
+
+        $this->assertSame(SystemHealthService::STATUS_OK, $configuration['ga4']['status']);
+        $this->assertSame('G-W2FBGJD5YK', $configuration['ga4']['value']);
+        $this->assertSame(SystemHealthService::STATUS_OK, $configuration['search_console']['status']);
+        $this->assertSame('Đã cấu hình', $configuration['search_console']['value']);
+    }
+
+    public function testMeasurementConfigurationWarnsWhenValuesAreMissingOrInvalid(): void
+    {
+        $configuration = SystemHealthService::evaluateMeasurementConfiguration('UA-123456-1', '');
+
+        $this->assertSame(SystemHealthService::STATUS_WARNING, $configuration['ga4']['status']);
+        $this->assertSame(SystemHealthService::STATUS_WARNING, $configuration['search_console']['status']);
+        $this->assertSame('Chưa cấu hình', $configuration['search_console']['value']);
+    }
 }

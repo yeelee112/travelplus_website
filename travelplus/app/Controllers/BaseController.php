@@ -178,6 +178,10 @@ abstract class BaseController extends Controller
             'email' => (string) ($user['email'] ?? ''),
             'username' => (string) ($user['username'] ?? ''),
             'phone' => (string) ($user['phone'] ?? ''),
+            'address' => (string) ($user['address'] ?? ''),
+            'address_line' => (string) ($user['address_line'] ?? ''),
+            'province_code' => (string) ($user['province_code'] ?? ''),
+            'ward_code' => (string) ($user['ward_code'] ?? ''),
             'is_admin' => $isAdmin,
             'auth_session_version' => $authSessionVersion,
         ];

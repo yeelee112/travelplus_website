@@ -151,10 +151,18 @@ class TourCatalogService
         }
     }
 
-    public function findTourBySlug(string $locale, string $slug, ?string $tourType = null): ?array
+    public function findTourBySlug(
+        string $locale,
+        string $slug,
+        ?string $tourType = null,
+        ?string $locationSlug = null
+    ): ?array
     {
+        $locationSlug = trim((string) $locationSlug);
         $contentVersion = (new PublicContentCacheService())->version();
-        $cacheKey = 'tour_detail_v' . $contentVersion . '_' . md5($locale . '|' . $slug . '|' . (string) $tourType);
+        $cacheKey = 'tour_detail_v' . $contentVersion . '_' . md5(
+            $locale . '|' . $slug . '|' . (string) $tourType . '|' . $locationSlug
+        );
         try {
             $cached = cache()->get($cacheKey);
             if (is_array($cached)) {
@@ -168,7 +176,7 @@ class TourCatalogService
         }
 
         try {
-            $row = $this->baseToursBuilder($locale, $tourType)
+            $rows = $this->baseToursBuilder($locale, $tourType)
                 ->select(
                     't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                     'tt.name AS title, tt.slug AS slug,' .
@@ -183,27 +191,30 @@ class TourCatalogService
                 )
                 ->where('tt.slug', $slug)
                 ->groupBy('t.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type, tt.name, tt.slug')
-                ->limit(1)
+                ->orderBy('t.id', 'DESC')
+                ->limit($locationSlug !== '' ? 50 : 1)
                 ->get()
-                ->getRowArray();
+                ->getResultArray();
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Tour detail lookup failed');
 
             return null;
         }
 
-        if ($row === null) {
+        if ($rows === []) {
             return null;
         }
 
         try {
-            $cards = $this->mapRowsToCards([$row], $locale);
+            $cards = $this->mapRowsToCards($rows, $locale);
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Tour detail card mapping failed');
 
             return null;
         }
-        $card = $cards[0] ?? null;
+        $card = $locationSlug === ''
+            ? ($cards[0] ?? null)
+            : $this->findCardForLocationSlug($cards, $locationSlug, $tourType);
 
         if ($card === null) {
             return null;
@@ -223,6 +234,27 @@ class TourCatalogService
         }
 
         return $detail;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $cards
+     */
+    private function findCardForLocationSlug(array $cards, string $locationSlug, ?string $tourType): ?array
+    {
+        foreach ($cards as $card) {
+            $cardLocationSlugs = $tourType === 'inbound'
+                ? array_values(array_filter(array_map(
+                    static fn($slug): string => trim((string) $slug),
+                    (array) ($card['region_slugs'] ?? [$card['region_slug'] ?? ''])
+                )))
+                : [trim((string) ($card['continent_slug'] ?? ''))];
+
+            if (in_array($locationSlug, $cardLocationSlugs, true)) {
+                return $card;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -931,6 +963,7 @@ class TourCatalogService
             $price = (float) ($row['min_price'] ?? 0);
             $tourType = (string) ($row['tour_type'] ?? '');
             $destinationId = (int) ($row['destination_id'] ?? 0);
+            $region = null;
             $promotionEndsAt = trim((string) ($row['promotion_ends_at'] ?? ''));
             $promotionEndsAtIso = '';
 
@@ -967,6 +1000,20 @@ class TourCatalogService
                 trim($destinationName),
                 trim((string) $locationName)
             );
+            $regionSlugs = [];
+            if ($tourType === 'inbound') {
+                foreach ($tourDestinations[$id] ?? [] as $destination) {
+                    $destinationRegion = $domesticRegionService->getRegionByProvinceId(
+                        $locale,
+                        (int) ($destination['location_id'] ?? 0)
+                    );
+                    $destinationRegionSlug = trim((string) ($destinationRegion['slug'] ?? ''));
+                    if ($destinationRegionSlug !== '') {
+                        $regionSlugs[] = $destinationRegionSlug;
+                    }
+                }
+                $regionSlugs = array_values(array_unique($regionSlugs));
+            }
 
             $cards[] = [
                 'id'        => $id,
@@ -995,6 +1042,7 @@ class TourCatalogService
                 'continent_link' => $locationLink,
                 'departure_from' => trim($departureLocationName),
                 'region_slug' => $tourType === 'inbound' ? (string) ($region['slug'] ?? '') : '',
+                'region_slugs' => $regionSlugs,
                 'departure' => $this->formatDate((string) ($row['departure_date'] ?? '')),
                 'duration'  => [
                     'days'   => $days,
@@ -1030,6 +1078,7 @@ class TourCatalogService
             $rows = $this->db->table('tour_destinations tdst')
                 ->select(
                     'tdst.tour_id,' .
+                    'dl.id AS location_id,' .
                     'COALESCE(dl.code, "") AS location_code,' .
                     'dl.type AS location_type,' .
                     'COALESCE(dltn.name, "") AS location_name,' .
@@ -1058,6 +1107,7 @@ class TourCatalogService
             }
 
             $grouped[$tourId][] = [
+                'location_id' => (int) ($row['location_id'] ?? 0),
                 'location_code' => trim((string) ($row['location_code'] ?? '')),
                 'location_type' => trim((string) ($row['location_type'] ?? '')),
                 'location_name' => TextEncodingService::repairNullable($row['location_name'] ?? ''),

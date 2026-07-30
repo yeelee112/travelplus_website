@@ -23,6 +23,11 @@ $depositAmount = $grandTotal * $depositRate;
 $checkoutNotice = trim((string) ($checkoutNotice ?? ''));
 $checkoutError = trim((string) ($checkoutError ?? ''));
 $checkoutRetry = !empty($checkoutRetry);
+$administrativeProvinces = is_array($administrativeProvinces ?? null) ? $administrativeProvinces : [];
+$addressDataUrl = (string) ($addressDataUrl ?? '');
+$selectedProvinceCode = (string) ($authUser['province_code'] ?? '');
+$selectedWardCode = (string) ($authUser['ward_code'] ?? '');
+$selectedAddressLine = (string) ($authUser['address_line'] ?? '');
 $formatCurrency = static fn(float $amount): string => number_format($amount, 0, ',', '.') . ' VND';
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
 $travelerParts = [];
@@ -153,7 +158,15 @@ $singleRoomValueLabel = $locale === 'en'
                     <?= csrf_field() ?>
                     <div class="checkout-stepper-pane is-active" data-step-pane="1">
                         <div class="contact-form-wrap">
-                            <div class="row g-4">
+                            <div
+                                class="row g-4"
+                                data-address-selector
+                                data-address-source="<?= esc($addressDataUrl, 'attr') ?>"
+                                data-selected-ward="<?= esc($selectedWardCode, 'attr') ?>"
+                                data-ward-first="<?= esc($t('checkout.wardFirst'), 'attr') ?>"
+                                data-ward-placeholder="<?= esc($t('checkout.wardPlaceholder'), 'attr') ?>"
+                                data-loading="<?= esc($t('checkout.addressLoading'), 'attr') ?>"
+                                data-error="<?= esc($t('checkout.addressLoadError'), 'attr') ?>">
                                 <div class="col-md-6">
                                     <div class="form-inner">
                                         <label for="checkout-full-name"><?= esc($t('checkout.fullName')) ?></label>
@@ -180,7 +193,7 @@ $singleRoomValueLabel = $locale === 'en'
                                             data-summary-field="email">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-5">
                                     <div class="form-inner">
                                         <label for="checkout-phone"><?= esc($t('checkout.phone')) ?></label>
                                         <input
@@ -193,7 +206,48 @@ $singleRoomValueLabel = $locale === 'en'
                                             data-summary-field="phone">
                                     </div>
                                 </div>
+                                <div class="col-md-7">
+                                    <div class="form-inner">
+                                        <label for="checkout-province"><?= esc($t('checkout.province')) ?></label>
+                                        <select id="checkout-province" name="province_code" required data-address-province data-summary-field="province_code">
+                                            <option value=""><?= esc($t('checkout.provincePlaceholder')) ?></option>
+                                            <?php foreach ($administrativeProvinces as $province): ?>
+                                                <option
+                                                    value="<?= esc((string) ($province['code'] ?? ''), 'attr') ?>"
+                                                    <?= $selectedProvinceCode === (string) ($province['code'] ?? '') ? 'selected' : '' ?>>
+                                                    <?= esc((string) ($province['name'] ?? '')) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="col-md-6">
+                                    <div class="form-inner">
+                                        <label for="checkout-ward"><?= esc($t('checkout.ward')) ?></label>
+                                        <select id="checkout-ward" name="ward_code" required disabled data-address-ward data-summary-field="ward_code">
+                                            <option value=""><?= esc($t('checkout.wardFirst')) ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-inner">
+                                        <label for="checkout-address-line"><?= esc($t('checkout.addressLine')) ?></label>
+                                        <input
+                                            type="text"
+                                            id="checkout-address-line"
+                                            name="address_line"
+                                            value="<?= esc($selectedAddressLine) ?>"
+                                            placeholder="<?= esc($t('checkout.addressLinePlaceholder')) ?>"
+                                            autocomplete="street-address"
+                                            maxlength="255"
+                                            required
+                                            data-address-line
+                                            data-summary-field="address_line">
+                                        <input type="hidden" name="address" data-address-full data-summary-field="address">
+                                        <small class="travelplus-address-status" data-address-status aria-live="polite"></small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
                                     <div class="form-inner">
                                         <label for="checkout-note"><?= esc($t('checkout.note')) ?></label>
                                         <input
@@ -242,6 +296,10 @@ $singleRoomValueLabel = $locale === 'en'
                                         <div class="checkout-contact-item">
                                             <span><?= esc($t('checkout.note')) ?></span>
                                             <strong data-summary-output="note">-</strong>
+                                        </div>
+                                        <div class="checkout-contact-item checkout-contact-item--wide">
+                                            <span><?= esc($t('checkout.address')) ?></span>
+                                            <strong data-summary-output="address">-</strong>
                                         </div>
                                     </div>
 
@@ -517,6 +575,7 @@ $singleRoomValueLabel = $locale === 'en'
     </div>
 </div>
 
+<script defer src="<?= esc(frontend_asset_url('assets/js/address-selector.js'), 'attr') ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const root = document.querySelector('[data-checkout-stepper]');
@@ -610,7 +669,58 @@ document.addEventListener('DOMContentLoaded', function () {
         vnpay: <?= json_encode($t('checkout.vnpayLabel')) ?>,
         vietqr: 'VietQR'
     };
+    const checkoutAnalytics = <?= json_encode([
+        'tour_id' => (string) ($booking['tour_id'] ?? ''),
+        'tour_title' => (string) ($booking['tour_title'] ?? 'Tour'),
+        'departure' => (string) ($booking['departure_date'] ?? $booking['departure_label'] ?? ''),
+        'currency' => (string) ($booking['currency'] ?? 'VND'),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     let lastVietQrKey = '';
+
+    const trackPaymentInfo = function (method, plan) {
+        if (typeof window.travelplusTrackEvent !== 'function') {
+            return;
+        }
+
+        const value = plan === 'full'
+            ? (Number(pricingState.grandTotal) || 0)
+            : (Number(pricingState.depositAmount) || 0);
+        const dedupeKey = [
+            'tp_ga4_add_payment_info',
+            checkoutAnalytics.tour_id,
+            checkoutAnalytics.departure,
+            method,
+            plan,
+            value
+        ].join('_');
+
+        try {
+            if (window.sessionStorage.getItem(dedupeKey)) {
+                return;
+            }
+
+            window.travelplusTrackEvent('add_payment_info', {
+                currency: checkoutAnalytics.currency,
+                value: value,
+                payment_type: method,
+                payment_plan: plan,
+                items: [{
+                    item_id: checkoutAnalytics.tour_id,
+                    item_name: checkoutAnalytics.tour_title,
+                    price: value,
+                    quantity: 1
+                }]
+            });
+            window.sessionStorage.setItem(dedupeKey, '1');
+        } catch (error) {
+            window.travelplusTrackEvent('add_payment_info', {
+                currency: checkoutAnalytics.currency,
+                value: value,
+                payment_type: method,
+                payment_plan: plan
+            });
+        }
+    };
 
     const formatCurrency = function (amount) {
         return currency.format(amount) + ' VND';
@@ -1190,6 +1300,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(payload.message || <?= json_encode($t('checkout.paypalCreateFailed')) ?>);
             }
 
+            trackPaymentInfo(selectedMethod.value, selectedPlan ? selectedPlan.value : 'deposit');
             window.location.href = payload.redirect;
         } catch (error) {
             setError(error.message || <?= json_encode($t('checkout.paypalConnectFailed')) ?>);
@@ -1255,6 +1366,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(payload.message || <?= json_encode($t('checkout.vnpayCreateFailed')) ?>);
             }
 
+            trackPaymentInfo(selectedMethod.value, selectedPlan ? selectedPlan.value : 'deposit');
             window.location.href = payload.redirect;
         } catch (error) {
             setError(error.message || <?= json_encode($t('checkout.vnpayCreateFailed')) ?>);
@@ -1297,6 +1409,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(payload.message || <?= json_encode($t('checkout.vietqrCompleteFailed')) ?>);
             }
 
+            const selectedPlan = paymentPlanInputs.find(function (input) {
+                return input.checked;
+            });
+            trackPaymentInfo('vietqr', selectedPlan ? selectedPlan.value : 'deposit');
             window.location.href = payload.redirect;
         } catch (error) {
             setError(error.message || <?= json_encode($t('checkout.vietqrCompleteFailed')) ?>);

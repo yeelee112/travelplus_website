@@ -32,7 +32,7 @@ class TourController extends BaseController
         $tourService = new TourCatalogService();
         $seo = new SeoService();
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
-        $tour = $tourService->findTourBySlug($locale, $tourSlug, $tourType);
+        $tour = $tourService->findTourBySlug($locale, $tourSlug, $tourType, $locationSlug);
 
         if ($tour === null) {
             throw PageNotFoundException::forPageNotFound();
@@ -44,7 +44,7 @@ class TourController extends BaseController
         $listLabel = $tourType === 'inbound'
             ? $t('common.domesticTours')
             : $t('common.outboundTours');
-        $canonicalUrl = current_url();
+        $canonicalUrl = trim((string) ($tour['link'] ?? '')) ?: current_url();
         $metaTitle = trim((string) ($tour['meta_title'] ?? '')) ?: (string) $tour['title'];
         if ($metaTitle !== '' && stripos($metaTitle, 'Travel Plus') === false) {
             $metaTitle .= ' | Travel Plus';
@@ -84,6 +84,20 @@ class TourController extends BaseController
             'meta_image' => (string) ($tour['image'] ?? base_url('assets/images/TravelPlus_CompanyProfile.png')),
             'meta_image_alt' => (string) ($tour['title'] ?? 'Travel Plus tour'),
             'meta_updated_time' => (string) ($tour['updated_at'] ?? $tour['created_at'] ?? ''),
+            'analytics_events' => [[
+                'name' => 'view_item',
+                'params' => [
+                    'currency' => (string) ($tour['price']['currency'] ?? 'VND'),
+                    'value' => (float) ($tour['price']['amount'] ?? 0),
+                    'items' => [[
+                        'item_id' => (string) ($tour['id'] ?? ''),
+                        'item_name' => (string) ($tour['title'] ?? 'Tour'),
+                        'item_category' => (string) ($tour['tour_type'] ?? ''),
+                        'price' => (float) ($tour['price']['amount'] ?? 0),
+                        'quantity' => 1,
+                    ]],
+                ],
+            ]],
             'alternate_links' => [
                 ['hreflang' => 'vi', 'href' => switch_locale_url('vi')],
                 ['hreflang' => 'en', 'href' => switch_locale_url('en')],
@@ -197,7 +211,7 @@ class TourController extends BaseController
             'message' => trim((string) ($post['message'] ?? '')),
         ];
 
-        (new CrmLeadCaptureService())->capture([
+        $leadId = (new CrmLeadCaptureService())->capture([
             'source' => 'tour_enquiry',
             'stage' => 'new',
             'priority' => 'high',
@@ -221,17 +235,22 @@ class TourController extends BaseController
             log_message('warning', 'Tour enquiry lead captured but email notification could not be sent.');
         }
 
-        return $this->response->setJSON([
+        $response = [
             'ok' => true,
             'message' => lang('Frontend.tour.enquiry.success', [], $locale),
-            'analytics_event' => [
+        ];
+        if ($leadId !== false) {
+            $response['analytics_event'] = [
                 'name' => 'generate_lead',
+                'dedupe_key' => 'crm_lead_' . $leadId,
                 'params' => [
                     'lead_source' => 'tour_enquiry',
                     'tour_id' => (string) $enquiry['tour_id'],
                 ],
-            ],
-        ]);
+            ];
+        }
+
+        return $this->response->setJSON($response);
     }
 
     private function getFeaturedTours(int $limit = 6): array

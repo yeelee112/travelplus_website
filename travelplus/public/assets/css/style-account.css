@@ -67,7 +67,13 @@
 .travelplus-auth-field > span, .travelplus-auth-check, .travelplus-auth-row a{color: rgba(var(--title-color-opc), .72);
     font-size: 14px;
     font-weight: 750;}
-.travelplus-auth-field input{padding: 10px 14px;}
+.travelplus-auth-field input, .travelplus-auth-field select{padding: 10px 14px;}
+.travelplus-address-selector{display: grid;
+    gap: 15px;}
+.travelplus-auth-field small{margin-top: -2px;
+    color: rgba(var(--title-color-opc), .56);
+    font-size: 12px;
+    line-height: 1.5;}
 .travelplus-auth-password{position: relative;
     display: block;
     margin: 0;}
@@ -123,6 +129,68 @@
     text-align: center;}
 .travelplus-auth-switch a, .travelplus-auth-row a{color: var(--primary-color1);
     font-weight: 850;}
+.travelplus-verify-card{position: relative;}
+.travelplus-verify-icon{display: inline-flex;
+    width: 52px;
+    height: 52px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border: 1px solid #bce6f5;
+    border-radius: 50%;
+    background: #eefaff;
+    color: var(--primary-color1);
+    font-size: 23px;}
+.travelplus-verify-head p{margin: 12px 0 0;
+    color: rgba(var(--title-color-opc), .68);
+    line-height: 1.65;}
+.travelplus-verify-head strong{color: var(--title-color);
+    font-weight: 850;}
+.travelplus-otp-field input{height: 62px;
+    border-color: #a9dff2;
+    font-size: 26px;
+    font-weight: 850;
+    letter-spacing: 8px;
+    text-align: center;}
+.travelplus-verify-note{display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: #9a3412;
+    font-size: 13px;
+    line-height: 1.55;}
+.travelplus-verify-email-state{display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px;
+    border-left: 3px solid var(--primary-color1);
+    background: #f3fbfe;}
+.travelplus-verify-email-state > i{color: var(--primary-color1);
+    font-size: 22px;}
+.travelplus-verify-email-state p{margin: 0;
+    color: rgba(var(--title-color-opc), .72);
+    line-height: 1.65;}
+.travelplus-verify-actions{display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #e1eef3;}
+.travelplus-verify-link-btn{display: inline-flex;
+    gap: 7px;
+    align-items: center;
+    padding: 8px 4px;
+    border: 0;
+    background: transparent;
+    color: var(--primary-color1);
+    font-weight: 800;}
+.travelplus-verify-link-btn:hover, .travelplus-verify-link-btn:focus-visible{color: var(--title-color);}
 .travelplus-account-page .container{max-width: 1180px;}
 .travelplus-account-card + .travelplus-account-card{margin-top: 22px;}
 .travelplus-account-bookings{margin-top: 22px;}
@@ -657,6 +725,7 @@
         box-shadow: inset 0 4px 0 var(--tier-accent), inset 0 -1px 0 var(--tier-border);}
 }
 @media (max-width: 767px){.travelplus-auth-page{padding-top: 24px;}
+.travelplus-auth-field-grid{grid-template-columns: 1fr;}
 .travelplus-auth-shell{gap: 0;}
 .travelplus-auth-intro{display: none;}
 .travelplus-auth-card{width: 100%;

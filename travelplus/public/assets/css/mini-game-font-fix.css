@@ -1,0 +1,40 @@
+.admin-body,
+.admin-body button,
+.admin-body input,
+.admin-body select,
+.admin-body textarea {
+    font-family: "Inter", "Segoe UI", sans-serif;
+    font-synthesis: none;
+}
+
+.admin-header h1,
+.admin-eyebrow,
+.admin-links a,
+.status-block strong,
+.game-status,
+.panel-heading h2,
+.sidebar-heading h2,
+.step-number,
+.question-type,
+.mc-answer,
+.action-button,
+.secondary-action,
+.time-options button,
+.danger-panel summary,
+.danger-actions button {
+    font-weight: 700;
+}
+
+.question-display {
+    font-family: "Inter", "Segoe UI", sans-serif;
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: 0;
+}
+
+.panel-heading small,
+.sidebar-heading small,
+.live-dot {
+    font-weight: 700;
+    letter-spacing: .08em;
+}

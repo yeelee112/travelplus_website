@@ -76,6 +76,22 @@ final class LocalizedPathCatalog
             'vi' => 'account/login',
             'en' => 'account/login',
         ],
+        'auth.verify' => [
+            'vi' => 'account/verify',
+            'en' => 'account/verify',
+        ],
+        'auth.verifyResend' => [
+            'vi' => 'account/verify/resend',
+            'en' => 'account/verify/resend',
+        ],
+        'auth.verifyUseEmail' => [
+            'vi' => 'account/verify/use-email',
+            'en' => 'account/verify/use-email',
+        ],
+        'auth.verifyEmail' => [
+            'vi' => 'account/verify/email',
+            'en' => 'account/verify/email',
+        ],
         'auth.profile' => [
             'vi' => 'account/profile',
             'en' => 'account/profile',

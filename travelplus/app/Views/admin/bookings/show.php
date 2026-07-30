@@ -72,7 +72,7 @@ $customerNote = trim((string) ($booking['customer_note'] ?? ''));
 
         <div class="meta-grid mb-4">
             <div class="meta-item"><small>Tour</small><div class="fw-semibold"><?= esc((string) ($booking['tour_title'] ?? '')) ?></div></div>
-            <div class="meta-item"><small>Khách hàng</small><div class="fw-semibold"><?= esc((string) ($booking['customer_name'] ?? '')) ?></div><div><?= esc((string) ($booking['customer_email'] ?? '')) ?> - <?= esc((string) ($booking['customer_phone'] ?? '')) ?></div></div>
+            <div class="meta-item"><small>Khách hàng</small><div class="fw-semibold"><?= esc((string) ($booking['customer_name'] ?? '')) ?></div><div><?= esc((string) ($booking['customer_email'] ?? '')) ?> - <?= esc((string) ($booking['customer_phone'] ?? '')) ?></div><div><?= esc((string) ($booking['customer_address'] ?? '-')) ?></div></div>
             <div class="meta-item">
                 <small>Trạng thái thanh toán</small>
                 <span class="status-badge status-<?= esc(str_replace('_', '-', $bookingStatus)) ?>"><?= esc($statusLabels[$bookingStatus] ?? $bookingStatus) ?></span>

@@ -55,6 +55,7 @@ class SystemHealthService
         $groups = [
             $this->inspectRuntime(),
             $this->inspectDatabase(),
+            $this->inspectMeasurement(),
             $this->inspectEmail(),
             $this->inspectSecurity(),
             $this->inspectStorage(),
@@ -149,6 +150,31 @@ class SystemHealthService
             'post_bytes' => $postBytes,
             'effective_bytes' => $effectiveBytes,
             'bottleneck' => $bottleneck,
+        ];
+    }
+
+    /**
+     * @return array{
+     *     ga4: array{status: string, value: string},
+     *     search_console: array{status: string, value: string}
+     * }
+     */
+    public static function evaluateMeasurementConfiguration(string $ga4MeasurementId, string $googleSiteVerification): array
+    {
+        $ga4MeasurementId = strtoupper(trim($ga4MeasurementId));
+        $googleSiteVerification = trim($googleSiteVerification);
+
+        return [
+            'ga4' => [
+                'status' => preg_match('/^G-[A-Z0-9]{6,}$/', $ga4MeasurementId) === 1
+                    ? self::STATUS_OK
+                    : self::STATUS_WARNING,
+                'value' => $ga4MeasurementId !== '' ? $ga4MeasurementId : 'Chưa cấu hình',
+            ],
+            'search_console' => [
+                'status' => $googleSiteVerification !== '' ? self::STATUS_OK : self::STATUS_WARNING,
+                'value' => $googleSiteVerification !== '' ? 'Đã cấu hình' : 'Chưa cấu hình',
+            ],
         ];
     }
 
@@ -292,6 +318,44 @@ class SystemHealthService
             'Database',
             'Kết nối, các bảng cốt lõi và bộ index đã tối ưu cho booking, CRM, catalog và analytics.',
             $checks
+        );
+    }
+
+    /**
+     * @return array{key: string, title: string, description: string, checks: list<array<string, string>>}
+     */
+    private function inspectMeasurement(): array
+    {
+        $ga4MeasurementId = trim((string) env('analytics.ga4MeasurementId', 'G-W2FBGJD5YK'));
+        $googleSiteVerification = trim((string) env('seo.googleSiteVerification', ''));
+        $configuration = self::evaluateMeasurementConfiguration($ga4MeasurementId, $googleSiteVerification);
+
+        return $this->group(
+            'measurement',
+            'SEO và đo lường',
+            'Kiểm tra mã đo lường và xác minh công cụ tìm kiếm đang được chèn vào giao diện công khai.',
+            [
+                $this->check(
+                    'ga4_measurement',
+                    'Google Analytics 4',
+                    $configuration['ga4']['status'],
+                    $configuration['ga4']['value'],
+                    $configuration['ga4']['status'] === self::STATUS_OK
+                        ? 'Website đã có Measurement ID hợp lệ để ghi nhận lượt xem và conversion.'
+                        : 'Measurement ID đang thiếu hoặc không đúng định dạng G-XXXXXXXXXX.',
+                    'Đặt analytics.ga4MeasurementId = G-XXXXXXXXXX trong file .env trên hosting.'
+                ),
+                $this->check(
+                    'google_search_console',
+                    'Google Search Console',
+                    $configuration['search_console']['status'],
+                    $configuration['search_console']['value'],
+                    $configuration['search_console']['status'] === self::STATUS_OK
+                        ? 'Meta xác minh quyền sở hữu website sẽ được chèn vào phần head.'
+                        : 'Website chưa có mã meta xác minh Google Search Console trong cấu hình.',
+                    'Lấy giá trị content của thẻ google-site-verification rồi đặt seo.googleSiteVerification trong file .env.'
+                ),
+            ]
         );
     }
 

@@ -30,6 +30,21 @@
     const history = [];
     let typingNode = null;
 
+    function trackAnalyticsEvent(event) {
+        if (!event || !event.name || typeof window.travelplusTrackEvent !== 'function') return;
+
+        const dedupeKey = String(event.dedupe_key || '').trim();
+        const storageKey = dedupeKey ? `tp_ga4_${dedupeKey}` : '';
+
+        try {
+            if (storageKey && window.localStorage.getItem(storageKey)) return;
+            window.travelplusTrackEvent(event.name, event.params || {});
+            if (storageKey) window.localStorage.setItem(storageKey, '1');
+        } catch (error) {
+            window.travelplusTrackEvent(event.name, event.params || {});
+        }
+    }
+
     if (isTourPage) {
         root.classList.add('is-tour-page');
     }
@@ -252,6 +267,8 @@
 
             const data = await response.json();
 
+            trackAnalyticsEvent(data.analytics_event);
+
             if (!response.ok || !data.message) {
                 throw new Error(data.message || ui.error);
             }
@@ -311,4 +328,3 @@
 
     autosizeTextarea();
 })();
-

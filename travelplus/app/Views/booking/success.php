@@ -120,6 +120,7 @@ $customerItems = [
     ['label' => $t('bookingSuccess.customer'), 'value' => (string) ($booking['customer_name'] ?? '-')],
     ['label' => $t('bookingSuccess.email'), 'value' => (string) ($booking['customer_email'] ?? '-')],
     ['label' => $t('bookingSuccess.phone'), 'value' => (string) ($booking['customer_phone'] ?? '-')],
+    ['label' => $t('bookingSuccess.address'), 'value' => (string) ($booking['customer_address'] ?? '-')],
 ];
 $paymentItems = [
     ['label' => $t('bookingSuccess.paymentMethod'), 'value' => $paymentMethodLabel],

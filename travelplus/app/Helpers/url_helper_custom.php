@@ -138,7 +138,14 @@ function localized_url_for(string $path = '', string $locale = 'vi'): string
 
 function switch_locale_url(string $targetLocale): string
 {
+    static $resolved = [];
+
     $currentUrl = current_url(true);
+    $cacheKey = $targetLocale . '|' . (string) $currentUrl;
+    if (isset($resolved[$cacheKey])) {
+        return $resolved[$cacheKey];
+    }
+
     $segments = $currentUrl->getSegments();
     $currentLocale = service('request')->getLocale() ?: 'vi';
 
@@ -148,7 +155,7 @@ function switch_locale_url(string $targetLocale): string
     }
 
     if ($segments === []) {
-        return $targetLocale === 'en' ? base_url('en') : base_url('/');
+        return $resolved[$cacheKey] = $targetLocale === 'en' ? base_url('en') : base_url('/');
     }
 
     $staticMap = [
@@ -173,7 +180,7 @@ function switch_locale_url(string $targetLocale): string
     if (count($segments) === 1 && isset($staticMap[$segments[0]][$targetLocale])) {
         $path = $staticMap[$segments[0]][$targetLocale];
 
-        return $targetLocale === 'en'
+        return $resolved[$cacheKey] = $targetLocale === 'en'
             ? base_url('en/' . ltrim($path, '/'))
             : base_url(ltrim($path, '/'));
     }
@@ -182,7 +189,7 @@ function switch_locale_url(string $targetLocale): string
         $translatedSlug = translate_blog_slug($currentLocale, $targetLocale, $segments[1]);
         $path = $staticMap[$segments[0]][$targetLocale] . '/' . $translatedSlug;
 
-        return $targetLocale === 'en'
+        return $resolved[$cacheKey] = $targetLocale === 'en'
             ? base_url('en/' . ltrim($path, '/'))
             : base_url(ltrim($path, '/'));
     }
@@ -193,7 +200,7 @@ function switch_locale_url(string $targetLocale): string
         if (isset($staticMap[$baseSegment][$targetLocale])) {
             $path = $staticMap[$baseSegment][$targetLocale] . '/' . $segments[1];
 
-            return $targetLocale === 'en'
+            return $resolved[$cacheKey] = $targetLocale === 'en'
                 ? base_url('en/' . ltrim($path, '/'))
                 : base_url(ltrim($path, '/'));
         }
@@ -203,10 +210,10 @@ function switch_locale_url(string $targetLocale): string
     $path = implode('/', $translatedSegments);
 
     if ($targetLocale === 'en') {
-        return base_url('en/' . ltrim($path, '/'));
+        return $resolved[$cacheKey] = base_url('en/' . ltrim($path, '/'));
     }
 
-    return base_url(ltrim($path, '/'));
+    return $resolved[$cacheKey] = base_url(ltrim($path, '/'));
 }
 
 function translate_blog_slug(string $fromLocale, string $toLocale, string $slug): string

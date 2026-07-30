@@ -11,6 +11,7 @@ class AnalyticsTrackingService
     private const VISITOR_TOKEN_KEY = 'analytics_visitor_token';
     private const VISIT_TOKEN_KEY = 'analytics_visit_token';
     private const VISIT_ID_KEY = 'analytics_visit_id';
+    private const VISIT_CONFIRMED_KEY = 'analytics_visit_confirmed';
     private const LAST_SEEN_KEY = 'analytics_last_seen_at';
     private const VISIT_TIMEOUT_SECONDS = 1800;
     private const SCHEMA_CACHE_KEY = 'analytics_schema_ready_v1';
@@ -86,7 +87,11 @@ class AnalyticsTrackingService
                 $visitToken = bin2hex(random_bytes(12));
                 $visitPayload['visit_token'] = $visitToken;
                 $visitId = $this->createVisit($visitPayload);
-            } else {
+                $session->set(self::VISIT_CONFIRMED_KEY, false);
+            } elseif (! (bool) $session->get(self::VISIT_CONFIRMED_KEY)) {
+                // The second page is enough to mark this visit as non-bounce.
+                // Later activity is derived from page-view rows so public pages
+                // do not update analytics_visits on every request.
                 $this->db()->table('analytics_visits')
                     ->set('pageviews', 'COALESCE(pageviews, 0) + 1', false)
                     ->set([
@@ -105,6 +110,9 @@ class AnalyticsTrackingService
                     $visitToken = bin2hex(random_bytes(12));
                     $visitPayload['visit_token'] = $visitToken;
                     $visitId = $this->createVisit($visitPayload);
+                    $session->set(self::VISIT_CONFIRMED_KEY, false);
+                } else {
+                    $session->set(self::VISIT_CONFIRMED_KEY, true);
                 }
             }
 

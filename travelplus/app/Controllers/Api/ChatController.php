@@ -54,7 +54,7 @@ class ChatController extends BaseController
         }
 
         $this->logChatEntry('user', $locale, $message, $payload);
-        $this->captureLeadFromChat($locale, $message, $payload);
+        $analyticsEvent = $this->captureLeadFromChat($locale, $message, $payload);
 
         $normalizedHistory = [];
 
@@ -109,6 +109,10 @@ class ChatController extends BaseController
                 'sources' => $result['sources'],
             ];
 
+            if ($analyticsEvent !== null) {
+                $response['analytics_event'] = $analyticsEvent;
+            }
+
             if ($this->chatDebugEnabled && is_array($result['debug_meta'] ?? null)) {
                 $response['debug'] = $result['debug_meta'];
             }
@@ -121,11 +125,17 @@ class ChatController extends BaseController
         } catch (RuntimeException $exception) {
             log_message('error', 'AI chat request failed: ' . $exception->getMessage());
 
-            return $this->response->setStatusCode(500)->setJSON([
+            $response = [
                 'message' => $locale === 'en'
                     ? 'The AI assistant is temporarily unavailable. Please try again later.'
                     : 'AI Travel Plus đang tạm thời không khả dụng. Vui lòng thử lại sau.',
-            ]);
+            ];
+
+            if ($analyticsEvent !== null) {
+                $response['analytics_event'] = $analyticsEvent;
+            }
+
+            return $this->response->setStatusCode(500)->setJSON($response);
         }
     }
 
@@ -261,16 +271,16 @@ class ChatController extends BaseController
     /**
      * @param array<string, mixed> $payload
      */
-    private function captureLeadFromChat(string $locale, string $message, array $payload): void
+    private function captureLeadFromChat(string $locale, string $message, array $payload): ?array
     {
         $leadService = new CrmLeadCaptureService();
         $contact = $leadService->extractContactFromText($message);
 
         if ($contact['email'] === '' && $contact['phone'] === '') {
-            return;
+            return null;
         }
 
-        $leadService->capture([
+        $leadId = $leadService->capture([
             'source' => 'ai_chat',
             'stage' => 'new',
             'priority' => 'normal',
@@ -286,6 +296,19 @@ class ChatController extends BaseController
                 'ip_address' => $this->request->getIPAddress(),
             ],
         ]);
+
+        if ($leadId === false) {
+            return null;
+        }
+
+        return [
+            'name' => 'generate_lead',
+            'dedupe_key' => 'ai_chat_lead_' . $leadId,
+            'params' => [
+                'lead_source' => 'ai_chat',
+                'service_type' => 'chat',
+            ],
+        ];
     }
 
     private function passesRateLimit(): bool

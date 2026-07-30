@@ -458,6 +458,7 @@ $phoneDisplay = $websiteSettings->phoneDisplay($locale);
                         <?= csrf_field() ?>
                         <input type="hidden" name="contact_form_token" value="<?= esc($contactFormToken, 'attr') ?>">
                         <input type="hidden" name="redirect_to" value="<?= esc($leadRedirectUrl, 'attr') ?>">
+                        <input type="hidden" name="lead_context" value="summer">
                         <input type="hidden" name="recaptcha_token" id="recaptcha_token">
 
                         <div class="summer-lead__form-grid">

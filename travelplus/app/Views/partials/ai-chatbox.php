@@ -62,16 +62,16 @@ $zaloUrl = $websiteSettings->get('zalo_url');
     <div class="tp-ai-chatbox__contact">
         <div class="tp-ai-chatbox__contact-panel" id="tp-ai-contact-panel" hidden>
             <span><?= esc($contactUi['panel']) ?></span>
-            <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--phone<?= $currentLocale === 'en' ? ' tp-ai-chatbox__contact-option--phone-en' : '' ?>" href="tel:<?= esc($contactPhone, 'attr') ?>">
+            <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--phone<?= $currentLocale === 'en' ? ' tp-ai-chatbox__contact-option--phone-en' : '' ?>" href="tel:<?= esc($contactPhone, 'attr') ?>" data-contact-placement="floating_contact">
                 <i class="bi bi-telephone-fill"></i>
                 <strong><?= esc($contactPhoneDisplay) ?></strong>
             </a>
-            <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--messenger" href="<?= esc($messengerUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer">
+            <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--messenger" href="<?= esc($messengerUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer" data-contact-channel="messenger" data-contact-placement="floating_contact">
                 <i class="bi bi-messenger"></i>
                 <strong><?= esc($contactUi['messenger']) ?></strong>
                 <small>Travel Plus</small>
             </a>
-            <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--zalo" href="<?= esc($zaloUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer">
+            <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--zalo" href="<?= esc($zaloUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer" data-contact-channel="zalo" data-contact-placement="floating_contact">
                 <i aria-hidden="true">Z</i>
                 <strong><?= esc($contactUi['zalo']) ?></strong>
                 <small>Travelplus</small>

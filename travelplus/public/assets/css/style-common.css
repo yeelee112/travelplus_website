@@ -5733,16 +5733,108 @@ header.style-3.two .main-menu>ul>li.active>a i{color: var(--white-color)}
     border-radius: 8px;
     background: #fff;
     box-shadow: 0 18px 48px rgba(0, 38, 61, .07);}
-.travelplus-auth-field input, .travelplus-account-card .form-inner input, .checkout-stepper-page .form-inner input, .checkout-stepper-page .checkout-coupon-input input{width: 100%;
+.travelplus-auth-field input, .travelplus-auth-field select, .travelplus-account-card .form-inner input, .travelplus-account-card .form-inner select, .checkout-stepper-page .form-inner input, .checkout-stepper-page .form-inner select, .checkout-stepper-page .checkout-coupon-input input{width: 100%;
     min-height: 50px;
     border: 1px solid #d7edf6;
     border-radius: 8px;
     background: #f9fdff;
     color: var(--title-color);
     font-size: 15px;}
-.travelplus-auth-field input:focus, .travelplus-account-card .form-inner input:focus, .checkout-stepper-page .form-inner input:focus, .checkout-stepper-page .checkout-coupon-input input:focus{border-color: var(--primary-color1);
+.travelplus-auth-field select, .travelplus-account-card .form-inner select, .checkout-stepper-page .form-inner select{padding: 10px 38px 10px 14px;}
+.travelplus-auth-field select:disabled, .travelplus-account-card .form-inner select:disabled, .checkout-stepper-page .form-inner select:disabled{cursor: not-allowed;
+    color: rgba(var(--title-color-opc), .48);
+    background-color: #f2f6f8;}
+.travelplus-auth-field input:focus, .travelplus-auth-field select:focus, .travelplus-account-card .form-inner input:focus, .travelplus-account-card .form-inner select:focus, .checkout-stepper-page .form-inner input:focus, .checkout-stepper-page .form-inner select:focus, .checkout-stepper-page .checkout-coupon-input input:focus{border-color: var(--primary-color1);
     background: #fff;
+    outline: 0;
     box-shadow: 0 0 0 4px rgba(var(--primary-color1-opc), .1);}
+.travelplus-address-status{display: block;
+    min-height: 0;
+    margin-top: 6px;
+    color: rgba(var(--title-color-opc), .58);
+    font-size: 12px;
+    line-height: 1.45;}
+.travelplus-address-status:empty{display: none;}
+.travelplus-address-status.is-error{color: #c62828;}
+.travelplus-native-select{position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    white-space: nowrap !important;}
+.travelplus-search-select{position: relative;
+    width: 100%;}
+.travelplus-search-select__input{width: 100%;
+    min-height: 50px;
+    padding: 10px 42px 10px 14px !important;
+    border: 1px solid #d7edf6;
+    border-radius: 8px;
+    background: #f9fdff;
+    color: var(--title-color);
+    font-size: 14px;}
+.travelplus-search-select__input::-webkit-search-cancel-button{margin-right: 2px;}
+.travelplus-search-select__input:focus{border-color: var(--primary-color1);
+    background: #fff;
+    outline: 0;
+    box-shadow: 0 0 0 4px rgba(var(--primary-color1-opc), .1);}
+.travelplus-search-select__input[aria-invalid="true"]{border-color: #dc3545;}
+.travelplus-search-select__input:disabled{cursor: not-allowed;
+    color: rgba(var(--title-color-opc), .48);
+    background: #f2f6f8;}
+.travelplus-search-select__icon{position: absolute;
+    top: 50%;
+    right: 14px;
+    z-index: 1;
+    color: rgba(var(--title-color-opc), .54);
+    font-size: 15px;
+    pointer-events: none;
+    transform: translateY(-50%);}
+.travelplus-search-select.is-open .travelplus-search-select__icon{color: var(--primary-color1);}
+.travelplus-search-select__panel{position: absolute;
+    top: calc(100% + 7px);
+    right: 0;
+    left: 0;
+    z-index: 80;
+    overflow: hidden;
+    border: 1px solid #c9e5f1;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 18px 40px rgba(0, 38, 61, .16);}
+.travelplus-search-select__list{max-height: 260px;
+    overflow-y: auto;
+    padding: 6px;
+    overscroll-behavior: contain;}
+.travelplus-search-select__option{display: block;
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 11px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--title-color);
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.4;
+    text-align: left;}
+.travelplus-search-select__option:hover, .travelplus-search-select__option.is-active{background: #eef9fd;
+    color: #087eae;}
+.travelplus-search-select__option[aria-selected="true"]{background: #e5f7fd;
+    color: #087eae;
+    font-weight: 800;}
+.travelplus-search-select__empty{margin: 0;
+    padding: 16px 14px;
+    color: rgba(var(--title-color-opc), .58);
+    font-size: 13px;
+    text-align: center;}
+@media (max-width: 767px){.travelplus-search-select__list{max-height: 220px;}
+    .travelplus-search-select__option{min-height: 46px;
+        font-size: 15px;}}
 .travelplus-account-card .form-inner label, .checkout-stepper-page .form-inner label{margin-bottom: 8px;
     color: rgba(var(--title-color-opc), .72);
     font-size: 13px;
@@ -7460,6 +7552,7 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     flex-direction:column;
     gap:4px;
     min-width:0;}
+.checkout-contact-item--wide{grid-column:1 / -1;}
 .checkout-contact-item span{font-size:12px;
     letter-spacing:0.06em;
     text-transform:uppercase;
@@ -7470,6 +7563,9 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;}
+.checkout-contact-item--wide strong{white-space:normal;
+    overflow:visible;
+    text-overflow:clip;}
 .checkout-payment-grid, .checkout-summary-subpanel{min-width:0;}
 .checkout-section-subtitle{margin-bottom:12px;
     font-size:12px;
@@ -8164,7 +8260,7 @@ header.style-1.two.site-header-modern .main-menu .mega-menu .menu-single-item > 
         font-size: 14px !important;
         line-height: 1.35 !important;}
 }
-.checkout-stepper-page .form-inner input, .travelplus-account-card .form-inner input{min-height: 50px;
+.checkout-stepper-page .form-inner input, .checkout-stepper-page .form-inner select, .travelplus-account-card .form-inner input, .travelplus-account-card .form-inner select{min-height: 50px;
     border: 1px solid #d7edf6;
     border-radius: 8px;
     background: #f9fdff;}

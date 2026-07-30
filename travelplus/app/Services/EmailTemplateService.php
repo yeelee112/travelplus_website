@@ -16,26 +16,81 @@ class EmailTemplateService
         array $rows,
         string $message = '',
         string $ctaLabel = '',
-        string $ctaUrl = ''
+        string $ctaUrl = '',
+        bool $prominentCta = false,
+        string $logoUrlOverride = '',
+        string $prominentCode = '',
+        string $prominentCodeLabel = 'Mã xác thực'
     ): string {
         $websiteSettings = new WebsiteSettingsService();
         $contactPhoneDisplay = $websiteSettings->get('hotline_en');
         $contactEmail = $websiteSettings->get('email');
-        $logoUrl = $this->assetUrl('assets/images/logo.svg');
+        $logoUrl = $logoUrlOverride !== '' ? $logoUrlOverride : $this->assetUrl('assets/images/LOGO.png');
         $companyProfileUrl = $this->assetUrl('assets/images/TravelPlus_CompanyProfile.png');
         $safeCtaUrl = $this->e($ctaUrl);
         $ctaHtml = '';
+        $primaryCtaHtml = '';
+        $primaryCodeHtml = '';
 
         if ($ctaLabel !== '' && $ctaUrl !== '') {
-            $ctaHtml = '
+            if ($prominentCta) {
+                $primaryCtaHtml = '
+                    <tr>
+                        <td align="center" class="email-primary-cta-section" style="padding:26px 28px 8px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center">
+                                        <a href="' . $safeCtaUrl . '" class="email-primary-cta" style="display:inline-block;width:100%;max-width:430px;box-sizing:border-box;background:#079dde;color:#ffffff;text-decoration:none;text-align:center;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:17px;line-height:22px;padding:17px 32px;border:1px solid #078dc7;border-radius:8px;box-shadow:0 12px 24px rgba(7,157,222,.22);">
+                                            ' . $this->e($ctaLabel) . '
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>';
+            } else {
+                $ctaHtml = '
                 <tr>
                     <td style="padding:8px 0 0;">
-                        <a href="' . $safeCtaUrl . '" class="email-cta" style="display:inline-block;background:#0ea5e9;color:#ffffff;text-decoration:none;font-weight:800;font-size:15px;line-height:20px;padding:14px 22px;border-radius:999px;">
+                        <a href="' . $safeCtaUrl . '" class="email-cta" style="display:inline-block;background:#0ea5e9;color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:15px;line-height:20px;padding:14px 22px;border-radius:999px;">
                             ' . $this->e($ctaLabel) . '
                         </a>
                     </td>
                 </tr>';
+            }
         }
+
+        if ($prominentCode !== '') {
+            $displayCode = trim(chunk_split(preg_replace('/\D/', '', $prominentCode) ?? '', 3, ' '));
+            $primaryCodeHtml = '
+                    <tr>
+                        <td align="center" class="email-primary-code-section" style="padding:26px 28px 8px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center">
+                                        <div class="email-primary-code-card" style="display:inline-block;width:100%;max-width:430px;box-sizing:border-box;padding:20px 24px;border:1px solid #a9dff2;border-radius:12px;background:#f2fbff;text-align:center;">
+                                            <div style="margin-bottom:9px;color:#547181;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">' . $this->e($prominentCodeLabel) . '</div>
+                                            <div class="email-primary-code" style="color:#07111f;font-family:Arial,Helvetica,sans-serif;font-size:36px;font-weight:700;line-height:1.1;letter-spacing:.18em;white-space:nowrap;">' . $this->e($displayCode) . '</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>';
+        }
+
+        $detailsSectionHtml = $details !== [] ? '
+                    <tr>
+                        <td class="email-details-section" style="padding:26px 28px 6px;">
+                            ' . $this->renderDetails($details) . '
+                        </td>
+                    </tr>' : '';
+        $rowsSectionHtml = $rows !== [] ? '
+                    <tr>
+                        <td class="email-rows-section" style="padding:12px 28px 22px;">
+                            ' . $this->renderRows($rows) . '
+                        </td>
+                    </tr>' : '';
 
         return '<!doctype html>
 <html lang="vi">
@@ -45,6 +100,7 @@ class EmailTemplateService
     <meta name="x-apple-disable-message-reformatting">
     <title>' . $this->e($title) . '</title>
     <style>
+        body, table, td, a, div, p, h1 { font-family: Arial, Helvetica, sans-serif !important; }
         @media only screen and (max-width: 600px) {
             .email-page { padding: 12px 6px !important; }
             .email-shell { border-radius: 12px !important; }
@@ -71,6 +127,11 @@ class EmailTemplateService
             .email-promo-image { display: none !important; width: 0 !important; max-width: 0 !important; overflow: hidden !important; }
             .email-cta-table { width: 100% !important; }
             .email-cta { display: block !important; width: 100% !important; box-sizing: border-box !important; text-align: center !important; }
+            .email-primary-cta-section { padding: 20px 16px 6px !important; }
+            .email-primary-cta { display: block !important; width: 100% !important; max-width: none !important; box-sizing: border-box !important; text-align: center !important; }
+            .email-primary-code-section { padding: 20px 16px 6px !important; }
+            .email-primary-code-card { display: block !important; width: 100% !important; max-width: none !important; padding: 18px 12px !important; }
+            .email-primary-code { font-size: 32px !important; letter-spacing: .14em !important; }
             .email-footer { padding: 16px !important; font-size: 12px !important; overflow-wrap: anywhere !important; word-break: break-word !important; }
         }
     </style>
@@ -80,7 +141,7 @@ class EmailTemplateService
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="email-page" style="background:#eef8fb;margin:0;padding:28px 12px;">
         <tr>
             <td align="center">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="email-shell" style="width:100%;max-width:680px;background:#ffffff;border-radius:24px;overflow:hidden;border:1px solid #cfeef9;box-shadow:0 20px 50px rgba(14,165,233,.12);">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="email-shell" style="width:100%;max-width:680px;background:#ffffff;border-radius:24px;overflow:hidden;border:1px solid #cfeef9;box-shadow:0 20px 50px rgba(14,165,233,.12);font-family:Arial,Helvetica,sans-serif;">
                     <tr>
                         <td class="email-header" style="background:linear-gradient(135deg,#ecfbff 0%,#ffffff 42%,#f3fae9 100%);padding:28px 28px 22px;border-bottom:1px solid #d7f0f8;">
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -94,22 +155,16 @@ class EmailTemplateService
                                 </tr>
                             </table>
                             <div class="email-heading" style="padding-top:26px;">
-                                <div style="color:#0ea5e9;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">' . $this->e($eyebrow) . '</div>
-                                <h1 class="email-title" style="margin:0;color:#07111f;font-size:30px;line-height:1.16;font-weight:900;letter-spacing:0;">' . $this->e($title) . '</h1>
+                                <div style="color:#0ea5e9;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">' . $this->e($eyebrow) . '</div>
+                                <h1 class="email-title" style="margin:0;color:#07111f;font-family:Arial,Helvetica,sans-serif;font-size:30px;line-height:1.16;font-weight:700;letter-spacing:0;">' . $this->e($title) . '</h1>
                                 <p class="email-intro" style="margin:12px 0 0;color:#465466;font-size:16px;line-height:1.65;">' . $this->e($intro) . '</p>
                             </div>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="email-details-section" style="padding:26px 28px 6px;">
-                            ' . $this->renderDetails($details) . '
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="email-rows-section" style="padding:12px 28px 22px;">
-                            ' . $this->renderRows($rows) . '
-                        </td>
-                    </tr>
+                    ' . $primaryCtaHtml . '
+                    ' . $primaryCodeHtml . '
+                    ' . $detailsSectionHtml . '
+                    ' . $rowsSectionHtml . '
                     ' . ($message !== '' ? '
                     <tr>
                         <td class="email-note-section" style="padding:0 28px 24px;">
@@ -119,7 +174,7 @@ class EmailTemplateService
                             </div>
                         </td>
                     </tr>' : '') . '
-                    <tr>
+                    ' . (! $prominentCta ? '<tr>
                         <td class="email-promo-section" style="padding:0 28px 30px;">
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="email-promo" style="background:#07111f;border-radius:20px;overflow:hidden;">
                                 <tr>
@@ -133,7 +188,7 @@ class EmailTemplateService
                                 </tr>
                             </table>
                         </td>
-                    </tr>
+                    </tr>' : '') . '
                     <tr>
                         <td class="email-footer" style="background:#f8fcfe;border-top:1px solid #d7f0f8;padding:18px 28px;color:#64748b;font-size:13px;line-height:1.55;">
                             <strong style="color:#111827;">Travel Plus Vietnam</strong><br>

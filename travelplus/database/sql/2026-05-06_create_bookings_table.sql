@@ -11,6 +11,10 @@ CREATE TABLE IF NOT EXISTS `bookings` (
   `customer_name` VARCHAR(255) NOT NULL,
   `customer_email` VARCHAR(255) NOT NULL,
   `customer_phone` VARCHAR(50) NOT NULL,
+  `customer_address` VARCHAR(500) DEFAULT NULL,
+  `customer_address_line` VARCHAR(255) DEFAULT NULL,
+  `customer_province_code` VARCHAR(2) DEFAULT NULL,
+  `customer_ward_code` VARCHAR(5) DEFAULT NULL,
   `customer_note` TEXT DEFAULT NULL,
   `adult_quantity` INT NOT NULL DEFAULT 1,
   `child_quantity` INT NOT NULL DEFAULT 0,
@@ -45,4 +49,3 @@ CREATE TABLE IF NOT EXISTS `bookings` (
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-

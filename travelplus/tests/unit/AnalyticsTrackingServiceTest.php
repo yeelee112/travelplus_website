@@ -36,4 +36,20 @@ final class AnalyticsTrackingServiceTest extends CIUnitTestCase
         ));
         $this->assertFalse($method->invoke($service, ''));
     }
+
+    public function testVisitRowsAreOnlyUpdatedUntilTheVisitIsConfirmed(): void
+    {
+        $source = file_get_contents(APPPATH . 'Services/AnalyticsTrackingService.php');
+
+        $this->assertIsString($source);
+        $this->assertStringContainsString('VISIT_CONFIRMED_KEY', $source);
+        $this->assertStringContainsString(
+            'elseif (! (bool) $session->get(self::VISIT_CONFIRMED_KEY))',
+            $source
+        );
+        $this->assertSame(
+            1,
+            substr_count($source, "->set('pageviews', 'COALESCE(pageviews, 0) + 1', false)")
+        );
+    }
 }

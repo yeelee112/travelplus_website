@@ -11,12 +11,12 @@ class CrmLeadCaptureService
     /**
      * @param array<string, mixed> $data
      */
-    public function capture(array $data): void
+    public function capture(array $data): int|false
     {
         $db = db_connect();
 
         if (! (new DatabaseSchemaCacheService($db))->tableExists('crm_leads')) {
-            return;
+            return false;
         }
 
         $source = $this->nullableString((string) ($data['source'] ?? '')) ?? 'manual';
@@ -27,7 +27,7 @@ class CrmLeadCaptureService
         $bookingCode = trim((string) ($data['booking_code'] ?? ''));
 
         if ($email === '' && $phone === '' && $bookingId <= 0 && $bookingCode === '') {
-            return;
+            return false;
         }
 
         $payload = [
@@ -69,10 +69,12 @@ class CrmLeadCaptureService
             $payload = $this->preserveExistingUsefulValues($payload, $existing);
             $model->update((int) $existing['id'], $payload);
 
-            return;
+            return false;
         }
 
-        $model->insert($payload);
+        $leadId = $model->insert($payload, true);
+
+        return $leadId === false || (int) $leadId <= 0 ? false : (int) $leadId;
     }
 
     /**

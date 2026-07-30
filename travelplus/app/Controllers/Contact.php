@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Data\LocalizedPathCatalog;
 use App\Services\CrmLeadCaptureService;
 use App\Services\EmailTemplateService;
+use App\Services\RecaptchaService;
 use App\Services\SeoService;
 use App\Services\VietnamPhoneService;
 use Config\Email as EmailConfig;
@@ -33,12 +34,14 @@ class Contact extends BaseController
 
         session()->remove('contact_form_token');
         $serviceType = strtolower(trim((string) $this->request->getPost('service_type')));
+        $leadContext = strtolower(trim((string) $this->request->getPost('lead_context')));
         $isVisaRequest = $serviceType === 'visa';
         $isMiceRequest = $serviceType === 'mice';
         $isSpecializedRequest = $isVisaRequest || $isMiceRequest;
 
         $rules = [
             'service_type' => 'permit_empty|in_list[visa,mice]',
+            'lead_context' => 'permit_empty|in_list[summer]',
             'company_name' => 'permit_empty|max_length[160]',
             'event_type' => 'permit_empty|max_length[160]',
             'conference_name' => 'permit_empty|max_length[180]',
@@ -88,7 +91,11 @@ class Contact extends BaseController
             return $this->redirectWithMessage($locale, $redirectTarget, 'error', implode("\n", $this->validator->getErrors()), true);
         }
 
-        if (! $this->verifyRecaptcha((string) $this->request->getPost('recaptcha_token'))) {
+        if (! (new RecaptchaService())->verify(
+            (string) $this->request->getPost('recaptcha_token'),
+            'contact',
+            (string) $this->request->getIPAddress()
+        )) {
             return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.recaptchaFailed', [], $locale), true);
         }
 
@@ -118,15 +125,20 @@ class Contact extends BaseController
         $conferenceName = trim((string) $this->request->getPost('conference_name'));
         $budget = trim((string) $this->request->getPost('budget'));
 
-        (new CrmLeadCaptureService())->capture([
-            'source' => $isVisaRequest ? 'visa_form' : ($isMiceRequest ? 'mice_form' : 'contact_form'),
+        $leadSource = $isVisaRequest
+            ? 'visa_form'
+            : ($isMiceRequest ? 'mice_form' : ($leadContext === 'summer' ? 'summer_form' : 'contact_form'));
+        $leadId = (new CrmLeadCaptureService())->capture([
+            'source' => $leadSource,
             'stage' => 'new',
             'priority' => $isMiceRequest || $isVisaRequest ? 'high' : 'normal',
             'customer_name' => $name,
             'customer_email' => $email,
             'customer_phone' => $phone,
             'service_type' => $serviceType !== '' ? $serviceType : 'tour',
-            'interest_title' => $isVisaRequest ? 'Visa consultation' : ($isMiceRequest ? 'MICE proposal' : 'Contact request'),
+            'interest_title' => $isVisaRequest
+                ? 'Visa consultation'
+                : ($isMiceRequest ? 'MICE proposal' : ($leadContext === 'summer' ? 'Summer tour request' : 'Contact request')),
             'interest_url' => $redirectTarget ?? LocalizedPathCatalog::url('contact', $locale),
             'destination' => $destination,
             'travel_date' => $estimatedTime,
@@ -142,8 +154,17 @@ class Contact extends BaseController
                 'visa_refusal' => $visaRefusal,
                 'trip_length' => $tripLength,
                 'hotel_rating' => $hotelRating,
+                'lead_context' => $leadContext,
             ],
         ]);
+        $analyticsEvent = $leadId !== false ? [
+            'name' => 'generate_lead',
+            'dedupe_key' => 'crm_lead_' . $leadId,
+            'params' => [
+                'lead_source' => $leadSource,
+                'service_type' => $serviceType !== '' ? $serviceType : 'tour',
+            ],
+        ] : null;
 
         $emailConfig = config(EmailConfig::class);
         $recipient = trim((string) env('booking.notifyEmail', $emailConfig->recipients));
@@ -153,7 +174,7 @@ class Contact extends BaseController
         if ($recipient === '' || $fromEmail === '') {
             log_message('warning', 'Contact lead captured but email notification is not configured.');
 
-            return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale));
+            return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale), false, $analyticsEvent);
         }
 
         $mailer = service('email');
@@ -188,10 +209,10 @@ class Contact extends BaseController
         if (! $mailer->send()) {
             log_message('error', 'Contact form email failed: {debug}', ['debug' => print_r($mailer->printDebugger(['headers']), true)]);
 
-            return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale));
+            return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale), false, $analyticsEvent);
         }
 
-        return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale));
+        return $this->redirectWithMessage($locale, $redirectTarget, 'success', lang('Frontend.contact.sendSuccess', [], $locale), false, $analyticsEvent);
     }
 
     private function resolveRedirectTarget(): ?string
@@ -211,7 +232,14 @@ class Contact extends BaseController
         return $target;
     }
 
-    private function redirectWithMessage(string $locale, ?string $redirectTarget, string $flashKey, string $message, bool $withInput = false)
+    private function redirectWithMessage(
+        string $locale,
+        ?string $redirectTarget,
+        string $flashKey,
+        string $message,
+        bool $withInput = false,
+        ?array $analyticsEvent = null
+    )
     {
         $redirect = $redirectTarget !== null
             ? redirect()->to($redirectTarget)
@@ -221,58 +249,11 @@ class Contact extends BaseController
             $redirect = $redirect->withInput();
         }
 
-        if ($flashKey === 'success') {
-            $serviceType = strtolower(trim((string) $this->request->getPost('service_type')));
-            $leadSource = $serviceType === 'visa' ? 'visa_form' : ($serviceType === 'mice' ? 'mice_form' : 'contact_form');
-            $redirect = $redirect->with('analytics_event', [
-                'name' => 'generate_lead',
-                'dedupe_key' => 'contact_' . hash('sha256', (string) $this->request->getPost('contact_form_token')),
-                'params' => [
-                    'lead_source' => $leadSource,
-                    'service_type' => $serviceType !== '' ? $serviceType : 'tour',
-                ],
-            ]);
+        if ($flashKey === 'success' && $analyticsEvent !== null) {
+            $redirect = $redirect->with('analytics_event', $analyticsEvent);
         }
 
         return $redirect->with($flashKey, $message);
-    }
-
-    private function verifyRecaptcha(string $token): bool
-    {
-        $secretKey = trim((string) env('recaptcha.secretKey', ''), " \t\n\r\0\x0B\"'");
-
-        if ($secretKey === '') {
-            log_message('error', 'Contact form reCAPTCHA secret key is missing.');
-            return false;
-        }
-
-        try {
-            $options = ['timeout' => 10];
-            $caBundle = trim((string) env('recaptcha.caBundle', ''), " \t\n\r\0\x0B\"'");
-
-            if ($caBundle !== '' && is_file($caBundle)) {
-                $options['verify'] = $caBundle;
-            }
-
-            $client = \Config\Services::curlrequest($options);
-
-            $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
-                'form_params' => [
-                    'secret' => $secretKey,
-                    'response' => $token,
-                ],
-            ]);
-
-            $result = json_decode((string) $response->getBody(), true);
-
-            return is_array($result)
-                && ! empty($result['success'])
-                && (($result['score'] ?? 0) >= (float) env('recaptcha.minimumScore', 0.5));
-        } catch (\Throwable $exception) {
-            log_message('error', 'Contact form reCAPTCHA failed: {message}', ['message' => $exception->getMessage()]);
-
-            return false;
-        }
     }
 
     /**

@@ -57,6 +57,7 @@ $labels = $locale === 'en'
         'customerName' => 'Customer',
         'email' => 'Email',
         'phone' => 'Phone number',
+        'address' => 'Address',
         'method' => 'Payment method',
         'plan' => 'Payment plan',
         'amountDue' => 'Amount due',
@@ -104,6 +105,7 @@ $labels = $locale === 'en'
         'customerName' => 'Khách hàng',
         'email' => 'Email',
         'phone' => 'Số điện thoại',
+        'address' => 'Địa chỉ',
         'method' => 'Phương thức',
         'plan' => 'Gói thanh toán',
         'amountDue' => 'Cần thanh toán/đối soát',
@@ -217,6 +219,7 @@ if ($booking !== null) {
         ['label' => $labels['customerName'], 'value' => (string) ($booking['customer_name'] ?? '-')],
         ['label' => $labels['email'], 'value' => (string) ($booking['customer_email'] ?? '-')],
         ['label' => $labels['phone'], 'value' => (string) ($booking['customer_phone'] ?? '-')],
+        ['label' => $labels['address'], 'value' => (string) ($booking['customer_address'] ?? '-')],
     ];
     $paymentItems = [
         ['label' => $labels['method'], 'value' => $paymentMethodLabel],

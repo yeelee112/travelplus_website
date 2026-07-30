@@ -56,4 +56,56 @@ final class EmailTemplateServiceTest extends CIUnitTestCase
         $this->assertStringContainsString('&lt;Payment&gt;', $html);
         $this->assertStringContainsString('&lt;b&gt;Name&lt;/b&gt;', $html);
     }
+
+    public function testRendersProminentTransactionalCtaWithoutPromoPanel(): void
+    {
+        $html = (new EmailTemplateService())->render(
+            'Account verification',
+            'Confirm your email',
+            'Confirm this email address to finish registration.',
+            ['Account' => 'Travel Plus Customer', 'Valid for' => '24 hours'],
+            [],
+            'Ignore this email if you did not register.',
+            'Verify email',
+            'https://example.com/account/verify/token',
+            true
+        );
+
+        $this->assertStringContainsString('class="email-primary-cta"', $html);
+        $this->assertStringContainsString('assets/images/LOGO.png', $html);
+        $this->assertStringNotContainsString('class="email-promo-section"', $html);
+        $this->assertStringNotContainsString('class="email-rows-section"', $html);
+        $this->assertLessThan(
+            strpos($html, 'class="email-details-section"'),
+            strpos($html, 'class="email-primary-cta-section"')
+        );
+    }
+
+    public function testRendersProminentOtpCodeForTransactionalEmail(): void
+    {
+        $html = (new EmailTemplateService())->render(
+            'Account verification',
+            'Your Travel Plus verification code',
+            'Enter this code to finish creating your account.',
+            ['Account' => 'Travel Plus Customer', 'Valid for' => '5 minutes'],
+            [],
+            'Never share this code.',
+            '',
+            '',
+            true,
+            'cid:travelplus-logo',
+            '123456',
+            'Verification code'
+        );
+
+        $this->assertStringContainsString('class="email-primary-code"', $html);
+        $this->assertStringContainsString('123 456', $html);
+        $this->assertStringContainsString('cid:travelplus-logo', $html);
+        $this->assertStringNotContainsString('class="email-primary-cta"', $html);
+        $this->assertStringNotContainsString('class="email-promo-section"', $html);
+        $this->assertLessThan(
+            strpos($html, 'class="email-details-section"'),
+            strpos($html, 'class="email-primary-code-section"')
+        );
+    }
 }

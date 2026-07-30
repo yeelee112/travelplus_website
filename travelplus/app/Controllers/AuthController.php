@@ -6,9 +6,12 @@ use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
 use App\Models\UserModel;
 use App\Services\AuthSessionControlService;
+use App\Services\AccountVerificationService;
 use App\Services\LoyaltyMembershipService;
 use App\Services\LoyaltyPointService;
+use App\Services\RecaptchaService;
 use App\Services\RememberLoginService;
+use App\Services\VietnamAdministrativeUnitService;
 use App\Services\VietnamPhoneService;
 use Config\SocialAuth;
 
@@ -16,6 +19,9 @@ class AuthController extends BaseController
 {
     private const LOGIN_ATTEMPT_LIMIT = 5;
     private const LOGIN_ATTEMPT_DECAY = 600;
+    private const REGISTER_ATTEMPT_LIMIT = 3;
+    private const REGISTER_ATTEMPT_DECAY = 600;
+    private const PENDING_ACCOUNT_TTL = 86400;
 
     public function register()
     {
@@ -30,10 +36,16 @@ class AuthController extends BaseController
             return $this->handleRegister();
         }
 
+        $addressService = new VietnamAdministrativeUnitService();
+        $recaptcha = new RecaptchaService();
+
         return view('auth/register', [
             'googleEnabled' => $this->googleEnabled(),
             'authSuccess' => session()->getFlashdata('auth_success'),
             'returnTo' => $returnTo,
+            'administrativeProvinces' => $addressService->provinces(),
+            'addressDataUrl' => $addressService->dataUrl(),
+            'recaptchaSiteKey' => $recaptcha->siteKey(),
         ]);
     }
 
@@ -82,10 +94,34 @@ class AuthController extends BaseController
             ->where('email', $identity)
             ->orWhere('username', $identity)
             ->groupEnd()
-            ->where('status', 'active')
             ->first();
 
         if ($user === null || ! password_verify($password, (string) ($user['password_hash'] ?? ''))) {
+            $this->recordFailedLoginAttempt($identity, (string) $this->request->getIPAddress());
+            return $this->respondAuthError(lang('Frontend.auth.loginCredentialsInvalid', [], $locale), 401);
+        }
+
+        if (($user['status'] ?? '') === AccountVerificationService::STATUS_PENDING) {
+            $this->clearFailedLoginAttempt($identity, (string) $this->request->getIPAddress());
+            session()->set('pending_verification_user_id', (int) $user['id']);
+            $verifyUrl = LocalizedPathCatalog::url('auth.verify', $locale);
+
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'ok' => true,
+                    'redirect' => $verifyUrl,
+                ]);
+            }
+
+            return redirect()->to($verifyUrl)->with(
+                'auth_success',
+                $locale === 'en'
+                    ? 'Please verify your account to continue.'
+                    : 'Vui lòng xác thực tài khoản để tiếp tục.'
+            );
+        }
+
+        if (($user['status'] ?? '') !== 'active') {
             $this->recordFailedLoginAttempt($identity, (string) $this->request->getIPAddress());
             return $this->respondAuthError(lang('Frontend.auth.loginCredentialsInvalid', [], $locale), 401);
         }
@@ -131,6 +167,9 @@ class AuthController extends BaseController
         if ($this->request->is('post')) {
             $fullName = trim((string) $this->request->getPost('full_name'));
             $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
+            $addressLine = trim((string) $this->request->getPost('address_line'));
+            $provinceCode = trim((string) $this->request->getPost('province_code'));
+            $wardCode = trim((string) $this->request->getPost('ward_code'));
             $newPassword = (string) $this->request->getPost('new_password');
             $confirmPassword = (string) $this->request->getPost('new_password_confirm');
 
@@ -138,11 +177,27 @@ class AuthController extends BaseController
                 return redirect()->back()->with('auth_error', $locale === 'en' ? 'Full name is required.' : 'Họ và tên là bắt buộc.');
             }
 
-            if ($phone !== '' && ! VietnamPhoneService::isValid($phone)) {
+            if ($phone === '' || ! VietnamPhoneService::isValid($phone)) {
                 return redirect()->back()->with('auth_error', $locale === 'en'
                     ? 'Please enter a valid Vietnamese phone number.'
                     : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.');
             }
+
+            $addressService = new VietnamAdministrativeUnitService();
+            $addressUnit = $addressService->resolve($provinceCode, $wardCode);
+            if ($addressLine === '' || $addressUnit === null) {
+                return redirect()->back()->withInput()->with('auth_error', $locale === 'en'
+                    ? 'Please select a province/city, ward/commune and enter the street address.'
+                    : 'Vui lòng chọn tỉnh/thành phố, phường/xã và nhập số nhà, tên đường.');
+            }
+
+            if (mb_strlen($addressLine) > 255) {
+                return redirect()->back()->withInput()->with('auth_error', $locale === 'en'
+                    ? 'Street address must not exceed 255 characters.'
+                    : 'Số nhà, tên đường không được vượt quá 255 ký tự.');
+            }
+
+            $address = $addressService->formatAddress($addressLine, $addressUnit);
 
             if ($newPassword !== '') {
                 if (strlen($newPassword) < 6) {
@@ -156,6 +211,10 @@ class AuthController extends BaseController
             $payload = [
                 'full_name' => $fullName,
                 'phone' => $phone,
+                'address' => $address,
+                'address_line' => $addressLine,
+                'province_code' => $addressUnit['province_code'],
+                'ward_code' => $addressUnit['ward_code'],
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
 
@@ -205,11 +264,15 @@ class AuthController extends BaseController
             'expires_at' => time() + 300,
         ]);
 
+        $addressService = new VietnamAdministrativeUnitService();
+
         return view('auth/profile', [
             'user' => $user,
             'bookings' => $bookings,
             'membership' => $membership,
             'loyaltyHistory' => $loyaltyHistory,
+            'administrativeProvinces' => $addressService->provinces(),
+            'addressDataUrl' => $addressService->dataUrl(),
         ]);
     }
 
@@ -466,8 +529,17 @@ class AuthController extends BaseController
         } else {
             $user = $userModel->where('email', $email)->first();
 
+            if (is_array($user) && ! in_array(
+                (string) ($user['status'] ?? ''),
+                ['active', AccountVerificationService::STATUS_PENDING],
+                true
+            )) {
+                return redirect()->to(LocalizedPathCatalog::url('auth.login', $locale))
+                    ->with('auth_error', lang('Frontend.auth.googleLoginFailed'));
+            }
+
             if ($user === null) {
-                $userId = $userModel->insert([
+                $googleUserPayload = [
                     'full_name' => trim((string) ($profile['name'] ?? $email)),
                     'email' => $email,
                     'username' => $this->makeUniqueUsername($userModel, strstr($email, '@', true) ?: 'user'),
@@ -476,7 +548,12 @@ class AuthController extends BaseController
                     'last_login_at' => date('Y-m-d H:i:s'),
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
-                ], true);
+                ];
+                if ($db->fieldExists('email_verified_at', 'users')) {
+                    $googleUserPayload['email_verified_at'] = date('Y-m-d H:i:s');
+                    $googleUserPayload['verification_channel'] = 'google';
+                }
+                $userId = $userModel->insert($googleUserPayload, true);
 
                 $user = $userModel->find((int) $userId);
             }
@@ -497,6 +574,25 @@ class AuthController extends BaseController
             return redirect()->to(LocalizedPathCatalog::url('auth.login', $locale))->with('auth_error', lang('Frontend.auth.googleCreateFailed'));
         }
 
+        if (($user['status'] ?? '') === AccountVerificationService::STATUS_PENDING) {
+            $activation = [
+                'status' => 'active',
+                'last_login_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+            if ($db->fieldExists('email_verified_at', 'users')) {
+                $activation['email_verified_at'] = date('Y-m-d H:i:s');
+                $activation['verification_channel'] = 'google';
+            }
+            $userModel->update((int) $user['id'], $activation);
+            $user = $userModel->find((int) $user['id']);
+        }
+
+        if (! is_array($user) || ($user['status'] ?? '') !== 'active') {
+            return redirect()->to(LocalizedPathCatalog::url('auth.login', $locale))
+                ->with('auth_error', lang('Frontend.auth.googleLoginFailed'));
+        }
+
         $userModel->update((int) $user['id'], [
             'last_login_at' => date('Y-m-d H:i:s'),
         ]);
@@ -504,31 +600,125 @@ class AuthController extends BaseController
         session()->set('auth_user', $this->buildAuthSessionUser($user));
         session()->remove('checkout_mode');
 
+        $addressService = new VietnamAdministrativeUnitService();
+        $hasRequiredContact = VietnamPhoneService::isValid((string) ($user['phone'] ?? ''))
+            && trim((string) ($user['address_line'] ?? '')) !== ''
+            && $addressService->resolve(
+                (string) ($user['province_code'] ?? ''),
+                (string) ($user['ward_code'] ?? '')
+            ) !== null;
+
+        if (! $hasRequiredContact) {
+            return redirect()->to(LocalizedPathCatalog::url('auth.profile', $locale))
+                ->with(
+                    'auth_error',
+                    $locale === 'en'
+                        ? 'Please add your phone number and address to complete your account.'
+                        : 'Vui lòng bổ sung số điện thoại và địa chỉ để hoàn tất tài khoản.'
+                )
+                ->withCookies();
+        }
+
         return $this->redirectAfterAuth($locale)->withCookies();
     }
 
     private function handleRegister()
     {
         $locale = $this->request->getLocale();
+        $ipAddress = (string) $this->request->getIPAddress();
+        $throttleSeconds = $this->registrationThrottleSecondsRemaining($ipAddress);
+        if ($throttleSeconds > 0) {
+            return redirect()->back()->withInput()->with(
+                'auth_error',
+                $locale === 'en'
+                    ? 'Too many registration attempts. Please try again in ' . $throttleSeconds . ' seconds.'
+                    : 'Bạn đã gửi đăng ký quá nhiều lần. Vui lòng thử lại sau ' . $throttleSeconds . ' giây.'
+            );
+        }
+        $this->recordRegistrationAttempt($ipAddress);
+
+        if (trim((string) $this->request->getPost('company_website')) !== '') {
+            return redirect()->back()->withInput()->with(
+                'auth_error',
+                $locale === 'en'
+                    ? 'Unable to process the registration. Please try again.'
+                    : 'Chưa thể xử lý đăng ký. Vui lòng thử lại.'
+            );
+        }
+
         $db = db_connect();
 
+        $verificationService = new AccountVerificationService($db);
         if (! $db->tableExists('users')) {
             return redirect()->back()->withInput()->with('auth_error', lang('Frontend.auth.usersTableMissing', [], $locale));
+        }
+        if (! $verificationService->schemaReady()) {
+            return redirect()->back()->withInput()->with(
+                'auth_error',
+                $locale === 'en'
+                    ? 'Account verification is not installed. Import database/sql/2026-07-28_all_updates.sql first.'
+                    : 'Chức năng xác thực chưa được cài đặt. Hãy import database/sql/2026-07-28_all_updates.sql trước.'
+            );
         }
 
         $rules = [
             'full_name' => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email|max_length[255]',
+            'phone' => 'required|max_length[30]',
+            'address_line' => 'required|max_length[255]',
+            'province_code' => 'required|max_length[2]',
+            'ward_code' => 'required|max_length[5]',
             'password' => 'required|min_length[6]|max_length[255]',
             'password_confirm' => 'required|matches[password]',
+            'recaptcha_token' => 'required',
         ];
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('auth_error', implode(' ', $this->validator->getErrors()));
         }
 
+        if (! (new RecaptchaService())->verify(
+            (string) $this->request->getPost('recaptcha_token'),
+            'register',
+            $ipAddress
+        )) {
+            return redirect()->back()->withInput()->with(
+                'auth_error',
+                $locale === 'en'
+                    ? 'Bot verification failed. Please try again.'
+                    : 'Xác minh chống bot không thành công. Vui lòng thử lại.'
+            );
+        }
+
+        $this->cleanupExpiredPendingAccounts($db);
+
         $userModel = new UserModel();
         $email = strtolower(trim((string) $this->request->getPost('email')));
+        $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
+        $addressLine = trim((string) $this->request->getPost('address_line'));
+        $provinceCode = trim((string) $this->request->getPost('province_code'));
+        $wardCode = trim((string) $this->request->getPost('ward_code'));
+
+        if ($phone === '' || ! VietnamPhoneService::isValid($phone)) {
+            return redirect()->back()->withInput()->with(
+                'auth_error',
+                $locale === 'en'
+                    ? 'Please enter a valid Vietnamese phone number.'
+                    : 'Vui lòng nhập số điện thoại Việt Nam hợp lệ.'
+            );
+        }
+
+        $addressService = new VietnamAdministrativeUnitService();
+        $addressUnit = $addressService->resolve($provinceCode, $wardCode);
+        if ($addressUnit === null) {
+            return redirect()->back()->withInput()->with(
+                'auth_error',
+                $locale === 'en'
+                    ? 'Please select a valid province/city and ward/commune.'
+                    : 'Vui lòng chọn tỉnh/thành phố và phường/xã hợp lệ.'
+            );
+        }
+        $address = $addressService->formatAddress($addressLine, $addressUnit);
 
         if ($userModel->where('email', $email)->first() !== null) {
             return redirect()->back()->withInput()->with(
@@ -547,9 +737,14 @@ class AuthController extends BaseController
                 'full_name' => $fullName,
                 'email' => $email,
                 'username' => $username,
+                'phone' => $phone,
+                'address' => $address,
+                'address_line' => $addressLine,
+                'province_code' => $addressUnit['province_code'],
+                'ward_code' => $addressUnit['ward_code'],
                 'password_hash' => password_hash((string) $this->request->getPost('password'), PASSWORD_DEFAULT),
-                'status' => 'active',
-                'last_login_at' => $now,
+                'status' => AccountVerificationService::STATUS_PENDING,
+                'last_login_at' => null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ], true);
@@ -561,12 +756,30 @@ class AuthController extends BaseController
 
         $user = $userModel->find((int) $userId);
 
-        if ($user !== null) {
-            session()->set('auth_user', $this->buildAuthSessionUser($user));
-            session()->remove('checkout_mode');
+        if (! is_array($user)) {
+            return redirect()->back()->withInput()->with('auth_error', lang('Frontend.auth.registerFailed', [], $locale));
         }
 
-        return $this->redirectAfterAuth($locale)->with('auth_success', lang('Frontend.auth.registerSuccess', [], $locale));
+        session()->set('pending_verification_user_id', (int) $user['id']);
+        session()->remove(['auth_user', 'checkout_mode']);
+        $delivery = $verificationService->start($user, $locale);
+        $redirect = redirect()->to(LocalizedPathCatalog::url('auth.verify', $locale));
+
+        if (! $delivery['sent']) {
+            return $redirect->with(
+                'auth_error',
+                $locale === 'en'
+                    ? 'Your account was created, but the verification message could not be sent. Please request it again.'
+                    : 'Tài khoản đã được tạo nhưng chưa gửi được thông tin xác thực. Vui lòng yêu cầu gửi lại.'
+            );
+        }
+
+        return $redirect->with(
+            'auth_success',
+            $delivery['channel'] === AccountVerificationService::CHANNEL_ZALO
+                ? ($locale === 'en' ? 'A verification code was sent via Zalo.' : 'Mã xác thực đã được gửi qua Zalo.')
+                : ($locale === 'en' ? 'A verification code was sent to your email.' : 'Mã xác thực đã được gửi tới email của bạn.')
+        );
     }
 
     private function respondAuthSuccess()
@@ -697,6 +910,63 @@ class AuthController extends BaseController
     private function loginThrottleKey(string $identity, string $ipAddress): string
     {
         return 'auth_login_attempts_' . sha1(strtolower(trim($identity)) . '|' . trim($ipAddress));
+    }
+
+    private function registrationThrottleSecondsRemaining(string $ipAddress): int
+    {
+        $key = $this->registrationThrottleKey($ipAddress);
+        $record = cache()->get($key);
+        if (! is_array($record)) {
+            return 0;
+        }
+
+        $expiresAt = (int) ($record['expires_at'] ?? 0);
+        if ($expiresAt <= time()) {
+            cache()->delete($key);
+            return 0;
+        }
+
+        return (int) ($record['count'] ?? 0) >= self::REGISTER_ATTEMPT_LIMIT
+            ? max(0, $expiresAt - time())
+            : 0;
+    }
+
+    private function recordRegistrationAttempt(string $ipAddress): void
+    {
+        $key = $this->registrationThrottleKey($ipAddress);
+        $record = cache()->get($key);
+        $now = time();
+        if (! is_array($record) || (int) ($record['expires_at'] ?? 0) <= $now) {
+            $record = ['count' => 0, 'expires_at' => $now + self::REGISTER_ATTEMPT_DECAY];
+        }
+
+        $record['count'] = (int) $record['count'] + 1;
+        cache()->save($key, $record, max(60, (int) $record['expires_at'] - $now));
+    }
+
+    private function registrationThrottleKey(string $ipAddress): string
+    {
+        return 'auth_register_attempts_' . sha1(trim($ipAddress));
+    }
+
+    private function cleanupExpiredPendingAccounts(\CodeIgniter\Database\BaseConnection $db): void
+    {
+        $cacheKey = 'auth_pending_account_cleanup';
+        if (cache()->get($cacheKey) !== null) {
+            return;
+        }
+        cache()->save($cacheKey, time(), 3600);
+
+        try {
+            $db->table('users')
+                ->where('status', AccountVerificationService::STATUS_PENDING)
+                ->where('created_at <', date('Y-m-d H:i:s', time() - self::PENDING_ACCOUNT_TTL))
+                ->delete();
+        } catch (\Throwable $exception) {
+            log_message('warning', 'Expired pending account cleanup failed: {message}', [
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 
     private function redirectAfterAuth(string $locale)

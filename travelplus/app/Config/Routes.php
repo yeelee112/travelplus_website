@@ -13,6 +13,19 @@ $routes->match(['GET', 'HEAD'], 'sitemap.xml', 'Sitemap::index');
 $routes->GET('errors/403', 'ErrorPages::forbidden');
 $routes->GET('errors/404', 'ErrorPages::notFound');
 
+$routes->group('mini-game', static function ($routes) {
+    $routes->GET('admin', 'MiniGame::admin');
+    $routes->GET('player', 'MiniGame::player');
+    $routes->GET('screen', 'MiniGame::screen');
+    $routes->GET('state', 'MiniGame::state');
+    $routes->POST('join', 'MiniGame::join');
+    $routes->POST('buzz', 'MiniGame::buzz');
+    $routes->POST('command', 'MiniGame::command');
+    $routes->match(['GET', 'POST'], 'questions', 'MiniGame::questions');
+    $routes->POST('questions/(:num)/delete', 'MiniGame::deleteQuestion/$1');
+    $routes->GET('questions/export', 'MiniGame::exportQuestions');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Default language (VI)
@@ -91,6 +104,11 @@ $routes->POST('admin/users/(:num)', 'Admin\Users::update/$1');
 
 $routes->match(['GET', 'POST'], 'account/register', 'AuthController::register');
 $routes->match(['GET', 'POST'], 'account/login', 'AuthController::login');
+$routes->GET('account/verify', 'AccountVerificationController::index');
+$routes->POST('account/verify', 'AccountVerificationController::verifyOtp');
+$routes->POST('account/verify/resend', 'AccountVerificationController::resend');
+$routes->POST('account/verify/use-email', 'AccountVerificationController::useEmail');
+$routes->GET('account/verify/email/(:segment)', 'AccountVerificationController::verifyEmail/$1');
   $routes->match(['GET', 'POST'], 'account/forgot-password', 'AuthController::forgotPassword');
   $routes->match(['GET', 'POST'], 'account/reset-password/(:segment)', 'AuthController::resetPassword/$1');
   $routes->match(['GET', 'POST'], 'account/profile', 'AuthController::profile');
@@ -154,6 +172,11 @@ $routes->group('en', function ($routes) {
 
     $routes->match(['GET', 'POST'], 'account/register', 'AuthController::register');
     $routes->match(['GET', 'POST'], 'account/login', 'AuthController::login');
+    $routes->GET('account/verify', 'AccountVerificationController::index');
+    $routes->POST('account/verify', 'AccountVerificationController::verifyOtp');
+    $routes->POST('account/verify/resend', 'AccountVerificationController::resend');
+    $routes->POST('account/verify/use-email', 'AccountVerificationController::useEmail');
+    $routes->GET('account/verify/email/(:segment)', 'AccountVerificationController::verifyEmail/$1');
     $routes->match(['GET', 'POST'], 'account/forgot-password', 'AuthController::forgotPassword');
     $routes->match(['GET', 'POST'], 'account/reset-password/(:segment)', 'AuthController::resetPassword/$1');
     $routes->match(['GET', 'POST'], 'account/profile', 'AuthController::profile');

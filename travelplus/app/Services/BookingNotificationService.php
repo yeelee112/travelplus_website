@@ -321,6 +321,8 @@ class BookingNotificationService
             [
                 ['label' => 'Tour', 'value' => $tourTitle],
                 ['label' => 'Ngày khởi hành', 'value' => $departure],
+                ['label' => 'Số điện thoại', 'value' => (string) ($booking['customer_phone'] ?? '')],
+                ['label' => 'Địa chỉ', 'value' => (string) ($booking['customer_address'] ?? '')],
                 ['label' => 'Phương thức', 'value' => $paymentMethod],
                 ['label' => 'Trạng thái', 'value' => $isPaid ? 'Đã thanh toán' : 'Chờ đối soát'],
             ],
@@ -381,6 +383,7 @@ class BookingNotificationService
                 ['label' => 'Số khách', 'value' => $this->travelerSummary($booking)],
                 ['label' => 'Email liên hệ', 'value' => (string) ($booking['customer_email'] ?? '')],
                 ['label' => 'Số điện thoại', 'value' => (string) ($booking['customer_phone'] ?? '')],
+                ['label' => 'Địa chỉ', 'value' => (string) ($booking['customer_address'] ?? '')],
             ],
             "Bạn nên chuẩn bị hộ chiếu/giấy tờ tùy thân còn hạn, thông tin xuất hóa đơn nếu cần, yêu cầu ăn uống đặc biệt và các giấy tờ visa hoặc bảo hiểm theo tư vấn viên Travel Plus.",
             'Xem booking',
@@ -438,6 +441,7 @@ class BookingNotificationService
             [
                 ['label' => 'Email', 'value' => (string) ($booking['customer_email'] ?? '')],
                 ['label' => 'Số điện thoại', 'value' => (string) ($booking['customer_phone'] ?? '')],
+                ['label' => 'Địa chỉ', 'value' => (string) ($booking['customer_address'] ?? '')],
                 ['label' => 'Tour', 'value' => (string) ($booking['tour_title'] ?? '')],
                 ['label' => 'Khởi hành', 'value' => (string) ($booking['departure_label'] ?? '-')],
                 ['label' => 'Phương thức', 'value' => $paymentMethod],

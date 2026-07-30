@@ -68,6 +68,7 @@ class Bookings extends BaseAdminController
             'customer_name',
             'customer_email',
             'customer_phone',
+            'customer_address',
             'payment_status',
             'payment_method',
             'payment_plan',
@@ -89,6 +90,7 @@ class Bookings extends BaseAdminController
                 $booking['customer_name'] ?? '',
                 $booking['customer_email'] ?? '',
                 $booking['customer_phone'] ?? '',
+                $booking['customer_address'] ?? '',
                 $booking['payment_status'] ?? '',
                 $booking['payment_method'] ?? '',
                 $booking['payment_plan'] ?? '',
@@ -313,6 +315,7 @@ class Bookings extends BaseAdminController
                 ->orLike('customer_name', $keyword)
                 ->orLike('customer_email', $keyword)
                 ->orLike('customer_phone', $keyword)
+                ->orLike('customer_address', $keyword)
                 ->orLike('provider_reference', $keyword)
                 ->groupEnd();
         }

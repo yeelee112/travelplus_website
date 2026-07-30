@@ -11,6 +11,7 @@ use App\Services\CrmLeadCaptureService;
 use App\Services\LoyaltyPointService;
 use App\Services\PayPalSandboxService;
 use App\Services\PromotionCodeService;
+use App\Services\VietnamAdministrativeUnitService;
 use App\Services\VietnamPhoneService;
 use App\Services\VnpayGatewayService;
 use App\Services\VietQrService;
@@ -110,6 +111,19 @@ class BookingController extends BaseController
             return redirect()->to(localized_url('/'));
         }
 
+        $checkoutValue = (float) ($pendingBooking['grand_total'] ?? 0);
+        $checkoutDedupeKey = 'begin_checkout_' . hash('sha256', implode('|', [
+            session_id(),
+            (string) ($pendingBooking['tour_id'] ?? ''),
+            (string) ($pendingBooking['departure_date'] ?? $pendingBooking['departure_label'] ?? ''),
+            (string) ($pendingBooking['adult_quantity'] ?? 0),
+            (string) ($pendingBooking['child_quantity'] ?? 0),
+            (string) ($pendingBooking['infant_quantity'] ?? 0),
+            (string) $checkoutValue,
+        ]));
+
+        $addressService = new VietnamAdministrativeUnitService();
+
         return view('booking/checkout', [
             'pendingBooking' => $pendingBooking,
             'authUser' => session()->get('auth_user'),
@@ -117,6 +131,23 @@ class BookingController extends BaseController
             'checkoutNotice' => session()->getFlashdata('checkout_notice'),
             'checkoutError' => session()->getFlashdata('checkout_error'),
             'checkoutRetry' => (bool) session()->getFlashdata('checkout_retry'),
+            'administrativeProvinces' => $addressService->provinces(),
+            'addressDataUrl' => $addressService->dataUrl(),
+            'analytics_events' => [[
+                'name' => 'begin_checkout',
+                'dedupe_key' => $checkoutDedupeKey,
+                'params' => [
+                    'currency' => (string) ($pendingBooking['currency'] ?? 'VND'),
+                    'value' => $checkoutValue,
+                    'coupon' => (string) ($pendingBooking['coupon_code'] ?? ''),
+                    'items' => [[
+                        'item_id' => (string) ($pendingBooking['tour_id'] ?? ''),
+                        'item_name' => (string) ($pendingBooking['tour_title'] ?? 'Tour'),
+                        'price' => $checkoutValue,
+                        'quantity' => 1,
+                    ]],
+                ],
+            ]],
         ]);
     }
 
@@ -1277,9 +1308,12 @@ class BookingController extends BaseController
         $fullName = trim((string) $this->request->getPost('full_name'));
         $email = strtolower(trim((string) $this->request->getPost('email')));
         $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
+        $addressLine = trim((string) $this->request->getPost('address_line'));
+        $provinceCode = trim((string) $this->request->getPost('province_code'));
+        $wardCode = trim((string) $this->request->getPost('ward_code'));
         $note = trim((string) $this->request->getPost('note'));
 
-        if ($fullName === '' || $email === '' || $phone === '') {
+        if ($fullName === '' || $email === '' || $phone === '' || $addressLine === '' || $provinceCode === '' || $wardCode === '') {
             return [
                 'data' => [],
                 'error' => lang('Frontend.checkout.customerInfoRequired', [], $locale),
@@ -1302,11 +1336,36 @@ class BookingController extends BaseController
             ];
         }
 
+        if (mb_strlen($addressLine) > 255) {
+            return [
+                'data' => [],
+                'error' => $locale === 'en'
+                    ? 'Street address must not exceed 255 characters.'
+                    : 'Số nhà, tên đường không được vượt quá 255 ký tự.',
+            ];
+        }
+
+        $addressService = new VietnamAdministrativeUnitService();
+        $addressUnit = $addressService->resolve($provinceCode, $wardCode);
+        if ($addressUnit === null) {
+            return [
+                'data' => [],
+                'error' => $locale === 'en'
+                    ? 'Please select a valid province/city and ward/commune.'
+                    : 'Vui lòng chọn tỉnh/thành phố và phường/xã hợp lệ.',
+            ];
+        }
+        $address = $addressService->formatAddress($addressLine, $addressUnit);
+
         return [
             'data' => [
                 'customer_name' => $fullName,
                 'customer_email' => $email,
                 'customer_phone' => $phone,
+                'customer_address' => $address,
+                'customer_address_line' => $addressLine,
+                'customer_province_code' => $addressUnit['province_code'],
+                'customer_ward_code' => $addressUnit['ward_code'],
                 'customer_note' => $note,
             ],
             'error' => null,
@@ -1341,6 +1400,10 @@ class BookingController extends BaseController
             'customer_name' => $customer['customer_name'],
             'customer_email' => $customer['customer_email'],
             'customer_phone' => $customer['customer_phone'],
+            'customer_address' => $customer['customer_address'],
+            'customer_address_line' => $customer['customer_address_line'],
+            'customer_province_code' => $customer['customer_province_code'],
+            'customer_ward_code' => $customer['customer_ward_code'],
             'customer_note' => $customer['customer_note'] !== '' ? $customer['customer_note'] : null,
             'adult_quantity' => (int) ($pendingBooking['adult_quantity'] ?? 1),
             'child_quantity' => (int) ($pendingBooking['child_quantity'] ?? 0),
@@ -1464,6 +1527,10 @@ class BookingController extends BaseController
         $payload = [];
         $newFullName = trim((string) ($customer['customer_name'] ?? ''));
         $newPhone = trim((string) ($customer['customer_phone'] ?? ''));
+        $newAddress = trim((string) ($customer['customer_address'] ?? ''));
+        $newAddressLine = trim((string) ($customer['customer_address_line'] ?? ''));
+        $newProvinceCode = trim((string) ($customer['customer_province_code'] ?? ''));
+        $newWardCode = trim((string) ($customer['customer_ward_code'] ?? ''));
 
         if ($newFullName !== '' && $newFullName !== (string) ($user['full_name'] ?? '')) {
             $payload['full_name'] = $newFullName;
@@ -1471,6 +1538,16 @@ class BookingController extends BaseController
 
         if ($newPhone !== '' && $newPhone !== (string) ($user['phone'] ?? '')) {
             $payload['phone'] = $newPhone;
+        }
+
+        if ($newAddress !== '' && $newAddress !== (string) ($user['address'] ?? '')) {
+            $payload['address'] = $newAddress;
+        }
+
+        if ($newAddressLine !== '') {
+            $payload['address_line'] = $newAddressLine;
+            $payload['province_code'] = $newProvinceCode;
+            $payload['ward_code'] = $newWardCode;
         }
 
         if ($payload === []) {

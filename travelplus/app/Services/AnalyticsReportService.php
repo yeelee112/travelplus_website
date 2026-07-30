@@ -141,10 +141,22 @@ class AnalyticsReportService
         }
 
         $since = $this->sinceDate($days);
-        $visits = $this->db->table('analytics_visits')
-            ->select('id, visitor_token, user_id, landing_path, last_path, referrer, pageviews, started_at, last_seen_at')
-            ->where('started_at >=', $since)
-            ->orderBy('last_seen_at', 'DESC')
+        $pageViewActivitySql = $this->db->table('analytics_page_views')
+            ->select('visit_id, COUNT(*) AS actual_pageviews, MAX(viewed_at) AS actual_last_seen_at', false)
+            ->where('viewed_at >=', $since)
+            ->groupBy('visit_id')
+            ->getCompiledSelect();
+
+        $visits = $this->db->table('analytics_visits av')
+            ->select(
+                'av.id, av.visitor_token, av.user_id, av.landing_path, av.last_path, av.referrer,'
+                . ' COALESCE(pva.actual_pageviews, av.pageviews) AS pageviews,'
+                . ' av.started_at, COALESCE(pva.actual_last_seen_at, av.last_seen_at) AS last_seen_at',
+                false
+            )
+            ->join('(' . $pageViewActivitySql . ') pva', 'pva.visit_id = av.id', 'left', false)
+            ->where('av.started_at >=', $since)
+            ->orderBy('COALESCE(pva.actual_last_seen_at, av.last_seen_at)', 'DESC', false)
             ->limit($limit)
             ->get()
             ->getResultArray();
@@ -197,6 +209,11 @@ class AnalyticsReportService
             $pages = $this->attachSearchContextToPages($pages, $searches);
             if (count($pages) > $stepsPerVisit) {
                 $pages = array_slice($pages, -1 * $stepsPerVisit);
+            }
+            $lastPage = $pages !== [] ? end($pages) : null;
+            if (is_array($lastPage)) {
+                $visit['last_path'] = (string) ($lastPage['path'] ?? $visit['last_path'] ?? '/');
+                $visit['last_seen_at'] = (string) ($lastPage['viewed_at'] ?? $visit['last_seen_at'] ?? '');
             }
             $visit['pages'] = $pages;
             $visit['searches'] = $searches;
