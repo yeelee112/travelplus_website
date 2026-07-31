@@ -13,19 +13,6 @@ $routes->match(['GET', 'HEAD'], 'sitemap.xml', 'Sitemap::index');
 $routes->GET('errors/403', 'ErrorPages::forbidden');
 $routes->GET('errors/404', 'ErrorPages::notFound');
 
-$routes->group('mini-game', static function ($routes) {
-    $routes->GET('admin', 'MiniGame::admin');
-    $routes->GET('player', 'MiniGame::player');
-    $routes->GET('screen', 'MiniGame::screen');
-    $routes->GET('state', 'MiniGame::state');
-    $routes->POST('join', 'MiniGame::join');
-    $routes->POST('buzz', 'MiniGame::buzz');
-    $routes->POST('command', 'MiniGame::command');
-    $routes->match(['GET', 'POST'], 'questions', 'MiniGame::questions');
-    $routes->POST('questions/(:num)/delete', 'MiniGame::deleteQuestion/$1');
-    $routes->GET('questions/export', 'MiniGame::exportQuestions');
-});
-
 /*
 |--------------------------------------------------------------------------
 | Default language (VI)

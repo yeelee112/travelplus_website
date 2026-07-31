@@ -103,6 +103,7 @@ $faviconVersion = @filemtime($publicPath . DIRECTORY_SEPARATOR . 'assets/images/
 <html lang="<?= esc($currentLocale) ?>">
 <head>
 <meta charset="utf-8">
+<meta name="zalo-platform-site-verification" content="Sk-rUOZhFNz2rB1wbQDXLdUhim6RtMbRDp0u">
 <title><?= esc($metaTitle) ?></title>
 <meta name="description" content="<?= esc($metaDesc) ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
