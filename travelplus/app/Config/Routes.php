@@ -12,6 +12,7 @@ $routes->setAutoRoute(false);
 $routes->match(['GET', 'HEAD'], 'sitemap.xml', 'Sitemap::index');
 $routes->GET('errors/403', 'ErrorPages::forbidden');
 $routes->GET('errors/404', 'ErrorPages::notFound');
+$routes->GET('zalo/oauth/callback', 'ZaloOAuthController::callback');
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +84,8 @@ $routes->GET('admin/system-health', 'Admin\SystemHealth::index');
 $routes->GET('admin/system-logs', 'Admin\SystemLogs::index');
 $routes->GET('admin/website-settings', 'Admin\WebsiteSettings::index');
 $routes->POST('admin/website-settings', 'Admin\WebsiteSettings::update');
+$routes->GET('admin/zalo', 'Admin\ZaloConnection::index');
+$routes->GET('admin/zalo/connect', 'Admin\ZaloConnection::connect');
 $routes->GET('admin/users', 'Admin\Users::index');
 $routes->GET('admin/users/create', 'Admin\Users::create');
 $routes->POST('admin/users', 'Admin\Users::store');

@@ -38,6 +38,7 @@ $navGroups = [
         'label' => 'Hệ thống',
         'items' => [
             ['key' => 'website_settings', 'label' => 'Cấu hình website', 'url' => site_url('admin/website-settings')],
+            ['key' => 'zalo', 'label' => 'Kết nối Zalo', 'url' => site_url('admin/zalo')],
             ['key' => 'system_health', 'label' => 'Kiểm tra hệ thống', 'url' => site_url('admin/system-health')],
             ['key' => 'system_logs', 'label' => 'Nhật ký lỗi', 'url' => site_url('admin/system-logs')],
             ['key' => 'users', 'label' => 'Người dùng', 'url' => site_url('admin/users')],
@@ -60,6 +61,7 @@ $sectionMeta = [
     'system_health' => ['label' => 'Trạng thái hệ thống', 'hint' => 'Kiểm tra cấu hình và khả năng vận hành trên hosting.'],
     'system_logs' => ['label' => 'Nhật ký lỗi', 'hint' => 'Theo dõi lỗi gần đây mà không cần mở File Manager.'],
     'website_settings' => ['label' => 'Cấu hình website', 'hint' => 'Quản lý thông tin liên hệ, pháp lý và văn phòng dùng chung.'],
+    'zalo' => ['label' => 'Kết nối Zalo', 'hint' => 'Quản lý quyền OA và token dùng cho OTP, booking, điểm thành viên.'],
 ];
 $currentSectionMeta = $sectionMeta[$adminSection] ?? ['label' => 'Admin', 'hint' => 'Bảng điều khiển nội bộ.'];
 ?>

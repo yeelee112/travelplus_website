@@ -7,18 +7,20 @@ use Config\Zalo;
 class ZaloOtpService
 {
     private Zalo $config;
+    private ZaloOaTokenService $tokens;
 
-    public function __construct(?Zalo $config = null)
+    public function __construct(?Zalo $config = null, ?ZaloOaTokenService $tokens = null)
     {
         $this->config = $config ?? config(Zalo::class);
+        $this->tokens = $tokens ?? new ZaloOaTokenService($this->config);
     }
 
     public function isConfigured(): bool
     {
         return $this->config->otpEnabled
-            && $this->config->accessToken !== ''
             && $this->config->otpTemplateId !== ''
-            && $this->config->otpField !== '';
+            && $this->config->otpField !== ''
+            && $this->tokens->canProvideAccessToken();
     }
 
     /**
@@ -28,6 +30,11 @@ class ZaloOtpService
     {
         if (! $this->isConfigured()) {
             return $this->failure('unconfigured');
+        }
+
+        $accessToken = $this->tokens->getAccessToken();
+        if ($accessToken === '') {
+            return $this->failure('token_unavailable');
         }
 
         $internationalPhone = self::toInternationalPhone($phone);
@@ -51,7 +58,7 @@ class ZaloOtpService
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                    'access_token' => $this->config->accessToken,
+                    'access_token' => $accessToken,
                 ],
                 'json' => [
                     'phone' => $internationalPhone,

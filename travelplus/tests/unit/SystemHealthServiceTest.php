@@ -25,11 +25,12 @@ final class SystemHealthServiceTest extends CIUnitTestCase
 
     public function testIndexCoverageIsHealthyWhenEveryIndexIsInstalled(): void
     {
-        $coverage = SystemHealthService::evaluateIndexCoverage(SystemHealthService::expectedIndexNames());
+        $indexes = SystemHealthService::expectedIndexNames();
+        $coverage = SystemHealthService::evaluateIndexCoverage($indexes);
 
         $this->assertSame(SystemHealthService::STATUS_OK, $coverage['status']);
-        $this->assertSame(18, $coverage['installed']);
-        $this->assertSame(18, $coverage['expected']);
+        $this->assertSame(count($indexes), $coverage['installed']);
+        $this->assertSame(count($indexes), $coverage['expected']);
         $this->assertSame([], $coverage['missing']);
     }
 
@@ -42,7 +43,7 @@ final class SystemHealthServiceTest extends CIUnitTestCase
 
         $this->assertSame(SystemHealthService::STATUS_WARNING, $partial['status']);
         $this->assertSame(4, $partial['installed']);
-        $this->assertCount(14, $partial['missing']);
+        $this->assertCount(count($indexes) - 4, $partial['missing']);
         $this->assertSame(SystemHealthService::STATUS_ERROR, $missing['status']);
         $this->assertSame(0, $missing['installed']);
     }
