@@ -192,6 +192,9 @@ final class ZaloOaTokenService
             'expires_at' => (string) ($connection['access_token_expires_at'] ?? ''),
             'updated_at' => (string) ($connection['updated_at'] ?? ''),
             'last_error' => (string) ($connection['last_error'] ?? ''),
+            'otp_enabled' => $this->config->otpEnabled,
+            'otp_template_id' => $this->config->otpTemplateId,
+            'otp_field' => $this->config->otpField,
         ];
     }
 

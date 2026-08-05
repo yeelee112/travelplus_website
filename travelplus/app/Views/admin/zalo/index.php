@@ -60,6 +60,8 @@ $readyToConnect = ! empty($status['secret_configured']) && ! empty($status['stor
             <div class="zalo-field"><span>Callback URL</span><code><?= esc((string) ($status['callback_url'] ?? '')) ?></code></div>
             <div class="zalo-field"><span>Official Account</span><strong><?= esc((string) (($status['oa_name'] ?? '') ?: ($status['oa_id'] ?? 'Chưa có'))) ?></strong></div>
             <div class="zalo-field"><span>Token hết hạn</span><strong><?= esc((string) (($status['expires_at'] ?? '') ?: 'Chưa có')) ?></strong></div>
+            <div class="zalo-field"><span>Mẫu OTP ZBS</span><strong><?= esc((string) (($status['otp_template_id'] ?? '') ?: 'Chưa cấu hình')) ?></strong></div>
+            <div class="zalo-field"><span>Tham số OTP</span><strong><?= esc((string) (($status['otp_field'] ?? '') ?: 'Chưa cấu hình')) ?></strong></div>
         </div>
 
         <div class="zalo-actions">

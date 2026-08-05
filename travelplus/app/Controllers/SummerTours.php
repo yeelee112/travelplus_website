@@ -286,8 +286,8 @@ class SummerTours extends BaseController
                 $seo->organizationSchema(),
                 $seo->breadcrumbSchema($breadcrumbs, $canonicalUrl),
                 $seo->webpageSchema($metaTitle, $metaDesc, $canonicalUrl),
-                $seo->itemListSchema($copy['featuredTitle'], $canonicalUrl, $featuredCollection, 'Product'),
-                $seo->itemListSchema($copy['promoTitle'], $canonicalUrl, $promoCollection, 'Product'),
+                $seo->itemListSchema($copy['featuredTitle'], $canonicalUrl, $featuredCollection, 'TouristTrip'),
+                $seo->itemListSchema($copy['promoTitle'], $canonicalUrl, $promoCollection, 'TouristTrip'),
             ],
         ]);
     }

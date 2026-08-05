@@ -44,7 +44,7 @@ class Domestic extends BaseController
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
             $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url'], 'CollectionPage'),
-            $seo->itemListSchema((string) $data['meta_title'], (string) $data['canonical_url'], $data['tours'], 'Product'),
+            $seo->itemListSchema((string) $data['meta_title'], (string) $data['canonical_url'], $data['tours'], 'TouristTrip'),
         ];
 
         return view('tour-trong-nuoc/index', $data);
@@ -114,7 +114,7 @@ class Domestic extends BaseController
             $seo->organizationSchema(),
             $seo->breadcrumbSchema($data['breadcrumbs'], (string) $data['canonical_url']),
             $seo->webpageSchema((string) $data['meta_title'], (string) $data['meta_desc'], (string) $data['canonical_url'], 'CollectionPage'),
-            $seo->itemListSchema((string) $data['meta_title'], (string) $data['canonical_url'], $data['tours'], 'Product'),
+            $seo->itemListSchema((string) $data['meta_title'], (string) $data['canonical_url'], $data['tours'], 'TouristTrip'),
         ];
 
         return view('tour-trong-nuoc/index', $data);

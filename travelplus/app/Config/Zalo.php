@@ -13,9 +13,9 @@ class Zalo extends BaseConfig
     public string $tokenEndpoint = 'https://oauth.zaloapp.com/v4/oa/access_token';
     public string $oaInfoEndpoint = 'https://openapi.zalo.me/v3.0/oa/getoa';
     public int $tokenRefreshLeeway = 300;
-    public bool $otpEnabled = false;
+    public bool $otpEnabled = true;
     public string $accessToken = '';
-    public string $otpTemplateId = '';
+    public string $otpTemplateId = '617290';
     public string $otpField = 'otp';
     public string $otpExpiryField = '';
     public string $endpoint = 'https://business.openapi.zalo.me/message/template';
@@ -33,12 +33,12 @@ class Zalo extends BaseConfig
         $this->oaInfoEndpoint = $this->envString('zalo.oaInfoEndpoint', $this->oaInfoEndpoint);
         $this->tokenRefreshLeeway = max(60, (int) env('zalo.tokenRefreshLeeway', $this->tokenRefreshLeeway));
         $this->otpEnabled = filter_var(
-            env('zalo.otpEnabled', false),
+            env('zalo.otpEnabled', $this->otpEnabled),
             FILTER_VALIDATE_BOOL,
             FILTER_NULL_ON_FAILURE
         ) ?? false;
         $this->accessToken = $this->envString('zalo.accessToken');
-        $this->otpTemplateId = $this->envString('zalo.otpTemplateId');
+        $this->otpTemplateId = $this->envString('zalo.otpTemplateId', $this->otpTemplateId);
         $this->otpField = $this->envString('zalo.otpField', $this->otpField);
         $this->otpExpiryField = $this->envString('zalo.otpExpiryField');
         $this->endpoint = $this->envString('zalo.endpoint', $this->endpoint);

@@ -88,7 +88,7 @@ class Home extends BaseController
                     $metaDesc,
                     $canonicalUrl
                 ),
-                $seo->itemListSchema($t('home.homeTour.title'), $canonicalUrl, $homeTours, 'Product'),
+                $seo->itemListSchema($t('home.homeTour.title'), $canonicalUrl, $homeTours, 'TouristTrip'),
                 $seo->itemListSchema($t('blog.listTitle'), $canonicalUrl, $homeBlogs, 'BlogPosting'),
             ],
         ]);
