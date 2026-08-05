@@ -42,7 +42,7 @@ class ZaloOtpService
     }
 
     /**
-     * @return array{ok:bool,error_code:string,message_id:?string,reason:string}
+     * @return array{ok:bool,error_code:string,message_id:?string,reason:string,provider_message:string}
      */
     public function send(string $phone, string $otp, string $trackingId): array
     {
@@ -99,6 +99,7 @@ class ZaloOtpService
         }
 
         $errorCode = (string) ($payload['error'] ?? 'unknown');
+        $providerMessage = trim((string) ($payload['message'] ?? ''));
         if ($errorCode !== '0') {
             log_message('warning', 'Zalo OTP rejected with provider code {code}.', [
                 'code' => $errorCode,
@@ -109,6 +110,7 @@ class ZaloOtpService
                 'error_code' => $errorCode,
                 'message_id' => null,
                 'reason' => 'provider_rejected',
+                'provider_message' => $providerMessage,
             ];
         }
 
@@ -117,6 +119,7 @@ class ZaloOtpService
             'error_code' => '0',
             'message_id' => isset($payload['data']['msg_id']) ? (string) $payload['data']['msg_id'] : null,
             'reason' => 'sent',
+            'provider_message' => $providerMessage,
         ];
     }
 
@@ -132,7 +135,7 @@ class ZaloOtpService
     }
 
     /**
-     * @return array{ok:bool,error_code:string,message_id:?string,reason:string}
+     * @return array{ok:bool,error_code:string,message_id:?string,reason:string,provider_message:string}
      */
     private function failure(string $reason): array
     {
@@ -141,6 +144,7 @@ class ZaloOtpService
             'error_code' => '',
             'message_id' => null,
             'reason' => $reason,
+            'provider_message' => '',
         ];
     }
 }

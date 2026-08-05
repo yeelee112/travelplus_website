@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Services\ZaloOaTokenService;
 use App\Services\ZaloOtpService;
 use App\Services\AccountVerificationService;
+use App\Services\VietnamPhoneService;
 
 final class ZaloConnection extends BaseAdminController
 {
@@ -18,6 +19,8 @@ final class ZaloConnection extends BaseAdminController
             'status' => (new ZaloOaTokenService())->status(),
             'otpReadiness' => (new ZaloOtpService())->readiness(),
             'latestZaloDelivery' => $this->latestZaloDelivery(),
+            'testResult' => session()->getFlashdata('zalo_test_result'),
+            'testPhone' => session()->getFlashdata('zalo_test_phone'),
             'success' => session()->getFlashdata('success'),
             'error' => session()->getFlashdata('error'),
         ]);
@@ -52,6 +55,52 @@ final class ZaloConnection extends BaseAdminController
         ]);
 
         return redirect()->to($service->authorizationUrl($state, $codeChallenge));
+    }
+
+    public function testOtp()
+    {
+        if ($redirect = $this->requireAdmin()) {
+            return $redirect;
+        }
+
+        $target = site_url('admin/zalo');
+        $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
+        session()->setFlashdata('zalo_test_phone', $phone);
+
+        if ((string) $this->request->getPost('confirm_cost') !== '1') {
+            return redirect()->to($target)->with('error', 'Hãy xác nhận chi phí trước khi gửi OTP thử.');
+        }
+
+        if (! VietnamPhoneService::isValid($phone)) {
+            return redirect()->to($target)->with('error', 'Số điện thoại thử không hợp lệ.');
+        }
+
+        $lastTestAt = (int) session()->get('zalo_otp_test_last_at');
+        if ($lastTestAt > time() - 30) {
+            return redirect()->to($target)->with('error', 'Vui lòng chờ 30 giây trước khi gửi lại OTP thử.');
+        }
+
+        $service = new ZaloOtpService();
+        $readiness = $service->readiness();
+        if (! $readiness['ready']) {
+            session()->setFlashdata('zalo_test_result', [
+                'ok' => false,
+                'reason' => $readiness['reason'],
+                'error_code' => '',
+                'provider_message' => '',
+            ]);
+
+            return redirect()->to($target);
+        }
+
+        session()->set('zalo_otp_test_last_at', time());
+        $otp = (string) random_int(100000, 999999);
+        $authUser = session()->get('auth_user');
+        $trackingId = 'tvpotptest' . (int) ($authUser['id'] ?? 0) . date('YmdHis');
+        $result = $service->send($phone, $otp, $trackingId);
+        session()->setFlashdata('zalo_test_result', $result);
+
+        return redirect()->to($target);
     }
 
     /**

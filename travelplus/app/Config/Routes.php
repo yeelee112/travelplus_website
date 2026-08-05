@@ -86,6 +86,7 @@ $routes->GET('admin/website-settings', 'Admin\WebsiteSettings::index');
 $routes->POST('admin/website-settings', 'Admin\WebsiteSettings::update');
 $routes->GET('admin/zalo', 'Admin\ZaloConnection::index');
 $routes->GET('admin/zalo/connect', 'Admin\ZaloConnection::connect');
+$routes->POST('admin/zalo/test-otp', 'Admin\ZaloConnection::testOtp');
 $routes->GET('admin/users', 'Admin\Users::index');
 $routes->GET('admin/users/create', 'Admin\Users::create');
 $routes->POST('admin/users', 'Admin\Users::store');

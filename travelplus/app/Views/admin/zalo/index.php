@@ -2,6 +2,8 @@
 $status = is_array($status ?? null) ? $status : [];
 $otpReadiness = is_array($otpReadiness ?? null) ? $otpReadiness : ['ready' => false, 'reason' => 'unknown'];
 $latestZaloDelivery = is_array($latestZaloDelivery ?? null) ? $latestZaloDelivery : null;
+$testResult = is_array($testResult ?? null) ? $testResult : null;
+$testPhone = is_string($testPhone ?? null) ? $testPhone : '';
 $readyToConnect = ! empty($status['secret_configured']) && ! empty($status['storage_ready']);
 $readinessLabels = [
     'ready' => 'Sẵn sàng gửi',
@@ -52,6 +54,17 @@ $readinessLabels = [
 <main class="zalo-page">
     <?php if (! empty($success)): ?><div class="alert alert-success mb-0"><?= esc((string) $success) ?></div><?php endif; ?>
     <?php if (! empty($error)): ?><div class="alert alert-danger mb-0"><?= esc((string) $error) ?></div><?php endif; ?>
+    <?php if ($testResult !== null): ?>
+        <div class="alert <?= ! empty($testResult['ok']) ? 'alert-success' : 'alert-danger' ?> mb-0">
+            <strong><?= ! empty($testResult['ok']) ? 'ZBS đã nhận yêu cầu gửi OTP.' : 'Gửi OTP trực tiếp thất bại.' ?></strong>
+            <div class="mt-1">
+                Lý do: <code><?= esc((string) ($testResult['reason'] ?? 'unknown')) ?></code>
+                <?php if (! empty($testResult['error_code'])): ?> · Mã ZBS: <code><?= esc((string) $testResult['error_code']) ?></code><?php endif; ?>
+                <?php if (! empty($testResult['provider_message'])): ?> · <?= esc((string) $testResult['provider_message']) ?><?php endif; ?>
+                <?php if (! empty($testResult['message_id'])): ?> · Message ID: <code><?= esc((string) $testResult['message_id']) ?></code><?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <section class="zalo-panel">
         <div class="zalo-hero">
@@ -94,6 +107,28 @@ $readinessLabels = [
                 <?= ! empty($status['connected']) ? 'Kết nối lại OA' : 'Kết nối Zalo OA' ?>
             </a>
         </div>
+    </section>
+
+    <section class="zalo-panel">
+        <span class="zalo-eyebrow">Kiểm tra trực tiếp</span>
+        <h2 class="h4 fw-bold mb-2">Gửi thử OTP qua ZBS</h2>
+        <p class="text-muted mb-3">Bài kiểm tra gọi thẳng ZBS, không fallback sang Gmail. Kết quả sẽ hiển thị mã lỗi thật từ Zalo.</p>
+        <form method="post" action="<?= site_url('admin/zalo/test-otp') ?>" class="row g-3 align-items-end">
+            <?= csrf_field() ?>
+            <div class="col-md-7">
+                <label class="form-label fw-semibold" for="zaloTestPhone">Số điện thoại có Zalo</label>
+                <input class="form-control form-control-lg" id="zaloTestPhone" name="phone" value="<?= esc($testPhone, 'attr') ?>" inputmode="tel" placeholder="079 568 1568" required>
+            </div>
+            <div class="col-md-5">
+                <button class="btn btn-outline-primary btn-lg w-100" type="submit">Gửi OTP thử</button>
+            </div>
+            <div class="col-12">
+                <label class="form-check">
+                    <input class="form-check-input" type="checkbox" name="confirm_cost" value="1" required>
+                    <span class="form-check-label">Tôi xác nhận lần gửi thử này có thể phát sinh phí ZBS.</span>
+                </label>
+            </div>
+        </form>
     </section>
 
     <?php if (empty($status['secret_configured']) || empty($status['storage_ready'])): ?>
