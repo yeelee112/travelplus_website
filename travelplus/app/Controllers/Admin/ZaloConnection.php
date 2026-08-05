@@ -3,6 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Services\ZaloOaTokenService;
+use App\Services\ZaloOtpService;
+use App\Services\AccountVerificationService;
 
 final class ZaloConnection extends BaseAdminController
 {
@@ -14,6 +16,8 @@ final class ZaloConnection extends BaseAdminController
 
         return view('admin/zalo/index', [
             'status' => (new ZaloOaTokenService())->status(),
+            'otpReadiness' => (new ZaloOtpService())->readiness(),
+            'latestZaloDelivery' => $this->latestZaloDelivery(),
             'success' => session()->getFlashdata('success'),
             'error' => session()->getFlashdata('error'),
         ]);
@@ -48,5 +52,39 @@ final class ZaloConnection extends BaseAdminController
         ]);
 
         return redirect()->to($service->authorizationUrl($state, $codeChallenge));
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function latestZaloDelivery(): ?array
+    {
+        try {
+            $db = db_connect();
+            if (! $db->tableExists('account_verification_requests')) {
+                return null;
+            }
+
+            $row = $db->table('account_verification_requests')
+                ->select('recipient, delivery_status, provider_message_id, provider_error_code, created_at')
+                ->where('channel', AccountVerificationService::CHANNEL_ZALO)
+                ->orderBy('id', 'DESC')
+                ->get(1)
+                ->getRowArray();
+
+            if (! is_array($row)) {
+                return null;
+            }
+
+            $row['recipient'] = AccountVerificationService::maskPhone((string) ($row['recipient'] ?? ''));
+
+            return $row;
+        } catch (\Throwable $exception) {
+            log_message('error', 'Unable to load latest Zalo OTP delivery: {message}', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 }

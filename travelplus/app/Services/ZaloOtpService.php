@@ -17,10 +17,28 @@ class ZaloOtpService
 
     public function isConfigured(): bool
     {
-        return $this->config->otpEnabled
-            && $this->config->otpTemplateId !== ''
-            && $this->config->otpField !== ''
-            && $this->tokens->canProvideAccessToken();
+        return $this->readiness()['ready'];
+    }
+
+    /**
+     * @return array{ready:bool,reason:string}
+     */
+    public function readiness(): array
+    {
+        if (! $this->config->otpEnabled) {
+            return ['ready' => false, 'reason' => 'otp_disabled'];
+        }
+        if ($this->config->otpTemplateId === '') {
+            return ['ready' => false, 'reason' => 'template_missing'];
+        }
+        if ($this->config->otpField === '') {
+            return ['ready' => false, 'reason' => 'otp_field_missing'];
+        }
+        if (! $this->tokens->canProvideAccessToken()) {
+            return ['ready' => false, 'reason' => 'oa_token_unavailable'];
+        }
+
+        return ['ready' => true, 'reason' => 'ready'];
     }
 
     /**

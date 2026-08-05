@@ -1,6 +1,16 @@
 <?php
 $status = is_array($status ?? null) ? $status : [];
+$otpReadiness = is_array($otpReadiness ?? null) ? $otpReadiness : ['ready' => false, 'reason' => 'unknown'];
+$latestZaloDelivery = is_array($latestZaloDelivery ?? null) ? $latestZaloDelivery : null;
 $readyToConnect = ! empty($status['secret_configured']) && ! empty($status['storage_ready']);
+$readinessLabels = [
+    'ready' => 'Sẵn sàng gửi',
+    'otp_disabled' => 'OTP Zalo đang tắt',
+    'template_missing' => 'Thiếu Template ID',
+    'otp_field_missing' => 'Thiếu tên tham số OTP',
+    'oa_token_unavailable' => 'Token OA chưa sẵn sàng',
+    'unknown' => 'Chưa xác định',
+];
 ?>
 <!doctype html>
 <html lang="vi">
@@ -62,6 +72,20 @@ $readyToConnect = ! empty($status['secret_configured']) && ! empty($status['stor
             <div class="zalo-field"><span>Token hết hạn</span><strong><?= esc((string) (($status['expires_at'] ?? '') ?: 'Chưa có')) ?></strong></div>
             <div class="zalo-field"><span>Mẫu OTP ZBS</span><strong><?= esc((string) (($status['otp_template_id'] ?? '') ?: 'Chưa cấu hình')) ?></strong></div>
             <div class="zalo-field"><span>Tham số OTP</span><strong><?= esc((string) (($status['otp_field'] ?? '') ?: 'Chưa cấu hình')) ?></strong></div>
+            <div class="zalo-field"><span>Trạng thái gửi OTP</span><strong><?= esc($readinessLabels[(string) ($otpReadiness['reason'] ?? '')] ?? 'Chưa xác định') ?></strong></div>
+            <div class="zalo-field">
+                <span>Lần gửi Zalo gần nhất</span>
+                <?php if ($latestZaloDelivery === null): ?>
+                    <strong>Chưa phát sinh yêu cầu gửi</strong>
+                <?php else: ?>
+                    <strong><?= esc((string) ($latestZaloDelivery['delivery_status'] ?? '')) ?> · <?= esc((string) ($latestZaloDelivery['recipient'] ?? '')) ?></strong>
+                    <?php if (! empty($latestZaloDelivery['provider_error_code'])): ?>
+                        <small class="d-block mt-1 text-danger">Mã lỗi ZBS: <?= esc((string) $latestZaloDelivery['provider_error_code']) ?></small>
+                    <?php elseif (! empty($latestZaloDelivery['created_at'])): ?>
+                        <small class="d-block mt-1 text-muted"><?= esc((string) $latestZaloDelivery['created_at']) ?></small>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
         </div>
 
         <div class="zalo-actions">
