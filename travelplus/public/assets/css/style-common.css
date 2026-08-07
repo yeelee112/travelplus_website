@@ -9113,7 +9113,14 @@ body.is-home-page .site-header-modern{
         display:inline-flex;
         align-items:center;
         padding:0 14px;
-        font-size:13px;
+        font-size:14px;
+        font-weight:700;
+        line-height:1;
+    }
+.topbar-area.two .topbar-right .support-and-language-area .header-booking-lookup-btn span{
+        font-size:inherit;
+        font-weight:inherit;
+        line-height:inherit;
     }
 .topbar-area.two .topbar-right .support-and-language-area>a::before{
         right:0;
@@ -9138,6 +9145,9 @@ body.is-home-page .site-header-modern{
 .topbar-area.two .topbar-right .primary-btn1{
         margin-left:14px;
         padding:0 18px;
+    }
+.topbar-area.two .search-and-login>.account-dropdown{
+        margin-left:14px;
     }
 }
 @media (min-width:992px) and (max-width:1199px){.topbar-area.two .contact-list .single-contact:nth-child(2),

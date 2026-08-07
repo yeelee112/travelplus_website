@@ -1169,7 +1169,7 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
                                     <i class="bi bi-info-circle" aria-hidden="true"></i>
                                 </a>
                                 <?php if ($passportMilestoneCopy !== ''): ?>
-                                    <span class="tour-detail-passport-milestone tour-detail-passport-milestone--sidebar"><i class="bi bi-gift-fill" aria-hidden="true"></i><?= esc($passportMilestoneCopy) ?></span>
+                                    <div class="tour-detail-passport-milestone tour-detail-passport-milestone--sidebar"><i class="bi bi-gift-fill" aria-hidden="true"></i><p><?= esc($passportMilestoneCopy) ?></p></div>
                                 <?php endif; ?>
                             <?php endif; ?>
                         <!-- <br><del>125,900,000 đ</del><sub>/người</sub> -->
