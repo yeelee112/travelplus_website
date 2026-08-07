@@ -9,6 +9,8 @@ use App\Services\AuthSessionControlService;
 use App\Services\AccountVerificationService;
 use App\Services\LoyaltyMembershipService;
 use App\Services\LoyaltyPointService;
+use App\Services\LoyaltyRewardService;
+use App\Services\LoyaltyTierBenefitService;
 use App\Services\RecaptchaService;
 use App\Services\RememberLoginService;
 use App\Services\VietnamAdministrativeUnitService;
@@ -255,12 +257,23 @@ class AuthController extends BaseController
             (int) ($bookingStats['booking_count'] ?? 0),
             (int) ($bookingStats['paid_booking_count'] ?? 0),
             (int) ($bookingStats['pending_booking_count'] ?? 0),
-            $loyaltyPoints->balanceForUser((int) $authUser['id'])
+            $loyaltyPoints->balanceForUser((int) $authUser['id']),
+            $loyaltyPoints->qualifyingPointsForUser((int) $authUser['id'])
         );
         $loyaltyHistory = $loyaltyPoints->historyForUser((int) $authUser['id'], 20);
+        $loyaltyRewards = new LoyaltyRewardService();
+        (new LoyaltyTierBenefitService())->syncForUser(
+            (int) $authUser['id'],
+            (int) ($membership['qualifying_points'] ?? 0)
+        );
+        $rewardCatalog = $loyaltyRewards->catalog((int) ($membership['points'] ?? 0));
+        $rewardVouchers = $loyaltyRewards->vouchersForUser((int) $authUser['id']);
         session()->set('header_membership', [
             'user_id' => (int) $authUser['id'],
             'tier_key' => (string) ($membership['current_tier']['key'] ?? 'member'),
+            'points' => (int) ($membership['points'] ?? 0),
+            'qualifying_points' => (int) ($membership['qualifying_points'] ?? 0),
+            'next_reward' => $loyaltyRewards->nextReward((int) ($membership['points'] ?? 0)),
             'expires_at' => time() + 300,
         ]);
 
@@ -271,9 +284,33 @@ class AuthController extends BaseController
             'bookings' => $bookings,
             'membership' => $membership,
             'loyaltyHistory' => $loyaltyHistory,
+            'rewardCatalog' => $rewardCatalog,
+            'rewardVouchers' => $rewardVouchers,
+            'rewardsAvailable' => $loyaltyRewards->isAvailable(),
             'administrativeProvinces' => $addressService->provinces(),
             'addressDataUrl' => $addressService->dataUrl(),
         ]);
+    }
+
+    public function redeemPassportReward()
+    {
+        $locale = $this->request->getLocale() ?: 'vi';
+        $authUser = session()->get('auth_user');
+
+        if (! is_array($authUser) || empty($authUser['id'])) {
+            return redirect()->to(LocalizedPathCatalog::url('auth.login', $locale))
+                ->with('auth_error', lang('Frontend.auth.profile.loginRequired', [], $locale));
+        }
+
+        $result = (new LoyaltyRewardService())->redeem(
+            (int) $authUser['id'],
+            trim((string) $this->request->getPost('reward_key')),
+            $locale
+        );
+        session()->remove('header_membership');
+
+        return redirect()->to(LocalizedPathCatalog::url('auth.profile', $locale))
+            ->with($result['ok'] ? 'auth_success' : 'auth_error', $result['message']);
     }
 
     public function forgotPassword()

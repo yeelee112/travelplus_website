@@ -38,6 +38,7 @@ $routes->GET('dieu-khoan-su-dung', 'LegalController::terms/vi');
 $routes->GET('chinh-sach-bao-mat', 'LegalController::privacy/vi');
 $routes->GET('tim-kiem-tour', 'SearchController::tours');
 $routes->GET('tour-he', 'SummerTours::index');
+$routes->GET('travelplus-passport', 'PassportProgram::index');
 
 $routes->GET('admin', 'Admin\Dashboard::index');
 $routes->GET('admin/analytics', 'Admin\Analytics::index');
@@ -104,6 +105,7 @@ $routes->GET('account/verify/email/(:segment)', 'AccountVerificationController::
   $routes->match(['GET', 'POST'], 'account/reset-password/(:segment)', 'AuthController::resetPassword/$1');
   $routes->match(['GET', 'POST'], 'account/profile', 'AuthController::profile');
   $routes->POST('account/logout-all', 'AuthController::logoutAllDevices');
+  $routes->POST('account/passport/redeem', 'AuthController::redeemPassportReward');
 $routes->POST('auth/logout', 'AuthController::logout');
 $routes->GET('auth/google', 'AuthController::google');
 $routes->GET('auth/google/callback', 'AuthController::googleCallback');
@@ -160,6 +162,7 @@ $routes->group('en', function ($routes) {
     $routes->GET('privacy-statement', 'LegalController::privacy/en');
     $routes->GET('tour-search', 'SearchController::tours');
     $routes->GET('summer-tours', 'SummerTours::index');
+    $routes->GET('travelplus-passport', 'PassportProgram::index');
 
     $routes->match(['GET', 'POST'], 'account/register', 'AuthController::register');
     $routes->match(['GET', 'POST'], 'account/login', 'AuthController::login');
@@ -172,6 +175,7 @@ $routes->group('en', function ($routes) {
     $routes->match(['GET', 'POST'], 'account/reset-password/(:segment)', 'AuthController::resetPassword/$1');
     $routes->match(['GET', 'POST'], 'account/profile', 'AuthController::profile');
     $routes->POST('account/logout-all', 'AuthController::logoutAllDevices');
+    $routes->POST('account/passport/redeem', 'AuthController::redeemPassportReward');
     $routes->POST('auth/logout', 'AuthController::logout');
     $routes->GET('auth/google', 'AuthController::google');
     $routes->GET('auth/google/callback', 'AuthController::googleCallback');

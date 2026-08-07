@@ -113,8 +113,8 @@ $priceDisplay = $adultPrice > 0 ? number_format($adultPrice, 0, ',', '.') . 'đ'
 $loyaltyPreviewPoints = \App\Services\LoyaltyPointService::previewPoints($adultPrice);
 $loyaltyPreviewLabel = number_format($loyaltyPreviewPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
 $loyaltyPreviewCopy = $locale === 'en'
-    ? $loyaltyPreviewLabel . '+ points'
-    : '+' . $loyaltyPreviewLabel . ' điểm';
+    ? 'Earn ' . $loyaltyPreviewLabel . '+ Journey Miles'
+    : 'Nhận +' . $loyaltyPreviewLabel . ' Dặm Hành Trình';
 $authUser = session()->get('auth_user');
 $isLoggedIn = is_array($authUser) && (int) ($authUser['id'] ?? 0) > 0;
 $loyaltyPreviewTooltip = $locale === 'en'
@@ -127,6 +127,17 @@ $loyaltyPreviewTooltip = $locale === 'en'
 $loyaltyAccountUrl = $isLoggedIn
     ? \App\Data\LocalizedPathCatalog::url('auth.profile', $locale)
     : \App\Data\LocalizedPathCatalog::url('auth.login', $locale) . '?return_to=' . rawurlencode(current_url());
+$memberBalance = max(0, (int) ($headerMembership['points'] ?? 0));
+$nextPassportReward = is_array($headerMembership['next_reward'] ?? null) ? $headerMembership['next_reward'] : null;
+$projectedPassportBalance = $memberBalance + $loyaltyPreviewPoints;
+$unlocksPassportReward = $nextPassportReward !== null
+    && $memberBalance < (int) ($nextPassportReward['points'] ?? 0)
+    && $projectedPassportBalance >= (int) ($nextPassportReward['points'] ?? 0);
+$passportMilestoneCopy = $unlocksPassportReward
+    ? ($locale === 'en'
+        ? 'After this tour: ' . number_format($projectedPassportBalance, 0, '.', ',') . ' miles — enough for a ' . number_format((int) ($nextPassportReward['amount_vnd'] ?? 0), 0, '.', ',') . ' VND voucher.'
+        : 'Sau tour này: ' . number_format($projectedPassportBalance, 0, ',', '.') . ' dặm — đủ đổi voucher ' . number_format((int) ($nextPassportReward['amount_vnd'] ?? 0), 0, ',', '.') . 'đ.')
+    : '';
 $destinationLabel = trim((string) ($tour['continent'] ?? ''));
 $departureFrom = trim((string) ($tour['departure_from'] ?? ''));
 $heroMetaItems = array_values(array_filter([
@@ -336,6 +347,9 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
                         <i class="bi bi-stars" aria-hidden="true"></i><?= esc($loyaltyPreviewCopy) ?>
                         <i class="bi bi-info-circle" aria-hidden="true"></i>
                     </a>
+                    <?php if ($passportMilestoneCopy !== ''): ?>
+                        <span class="tour-detail-passport-milestone"><i class="bi bi-gift-fill" aria-hidden="true"></i><?= esc($passportMilestoneCopy) ?></span>
+                    <?php endif; ?>
                 <?php endif; ?>
                 <?php if ($departureLabel !== ''): ?>
                     <p><i class="bi bi-calendar-check" aria-hidden="true"></i><?= esc($departureLabel) ?></p>
@@ -1154,6 +1168,9 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
                                     <i class="bi bi-stars" aria-hidden="true"></i><?= esc($loyaltyPreviewCopy) ?>
                                     <i class="bi bi-info-circle" aria-hidden="true"></i>
                                 </a>
+                                <?php if ($passportMilestoneCopy !== ''): ?>
+                                    <span class="tour-detail-passport-milestone tour-detail-passport-milestone--sidebar"><i class="bi bi-gift-fill" aria-hidden="true"></i><?= esc($passportMilestoneCopy) ?></span>
+                                <?php endif; ?>
                             <?php endif; ?>
                         <!-- <br><del>125,900,000 đ</del><sub>/người</sub> -->
                         </div>

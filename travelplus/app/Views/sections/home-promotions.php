@@ -75,11 +75,11 @@ $featurePrice = (string) ($featureTour['price']['label'] ?? '');
 $featurePoints = \App\Services\LoyaltyPointService::previewPoints((float) ($featureTour['price']['amount'] ?? 0));
 $formatPoints = static fn(int $points): string => number_format($points, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
 $pointsCopy = static fn(int $points): string => $locale === 'en'
-    ? 'Earn ' . $formatPoints($points) . '+ member points'
-    : 'Từ ' . $formatPoints($points) . ' điểm thành viên';
+    ? 'Earn from ' . $formatPoints($points) . ' Journey Miles'
+    : 'Nhận từ ' . $formatPoints($points) . ' Dặm Hành Trình';
 $pointsTitle = $locale === 'en'
-    ? 'Actual points are based on the paid booking amount.'
-    : 'Điểm thực nhận được tính theo số tiền booking đã thanh toán.';
+    ? 'Actual Journey Miles are based on the paid booking amount.'
+    : 'Dặm thực nhận được tính theo số tiền booking đã thanh toán.';
 $featureDeparture = (string) ($featureTour['departure'] ?? '');
 $featureContinent = (string) ($featureTour['continent'] ?? '');
 $featureDuration = (string) ($featureTour['duration']['label'] ?? '');

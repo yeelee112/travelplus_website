@@ -1,3 +1,62 @@
+.travelplus-passport-rewards{position:relative;overflow:hidden;padding:0 26px 28px;border:0;background:linear-gradient(145deg,#063d5b 0%,#075e82 58%,#087eae 100%);box-shadow:0 20px 45px rgba(5,70,101,.2)}
+.travelplus-passport-rewards::before{position:absolute;top:-120px;right:-80px;width:330px;height:330px;border:70px solid rgba(255,255,255,.045);border-radius:50%;content:"";pointer-events:none}
+.travelplus-passport-rewards__head{position:relative;z-index:1;align-items:center;margin:0 -26px 24px;padding:24px 26px;border-bottom:1px solid rgba(255,255,255,.16);background:rgba(3,41,61,.32)}
+.travelplus-passport-rewards__head>div>span{display:inline-flex;align-items:center;gap:7px;margin-bottom:9px;color:#71d7ff;font-size:11px;letter-spacing:.11em}
+.travelplus-passport-rewards__head>div>span i{color:#ffd166;font-size:14px}
+.travelplus-passport-rewards__head h2{color:#fff;font-size:27px;letter-spacing:-.02em}
+.travelplus-passport-rewards__head p{color:rgba(255,255,255,.72);font-size:13px}
+.travelplus-passport-rewards__balance{position:relative;min-width:150px;padding:12px 16px;border-color:rgba(255,209,102,.65);background:linear-gradient(145deg,#fff9df,#fff);box-shadow:0 10px 24px rgba(0,25,39,.22);color:#087eae}
+.travelplus-passport-rewards__balance small{color:#5b7180}
+.travelplus-passport-rewards__balance strong{font-size:25px}
+.travelplus-passport-reward-grid{position:relative;z-index:1;gap:15px}
+.travelplus-passport-reward{position:relative;overflow:hidden;gap:9px;padding:19px 18px 18px;border:1px solid rgba(255,255,255,.5);background:#fff;box-shadow:0 13px 28px rgba(0,29,45,.18);transition:transform .2s ease,box-shadow .2s ease}
+.travelplus-passport-reward::before,.travelplus-passport-reward::after{position:absolute;top:55%;width:18px;height:18px;border-radius:50%;background:#075f83;content:"";transform:translateY(-50%)}
+.travelplus-passport-reward::before{left:-10px}
+.travelplus-passport-reward::after{right:-10px}
+.travelplus-passport-reward.is-available{border-color:#9bdcf3;background:linear-gradient(180deg,#fff 0%,#f3fbfe 100%);box-shadow:0 14px 32px rgba(0,25,39,.24)}
+.travelplus-passport-reward.is-available:hover{transform:translateY(-4px);box-shadow:0 19px 38px rgba(0,25,39,.3)}
+.travelplus-passport-reward__topline{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:12px;border-bottom:1px dashed #b9dce8;color:#087eae;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.travelplus-passport-reward__topline span{display:inline-flex;align-items:center;gap:6px}
+.travelplus-passport-reward__topline i{color:#e5a20a;font-size:13px}
+.travelplus-passport-reward__topline em{padding:4px 6px;border-radius:4px;background:#eef7fa;color:#657d88;font-size:8px;font-style:normal;letter-spacing:0}
+.travelplus-passport-reward__value{margin-top:4px;color:#075f83;font-size:32px;letter-spacing:-.04em;text-shadow:0 1px 0 #fff}
+.travelplus-passport-reward__value sup{margin-left:2px;font-size:16px;vertical-align:super}
+.travelplus-passport-reward>strong{font-size:14px}
+.travelplus-passport-reward>small{color:#607985;font-size:11px}
+.travelplus-passport-reward button{min-height:44px;margin-top:5px;border-color:#ffb31a;background:linear-gradient(135deg,#ffbe2e,#f49a0b);color:#17394a;box-shadow:0 8px 17px rgba(205,125,0,.22);font-size:13px}
+.travelplus-passport-reward button:hover:not(:disabled){background:linear-gradient(135deg,#ffd05d,#ffad13);transform:translateY(-1px)}
+.travelplus-passport-reward button:disabled{box-shadow:none}
+.travelplus-passport-vouchers{position:relative;z-index:1;border-top-color:rgba(255,255,255,.25)}
+.travelplus-passport-vouchers h3{color:#fff}
+@media (max-width:767px){.travelplus-passport-rewards{padding:0 16px 20px}
+.travelplus-passport-rewards__head{margin:0 -16px 18px;padding:20px 16px}
+.travelplus-passport-rewards__head h2{font-size:24px}
+.travelplus-passport-rewards__balance{width:100%}
+.travelplus-passport-reward{padding:17px}
+.travelplus-passport-reward__value{font-size:29px}
+}
+.travelplus-account-dashboard>.travelplus-passport-rewards{width:100%;margin:0;border-radius:0;box-shadow:none}
+.travelplus-passport-rewards{padding-bottom:20px}
+.travelplus-passport-rewards__head{margin-bottom:16px;padding-top:18px;padding-bottom:18px}
+.travelplus-passport-rewards__head h2{margin-bottom:5px;font-size:24px}
+.travelplus-passport-rewards__head p{color:rgba(255,255,255,.82);font-weight:650}
+.travelplus-passport-rewards__balance{min-width:142px;padding:9px 14px}
+.travelplus-passport-rewards__balance strong{font-size:23px}
+.travelplus-passport-reward-grid{gap:12px}
+.travelplus-passport-reward{gap:5px;padding:14px 16px}
+.travelplus-passport-reward__topline{padding-bottom:8px}
+.travelplus-passport-reward__value{margin-top:2px;font-size:29px;line-height:1.05}
+.travelplus-passport-reward__value sup{font-size:14px}
+.travelplus-passport-reward>strong{color:#163d50;font-size:14px;font-weight:950}
+.travelplus-passport-reward>small{min-height:0;margin-top:2px;color:#486b7b;font-size:11px;font-weight:750}
+.travelplus-passport-reward form{margin-top:7px}
+.travelplus-passport-reward button{min-height:38px;margin-top:0}
+@media (max-width:767px){.travelplus-account-dashboard>.travelplus-passport-rewards{margin:0}
+.travelplus-passport-rewards{padding-bottom:16px}
+.travelplus-passport-rewards__head{padding-top:16px;padding-bottom:16px}
+.travelplus-passport-reward{padding:14px}
+.travelplus-passport-reward__value{font-size:27px}
+}
 .travelplus-auth-shell{display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(380px, 500px);
     gap: 28px;
@@ -67,13 +126,7 @@
 .travelplus-auth-field > span, .travelplus-auth-check, .travelplus-auth-row a{color: rgba(var(--title-color-opc), .72);
     font-size: 14px;
     font-weight: 750;}
-.travelplus-auth-field input, .travelplus-auth-field select{padding: 10px 14px;}
-.travelplus-address-selector{display: grid;
-    gap: 15px;}
-.travelplus-auth-field small{margin-top: -2px;
-    color: rgba(var(--title-color-opc), .56);
-    font-size: 12px;
-    line-height: 1.5;}
+.travelplus-auth-field input{padding: 10px 14px;}
 .travelplus-auth-password{position: relative;
     display: block;
     margin: 0;}
@@ -129,68 +182,6 @@
     text-align: center;}
 .travelplus-auth-switch a, .travelplus-auth-row a{color: var(--primary-color1);
     font-weight: 850;}
-.travelplus-verify-card{position: relative;}
-.travelplus-verify-icon{display: inline-flex;
-    width: 52px;
-    height: 52px;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 18px;
-    border: 1px solid #bce6f5;
-    border-radius: 50%;
-    background: #eefaff;
-    color: var(--primary-color1);
-    font-size: 23px;}
-.travelplus-verify-head p{margin: 12px 0 0;
-    color: rgba(var(--title-color-opc), .68);
-    line-height: 1.65;}
-.travelplus-verify-head strong{color: var(--title-color);
-    font-weight: 850;}
-.travelplus-otp-field input{height: 62px;
-    border-color: #a9dff2;
-    font-size: 26px;
-    font-weight: 850;
-    letter-spacing: 8px;
-    text-align: center;}
-.travelplus-verify-note{display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    margin-bottom: 16px;
-    padding: 12px 14px;
-    border: 1px solid #fed7aa;
-    border-radius: 8px;
-    background: #fff7ed;
-    color: #9a3412;
-    font-size: 13px;
-    line-height: 1.55;}
-.travelplus-verify-email-state{display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    padding: 16px;
-    border-left: 3px solid var(--primary-color1);
-    background: #f3fbfe;}
-.travelplus-verify-email-state > i{color: var(--primary-color1);
-    font-size: 22px;}
-.travelplus-verify-email-state p{margin: 0;
-    color: rgba(var(--title-color-opc), .72);
-    line-height: 1.65;}
-.travelplus-verify-actions{display: flex;
-    flex-wrap: wrap;
-    gap: 8px 16px;
-    align-items: center;
-    justify-content: center;
-    margin-top: 18px;
-    padding-top: 16px;
-    border-top: 1px solid #e1eef3;}
-.travelplus-verify-link-btn{display: inline-flex;
-    gap: 7px;
-    align-items: center;
-    padding: 8px 4px;
-    border: 0;
-    background: transparent;
-    color: var(--primary-color1);
-    font-weight: 800;}
-.travelplus-verify-link-btn:hover, .travelplus-verify-link-btn:focus-visible{color: var(--title-color);}
 .travelplus-account-page .container{max-width: 1180px;}
 .travelplus-account-card + .travelplus-account-card{margin-top: 22px;}
 .travelplus-account-bookings{margin-top: 22px;}
@@ -536,6 +527,138 @@
 .travelplus-membership-tiers li.is-reached em{color: var(--tier-foreground);
     opacity: .72;}
 .travelplus-membership-tiers li.is-current small{color: var(--tier-accent);}
+.travelplus-passport-rewards{margin-top: 22px;padding: 26px;}
+.travelplus-passport-rewards__head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:20px;}
+.travelplus-passport-rewards__head>div>span{display:block;margin-bottom:7px;color:#087eae;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;}
+.travelplus-passport-rewards__head h2{margin:0 0 7px;color:var(--title-color);font-size:24px;font-weight:900;}
+.travelplus-passport-rewards__head p{max-width:680px;margin:0;color:#657b86;font-size:13px;line-height:1.55;}
+.travelplus-passport-rewards__balance{display:grid;grid-template-columns:auto auto;align-items:baseline;gap:2px 5px;min-width:130px;padding:10px 14px;border:1px solid #cdebf5;border-radius:8px;background:#f3fbfe;color:#087eae;}
+.travelplus-passport-rewards__balance small{grid-column:1/-1;color:#607783;font-size:9px;font-weight:850;text-transform:uppercase;}
+.travelplus-passport-rewards__balance strong{font-size:22px;font-weight:900;}
+.travelplus-passport-rewards__balance em{font-size:11px;font-style:normal;font-weight:800;}
+.travelplus-passport-reward-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.travelplus-passport-reward{display:grid;gap:7px;padding:18px;border:1px solid #dde8ed;border-radius:9px;background:#f8fafb;}
+.travelplus-passport-reward.is-available{border-color:#a9d9e9;background:#f4fcfe;box-shadow:0 10px 24px rgba(18,64,83,.07);}
+.travelplus-passport-reward__value{color:#087eae;font-size:25px;font-weight:950;line-height:1;}
+.travelplus-passport-reward>strong{color:#263f4c;font-size:14px;}
+.travelplus-passport-reward>small{min-height:20px;color:#71848d;font-size:11px;}
+.travelplus-passport-reward form{margin-top:5px;}
+.travelplus-passport-reward button{width:100%;min-height:40px;border:1px solid #087eae;border-radius:7px;background:#087eae;color:#fff;font-size:12px;font-weight:900;}
+.travelplus-passport-reward button:disabled{border-color:#d8e2e7;background:#e7edf0;color:#7a8b93;cursor:not-allowed;}
+.travelplus-passport-vouchers{display:grid;gap:8px;margin-top:22px;padding-top:20px;border-top:1px dashed #d5e5eb;}
+.travelplus-passport-vouchers h3{margin:0 0 4px;color:var(--title-color);font-size:15px;font-weight:900;}
+.travelplus-passport-voucher{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid #d7e8ee;border-radius:7px;background:#fff;}
+.travelplus-passport-voucher>span{display:grid;width:32px;height:32px;place-items:center;border-radius:50%;background:#e8f7fc;color:#087eae;}
+.travelplus-passport-voucher>div{display:grid;gap:2px;}
+.travelplus-passport-voucher strong{color:#183d4d;font-size:13px;letter-spacing:.04em;}
+.travelplus-passport-voucher small{color:#6b7e87;font-size:10px;}
+.travelplus-passport-voucher>em{padding:4px 7px;border-radius:999px;background:#e7f8ee;color:#23804a;font-size:9px;font-style:normal;font-weight:900;text-transform:uppercase;}
+.travelplus-passport-voucher.is-disabled{opacity:.62;}
+.travelplus-passport-voucher.is-disabled>em{background:#edf0f2;color:#697b83;}
+@media (max-width:767px){.travelplus-passport-rewards{padding:20px 16px}
+.travelplus-passport-rewards__head{display:grid;gap:14px}
+.travelplus-passport-rewards__balance{width:100%}
+.travelplus-passport-reward-grid{grid-template-columns:1fr}
+.travelplus-passport-voucher{grid-template-columns:34px minmax(0,1fr)}
+.travelplus-passport-voucher>em{grid-column:2;justify-self:start}
+}
+.travelplus-passport-rewards{position:relative;overflow:hidden;padding:0 26px 28px;border:0;background:linear-gradient(145deg,#063d5b 0%,#075e82 58%,#087eae 100%);box-shadow:0 20px 45px rgba(5,70,101,.2)}
+.travelplus-passport-rewards::before{position:absolute;top:-120px;right:-80px;width:330px;height:330px;border:70px solid rgba(255,255,255,.045);border-radius:50%;content:"";pointer-events:none}
+.travelplus-passport-rewards__head{position:relative;z-index:1;align-items:center;margin:0 -26px 24px;padding:24px 26px;border-bottom:1px solid rgba(255,255,255,.16);background:rgba(3,41,61,.32)}
+.travelplus-passport-rewards__head>div>span{display:inline-flex;align-items:center;gap:7px;margin-bottom:9px;color:#71d7ff;font-size:11px;letter-spacing:.11em}
+.travelplus-passport-rewards__head>div>span i{color:#ffd166;font-size:14px}
+.travelplus-passport-rewards__head h2{color:#fff;font-size:27px;letter-spacing:-.02em}
+.travelplus-passport-rewards__head p{color:rgba(255,255,255,.72);font-size:13px}
+.travelplus-passport-rewards__balance{position:relative;min-width:150px;padding:12px 16px;border-color:rgba(255,209,102,.65);background:linear-gradient(145deg,#fff9df,#fff);box-shadow:0 10px 24px rgba(0,25,39,.22);color:#087eae}
+.travelplus-passport-rewards__balance small{color:#5b7180}
+.travelplus-passport-rewards__balance strong{font-size:25px}
+.travelplus-passport-reward-grid{position:relative;z-index:1;gap:15px}
+.travelplus-passport-reward{position:relative;overflow:hidden;gap:9px;padding:19px 18px 18px;border:1px solid rgba(255,255,255,.5);background:#fff;box-shadow:0 13px 28px rgba(0,29,45,.18);transition:transform .2s ease,box-shadow .2s ease}
+.travelplus-passport-reward::before,.travelplus-passport-reward::after{position:absolute;top:55%;width:18px;height:18px;border-radius:50%;background:#075f83;content:"";transform:translateY(-50%)}
+.travelplus-passport-reward::before{left:-10px}
+.travelplus-passport-reward::after{right:-10px}
+.travelplus-passport-reward.is-available{border-color:#9bdcf3;background:linear-gradient(180deg,#fff 0%,#f3fbfe 100%);box-shadow:0 14px 32px rgba(0,25,39,.24)}
+.travelplus-passport-reward.is-available:hover{transform:translateY(-4px);box-shadow:0 19px 38px rgba(0,25,39,.3)}
+.travelplus-passport-reward__topline{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:12px;border-bottom:1px dashed #b9dce8;color:#087eae;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.travelplus-passport-reward__topline span{display:inline-flex;align-items:center;gap:6px}
+.travelplus-passport-reward__topline i{color:#e5a20a;font-size:13px}
+.travelplus-passport-reward__topline em{padding:4px 6px;border-radius:4px;background:#eef7fa;color:#657d88;font-size:8px;font-style:normal;letter-spacing:0}
+.travelplus-passport-reward__value{margin-top:4px;color:#075f83;font-size:32px;letter-spacing:-.04em;text-shadow:0 1px 0 #fff}
+.travelplus-passport-reward__value sup{margin-left:2px;font-size:16px;vertical-align:super}
+.travelplus-passport-reward>strong{font-size:14px}
+.travelplus-passport-reward>small{color:#607985;font-size:11px}
+.travelplus-passport-reward button{min-height:44px;margin-top:5px;border-color:#ffb31a;background:linear-gradient(135deg,#ffbe2e,#f49a0b);color:#17394a;box-shadow:0 8px 17px rgba(205,125,0,.22);font-size:13px}
+.travelplus-passport-reward button:hover:not(:disabled){background:linear-gradient(135deg,#ffd05d,#ffad13);transform:translateY(-1px)}
+.travelplus-passport-reward button:disabled{box-shadow:none}
+.travelplus-passport-vouchers{position:relative;z-index:1;border-top-color:rgba(255,255,255,.25)}
+.travelplus-passport-vouchers h3{color:#fff}
+@media (max-width:767px){.travelplus-passport-rewards{padding:0 16px 20px}
+.travelplus-passport-rewards__head{margin:0 -16px 18px;padding:20px 16px}
+.travelplus-passport-rewards__head h2{font-size:24px}
+.travelplus-passport-rewards__balance{width:100%}
+.travelplus-passport-reward{padding:17px}
+.travelplus-passport-reward__value{font-size:29px}
+}
+.travelplus-account-dashboard>.travelplus-passport-rewards{width:100%;margin:0;border-radius:0;box-shadow:none}
+.travelplus-passport-rewards{padding-bottom:20px}
+.travelplus-passport-rewards__head{margin-bottom:16px;padding-top:18px;padding-bottom:18px}
+.travelplus-passport-rewards__head h2{margin-bottom:5px;font-size:24px}
+.travelplus-passport-rewards__head p{color:rgba(255,255,255,.82);font-weight:650}
+.travelplus-passport-rewards__balance{min-width:142px;padding:9px 14px}
+.travelplus-passport-rewards__balance strong{font-size:23px}
+.travelplus-passport-reward-grid{gap:12px}
+.travelplus-passport-reward{gap:5px;padding:14px 16px}
+.travelplus-passport-reward__topline{padding-bottom:8px}
+.travelplus-passport-reward__value{margin-top:2px;font-size:29px;line-height:1.05}
+.travelplus-passport-reward__value sup{font-size:14px}
+.travelplus-passport-reward>strong{color:#163d50;font-size:14px;font-weight:950}
+.travelplus-passport-reward>small{min-height:0;margin-top:2px;color:#486b7b;font-size:11px;font-weight:750}
+.travelplus-passport-reward form{margin-top:7px}
+.travelplus-passport-reward button{min-height:38px;margin-top:0}
+@media (max-width:767px){.travelplus-account-dashboard>.travelplus-passport-rewards{margin:0}
+.travelplus-passport-rewards{padding-bottom:16px}
+.travelplus-passport-rewards__head{padding-top:16px;padding-bottom:16px}
+.travelplus-passport-reward{padding:14px}
+.travelplus-passport-reward__value{font-size:27px}
+}
+.travelplus-passport-reward{grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:8px;align-items:center;padding:0 16px 15px;border:1px solid #cfe5ee;border-top:0;border-radius:8px;background:#fff;box-shadow:0 8px 20px rgba(0,35,52,.12)}
+.travelplus-passport-reward::before{position:absolute;inset:0 0 auto;width:auto;height:4px;border-radius:8px 8px 0 0;background:linear-gradient(90deg,#12a7d8,#087eae);content:"";transform:none}
+.travelplus-passport-reward::after{display:none}
+.travelplus-passport-reward.is-available{border-color:#b9dce8;background:#fff;box-shadow:0 8px 20px rgba(0,35,52,.14)}
+.travelplus-passport-reward.is-available:hover{transform:translateY(-2px);box-shadow:0 13px 25px rgba(0,35,52,.2)}
+.travelplus-passport-reward__topline{grid-column:1/-1;margin:0 -16px 1px;padding:14px 16px 10px;border-bottom:1px solid #e4eff3;color:#08759f;font-size:10px;letter-spacing:.045em}
+.travelplus-passport-reward__topline em{display:none}
+.travelplus-passport-reward__value{grid-column:1;margin:1px 0 0;color:#0a536f;font-size:28px;line-height:1}
+.travelplus-passport-reward>strong{grid-column:2;grid-row:2;padding:6px 9px;border-radius:999px;background:#eaf7fb;color:#075f83;font-size:11px;font-weight:900;white-space:nowrap}
+.travelplus-passport-reward>small{grid-column:1/-1;display:flex;align-items:center;gap:5px;margin:0;color:#486673;font-size:11px;font-weight:700}
+.travelplus-passport-reward>small::before{color:#e3a008;font-size:15px;line-height:1;content:"•"}
+.travelplus-passport-reward form{grid-column:1/-1;display:flex;justify-content:flex-end;margin:2px 0 0;padding-top:10px;border-top:1px solid #edf3f5}
+.travelplus-passport-reward button{width:auto;min-width:132px;min-height:36px;padding:7px 15px;border:1px solid #087eae;background:#087eae;color:#fff;box-shadow:none;font-size:11px}
+.travelplus-passport-reward button:hover:not(:disabled){border-color:#06678f;background:#066f99;color:#fff;transform:none}
+.travelplus-passport-reward button:disabled{border-color:#d8e2e7;background:#e7edf0;color:#7a8b93}
+@media (max-width:767px){.travelplus-passport-reward{padding:0 14px 14px}
+.travelplus-passport-reward__topline{margin-right:-14px;margin-left:-14px;padding-right:14px;padding-left:14px}
+.travelplus-passport-reward button{width:100%}
+}
+.travelplus-passport-reward{grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:8px;align-items:center;padding:0 16px 15px;border:1px solid #cfe5ee;border-top:0;border-radius:8px;background:#fff;box-shadow:0 8px 20px rgba(0,35,52,.12)}
+.travelplus-passport-reward::before{position:absolute;inset:0 0 auto;width:auto;height:4px;border-radius:8px 8px 0 0;background:linear-gradient(90deg,#12a7d8,#087eae);content:"";transform:none}
+.travelplus-passport-reward::after{display:none}
+.travelplus-passport-reward.is-available{border-color:#b9dce8;background:#fff;box-shadow:0 8px 20px rgba(0,35,52,.14)}
+.travelplus-passport-reward.is-available:hover{transform:translateY(-2px);box-shadow:0 13px 25px rgba(0,35,52,.2)}
+.travelplus-passport-reward__topline{grid-column:1/-1;margin:0 -16px 1px;padding:14px 16px 10px;border-bottom:1px solid #e4eff3;color:#08759f;font-size:10px;letter-spacing:.045em}
+.travelplus-passport-reward__topline em{display:none}
+.travelplus-passport-reward__value{grid-column:1;margin:1px 0 0;color:#0a536f;font-size:28px;line-height:1}
+.travelplus-passport-reward>strong{grid-column:2;grid-row:2;padding:6px 9px;border-radius:999px;background:#eaf7fb;color:#075f83;font-size:11px;font-weight:900;white-space:nowrap}
+.travelplus-passport-reward>small{grid-column:1/-1;display:flex;align-items:center;gap:5px;margin:0;color:#486673;font-size:11px;font-weight:700}
+.travelplus-passport-reward>small::before{color:#e3a008;font-size:15px;line-height:1;content:"•"}
+.travelplus-passport-reward form{grid-column:1/-1;display:flex;justify-content:flex-end;margin:2px 0 0;padding-top:10px;border-top:1px solid #edf3f5}
+.travelplus-passport-reward button{width:auto;min-width:132px;min-height:36px;padding:7px 15px;border:1px solid #087eae;background:#087eae;color:#fff;box-shadow:none;font-size:11px}
+.travelplus-passport-reward button:hover:not(:disabled){border-color:#06678f;background:#066f99;color:#fff;transform:none}
+.travelplus-passport-reward button:disabled{border-color:#d8e2e7;background:#e7edf0;color:#7a8b93}
+@media (max-width:767px){.travelplus-passport-reward{padding:0 14px 14px}
+.travelplus-passport-reward__topline{margin-right:-14px;margin-left:-14px;padding-right:14px;padding-left:14px}
+.travelplus-passport-reward button{width:100%}
+}
 .travelplus-account-stats{display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     padding: 0 30px;
@@ -725,7 +848,6 @@
         box-shadow: inset 0 4px 0 var(--tier-accent), inset 0 -1px 0 var(--tier-border);}
 }
 @media (max-width: 767px){.travelplus-auth-page{padding-top: 24px;}
-.travelplus-auth-field-grid{grid-template-columns: 1fr;}
 .travelplus-auth-shell{gap: 0;}
 .travelplus-auth-intro{display: none;}
 .travelplus-auth-card{width: 100%;
@@ -822,6 +944,7 @@
 .travelplus-account-section-head p{font-size: 12px;}
 .travelplus-auth-card-head{margin-bottom: 18px;}
 .travelplus-auth-card-head h2, .travelplus-account-head h2{font-size: 25px;}
+.travelplus-auth-field-grid{grid-template-columns: 1fr;}
 .travelplus-account-head{display: grid;}
 .travelplus-account-actions{display: grid;
         grid-template-columns: 1fr;
@@ -855,4 +978,133 @@
         align-items: flex-end;
         padding: 0;}
 .travelplus-account-booking-count{flex: 0 0 auto;}
+}
+.travelplus-passport-page{overflow:hidden;background:#f7fbfd;color:#17394a}
+.travelplus-passport-page *{box-sizing:border-box}
+.travelplus-passport-hero{position:relative;padding:88px 0 0;background:linear-gradient(135deg,#043750 0%,#076d98 58%,#0b91ba 100%);color:#fff}
+.travelplus-passport-hero::before{position:absolute;top:-180px;right:-110px;width:560px;height:560px;border:100px solid rgba(255,255,255,.045);border-radius:50%;content:""}
+.travelplus-passport-hero>.container{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:70px;align-items:center;max-width:1240px}
+.travelplus-passport-hero__copy>span,.travelplus-passport-heading>span,.travelplus-passport-cta span{display:inline-flex;align-items:center;gap:8px;color:#72dcff;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.travelplus-passport-hero__copy>span i{color:#ffd166;font-size:18px}
+.travelplus-passport-hero h1{max-width:700px;margin:13px 0 17px;color:#fff;font-size:clamp(42px,5vw,68px);font-weight:950;letter-spacing:-.045em;line-height:1.02}
+.travelplus-passport-hero__copy>p{max-width:680px;margin:0;color:rgba(255,255,255,.8);font-size:17px;line-height:1.7}
+.travelplus-passport-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}
+.travelplus-passport-btn{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:8px;padding:11px 19px;border-radius:8px;font-size:14px;font-weight:900}
+.travelplus-passport-btn--primary{background:#ffbd2e;color:#17394a;box-shadow:0 12px 26px rgba(0,0,0,.16)}
+.travelplus-passport-btn--primary:hover{background:#ffd166;color:#17394a}
+.travelplus-passport-btn--ghost{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff}
+.travelplus-passport-btn--ghost:hover{background:rgba(255,255,255,.16);color:#fff}
+.travelplus-passport-card{position:relative;min-height:235px;overflow:hidden;padding:24px;border:1px solid rgba(255,255,255,.32);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.2),rgba(255,255,255,.08));box-shadow:0 28px 60px rgba(0,26,42,.3);transform:rotate(2.5deg);backdrop-filter:blur(12px)}
+.travelplus-passport-card::after{position:absolute;right:-55px;bottom:-95px;width:220px;height:220px;border:42px solid rgba(255,255,255,.08);border-radius:50%;content:""}
+.travelplus-passport-card__top{display:flex;align-items:center;gap:11px;color:#fff;font-size:12px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}
+.travelplus-passport-card__top>i{display:grid;width:45px;height:45px;place-items:center;border-radius:50%;background:#fff4c7;color:#d99300;font-size:22px}
+.travelplus-passport-card__top strong{font-size:18px;letter-spacing:0;text-transform:none}
+.travelplus-passport-card__mark{display:grid;width:82px;height:82px;margin:22px 0 15px;place-items:center;border:1px solid rgba(255,255,255,.22);border-radius:50%;color:#75dbff;font-size:36px}
+.travelplus-passport-card__foot{display:grid;gap:5px;color:rgba(255,255,255,.72);font-size:12px;letter-spacing:.1em}
+.travelplus-passport-card__foot strong{max-width:260px;overflow:hidden;color:#fff;font-size:13px;letter-spacing:.04em;text-overflow:ellipsis;white-space:nowrap}
+.travelplus-passport-stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:64px 0 0;padding:0;border:1px solid rgba(255,255,255,.18);border-bottom:0;border-radius:12px 12px 0 0;background:rgba(255,255,255,.1);backdrop-filter:blur(10px)}
+.travelplus-passport-stats>div{display:grid;gap:5px;padding:20px 25px}
+.travelplus-passport-stats>div+div{border-left:1px solid rgba(255,255,255,.16)}
+.travelplus-passport-stats dt{color:#fff;font-size:20px;font-weight:950}
+.travelplus-passport-stats dd{margin:0;color:rgba(255,255,255,.75);font-size:13px;line-height:1.5}
+.travelplus-passport-section{padding:82px 0}
+.travelplus-passport-section>.container,.travelplus-passport-cta>.container{max-width:1240px}
+.travelplus-passport-heading{max-width:800px;margin-bottom:32px}
+.travelplus-passport-heading>span{color:#087eae}
+.travelplus-passport-heading h2{margin:9px 0 12px;color:#17394a;font-size:clamp(31px,4vw,46px);font-weight:950;letter-spacing:-.035em;line-height:1.1}
+.travelplus-passport-heading>p{margin:0;color:#526f7b;font-size:16px;line-height:1.7}
+.travelplus-passport-shared-benefits{display:grid;gap:14px;margin:-6px 0 26px;padding:18px;border:1px solid #d7e8ee;border-radius:11px;background:#fff;box-shadow:0 10px 28px rgba(16,57,76,.06)}
+.travelplus-passport-shared-benefits__title{display:flex;align-items:center;gap:10px;padding-bottom:13px;border-bottom:1px solid #e5eef2;color:#17394a;font-size:15px}
+.travelplus-passport-shared-benefits__title>i{display:grid;width:36px;height:36px;flex:0 0 36px;place-items:center;border-radius:50%;background:#edf8e7;color:#69a72b;font-size:16px}
+.travelplus-passport-shared-benefits__title strong{font-weight:900}
+.travelplus-passport-shared-benefits>ul{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.travelplus-passport-shared-benefits>ul li{display:flex;min-height:58px;gap:9px;align-items:center;padding:11px 12px;border-radius:8px;background:#f4f9fb;color:#3d5966;font-size:13px;font-weight:650;line-height:1.45}
+.travelplus-passport-shared-benefits>ul i{display:grid;width:25px;height:25px;flex:0 0 25px;place-items:center;border-radius:50%;background:#e2f4fa;color:#087eae;font-size:14px}
+.travelplus-passport-tier-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;align-items:stretch}
+.travelplus-passport-tier{--tier:#788c96;--tier-soft:#eef2f4;position:relative;display:flex;min-width:0;flex-direction:column;padding:21px 18px 17px;border:1px solid #dbe6eb;border-top:3px solid var(--tier);border-radius:13px;background:#fff;box-shadow:0 12px 30px rgba(16,57,76,.065)}
+.travelplus-passport-tier--silver{--tier:#8095a2;--tier-soft:#edf2f5}
+.travelplus-passport-tier--gold{--tier:#d49a00;--tier-soft:#fff7da}
+.travelplus-passport-tier--diamond{--tier:#0a9bc5;--tier-soft:#e6f9fd}
+.travelplus-passport-tier--signature{--tier:#633bb4;--tier-soft:#f2ecff}
+.travelplus-passport-tier.is-current{border-color:color-mix(in srgb,var(--tier) 42%,#dbe6eb);box-shadow:0 0 0 2px color-mix(in srgb,var(--tier) 18%,transparent),0 18px 38px rgba(16,57,76,.1)}
+.travelplus-passport-tier__top{display:flex;min-height:43px;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.travelplus-passport-tier__icon{display:grid;width:43px;height:43px;flex:0 0 43px;place-items:center;border-radius:9px;background:var(--tier-soft);color:var(--tier);font-size:20px}
+.travelplus-passport-tier__current{display:inline-flex;min-height:28px;align-items:center;gap:4px;padding:5px 8px;border:1px solid color-mix(in srgb,var(--tier) 32%,#fff);border-radius:999px;background:color-mix(in srgb,var(--tier) 10%,#fff);color:var(--tier);font-size:12px;font-weight:900;line-height:1;white-space:nowrap}
+.travelplus-passport-tier__current>i{font-size:14px;line-height:1}
+.travelplus-passport-tier h3{margin:0;color:#17394a;font-size:20px;font-weight:950}
+.travelplus-passport-tier__threshold{margin:7px 0 16px;color:#647b86;font-size:13px;line-height:1.45}
+.travelplus-passport-tier__threshold strong{color:var(--tier);font-size:15px}
+.travelplus-passport-tier__reward{display:grid;min-height:120px;align-content:center;gap:7px;padding:17px;border:0;border-radius:11px;background:var(--tier-soft)}
+.travelplus-passport-tier__reward>span{color:#536c77;font-size:12px;font-weight:850;letter-spacing:.025em;text-transform:uppercase}
+.travelplus-passport-tier__reward>strong{color:var(--tier);font-size:28px;font-weight:950;letter-spacing:-.025em;line-height:1.05}
+.travelplus-passport-tier__reward>small{color:#365463;font-size:12px;font-weight:650;line-height:1.5}
+.travelplus-passport-tier__saving{display:flex;min-height:67px;align-items:center;gap:11px;margin:3px 0 0;padding:15px 3px;border:0;border-bottom:1px solid #e3ebef;border-radius:0;background:transparent}
+.travelplus-passport-tier__saving>i{display:grid;width:34px;height:34px;flex:0 0 34px;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--tier) 12%,#fff);color:var(--tier);font-size:15px}
+.travelplus-passport-tier__saving>span{display:grid;gap:3px;min-width:0}
+.travelplus-passport-tier__saving small{color:#647b86;font-size:12px;font-weight:700;line-height:1.25}
+.travelplus-passport-tier__saving strong{color:var(--tier);font-size:16px;font-weight:950;line-height:1.25}
+.travelplus-passport-tier__saving strong em{color:#3e5965;font-size:12px;font-style:normal;font-weight:750}
+.travelplus-passport-tier__saving b{color:#536c77;font-size:12px;font-weight:800;line-height:1.3}
+.travelplus-passport-tier__saving.is-empty>i{background:#eef2f4;color:#8799a2}
+.travelplus-passport-tier__saving.is-empty strong{color:#5b707a;font-size:13px}
+.travelplus-passport-tier__note{margin:auto 0 0;padding:13px 2px 0;color:#6b808a;font-size:12px;line-height:1.5}
+.travelplus-passport-page .travelplus-passport-rewards{position:relative;overflow:hidden;background:linear-gradient(135deg,#063d5b,#087eae)}
+.travelplus-passport-page .travelplus-passport-rewards::after{position:absolute;right:-110px;bottom:-180px;width:450px;height:450px;border:80px solid rgba(255,255,255,.045);border-radius:50%;content:""}
+.travelplus-passport-heading--light{position:relative;z-index:1}
+.travelplus-passport-heading--light>span{color:#75dbff}
+.travelplus-passport-heading--light h2{color:#fff}
+.travelplus-passport-heading--light p{color:rgba(255,255,255,.7)}
+.travelplus-passport-page .travelplus-passport-reward-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.travelplus-passport-page .travelplus-passport-reward-grid article{display:grid;gap:7px;padding:22px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.1);backdrop-filter:blur(6px)}
+.travelplus-passport-page .travelplus-passport-reward-grid i{color:#ffd166;font-size:26px}
+.travelplus-passport-page .travelplus-passport-reward-grid span{color:#75dbff;font-size:12px;font-weight:900;text-transform:uppercase}
+.travelplus-passport-page .travelplus-passport-reward-grid strong{color:#fff;font-size:34px;font-weight:950}
+.travelplus-passport-page .travelplus-passport-reward-grid small{color:rgba(255,255,255,.78);font-size:12px;line-height:1.5}
+.travelplus-passport-how{background:#fff}
+.travelplus-passport-how__layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.72fr);gap:58px;align-items:start}
+.travelplus-passport-steps{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.travelplus-passport-steps li{display:grid;grid-template-columns:30px 47px minmax(0,1fr);gap:13px;align-items:center;padding:16px;border:1px solid #e0e9ed;border-radius:9px;background:#fbfdfe}
+.travelplus-passport-steps em{display:grid;width:30px;height:30px;place-items:center;border-radius:50%;background:#e7f6fb;color:#087eae;font-size:12px;font-style:normal;font-weight:900}
+.travelplus-passport-steps li>i{display:grid;width:47px;height:47px;place-items:center;border-radius:9px;background:#fff4c7;color:#d99300;font-size:21px}
+.travelplus-passport-steps span{display:grid;gap:5px}
+.travelplus-passport-steps strong{color:#17394a;font-size:15px}
+.travelplus-passport-steps small{color:#5d7783;font-size:13px;line-height:1.55}
+.travelplus-passport-terms{padding:27px;border:1px solid #dfebef;border-radius:11px;background:#f2f9fb}
+.travelplus-passport-terms h3{margin:0 0 18px;color:#17394a;font-size:21px}
+.travelplus-passport-terms ul{display:grid;gap:14px;margin:0;padding:0;list-style:none}
+.travelplus-passport-terms li{display:flex;gap:9px;color:#455f6b;font-size:13px;line-height:1.6}
+.travelplus-passport-terms i{flex:0 0 auto;color:#087eae}
+.travelplus-passport-cta{padding:46px 0;background:#edf8fb}
+.travelplus-passport-cta>.container{display:flex;align-items:center;justify-content:space-between;gap:30px}
+.travelplus-passport-cta h2{margin:8px 0 6px;color:#17394a;font-size:30px;font-weight:950}
+.travelplus-passport-cta p{max-width:720px;margin:0;color:#526f7b;font-size:15px;line-height:1.65}
+.travelplus-passport-cta>a{display:inline-flex;min-height:48px;align-items:center;gap:8px;padding:11px 19px;border-radius:8px;background:#087eae;color:#fff;font-size:14px;font-weight:900;white-space:nowrap}
+@media (max-width:1199px){.travelplus-passport-tier-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.travelplus-passport-hero>.container{grid-template-columns:minmax(0,1fr) 330px;gap:40px}
+}
+@media (max-width:991px){.travelplus-passport-hero{padding-top:58px}
+.travelplus-passport-hero>.container{grid-template-columns:1fr}
+.travelplus-passport-card{display:none}
+.travelplus-passport-stats{margin-top:42px}
+.travelplus-passport-shared-benefits>ul{grid-template-columns:1fr}
+.travelplus-passport-tier-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.travelplus-passport-how__layout{grid-template-columns:1fr}
+.travelplus-passport-section{padding:58px 0}
+}
+@media (max-width:575px){.travelplus-passport-hero{padding-top:42px}
+.travelplus-passport-hero h1{font-size:39px}
+.travelplus-passport-hero__copy>p{font-size:15px}
+.travelplus-passport-actions,.travelplus-passport-btn{width:100%}
+.travelplus-passport-stats{grid-template-columns:1fr}
+.travelplus-passport-stats>div{padding:14px 17px}
+.travelplus-passport-stats>div+div{border-top:1px solid rgba(255,255,255,.16);border-left:0}
+.travelplus-passport-shared-benefits{padding:15px}
+.travelplus-passport-tier-grid,.travelplus-passport-page .travelplus-passport-reward-grid{grid-template-columns:1fr}
+.travelplus-passport-tier{padding:18px}
+.travelplus-passport-heading h2{font-size:32px}
+.travelplus-passport-cta>.container{display:grid}
+.travelplus-passport-cta>a{justify-content:center}
+.travelplus-passport-how__layout{gap:28px}
+.travelplus-passport-steps li{grid-template-columns:26px 40px minmax(0,1fr);gap:9px}
+.travelplus-passport-steps li>i{width:40px;height:40px}
 }

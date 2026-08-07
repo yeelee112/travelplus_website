@@ -59,6 +59,7 @@ $serviceLinks = [
 ];
 
 $infoLinks = [
+        ['label' => 'TravelPlus Passport', 'url' => \App\Data\LocalizedPathCatalog::url('passport.program', $locale)],
     ['label' => lang('Frontend.footer.link.about'), 'url' => \App\Data\LocalizedPathCatalog::url('about', $locale)],
     ['label' => lang('Frontend.footer.link.contact'), 'url' => \App\Data\LocalizedPathCatalog::url('contact', $locale)],
     ['label' => $locale === 'en' ? 'Booking lookup' : 'Tra cứu booking', 'url' => \App\Data\LocalizedPathCatalog::url('booking.lookup', $locale)],

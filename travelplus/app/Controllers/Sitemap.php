@@ -14,7 +14,7 @@ class Sitemap extends Controller
     public function index()
     {
         $contentCache = new PublicContentCacheService();
-        $cacheKey = 'sitemap:v5:' . $this->stylesheetVersion() . ':' . base_url();
+        $cacheKey = 'sitemap:v6:' . $this->stylesheetVersion() . ':' . base_url();
         $cachedXml = $contentCache->get($cacheKey);
         if (is_string($cachedXml) && $cachedXml !== '') {
             return $this->response
@@ -36,6 +36,7 @@ class Sitemap extends Controller
             'about',
             'blog',
             'summer',
+            'passport.program',
             'service.visa',
             'service.mice',
             'service.airlineTickets',

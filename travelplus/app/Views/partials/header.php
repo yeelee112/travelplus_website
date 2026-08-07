@@ -64,7 +64,6 @@ $serviceMenuActive = array_reduce(
 );
 $profileUrl = \App\Data\LocalizedPathCatalog::url('auth.profile', $locale);
 $loginUrl = \App\Data\LocalizedPathCatalog::url('auth.login', $locale) . '?return_to=' . rawurlencode($currentAbsoluteUrl);
-$authPrimaryUrl = $authUser ? $profileUrl : $loginUrl;
 $authPrimaryLabel = $authUser
     ? lang('Frontend.auth.profile.menu', [], $locale)
     : $loginLabel;
@@ -92,6 +91,15 @@ $headerMemberTierIcons = [
     'signature' => 'bi-suit-diamond-fill',
 ];
 $headerMemberTierIcon = $headerMemberTierIcons[$headerMemberTier] ?? $headerMemberTierIcons['member'];
+$headerPassportPoints = max(0, (int) ($headerMembership['points'] ?? 0));
+$headerPassportNextReward = is_array($headerMembership['next_reward'] ?? null) ? $headerMembership['next_reward'] : null;
+$headerPassportRemaining = $headerPassportNextReward !== null
+    ? max(0, (int) ($headerPassportNextReward['points'] ?? 0) - $headerPassportPoints)
+    : 0;
+$headerPassportSubline = $authUser
+    ? number_format($headerPassportPoints, 0, ',', '.') . ' ' . ($locale === 'en' ? 'miles' : 'dặm')
+    : ($locale === 'en' ? 'Earn miles · redeem vouchers' : 'Tích dặm · đổi voucher');
+$headerPassportUrl = \App\Data\LocalizedPathCatalog::url('passport.program', $locale);
 $megaMenuCountryLimit = 7;
 $megaMenuMoreLabel = $locale === 'en' ? 'Show %d more' : 'Xem thêm %d quốc gia';
 $megaMenuLessLabel = $locale === 'en' ? 'Show less' : 'Thu gọn';
@@ -155,10 +163,6 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                 </li>
             </ul>
 
-            <a class="header-logo" href="<?= localized_url('/') ?>">
-                <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo.svg') ?>">
-            </a>
-
             <div class="topbar-right">
                 <div class="support-and-language-area">
                     <a href="<?= $aboutUrl ?>"><?= esc(lang('Frontend.header.aboutTravelPlus')) ?></a>
@@ -185,6 +189,10 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                 </div>
 
                 <div class="search-and-login">
+                    <a class="header-passport-nav" href="<?= esc($headerPassportUrl, 'attr') ?>">
+                        <i class="bi bi-passport-fill" aria-hidden="true"></i>
+                        <span><strong>Passport</strong><small><?= esc($headerPassportSubline) ?></small></span>
+                    </a>
                     <?php if ($authUser): ?>
                         <div class="account-dropdown">
                             <button type="button" class="header-member-trigger account-btn" aria-label="<?= esc($authPrimaryLabel, 'attr') ?>">
@@ -209,6 +217,14 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                                     <li class="account-menu-divider" aria-hidden="true"></li>
                                 <?php endif; ?>
                                 <li class="account-menu-heading"><?= esc($headerPersonalGroupLabel) ?></li>
+                                <li class="header-passport-summary">
+                                    <a href="<?= esc($profileUrl, 'attr') ?>">
+                                        <i class="bi bi-stars" aria-hidden="true"></i>
+                                        <span><strong>TravelPlus Passport</strong><small><?= esc($headerPassportNextReward !== null
+                                            ? (($locale === 'en' ? $headerPassportRemaining . ' miles to the next voucher' : number_format($headerPassportRemaining, 0, ',', '.') . ' dặm nữa tới voucher tiếp theo'))
+                                            : ($locale === 'en' ? 'Highest voucher milestone reached' : 'Đã đạt mốc voucher cao nhất')) ?></small></span>
+                                    </a>
+                                </li>
                                 <li>
                                     <a class="account-menu-link" href="<?= $profileUrl ?>">
                                         <i class="bi bi-person-circle" aria-hidden="true"></i>
@@ -248,6 +264,12 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
             </div>
         </div>
     </div>
+</div>
+
+<div class="header-brand-stage d-lg-flex d-none">
+    <a class="header-brand-stage__logo" href="<?= localized_url('/') ?>">
+        <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo.svg') ?>">
+    </a>
 </div>
 
 <header class="style-1 two site-header-modern">
@@ -381,6 +403,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
 
                 <li class="<?= $isActiveHeaderUrl($blogUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $blogUrl ?>"><?= esc(lang('Frontend.header.menu.blog')) ?></a></li>
                 <li class="<?= $isActiveHeaderUrl($contactUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $contactUrl ?>"><?= esc(lang('Frontend.header.menu.contact')) ?></a></li>
+                <li class="mobile-passport-menu-item"><a href="<?= esc($headerPassportUrl, 'attr') ?>"><i class="bi bi-passport-fill" aria-hidden="true"></i>TravelPlus Passport</a></li>
                 <li class="mobile-booking-menu-item <?= $isActiveHeaderUrl($bookingLookupUrl) ? 'current-menu-item' : '' ?>"><a href="<?= esc($bookingLookupUrl) ?>"><?= esc($bookingLookupLabel) ?></a></li>
             </ul>
 
@@ -436,6 +459,14 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                                 <li class="account-menu-divider" aria-hidden="true"></li>
                             <?php endif; ?>
                             <li class="account-menu-heading"><?= esc($headerPersonalGroupLabel) ?></li>
+                            <li class="header-passport-summary">
+                                <a href="<?= esc($profileUrl, 'attr') ?>">
+                                    <i class="bi bi-stars" aria-hidden="true"></i>
+                                    <span><strong>TravelPlus Passport</strong><small><?= esc($headerPassportNextReward !== null
+                                        ? (($locale === 'en' ? $headerPassportRemaining . ' miles to the next voucher' : number_format($headerPassportRemaining, 0, ',', '.') . ' dặm nữa tới voucher tiếp theo'))
+                                        : ($locale === 'en' ? 'Highest voucher milestone reached' : 'Đã đạt mốc voucher cao nhất')) ?></small></span>
+                                </a>
+                            </li>
                             <li>
                                 <a class="account-menu-link" href="<?= $profileUrl ?>">
                                     <i class="bi bi-person-circle" aria-hidden="true"></i>

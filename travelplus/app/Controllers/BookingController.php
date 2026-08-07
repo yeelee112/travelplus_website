@@ -9,6 +9,9 @@ use App\Models\UserModel;
 use App\Services\BookingNotificationService;
 use App\Services\CrmLeadCaptureService;
 use App\Services\LoyaltyPointService;
+use App\Services\LoyaltyRewardService;
+use App\Services\LoyaltyMembershipService;
+use App\Services\LoyaltyTierBenefitService;
 use App\Services\PayPalSandboxService;
 use App\Services\PromotionCodeService;
 use App\Services\VietnamAdministrativeUnitService;
@@ -72,6 +75,8 @@ class BookingController extends BaseController
             ]);
         }
 
+        $pendingBooking = $this->applyMembershipDiscount($pendingBooking, session()->get('auth_user'));
+
         session()->set('pending_booking', $pendingBooking);
 
         session()->remove('current_booking_code');
@@ -111,6 +116,10 @@ class BookingController extends BaseController
             return redirect()->to(localized_url('/'));
         }
 
+        $authUser = session()->get('auth_user');
+        $pendingBooking = $this->applyMembershipDiscount($pendingBooking, $authUser);
+        session()->set('pending_booking', $pendingBooking);
+
         $checkoutValue = (float) ($pendingBooking['grand_total'] ?? 0);
         $checkoutDedupeKey = 'begin_checkout_' . hash('sha256', implode('|', [
             session_id(),
@@ -122,11 +131,25 @@ class BookingController extends BaseController
             (string) $checkoutValue,
         ]));
 
+        $passportVouchers = [];
+
+        if (is_array($authUser) && (int) ($authUser['id'] ?? 0) > 0) {
+            $userId = (int) $authUser['id'];
+            $loyaltyPoints = new LoyaltyPointService();
+            $qualifyingPoints = (int) ($loyaltyPoints->qualifyingPointsForUser($userId) ?? 0);
+            (new LoyaltyTierBenefitService())->syncForUser($userId, $qualifyingPoints);
+            $passportVouchers = (new LoyaltyRewardService())->checkoutVouchersForUser(
+                $userId,
+                (float) ($pendingBooking['coupon_eligible_subtotal_vnd'] ?? $pendingBooking['subtotal_vnd'] ?? 0)
+            );
+        }
+
         $addressService = new VietnamAdministrativeUnitService();
 
         return view('booking/checkout', [
             'pendingBooking' => $pendingBooking,
-            'authUser' => session()->get('auth_user'),
+            'authUser' => $authUser,
+            'passportVouchers' => $passportVouchers,
             'checkoutMode' => session()->get('checkout_mode') ?: (session()->has('auth_user') ? 'member' : 'guest'),
             'checkoutNotice' => session()->getFlashdata('checkout_notice'),
             'checkoutError' => session()->getFlashdata('checkout_error'),
@@ -1146,6 +1169,9 @@ class BookingController extends BaseController
             'single_room_supplement_vnd' => $singleRoomSupplement,
             'coupon_eligible_subtotal_vnd' => $eligibleSubtotal,
             'subtotal_vnd' => $subtotal,
+            'membership_tier_key' => 'member',
+            'membership_discount_rate' => 0.0,
+            'membership_discount_amount_vnd' => 0.0,
             'discount_amount_vnd' => 0.0,
             'coupon_id' => null,
             'coupon_code' => '',
@@ -1414,6 +1440,9 @@ class BookingController extends BaseController
             'single_room_requested' => ! empty($pendingBooking['single_room_requested']) ? 1 : 0,
             'single_room_supplement_vnd' => (float) ($pendingBooking['single_room_supplement_vnd'] ?? 0),
             'subtotal_vnd' => (float) ($pendingBooking['subtotal_vnd'] ?? $pendingBooking['grand_total'] ?? 0),
+            'membership_tier_key' => (string) ($pendingBooking['membership_tier_key'] ?? 'member'),
+            'membership_discount_rate' => (float) ($pendingBooking['membership_discount_rate'] ?? 0),
+            'membership_discount_amount_vnd' => (float) ($pendingBooking['membership_discount_amount_vnd'] ?? 0),
             'discount_amount_vnd' => (float) ($pendingBooking['discount_amount_vnd'] ?? 0),
             'coupon_id' => (int) ($pendingBooking['coupon_id'] ?? 0) ?: null,
             'coupon_code' => $this->nullableString((string) ($pendingBooking['coupon_code'] ?? '')),
@@ -1456,7 +1485,63 @@ class BookingController extends BaseController
         $pendingBooking['coupon_name'] = '';
         $pendingBooking['coupon_snapshot'] = null;
         $pendingBooking['discount_amount_vnd'] = 0.0;
-        $pendingBooking['grand_total'] = (float) ($pendingBooking['subtotal_vnd'] ?? $pendingBooking['grand_total'] ?? 0);
+        $subtotal = (float) ($pendingBooking['subtotal_vnd'] ?? $pendingBooking['grand_total'] ?? 0);
+        $membershipDiscount = max(0, (float) ($pendingBooking['membership_discount_amount_vnd'] ?? 0));
+        $pendingBooking['grand_total'] = max(0, $subtotal - $membershipDiscount);
+
+        return $pendingBooking;
+    }
+
+    /**
+     * Applies the current Passport tier saving and preserves any valid coupon.
+     *
+     * @param mixed $authUser
+     * @param array<string, mixed> $pendingBooking
+     * @return array<string, mixed>
+     */
+    private function applyMembershipDiscount(array $pendingBooking, $authUser): array
+    {
+        $couponCode = trim((string) ($pendingBooking['coupon_code'] ?? ''));
+        $pendingBooking = $this->clearPendingBookingCoupon($pendingBooking);
+        $tierKey = 'member';
+        $discountRate = 0.0;
+        $discountCap = 0.0;
+
+        if (is_array($authUser) && (int) ($authUser['id'] ?? 0) > 0) {
+            $qualifyingPoints = (int) ((new LoyaltyPointService())->qualifyingPointsForUser((int) $authUser['id']) ?? 0);
+            $membership = (new LoyaltyMembershipService())->buildSnapshotFromCounts(0, 0, 0, 0, $qualifyingPoints);
+            $tier = is_array($membership['current_tier'] ?? null) ? $membership['current_tier'] : [];
+            $tierKey = (string) ($tier['key'] ?? 'member');
+            $discountRate = min(3.0, max(0, (float) ($tier['discount_rate'] ?? 0)));
+            $discountCap = max(0, (float) ($tier['discount_cap_vnd'] ?? 0));
+        }
+
+        $eligibleSubtotal = (float) ($pendingBooking['coupon_eligible_subtotal_vnd'] ?? $pendingBooking['subtotal_vnd'] ?? 0);
+        $membershipDiscount = LoyaltyMembershipService::calculateTierDiscount($eligibleSubtotal, $discountRate, $discountCap);
+        $pendingBooking['membership_tier_key'] = $tierKey;
+        $pendingBooking['membership_discount_rate'] = $discountRate;
+        $pendingBooking['membership_discount_amount_vnd'] = $membershipDiscount;
+        $pendingBooking['grand_total'] = max(0, (float) ($pendingBooking['subtotal_vnd'] ?? 0) - $membershipDiscount);
+
+        if ($couponCode !== '') {
+            $result = (new PromotionCodeService())->applyCode($couponCode, $pendingBooking);
+            if ($result['ok']) {
+                $promotion = is_array($result['code'] ?? null) ? $result['code'] : [];
+                $pendingBooking['coupon_id'] = (int) ($promotion['id'] ?? 0) ?: null;
+                $pendingBooking['coupon_code'] = strtoupper(trim((string) ($promotion['code'] ?? $couponCode)));
+                $pendingBooking['coupon_name'] = trim((string) ($promotion['name'] ?? ''));
+                $pendingBooking['discount_amount_vnd'] = (float) ($result['discount_amount'] ?? 0);
+                $pendingBooking['grand_total'] = (float) ($result['grand_total'] ?? $pendingBooking['grand_total']);
+                $pendingBooking['coupon_snapshot'] = [
+                    'id' => (int) ($promotion['id'] ?? 0),
+                    'code' => $pendingBooking['coupon_code'],
+                    'name' => $pendingBooking['coupon_name'],
+                    'discount_type' => (string) ($promotion['discount_type'] ?? ''),
+                    'discount_value' => (float) ($promotion['discount_value'] ?? 0),
+                    'discount_amount_vnd' => (float) ($result['discount_amount'] ?? 0),
+                ];
+            }
+        }
 
         return $pendingBooking;
     }

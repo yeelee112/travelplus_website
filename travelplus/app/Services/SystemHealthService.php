@@ -39,6 +39,7 @@ class SystemHealthService
             'idx_loyalty_points_user_created',
             'idx_loyalty_points_booking',
         ],
+        'loyalty_reward_vouchers' => [],
         'zalo_oa_connections' => [
             'uq_zalo_oa_id',
             'idx_zalo_oa_app_status',
@@ -281,6 +282,7 @@ class SystemHealthService
                 'crm_leads',
                 'booking_email_logs',
                 'loyalty_point_transactions',
+                'loyalty_reward_vouchers',
                 'zalo_oa_connections',
             ];
             $missingTables = array_values(array_filter(

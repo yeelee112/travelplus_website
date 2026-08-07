@@ -90,6 +90,7 @@ if (str_contains($contentSection, 'travelplus-legal')) {
 }
 if (str_contains($contentSection, 'travelplus-account-')
     || str_contains($contentSection, 'travelplus-membership-')
+    || str_contains($contentSection, 'travelplus-passport-')
     || str_contains($contentSection, 'travelplus-auth-')) {
     $pageStyleAssets[] = 'account';
 }

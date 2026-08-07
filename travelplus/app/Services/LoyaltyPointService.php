@@ -119,6 +119,23 @@ final class LoyaltyPointService
         return max(0, (int) ($row['balance'] ?? 0));
     }
 
+    public function qualifyingPointsForUser(int $userId): ?int
+    {
+        if ($userId <= 0 || ! $this->isAvailable()) {
+            return null;
+        }
+
+        $row = $this->database()
+            ->table(self::TABLE)
+            ->select('COALESCE(SUM(points), 0) AS qualifying_points', false)
+            ->where('user_id', $userId)
+            ->whereIn('type', ['booking_earned', 'booking_reversed'])
+            ->get()
+            ->getRowArray();
+
+        return max(0, (int) ($row['qualifying_points'] ?? 0));
+    }
+
     /**
      * @return list<array<string, mixed>>
      */

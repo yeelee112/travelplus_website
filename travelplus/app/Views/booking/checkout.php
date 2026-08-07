@@ -2,6 +2,8 @@
 
 <?= $this->section('content') ?>
 <?php
+helper('display');
+
 $authUser = is_array($authUser ?? null) ? $authUser : null;
 $booking = is_array($pendingBooking ?? null) ? $pendingBooking : [];
 $locale = service('request')->getLocale();
@@ -12,9 +14,13 @@ $infantQuantity = max(0, (int) ($booking['infant_quantity'] ?? 0));
 $travelerCount = $adultQuantity + $childQuantity + $infantQuantity;
 $grandTotal = (float) ($booking['grand_total'] ?? 0);
 $subtotalAmount = (float) ($booking['subtotal_vnd'] ?? $grandTotal);
+$membershipDiscountAmount = max(0, (float) ($booking['membership_discount_amount_vnd'] ?? 0));
+$membershipDiscountRate = min(3, max(0, (float) ($booking['membership_discount_rate'] ?? 0)));
+$membershipTierKey = (string) ($booking['membership_tier_key'] ?? 'member');
 $discountAmount = (float) ($booking['discount_amount_vnd'] ?? 0);
 $couponCode = trim((string) ($booking['coupon_code'] ?? ''));
 $couponName = trim((string) ($booking['coupon_name'] ?? ''));
+$passportVouchers = is_array($passportVouchers ?? null) ? array_values($passportVouchers) : [];
 $singleRoomRequested = ! empty($booking['single_room_requested']);
 $singleRoomSupplementAmount = max(0, (float) ($booking['single_room_supplement_vnd'] ?? 0));
 $baseTourSubtotalAmount = max(0, (float) ($booking['coupon_eligible_subtotal_vnd'] ?? ($subtotalAmount - $singleRoomSupplementAmount)));
@@ -29,6 +35,7 @@ $selectedProvinceCode = (string) ($authUser['province_code'] ?? '');
 $selectedWardCode = (string) ($authUser['ward_code'] ?? '');
 $selectedAddressLine = (string) ($authUser['address_line'] ?? '');
 $formatCurrency = static fn(float $amount): string => number_format($amount, 0, ',', '.') . ' VND';
+$formatRate = static fn(float $rate): string => rtrim(rtrim(number_format($rate, 2, ',', '.'), '0'), ',');
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
 $travelerParts = [];
 
@@ -72,6 +79,33 @@ $couponUi = $locale === 'en'
         'none' => 'Chưa áp dụng mã',
         'hint' => $t('checkout.couponAlert'),
     ];
+$passportVoucherUi = $locale === 'en'
+    ? [
+        'title' => 'Your Passport vouchers',
+        'hint' => 'Choose one voucher to apply to this booking.',
+        'tier' => 'Tier welcome benefit',
+        'miles' => 'Journey Miles voucher',
+        'minimum' => 'Booking from',
+        'needMore' => 'Add %s more to use',
+        'expires' => 'Expires',
+        'apply' => 'Apply voucher',
+    ]
+    : [
+        'title' => 'Voucher Passport của bạn',
+        'hint' => 'Chọn một voucher để áp dụng ngay cho booking này.',
+        'tier' => 'Quyền lợi chào hạng',
+        'miles' => 'Voucher đổi Dặm',
+        'minimum' => 'Booking từ',
+        'needMore' => 'Cần thêm %s để sử dụng',
+        'expires' => 'Hết hạn',
+        'apply' => 'Áp dụng voucher',
+    ];
+$membershipTierNames = $locale === 'en'
+    ? ['member' => 'Member', 'silver' => 'Silver', 'gold' => 'Gold', 'diamond' => 'Diamond', 'signature' => 'Signature']
+    : ['member' => 'Thành viên', 'silver' => 'Bạc', 'gold' => 'Vàng', 'diamond' => 'Kim Cương', 'signature' => 'Signature'];
+$membershipDiscountLabel = ($locale === 'en' ? 'Passport ' : 'Ưu đãi Passport hạng ')
+    . ($membershipTierNames[$membershipTierKey] ?? $membershipTierNames['member'])
+    . ' (' . $formatRate($membershipDiscountRate) . '%)';
 $singleRoomLabel = $locale === 'en' ? 'Single room supplement' : 'Phụ thu phòng đơn';
 $tourPriceLabel = $locale === 'en' ? 'Tour price' : 'Giá tour';
 $singleRoomValueLabel = $locale === 'en'
@@ -337,6 +371,52 @@ $singleRoomValueLabel = $locale === 'en'
                                         </div>
                                         <p class="checkout-coupon-hint" id="checkout-coupon-help"><?= esc($couponUi['hint']) ?></p>
                                         <p class="small mb-0 checkout-coupon-feedback text-muted" id="checkout-coupon-feedback" data-coupon-message role="status" aria-live="polite" hidden></p>
+
+                                        <?php if ($passportVouchers !== []): ?>
+                                            <div class="checkout-passport-wallet" aria-label="<?= esc($passportVoucherUi['title'], 'attr') ?>">
+                                                <div class="checkout-passport-wallet__head">
+                                                    <span><i class="bi bi-passport-fill" aria-hidden="true"></i></span>
+                                                    <div>
+                                                        <strong><?= esc($passportVoucherUi['title']) ?></strong>
+                                                        <small><?= esc($passportVoucherUi['hint']) ?></small>
+                                                    </div>
+                                                </div>
+                                                <div class="checkout-passport-wallet__list">
+                                                    <?php foreach ($passportVouchers as $voucher): ?>
+                                                        <?php
+                                                        $voucherCode = strtoupper(trim((string) ($voucher['code'] ?? '')));
+                                                        $voucherEligible = (bool) ($voucher['eligible'] ?? false);
+                                                        $voucherApplied = $voucherCode !== '' && strcasecmp($couponCode, $voucherCode) === 0;
+                                                        $voucherAmount = max(0, (float) ($voucher['voucher_amount_vnd'] ?? 0));
+                                                        $voucherMinimum = max(0, (float) ($voucher['min_order_vnd'] ?? 0));
+                                                        $voucherAmountNeeded = max(0, (float) ($voucher['amount_needed_vnd'] ?? 0));
+                                                        $voucherType = (string) ($voucher['benefit_type'] ?? '') === 'tier'
+                                                            ? $passportVoucherUi['tier']
+                                                            : $passportVoucherUi['miles'];
+                                                        $voucherCondition = $voucherEligible
+                                                            ? $passportVoucherUi['minimum'] . ' ' . $formatCurrency($voucherMinimum)
+                                                            : sprintf($passportVoucherUi['needMore'], $formatCurrency($voucherAmountNeeded));
+                                                        ?>
+                                                        <button
+                                                            type="button"
+                                                            class="checkout-passport-voucher<?= $voucherApplied ? ' is-selected' : '' ?>"
+                                                            data-passport-voucher-code="<?= esc($voucherCode, 'attr') ?>"
+                                                            data-passport-voucher-eligible="<?= $voucherEligible ? '1' : '0' ?>"
+                                                            aria-pressed="<?= $voucherApplied ? 'true' : 'false' ?>"
+                                                            aria-label="<?= esc($passportVoucherUi['apply'] . ' ' . $voucherCode, 'attr') ?>"
+                                                            <?= $voucherEligible ? '' : 'disabled' ?>>
+                                                            <span class="checkout-passport-voucher__icon"><i class="bi bi-ticket-perforated-fill" aria-hidden="true"></i></span>
+                                                            <span class="checkout-passport-voucher__copy">
+                                                                <strong><?= esc($voucherType) ?></strong>
+                                                                <small><?= esc($voucherCode) ?> · <?= esc($passportVoucherUi['expires']) ?> <?= esc(app_datetime((string) ($voucher['expires_at'] ?? ''), 'd/m/Y', '-')) ?></small>
+                                                                <em><?= esc($voucherCondition) ?></em>
+                                                            </span>
+                                                            <b>-<?= esc(number_format($voucherAmount, 0, ',', '.')) ?>đ</b>
+                                                        </button>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
 
                                     <div class="checkout-summary-subpanel checkout-summary-subpanel--plans">
@@ -465,6 +545,12 @@ $singleRoomValueLabel = $locale === 'en'
                                                         <strong data-single-room-amount><?= esc($formatCurrency($singleRoomSupplementAmount)) ?></strong>
                                                     </div>
                                                 <?php endif; ?>
+                                                <?php if ($membershipDiscountAmount > 0): ?>
+                                                    <div class="checkout-summary-price-row checkout-summary-price-row--passport">
+                                                        <span><?= esc($membershipDiscountLabel) ?></span>
+                                                        <strong>-<?= esc($formatCurrency($membershipDiscountAmount)) ?></strong>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div class="checkout-summary-price-row" data-discount-row<?= $discountAmount <= 0 ? ' hidden' : '' ?>>
                                                     <span><?= esc($couponUi['discount']) ?></span>
                                                     <strong data-discount-amount>-<?= esc($formatCurrency($discountAmount)) ?></strong>
@@ -536,6 +622,12 @@ $singleRoomValueLabel = $locale === 'en'
                                     <span><?= esc($couponUi['discount']) ?></span>
                                     <strong data-discount-amount>-<?= esc($formatCurrency($discountAmount)) ?></strong>
                                 </div>
+                                <?php if ($membershipDiscountAmount > 0): ?>
+                                    <div class="checkout-finish-item">
+                                        <span><?= esc($membershipDiscountLabel) ?></span>
+                                        <strong>-<?= esc($formatCurrency($membershipDiscountAmount)) ?></strong>
+                                    </div>
+                                <?php endif; ?>
                                 <?php if ($singleRoomSupplementAmount > 0): ?>
                                     <div class="checkout-finish-item" data-single-room-row>
                                         <span><?= esc($singleRoomLabel) ?></span>
@@ -617,6 +709,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const couponRemoveButton = root.querySelector('[data-coupon-remove]');
     const couponCurrentOutputs = Array.from(root.querySelectorAll('[data-coupon-current-summary], [data-coupon-current-finish]'));
     const couponMessage = root.querySelector('[data-coupon-message]');
+    const passportVoucherButtons = Array.from(root.querySelectorAll('[data-passport-voucher-code]'));
     const couponApplyUrl = root.dataset.couponApplyUrl || '';
     const paySubmitButtons = Array.from(root.querySelectorAll('[data-pay-submit]'));
     const vietQrCreateUrl = vietQrBox ? vietQrBox.dataset.vietqrCreateUrl : '';
@@ -941,6 +1034,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        passportVoucherButtons.forEach(function (button) {
+            button.disabled = disabled || button.dataset.passportVoucherEligible !== '1';
+        });
+
         if (!couponInput) {
             return;
         }
@@ -991,6 +1088,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         couponCurrentOutputs.forEach(function (output) {
             output.textContent = label;
+        });
+
+        passportVoucherButtons.forEach(function (button) {
+            const selected = couponCode !== '' && button.dataset.passportVoucherCode === couponCode;
+            button.classList.toggle('is-selected', selected);
+            button.setAttribute('aria-pressed', selected ? 'true' : 'false');
         });
     };
 
@@ -1563,6 +1666,15 @@ document.addEventListener('DOMContentLoaded', function () {
             await submitCouponCode(couponInput.value.trim(), 'apply');
         });
     }
+
+    passportVoucherButtons.forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const code = String(button.dataset.passportVoucherCode || '').trim();
+            if (code !== '') {
+                await submitCouponCode(code, 'apply');
+            }
+        });
+    });
 
     if (couponRemoveButton) {
         couponRemoveButton.addEventListener('click', async function () {

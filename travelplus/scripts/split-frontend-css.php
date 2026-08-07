@@ -13,10 +13,10 @@ $bundlePatterns = [
     'booking' => '/\.(?:travelplus-booking[a-z0-9_-]*|booking-lookup[a-z0-9_-]*|checkout-stepper[a-z0-9_-]*|booking-checkout[a-z0-9_-]*)\b/i',
     'about' => '/\.(?:about-page[a-z0-9_-]*|journey-pane|jouney-content-wrapper)\b/i',
     'contact' => '/\.(?:travelplus-contact[a-z0-9_-]*|travelplus-inline-error)\b/i',
-    'home' => '/\.home-(?:page|modern|promo|summer|search|blog|section|tour|destination|testimonial|gallery|stats?|empty|inline)[a-z0-9_-]*\b/i',
+    'home' => '/\.home-(?:page|modern|promo|passport|summer|search|blog|section|tour|destination|testimonial|gallery|stats?|empty|inline)[a-z0-9_-]*\b/i',
     'blog' => '/\.travelplus-blog[a-z0-9_-]*\b/i',
     'legal' => '/\.travelplus-legal[a-z0-9_-]*\b/i',
-    'account' => '/\.travelplus-(?:account|membership|loyalty|auth)[a-z0-9_-]*\b/i',
+    'account' => '/\.travelplus-(?:account|membership|loyalty|auth|passport)[a-z0-9_-]*\b/i',
 ];
 
 $css = @file_get_contents($sourcePath);

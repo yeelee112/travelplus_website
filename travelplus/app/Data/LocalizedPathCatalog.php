@@ -28,6 +28,10 @@ final class LocalizedPathCatalog
             'vi' => 'tour-he',
             'en' => 'summer-tours',
         ],
+        'passport.program' => [
+            'vi' => 'travelplus-passport',
+            'en' => 'travelplus-passport',
+        ],
         'outbound' => [
             'vi' => 'tour-nuoc-ngoai',
             'en' => 'tour-nuoc-ngoai',

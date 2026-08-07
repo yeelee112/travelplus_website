@@ -59,8 +59,18 @@ $priceCurrency = trim((string) ($tour['price']['currency'] ?? 'VND')) ?: 'VND';
 $loyaltyPoints = \App\Services\LoyaltyPointService::previewPoints($priceAmount);
 $loyaltyPointsLabel = number_format($loyaltyPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
 $loyaltyCopy = $locale === 'en'
-    ? 'Earn ' . $loyaltyPointsLabel . '+ member points'
-    : 'Từ ' . $loyaltyPointsLabel . ' điểm thành viên';
+    ? 'Earn ' . $loyaltyPointsLabel . '+ Journey Miles'
+    : 'Nhận từ ' . $loyaltyPointsLabel . ' Dặm Hành Trình';
+$memberBalance = max(0, (int) ($headerMembership['points'] ?? 0));
+$nextReward = is_array($headerMembership['next_reward'] ?? null) ? $headerMembership['next_reward'] : null;
+$unlocksNextReward = $nextReward !== null
+    && $memberBalance < (int) ($nextReward['points'] ?? 0)
+    && ($memberBalance + $loyaltyPoints) >= (int) ($nextReward['points'] ?? 0);
+$unlockCopy = $unlocksNextReward
+    ? ($locale === 'en'
+        ? 'Book this tour to unlock a ' . number_format((int) ($nextReward['amount_vnd'] ?? 0), 0, '.', ',') . ' VND voucher'
+        : 'Đặt tour này, đủ đổi voucher ' . number_format((int) ($nextReward['amount_vnd'] ?? 0), 0, ',', '.') . 'đ')
+    : '';
 $ariaLabel = $title !== '' ? $t('tourCard.viewDetails', [$title]) : $t('tourCard.cta');
 $tourToolCopy = [
     'wishlist' => $locale === 'en' ? 'Save tour' : 'Lưu tour',
@@ -200,6 +210,11 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
                             <i class="bi bi-stars" aria-hidden="true"></i>
                             <?= esc($loyaltyCopy) ?>
                         </small>
+                        <?php if ($unlockCopy !== ''): ?>
+                            <small class="tp-tour-card__passport-unlock">
+                                <i class="bi bi-gift-fill" aria-hidden="true"></i><?= esc($unlockCopy) ?>
+                            </small>
+                        <?php endif; ?>
                     <?php endif; ?>
                     <?php if ($priceAmount > 0): ?>
                         <meta itemprop="price" content="<?= esc((string) $priceAmount, 'attr') ?>">

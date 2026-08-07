@@ -75,4 +75,29 @@ final class LoyaltyMembershipServiceTest extends CIUnitTestCase
             $this->assertSame($expectedTier, $snapshot['current_tier']['key'], 'Unexpected tier at ' . $points . ' points.');
         }
     }
+
+    public function testEachTierUsesAConservativeDiscountRate(): void
+    {
+        $service = new LoyaltyMembershipService();
+        $rates = [
+            0 => 0.0,
+            5000 => 1.0,
+            20000 => 1.5,
+            60000 => 2.0,
+            150000 => 3.0,
+        ];
+
+        foreach ($rates as $points => $expectedRate) {
+            $snapshot = $service->buildSnapshot([], $points);
+            $this->assertSame($expectedRate, $snapshot['current_tier']['discount_rate']);
+        }
+    }
+
+    public function testTierDiscountUsesRateAndTierAmountCap(): void
+    {
+        $this->assertSame(150000.0, LoyaltyMembershipService::calculateTierDiscount(10000000, 1.5, 400000));
+        $this->assertSame(400000.0, LoyaltyMembershipService::calculateTierDiscount(50000000, 1.5, 400000));
+        $this->assertSame(300000.0, LoyaltyMembershipService::calculateTierDiscount(10000000, 9, 1000000));
+        $this->assertSame(0.0, LoyaltyMembershipService::calculateTierDiscount(-1000, 1));
+    }
 }

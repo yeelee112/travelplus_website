@@ -14,6 +14,8 @@ use App\Services\AuthSessionControlService;
 use App\Services\DatabaseAvailabilityService;
 use App\Services\LoyaltyMembershipService;
 use App\Services\LoyaltyPointService;
+use App\Services\LoyaltyRewardService;
+use App\Services\LoyaltyTierBenefitService;
 use App\Services\RememberLoginService;
 use Throwable;
 
@@ -118,11 +120,18 @@ abstract class BaseController extends Controller
                 $headerMembership = $cachedMembership;
             } elseif (! DatabaseAvailabilityService::isUnavailable()) {
                 try {
-                    $points = (new LoyaltyPointService())->balanceForUser($userId);
-                    $snapshot = (new LoyaltyMembershipService())->buildSnapshot([], $points);
+                    $pointService = new LoyaltyPointService();
+                    $points = $pointService->balanceForUser($userId);
+                    $qualifyingPoints = $pointService->qualifyingPointsForUser($userId);
+                    $snapshot = (new LoyaltyMembershipService())->buildSnapshotFromCounts(0, 0, 0, $points, $qualifyingPoints);
+                    (new LoyaltyTierBenefitService())->syncForUser($userId, (int) ($qualifyingPoints ?? 0));
+                    $nextReward = (new LoyaltyRewardService())->nextReward((int) ($points ?? 0));
                     $headerMembership = [
                         'user_id' => $userId,
                         'tier_key' => (string) ($snapshot['current_tier']['key'] ?? 'member'),
+                        'points' => (int) ($points ?? 0),
+                        'qualifying_points' => (int) ($qualifyingPoints ?? 0),
+                        'next_reward' => $nextReward,
                         'expires_at' => time() + 300,
                     ];
                     session()->set('header_membership', $headerMembership);

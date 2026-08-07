@@ -13,7 +13,7 @@ class Zalo extends BaseConfig
     public string $tokenEndpoint = 'https://oauth.zaloapp.com/v4/oa/access_token';
     public string $oaInfoEndpoint = 'https://openapi.zalo.me/v3.0/oa/getoa';
     public int $tokenRefreshLeeway = 300;
-    public bool $otpEnabled = true;
+    public bool $otpEnabled = false;
     public string $accessToken = '';
     public string $otpTemplateId = '617290';
     public string $otpField = 'otp';

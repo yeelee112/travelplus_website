@@ -3,6 +3,7 @@ $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
 $allToursUrl = \App\Data\LocalizedPathCatalog::url('search', $locale);
 $miceUrl = \App\Data\LocalizedPathCatalog::url('service.mice', $locale);
 $visaUrl = \App\Data\LocalizedPathCatalog::url('service.visa', $locale);
+$passportUrl = \App\Data\LocalizedPathCatalog::url('passport.program', $locale);
 
 $dateFieldLabel = $locale === 'en' ? 'Departure window' : 'Khoảng ngày khởi hành';
 $dateEmptyLabel = $locale === 'en' ? 'Choose a travel window' : 'Chọn khoảng ngày đi';
@@ -14,9 +15,7 @@ $dateHintLabel = $locale === 'en'
     ? 'Pick a rough travel window to find departures that match your plan.'
     : 'Chọn khoảng thời gian dự kiến để xem các tour có lịch khởi hành phù hợp.';
 $heroImages = [
-    ['path' => 'assets/images/home/banner01.webp', 'width' => 1920, 'height' => 1024],
-    ['path' => 'assets/images/home/banner02.webp', 'width' => 1693, 'height' => 929],
-    ['path' => 'assets/images/home/banner03.webp', 'width' => 2012, 'height' => 782],
+    ['path' => 'assets/images/home/banner00.png', 'width' => 2051, 'height' => 767],
 ];
 
 $copy = $locale === 'en'
@@ -52,6 +51,42 @@ $copy = $locale === 'en'
             ['Tour', $allToursUrl, 'bi-map-fill'],
         ],
     ];
+
+$copy = $locale === 'en'
+    ? [
+        'eyebrow' => 'Explore the world',
+        'titleParts' => ['A JOURNEY OF INSPIRATION'],
+        'desc' => 'Quality tours – Dedicated service – Lasting value',
+        'primaryCta' => 'Watch introduction video',
+        'searchTitle' => 'Find a tour',
+        'destinationLabel' => 'Destination',
+        'destinationPlaceholder' => 'Where would you like to go?',
+    ]
+    : [
+        'eyebrow' => 'Khám phá thế giới',
+        'titleParts' => ['SẴN SÀNG CHO CHUYẾN ĐI MỚI'],
+        'desc' => 'Tour chất lượng – Dịch vụ tận tâm – Giá trị bền vững',
+        'primaryCta' => 'Xem video giới thiệu',
+        'searchTitle' => 'Tìm tour',
+        'destinationLabel' => 'Điểm đến',
+        'destinationPlaceholder' => 'Bạn muốn đi đâu?',
+    ];
+$popularDestinations = $locale === 'en'
+    ? ['South Korea', 'Japan', 'Thailand', 'Europe', 'Da Nang', 'Phu Quoc', 'Nha Trang', 'Da Lat']
+    : ['Hàn Quốc', 'Nhật Bản', 'Thái Lan', 'Châu Âu', 'Đà Nẵng', 'Phú Quốc', 'Nha Trang', 'Đà Lạt'];
+$trustItems = $locale === 'en'
+    ? [
+        ['bi-shield-check', 'Thoughtful service', 'Carefully prepared for every journey'],
+        ['bi-tag', 'Great prices every day', 'Attractive offers are always available'],
+        ['bi-headset', 'Dedicated support', 'With you before, during and after'],
+        ['bi-bag-check', 'Secure payment', 'Your information is always protected'],
+    ]
+    : [
+        ['bi-shield-check', 'Dịch vụ chỉn chu', 'Tận tâm trong từng hành trình'],
+        ['bi-tag', 'Giá tốt mỗi ngày', 'Luôn có ưu đãi hấp dẫn'],
+        ['bi-headset', 'Hỗ trợ tận tâm', 'Đồng hành trước – trong – sau tour'],
+        ['bi-bag-check', 'Thanh toán an toàn', 'Bảo mật thông tin tuyệt đối'],
+    ];
 ?>
 
 <section class="home-modern-hero" aria-labelledby="home-hero-title">
@@ -60,13 +95,7 @@ $copy = $locale === 'en'
             <?php
             $heroImagePath = (string) $heroImage['path'];
             $heroImageUrl = base_url($heroImagePath);
-            $heroImageStem = preg_replace('/\.webp$/i', '', $heroImagePath) ?: $heroImagePath;
-            $heroImageSrcset = implode(', ', [
-                base_url($heroImageStem . '-768w.webp') . ' 768w',
-                base_url($heroImageStem . '-1280w.webp') . ' 1280w',
-                base_url($heroImageStem . '-1600w.webp') . ' 1600w',
-                $heroImageUrl . ' ' . (int) $heroImage['width'] . 'w',
-            ]);
+            $heroImageSrcset = $heroImageUrl . ' ' . (int) $heroImage['width'] . 'w';
             ?>
             <img
                 class="<?= $index === 0 ? 'is-active' : '' ?>"
@@ -95,28 +124,20 @@ $copy = $locale === 'en'
                 <?php endforeach; ?>
             </h1>
             <p><?= esc($copy['desc']) ?></p>
-            <div class="home-modern-hero__actions">
-                <a class="home-modern-btn home-modern-btn--primary" href="<?= esc($allToursUrl, 'attr') ?>">
-                    <?= esc($copy['primaryCta']) ?>
-                    <i class="bi bi-arrow-up-right"></i>
-                </a>
-                <a class="home-modern-btn home-modern-btn--ghost" href="<?= esc((string) $copy['secondaryUrl'], 'attr') ?>">
-                    <?= esc($copy['secondaryCta']) ?>
-                </a>
-            </div>
         </div>
 
+        <a class="home-hero-offer" href="<?= esc($passportUrl, 'attr') ?>">
+            <i class="bi bi-passport"></i>
+            <span>
+                <strong>TravelPlus Passport</strong>
+                <small><?= esc($locale === 'en' ? 'Book tours and earn journey miles' : 'Đặt tour để tích Dặm Hành Trình') ?></small>
+                <em><?= esc($locale === 'en' ? 'View benefits' : 'Xem quyền lợi') ?> →</em>
+            </span>
+        </a>
+
         <div class="home-modern-search" aria-label="<?= esc($copy['searchTitle'], 'attr') ?>">
-            <div class="home-modern-search__head">
-                <strong><?= esc($copy['searchTitle']) ?></strong>
-                <div class="home-modern-search__links">
-                    <?php foreach ($copy['quickLinks'] as $item): ?>
-                        <a href="<?= esc((string) $item[1], 'attr') ?>">
-                            <i class="bi <?= esc((string) $item[2], 'attr') ?>"></i>
-                            <?= esc((string) $item[0]) ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
+            <div class="home-modern-search__tabs">
+                <strong><i class="bi bi-airplane"></i><?= esc($copy['searchTitle']) ?></strong>
             </div>
 
             <form class="filter-input show home-modern-search__form" action="<?= esc($allToursUrl, 'attr') ?>" method="get" data-tour-search-form>
@@ -191,6 +212,26 @@ $copy = $locale === 'en'
                     <?= esc(lang('Frontend.hero.search.submit')) ?>
                 </button>
             </form>
+            <div class="home-modern-search__popular">
+                <span><?= esc($locale === 'en' ? 'Popular:' : 'Điểm đến phổ biến:') ?></span>
+                <?php foreach ($popularDestinations as $popularDestination): ?>
+                    <a href="<?= esc($allToursUrl . '?q=' . rawurlencode($popularDestination), 'attr') ?>"><?= esc($popularDestination) ?></a>
+                <?php endforeach; ?>
+            </div>
         </div>
+
+    </div>
+</section>
+
+<section class="home-hero-trust-section" aria-label="<?= esc($locale === 'en' ? 'Travel Plus commitments' : 'Cam kết của Travel Plus', 'attr') ?>">
+    <div class="container">
+        <ul class="home-hero-trust">
+            <?php foreach ($trustItems as $trustItem): ?>
+                <li>
+                    <i class="bi <?= esc($trustItem[0], 'attr') ?>"></i>
+                    <span><strong><?= esc($trustItem[1]) ?></strong><small><?= esc($trustItem[2]) ?></small></span>
+                </li>
+            <?php endforeach; ?>
+        </ul>
     </div>
 </section>

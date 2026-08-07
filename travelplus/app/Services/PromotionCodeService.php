@@ -16,29 +16,39 @@ class PromotionCodeService
         $code = strtoupper(trim($rawCode));
         $subtotal = max(0, (float) ($pendingBooking['subtotal_vnd'] ?? $pendingBooking['grand_total'] ?? 0));
         $eligibleSubtotal = max(0, (float) ($pendingBooking['coupon_eligible_subtotal_vnd'] ?? $subtotal));
+        $membershipDiscount = min(
+            $eligibleSubtotal,
+            max(0, (float) ($pendingBooking['membership_discount_amount_vnd'] ?? 0))
+        );
+        $couponEligibleSubtotal = max(0, $eligibleSubtotal - $membershipDiscount);
+        $beforeCouponTotal = max(0, $subtotal - $membershipDiscount);
 
         if ($subtotal <= 0) {
             return $this->failure('invalidSubtotal', 0, 0);
         }
 
         if ($code === '') {
-            return $this->failure('missingCode', $subtotal, $subtotal);
+            return $this->failure('missingCode', $subtotal, $beforeCouponTotal);
         }
 
         $model = new PromotionCodeModel();
 
         if (! $model->db->tableExists($model->getTable())) {
-            return $this->failure('tableMissing', $subtotal, $subtotal);
+            return $this->failure('tableMissing', $subtotal, $beforeCouponTotal);
         }
 
         $promotion = $model->where('code', $code)->first();
 
         if (! is_array($promotion)) {
-            return $this->failure('notFound', $subtotal, $subtotal);
+            return $this->failure('notFound', $subtotal, $beforeCouponTotal);
         }
 
         if ((int) ($promotion['is_active'] ?? 0) !== 1) {
-            return $this->failure('inactive', $subtotal, $subtotal);
+            return $this->failure('inactive', $subtotal, $beforeCouponTotal);
+        }
+
+        if (! $this->belongsToCurrentPassportMember($promotion)) {
+            return $this->failure('notOwned', $subtotal, $beforeCouponTotal);
         }
 
         $now = date('Y-m-d H:i:s');
@@ -46,40 +56,40 @@ class PromotionCodeService
         $endsAt = trim((string) ($promotion['ends_at'] ?? ''));
 
         if ($startsAt !== '' && $startsAt > $now) {
-            return $this->failure('notStarted', $subtotal, $subtotal);
+            return $this->failure('notStarted', $subtotal, $beforeCouponTotal);
         }
 
         if ($endsAt !== '' && $endsAt < $now) {
-            return $this->failure('expired', $subtotal, $subtotal);
+            return $this->failure('expired', $subtotal, $beforeCouponTotal);
         }
 
         $usageLimit = (int) ($promotion['usage_limit'] ?? 0);
         $usedCount = (int) ($promotion['used_count'] ?? 0);
 
         if ($usageLimit > 0 && $usedCount >= $usageLimit) {
-            return $this->failure('usageExceeded', $subtotal, $subtotal);
+            return $this->failure('usageExceeded', $subtotal, $beforeCouponTotal);
         }
 
         $minimumOrder = max(0, (float) ($promotion['min_order_amount'] ?? 0));
 
         if ($minimumOrder > 0 && $eligibleSubtotal < $minimumOrder) {
-            return $this->failure('minimumOrder', $subtotal, $subtotal);
+            return $this->failure('minimumOrder', $subtotal, $beforeCouponTotal);
         }
 
         if (! $this->isApplicableToBooking($promotion, $pendingBooking)) {
-            return $this->failure('tourMismatch', $subtotal, $subtotal);
+            return $this->failure('tourMismatch', $subtotal, $beforeCouponTotal);
         }
 
         $discountAmount = self::calculateDiscount(
             (string) ($promotion['discount_type'] ?? 'fixed'),
             (float) ($promotion['discount_value'] ?? 0),
-            $eligibleSubtotal,
+            $couponEligibleSubtotal,
             (float) ($promotion['max_discount_amount'] ?? 0)
         );
-        $grandTotal = max(0, $subtotal - $discountAmount);
+        $grandTotal = max(0, $beforeCouponTotal - $discountAmount);
 
         if ($discountAmount <= 0) {
-            return $this->failure('invalidDiscount', $subtotal, $subtotal);
+            return $this->failure('invalidDiscount', $subtotal, $beforeCouponTotal);
         }
 
         return [
@@ -150,6 +160,7 @@ class PromotionCodeService
                 'minimumOrder' => 'Đơn hàng chưa đạt giá trị tối thiểu để áp mã.',
                 'tourMismatch' => 'Mã khuyến mãi này không áp dụng cho tour bạn đang chọn.',
                 'invalidDiscount' => 'Mã khuyến mãi không tạo ra mức giảm hợp lệ.',
+                'notOwned' => 'Mã Passport này không thuộc tài khoản của bạn.',
                 'applied' => 'Áp dụng mã khuyến mãi thành công.',
             ],
             'en' => [
@@ -164,6 +175,7 @@ class PromotionCodeService
                 'minimumOrder' => 'This booking does not meet the minimum order amount for the coupon.',
                 'tourMismatch' => 'This coupon code does not apply to the selected tour.',
                 'invalidDiscount' => 'This coupon code does not produce a valid discount.',
+                'notOwned' => 'This Passport voucher does not belong to your account.',
                 'applied' => 'Coupon code applied successfully.',
             ],
         ];
@@ -204,5 +216,29 @@ class PromotionCodeService
         }
 
         return in_array($tourId, $assignedTourIds, true);
+    }
+
+    /** @param array<string, mixed> $promotion */
+    private function belongsToCurrentPassportMember(array $promotion): bool
+    {
+        $db = db_connect();
+        if (! $db->tableExists('loyalty_reward_vouchers')) {
+            return true;
+        }
+
+        $voucher = $db->table('loyalty_reward_vouchers')
+            ->select('user_id')
+            ->where('promotion_code_id', (int) ($promotion['id'] ?? 0))
+            ->get()
+            ->getRowArray();
+        if (! is_array($voucher)) {
+            return true;
+        }
+
+        $authUser = session()->get('auth_user');
+
+        return is_array($authUser)
+            && (int) ($authUser['id'] ?? 0) > 0
+            && (int) ($authUser['id'] ?? 0) === (int) ($voucher['user_id'] ?? 0);
     }
 }

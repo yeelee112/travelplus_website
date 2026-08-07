@@ -16,7 +16,7 @@ $authSuccess = session()->getFlashdata('auth_success');
                 <h1><?= esc($isEnglish ? 'One last security step' : 'Còn một bước bảo mật') ?></h1>
                 <p><?= esc($isEnglish
                     ? 'Verification protects your bookings, membership points, and personal details.'
-                    : 'Xác thực giúp bảo vệ booking, điểm thành viên và thông tin cá nhân của bạn.') ?></p>
+                    : 'Xác thực giúp bảo vệ booking, Dặm Hành Trình và thông tin cá nhân của bạn.') ?></p>
                 <ul>
                     <li><i class="bi bi-shield-check" aria-hidden="true"></i><?= esc($isEnglish ? 'Verification codes expire after 5 minutes' : 'Mã xác thực hết hạn sau 5 phút') ?></li>
                     <li><i class="bi bi-lock" aria-hidden="true"></i><?= esc($isEnglish ? 'Never share your code with anyone' : 'Không cung cấp mã cho bất kỳ ai') ?></li>

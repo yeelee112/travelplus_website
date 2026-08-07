@@ -5733,108 +5733,107 @@ header.style-3.two .main-menu>ul>li.active>a i{color: var(--white-color)}
     border-radius: 8px;
     background: #fff;
     box-shadow: 0 18px 48px rgba(0, 38, 61, .07);}
-.travelplus-auth-field input, .travelplus-auth-field select, .travelplus-account-card .form-inner input, .travelplus-account-card .form-inner select, .checkout-stepper-page .form-inner input, .checkout-stepper-page .form-inner select, .checkout-stepper-page .checkout-coupon-input input{width: 100%;
+.travelplus-auth-field input, .travelplus-account-card .form-inner input, .checkout-stepper-page .form-inner input, .checkout-stepper-page .checkout-coupon-input input{width: 100%;
     min-height: 50px;
     border: 1px solid #d7edf6;
     border-radius: 8px;
     background: #f9fdff;
     color: var(--title-color);
     font-size: 15px;}
-.travelplus-auth-field select, .travelplus-account-card .form-inner select, .checkout-stepper-page .form-inner select{padding: 10px 38px 10px 14px;}
-.travelplus-auth-field select:disabled, .travelplus-account-card .form-inner select:disabled, .checkout-stepper-page .form-inner select:disabled{cursor: not-allowed;
-    color: rgba(var(--title-color-opc), .48);
-    background-color: #f2f6f8;}
-.travelplus-auth-field input:focus, .travelplus-auth-field select:focus, .travelplus-account-card .form-inner input:focus, .travelplus-account-card .form-inner select:focus, .checkout-stepper-page .form-inner input:focus, .checkout-stepper-page .form-inner select:focus, .checkout-stepper-page .checkout-coupon-input input:focus{border-color: var(--primary-color1);
+.travelplus-auth-field input:focus, .travelplus-account-card .form-inner input:focus, .checkout-stepper-page .form-inner input:focus, .checkout-stepper-page .checkout-coupon-input input:focus{border-color: var(--primary-color1);
     background: #fff;
-    outline: 0;
     box-shadow: 0 0 0 4px rgba(var(--primary-color1-opc), .1);}
-.travelplus-address-status{display: block;
-    min-height: 0;
-    margin-top: 6px;
-    color: rgba(var(--title-color-opc), .58);
-    font-size: 12px;
-    line-height: 1.45;}
-.travelplus-address-status:empty{display: none;}
-.travelplus-address-status.is-error{color: #c62828;}
 .travelplus-native-select{position: absolute !important;
     width: 1px !important;
     height: 1px !important;
-    min-height: 0 !important;
-    margin: 0 !important;
+    margin: -1px !important;
     padding: 0 !important;
     overflow: hidden !important;
     clip: rect(0 0 0 0) !important;
     clip-path: inset(50%) !important;
     border: 0 !important;
-    opacity: 0 !important;
     white-space: nowrap !important;}
 .travelplus-search-select{position: relative;
-    width: 100%;}
+    width: 100%;
+    min-width: 0;}
+.travelplus-search-select.is-open{z-index: 40;}
 .travelplus-search-select__input{width: 100%;
     min-height: 50px;
-    padding: 10px 42px 10px 14px !important;
-    border: 1px solid #d7edf6;
-    border-radius: 8px;
-    background: #f9fdff;
-    color: var(--title-color);
-    font-size: 14px;}
-.travelplus-search-select__input::-webkit-search-cancel-button{margin-right: 2px;}
-.travelplus-search-select__input:focus{border-color: var(--primary-color1);
-    background: #fff;
+    padding: 10px 46px 10px 14px !important;
+    border: 1px solid #d7edf6 !important;
+    border-radius: 8px !important;
+    background: #f9fdff !important;
+    color: var(--title-color) !important;
+    font-family: var(--font-main);
+    font-size: 15px !important;
+    font-weight: 650;
+    line-height: 1.35;
+    appearance: none;
+    -webkit-appearance: none;}
+.travelplus-search-select__input::-webkit-search-cancel-button{display: none;}
+.travelplus-search-select__input::placeholder{color: #98a6ad !important;
+    opacity: 1;}
+.travelplus-search-select__input:focus{border-color: var(--primary-color1) !important;
     outline: 0;
-    box-shadow: 0 0 0 4px rgba(var(--primary-color1-opc), .1);}
-.travelplus-search-select__input[aria-invalid="true"]{border-color: #dc3545;}
-.travelplus-search-select__input:disabled{cursor: not-allowed;
-    color: rgba(var(--title-color-opc), .48);
-    background: #f2f6f8;}
+    background: #fff !important;
+    box-shadow: 0 0 0 4px rgba(var(--primary-color1-opc), .1) !important;}
+.travelplus-search-select__input[aria-invalid="true"]{border-color: #dc3545 !important;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, .1) !important;}
 .travelplus-search-select__icon{position: absolute;
     top: 50%;
-    right: 14px;
-    z-index: 1;
-    color: rgba(var(--title-color-opc), .54);
-    font-size: 15px;
+    right: 16px;
+    z-index: 2;
+    color: var(--primary-color1);
+    font-size: 17px;
+    line-height: 1;
     pointer-events: none;
     transform: translateY(-50%);}
-.travelplus-search-select.is-open .travelplus-search-select__icon{color: var(--primary-color1);}
 .travelplus-search-select__panel{position: absolute;
     top: calc(100% + 7px);
     right: 0;
     left: 0;
-    z-index: 80;
+    z-index: 50;
     overflow: hidden;
-    border: 1px solid #c9e5f1;
-    border-radius: 8px;
+    border: 1px solid #cfe4ed;
+    border-radius: 10px;
     background: #fff;
-    box-shadow: 0 18px 40px rgba(0, 38, 61, .16);}
+    box-shadow: 0 18px 40px rgba(15, 39, 64, .16);}
+.travelplus-search-select__panel[hidden]{display: none !important;}
 .travelplus-search-select__list{max-height: 260px;
+    overflow-x: hidden;
     overflow-y: auto;
     padding: 6px;
-    overscroll-behavior: contain;}
+    overscroll-behavior: contain;
+    scrollbar-width: thin;}
 .travelplus-search-select__option{display: block;
     width: 100%;
-    min-height: 42px;
-    padding: 9px 11px;
+    padding: 11px 12px;
     border: 0;
-    border-radius: 6px;
+    border-radius: 7px;
     background: transparent;
     color: var(--title-color);
+    font-family: var(--font-main);
     font-size: 14px;
     font-weight: 650;
     line-height: 1.4;
-    text-align: left;}
-.travelplus-search-select__option:hover, .travelplus-search-select__option.is-active{background: #eef9fd;
-    color: #087eae;}
-.travelplus-search-select__option[aria-selected="true"]{background: #e5f7fd;
-    color: #087eae;
+    text-align: left;
+    cursor: pointer;}
+.travelplus-search-select__option:hover, .travelplus-search-select__option.is-active{background: rgba(var(--primary-color1-opc), .09);
+    color: var(--primary-color1);}
+.travelplus-search-select__option[aria-selected="true"]{background: rgba(var(--primary-color1-opc), .13);
+    color: var(--primary-color1);
     font-weight: 800;}
 .travelplus-search-select__empty{margin: 0;
-    padding: 16px 14px;
-    color: rgba(var(--title-color-opc), .58);
-    font-size: 13px;
+    padding: 16px;
+    color: rgba(var(--title-color-opc), .62);
+    font-size: 14px;
+    line-height: 1.45;
     text-align: center;}
-@media (max-width: 767px){.travelplus-search-select__list{max-height: 220px;}
-    .travelplus-search-select__option{min-height: 46px;
-        font-size: 15px;}}
+.travelplus-search-select.is-disabled .travelplus-search-select__input{border-color: #e4edf1 !important;
+    background: #f3f7f9 !important;
+    color: #8b989e !important;
+    cursor: not-allowed;}
+.travelplus-search-select.is-disabled .travelplus-search-select__icon{color: #a8b4b9;}
 .travelplus-account-card .form-inner label, .checkout-stepper-page .form-inner label{margin-bottom: 8px;
     color: rgba(var(--title-color-opc), .72);
     font-size: 13px;
@@ -7293,6 +7292,89 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     line-height:1.5;}
 .checkout-coupon-feedback{min-height:20px;
     margin-top:7px;}
+.checkout-passport-wallet{margin-top:16px;
+    padding:14px;
+    border:1px solid #cfe5ee;
+    border-radius:14px;
+    background:linear-gradient(145deg,#f4fbfe,#fffdf5);}
+.checkout-passport-wallet__head{display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:12px;}
+.checkout-passport-wallet__head>span{display:grid;
+    width:36px;
+    height:36px;
+    flex:0 0 36px;
+    place-items:center;
+    border-radius:10px;
+    background:#fff1bd;
+    color:#c98700;
+    font-size:18px;}
+.checkout-passport-wallet__head>div{display:grid;
+    gap:2px;}
+.checkout-passport-wallet__head strong{color:#153d50;
+    font-size:14px;
+    font-weight:900;}
+.checkout-passport-wallet__head small{color:#617984;
+    font-size:12px;
+    line-height:1.45;}
+.checkout-passport-wallet__list{display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:9px;}
+.checkout-passport-voucher{display:grid;
+    grid-template-columns:38px minmax(0,1fr) auto;
+    gap:10px;
+    align-items:center;
+    min-width:0;
+    padding:11px;
+    border:1px solid #d8e7ed;
+    border-radius:10px;
+    background:#fff;
+    color:#17394a;
+    text-align:left;
+    transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;}
+.checkout-passport-voucher:hover:not(:disabled){border-color:#6fc3df;
+    box-shadow:0 8px 18px rgba(13,100,135,.1);
+    transform:translateY(-1px);}
+.checkout-passport-voucher.is-selected{border-color:#0797c8;
+    background:#eefaff;
+    box-shadow:0 0 0 2px rgba(7,151,200,.14);}
+.checkout-passport-voucher:disabled{background:#f6f8f9;
+    cursor:not-allowed;
+    opacity:.67;}
+.checkout-passport-voucher__icon{display:grid;
+    width:38px;
+    height:38px;
+    place-items:center;
+    border-radius:9px;
+    background:#e8f7fc;
+    color:#087eae;
+    font-size:18px;}
+.checkout-passport-voucher__copy{display:grid;
+    min-width:0;
+    gap:2px;}
+.checkout-passport-voucher__copy strong{overflow:hidden;
+    color:#183d4d;
+    font-size:13px;
+    font-weight:900;
+    text-overflow:ellipsis;
+    white-space:nowrap;}
+.checkout-passport-voucher__copy small{overflow:hidden;
+    color:#657b86;
+    font-size:12px;
+    line-height:1.4;
+    text-overflow:ellipsis;
+    white-space:nowrap;}
+.checkout-passport-voucher__copy em{color:#6d7f87;
+    font-size:12px;
+    font-style:normal;
+    font-weight:700;
+    line-height:1.4;}
+.checkout-passport-voucher>b{color:#087eae;
+    font-size:15px;
+    font-weight:950;
+    white-space:nowrap;}
+.checkout-passport-voucher:disabled b{color:#74858c;}
 .checkout-text-btn{border:0;
     background:transparent;
     color:#0f2740;
@@ -7552,7 +7634,6 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     flex-direction:column;
     gap:4px;
     min-width:0;}
-.checkout-contact-item--wide{grid-column:1 / -1;}
 .checkout-contact-item span{font-size:12px;
     letter-spacing:0.06em;
     text-transform:uppercase;
@@ -7563,9 +7644,6 @@ body:has(.tp-tour-tools.is-open) .tp-ai-chatbox, body:has(.tp-tour-tools.is-open
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;}
-.checkout-contact-item--wide strong{white-space:normal;
-    overflow:visible;
-    text-overflow:clip;}
 .checkout-payment-grid, .checkout-summary-subpanel{min-width:0;}
 .checkout-section-subtitle{margin-bottom:12px;
     font-size:12px;
@@ -8260,7 +8338,7 @@ header.style-1.two.site-header-modern .main-menu .mega-menu .menu-single-item > 
         font-size: 14px !important;
         line-height: 1.35 !important;}
 }
-.checkout-stepper-page .form-inner input, .checkout-stepper-page .form-inner select, .travelplus-account-card .form-inner input, .travelplus-account-card .form-inner select{min-height: 50px;
+.checkout-stepper-page .form-inner input, .travelplus-account-card .form-inner input{min-height: 50px;
     border: 1px solid #d7edf6;
     border-radius: 8px;
     background: #f9fdff;}
@@ -8810,7 +8888,7 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
     width: fit-content;
     margin: 0;
     color: #8a5a00;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     line-height: 1.25;
     letter-spacing: 0;
@@ -8826,11 +8904,349 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
 .tp-tour-card__price .tp-tour-card__points{
     margin-top: 1px;
     color: #8a5a00;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.25;
     text-transform: none;
 }
 @media (max-width: 767px){.tp-tour-card__points{
-        font-size: 10px;
+        font-size: 12px;
     }
+}
+.account-list .header-passport-summary>a{display:flex;min-height:56px;align-items:center;gap:10px;margin:3px 0;padding:7px 9px;border:1px solid #d9edf4;border-radius:7px;background:#edf9fd;color:#16485d}
+.account-list .header-passport-summary>a>i{display:inline-flex;width:27px;height:27px;flex:0 0 27px;align-items:center;justify-content:center;border-radius:6px;background:#fff6d8;color:#d99a00;font-size:14px;line-height:1}
+.account-list .header-passport-summary>a>span{display:grid;min-width:0;gap:2px}
+.account-list .header-passport-summary strong{color:#17394a;font-size:13px;font-weight:850;line-height:1.2}
+.account-list .header-passport-summary small{color:#587581;font-size:12px;font-weight:700;line-height:1.3}
+.account-list .header-passport-summary>a:hover{border-color:#bfe3ef;background:#e4f6fc;color:#075f83}
+.tp-tour-card__passport-unlock{display:flex;align-items:flex-start;gap:6px;margin-top:5px;padding:7px 8px;border-radius:5px;background:#fff6d8;color:#725000;font-size:12px;font-weight:850;line-height:1.4;text-transform:none}
+.tp-tour-card__passport-unlock i{flex:0 0 auto;color:#e39b00}
+.header-passport-nav{display:inline-flex;min-height:42px;align-items:center;gap:8px;padding:0 14px;border-left:1px solid #e3ebef;color:#075f83;white-space:nowrap}
+.header-passport-nav>i{display:grid;width:28px;height:28px;place-items:center;border-radius:50%;background:#fff6d8;color:#d99300;font-size:13px}
+.header-passport-nav>span{display:grid;gap:1px;text-align:left}
+.header-passport-nav strong{color:#075f83;font-size:12px;font-weight:900;line-height:1.1}
+.header-passport-nav small{color:#6b7f88;font-size:12px;font-weight:700;line-height:1.25}
+.header-passport-nav:hover strong{color:#009cde}
+.header-passport-nav:hover>i{background:#ffedaf}
+@media (max-width:1199px){.header-passport-nav{padding-inline:9px}
+.header-passport-nav small{display:none}
+}
+@media (max-width:575px){.header-passport-nav--mobile{min-height:36px;padding-inline:7px}
+.header-passport-nav--mobile>i{width:26px;height:26px}
+.header-passport-nav--mobile>span{display:none}
+}
+@media (min-width:992px){.topbar-area.two{
+        padding-top:9px;
+        padding-bottom:9px;
+        border-bottom:1px solid #e5edf1;
+    }
+.topbar-area.two .topbar-wrap{
+        min-height:38px;
+        gap:24px;
+    }
+.topbar-area.two .contact-list{
+        gap:18px;
+    }
+.topbar-area.two .contact-list .single-contact .icon{
+        min-width:30px;
+        max-width:30px;
+        height:30px;
+    }
+.topbar-area.two .contact-list .single-contact a{
+        font-size:12px;
+    }
+.topbar-area.two .topbar-right,
+    .topbar-area.two .search-and-login{
+        gap:15px;
+    }
+.topbar-area.two .topbar-right .support-and-language-area>a{
+        padding-right:10px;
+        font-size:11px;
+    }
+.topbar-area.two .topbar-right .primary-btn1{
+        min-height:38px;
+        padding:10px 17px;
+    }
+.topbar-area.two .header-member-trigger{
+        min-height:38px;
+        gap:7px;
+    }
+.topbar-area.two .header-member-avatar{
+        width:34px;
+        height:34px;
+        flex-basis:34px;
+        font-size:10px;
+    }
+.topbar-area.two .header-member-trigger>strong{
+        max-width:105px;
+        font-size:12px;
+    }
+.header-passport-nav{
+        min-height:36px;
+        padding-inline:10px;
+    }
+.topbar-trust-list{
+        display:flex;
+        flex:1 1 auto;
+        align-items:center;
+        justify-content:center;
+        gap:22px;
+        margin:0;
+        padding:0;
+        list-style:none;
+    }
+.topbar-trust-list li{
+        display:flex;
+        align-items:center;
+        gap:7px;
+        white-space:nowrap;
+    }
+.topbar-trust-list li>i{
+        display:grid;
+        width:30px;
+        height:30px;
+        place-items:center;
+        border:1px solid #d9e8ef;
+        border-radius:50%;
+        background:#f5fbfd;
+        color:#087eae;
+        font-size:14px;
+    }
+.topbar-trust-list li:first-child>i{color:#67aa25}
+.topbar-trust-list li:last-child>i{color:#5146c8}
+.topbar-trust-list span{display:grid;gap:1px}
+.topbar-trust-list strong{color:#102b3a;font-size:13px;line-height:1}
+.topbar-trust-list small{color:#71828a;font-size:8px;font-weight:700;line-height:1.1;text-transform:uppercase}
+.header-brand-stage{
+        min-height:96px;
+        align-items:center;
+        justify-content:center;
+        background:#fff;
+    }
+.header-brand-stage__logo{
+        display:grid;
+        justify-items:center;
+    }
+.header-brand-stage__logo img{
+        width:165px;
+        height:auto;
+    }
+}
+@media (min-width:1200px){.site-header-modern{
+        padding-top:0;
+    }
+.site-header-modern .site-header-container{
+        max-width:1420px;
+    }
+.site-header-modern .site-header-shell{
+        width:max-content;
+        max-width:100%;
+        min-height:68px;
+        gap:12px;
+        margin-inline:auto;
+        padding:7px 12px 7px 18px;
+        border-radius:999px;
+    }
+.site-header-modern .main-menu{
+        flex:0 0 auto;
+    }
+header.style-1.two.site-header-modern .main-menu>ul{
+        flex-wrap:nowrap;
+    }
+.site-header-modern .nav-right{
+        display:flex;
+        flex:0 0 auto;
+        align-items:center;
+        gap:8px;
+    }
+.site-header-modern .nav-right .mobile-menu-btn{
+        display:none;
+    }
+.header-nav-search{
+        width:46px;
+        height:46px;
+        place-items:center;
+        border-left:1px solid #e4ebef;
+        color:#102b3a;
+        font-size:19px;
+    }
+.header-nav-search:hover{color:#087eae}
+.header-tour-cta{
+        min-width:178px;
+        min-height:54px;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        padding:8px 18px;
+        border-radius:999px;
+        background:linear-gradient(110deg,#075ccc 0%,#087fc5 58%,#6eb348 100%);
+        box-shadow:0 10px 22px rgba(7,94,184,.2);
+        color:#fff;
+    }
+.header-tour-cta>i{font-size:18px}
+.header-tour-cta>span{display:grid;gap:3px}
+.header-tour-cta strong{color:#fff;font-size:13px;line-height:1}
+.header-tour-cta small{color:rgba(255,255,255,.82);font-size:8px;font-weight:700;line-height:1}
+.header-tour-cta:hover{color:#fff;transform:translateY(-1px)}
+body.is-home-page .site-header-modern{
+        margin-bottom:-34px;
+    }
+.topbar-area.two .primary-btn1.black-bg{
+        background:#146ac6;
+        box-shadow:0 7px 16px rgba(20,106,198,.18);
+    }
+.topbar-area.two .topbar-right,
+    .topbar-area.two .topbar-right .support-and-language-area,
+    .topbar-area.two .search-and-login{
+        gap:0;
+    }
+.topbar-area.two .topbar-right .support-and-language-area>a,
+    .topbar-area.two .topbar-right .support-and-language-area .header-booking-lookup-btn,
+    .topbar-area.two .topbar-right .language-btn,
+    .topbar-area.two .header-passport-nav,
+    .topbar-area.two .topbar-right .primary-btn1,
+    .topbar-area.two .header-member-trigger{
+        min-height:40px;
+        height:40px;
+    }
+.topbar-area.two .topbar-right .support-and-language-area>a,
+    .topbar-area.two .topbar-right .support-and-language-area .header-booking-lookup-btn{
+        display:inline-flex;
+        align-items:center;
+        padding:0 14px;
+        font-size:13px;
+    }
+.topbar-area.two .topbar-right .support-and-language-area>a::before{
+        right:0;
+        width:1px;
+        height:20px;
+    }
+.topbar-area.two .topbar-right .language-btn{
+        padding:0 14px;
+        border-right:1px solid #e3ebef;
+    }
+.topbar-area.two .header-passport-nav{
+        padding:0 14px;
+        border-left:0;
+        border-right:1px solid #e3ebef;
+    }
+.topbar-area.two .header-passport-nav strong{
+        font-size:12px;
+    }
+.topbar-area.two .header-passport-nav small{
+        font-size:12px;
+    }
+.topbar-area.two .topbar-right .primary-btn1{
+        margin-left:14px;
+        padding:0 18px;
+    }
+}
+@media (min-width:992px) and (max-width:1199px){.topbar-area.two .contact-list .single-contact:nth-child(2),
+    .topbar-area.two .support-and-language-area>a:first-child,
+    .topbar-trust-list{
+        display:none;
+    }
+}
+@media (min-width:1200px) and (max-width:1499px){.topbar-trust-list li:nth-child(2){display:none}
+.topbar-trust-list{gap:14px}
+.topbar-area.two .contact-list .single-contact:nth-child(2){display:none}
+}
+.home-hero-offer{
+    position:absolute;
+    top:165px;
+    right:max(36px,calc((100% - 1160px)/2));
+    z-index:3;
+    display:flex;
+    min-height:86px;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    border:1px solid rgba(117,219,255,.45);
+    border-radius:17px;
+    background:linear-gradient(135deg,#063d5b 0%,#087eae 100%);
+    box-shadow:0 16px 34px rgba(4,61,91,.28);
+    backdrop-filter:blur(12px);
+}
+.home-hero-offer>i{
+    display:grid;
+    width:40px;
+    height:40px;
+    flex:0 0 40px;
+    place-items:center;
+    border-radius:50%;
+    background:#fff4c7;
+    box-shadow:0 0 0 4px rgba(255,255,255,.1);
+    color:#d99300;
+    font-size:20px;
+}
+.home-hero-offer>span{display:grid;gap:3px}
+.home-hero-offer strong{color:#fff;font-size:14px;white-space:nowrap}
+.home-hero-offer small{color:rgba(255,255,255,.82);font-size:12px;font-weight:700;line-height:1.35}
+.home-hero-offer em{color:#ffd166;font-size:12px;font-style:normal;font-weight:900}
+.home-hero-offer:hover{border-color:#75dbff;box-shadow:0 18px 38px rgba(4,61,91,.34);transform:translateY(-2px)}
+.home-hero-trust{
+    display:grid;
+    width:min(1160px,calc(100% - 72px));
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    margin:18px auto 0;
+    padding:17px 20px;
+    border:1px solid #e3eaee;
+    border-radius:15px;
+    background:rgba(255,255,255,.97);
+    box-shadow:0 12px 34px rgba(20,56,82,.09);
+    list-style:none;
+}
+.home-hero-trust-section{
+    position:relative;
+    z-index:3;
+    padding:30px 0;
+    background:#fff;
+}
+.home-hero-trust-section .container{
+    max-width:1420px;
+}
+.home-hero-trust li{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:0 18px;
+}
+.home-hero-trust li+li{border-left:1px solid #e5ebef}
+.home-hero-trust li>i{
+    display:grid;
+    width:40px;
+    height:40px;
+    flex:0 0 40px;
+    place-items:center;
+    border-radius:50%;
+    background:#f1f8e9;
+    color:#6eb52d;
+    font-size:19px;
+}
+.home-hero-trust li:nth-child(2)>i,.home-hero-trust li:nth-child(4)>i{background:#f0f4ff;color:#1766ce}
+.home-hero-trust li:nth-child(3)>i{background:#edf9fb;color:#1688a8}
+.home-hero-trust span{display:grid;gap:3px}
+.home-hero-trust strong{color:#1d344a;font-size:14px}
+.home-hero-trust small{color:#71808d;font-size:10px;line-height:1.4}
+.site-header-modern .main-menu .menu-list>li.mobile-passport-menu-item{
+    display:none!important;
+}
+@media (max-width:991px){.site-header-modern .main-menu .menu-list>li.mobile-passport-menu-item{
+        display:block!important;
+    }
+.site-header-modern .main-menu .menu-list>li.mobile-passport-menu-item>a{
+        display:flex!important;
+        align-items:center;
+        gap:9px;
+        color:#075f83!important;
+    }
+.site-header-modern .main-menu .menu-list>li.mobile-passport-menu-item>a i{
+        color:#d99300;
+    }
+.home-hero-offer{display:none}
+.home-modern-search,.home-hero-trust{width:100%}
+.home-hero-trust{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.home-hero-trust li+li{border-left:0}
+}
+@media (max-width:575px){.home-hero-trust{grid-template-columns:1fr;padding:14px}
+.home-hero-trust li{padding:0}
 }
