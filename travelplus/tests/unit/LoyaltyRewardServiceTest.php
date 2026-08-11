@@ -32,4 +32,17 @@ final class LoyaltyRewardServiceTest extends CIUnitTestCase
         $this->assertSame('passport_250', $service->nextReward(2499)['key']);
         $this->assertNull($service->nextReward(2500));
     }
+
+    public function testBestNewlyUnlockedRewardUsesHighestThresholdCrossedByTour(): void
+    {
+        $service = new LoyaltyRewardService();
+
+        $this->assertNull($service->bestNewlyUnlockedReward(0, 499));
+        $this->assertSame('passport_50', $service->bestNewlyUnlockedReward(0, 500)['key']);
+        $this->assertSame('passport_120', $service->bestNewlyUnlockedReward(0, 1550)['key']);
+        $this->assertSame('passport_250', $service->bestNewlyUnlockedReward(0, 11169)['key']);
+        $this->assertSame('passport_120', $service->bestNewlyUnlockedReward(1000, 300)['key']);
+        $this->assertNull($service->bestNewlyUnlockedReward(1000, 100));
+        $this->assertNull($service->bestNewlyUnlockedReward(2600, 100));
+    }
 }

@@ -42,6 +42,22 @@ final class LoyaltyRewardService
         return null;
     }
 
+    /** @return array<string, int|string>|null */
+    public function bestNewlyUnlockedReward(int $balance, int $pointsToEarn): ?array
+    {
+        $balance = max(0, $balance);
+        $projectedBalance = $balance + max(0, $pointsToEarn);
+        $bestReward = null;
+
+        foreach (self::REWARDS as $reward) {
+            if ($balance < $reward['points'] && $projectedBalance >= $reward['points']) {
+                $bestReward = $reward;
+            }
+        }
+
+        return $bestReward;
+    }
+
     public function isAvailable(): bool
     {
         $db = $this->database();
