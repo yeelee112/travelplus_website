@@ -50,6 +50,9 @@ class PromotionCodeService
         if (! $this->belongsToCurrentPassportMember($promotion)) {
             return $this->failure('notOwned', $subtotal, $beforeCouponTotal);
         }
+        if (! $this->passportVoucherIsAvailable($promotion)) {
+            return $this->failure('voucherUnavailable', $subtotal, $beforeCouponTotal);
+        }
 
         $now = date('Y-m-d H:i:s');
         $startsAt = trim((string) ($promotion['starts_at'] ?? ''));
@@ -176,10 +179,12 @@ class PromotionCodeService
                 'tourMismatch' => 'This coupon code does not apply to the selected tour.',
                 'invalidDiscount' => 'This coupon code does not produce a valid discount.',
                 'notOwned' => 'This Passport voucher does not belong to your account.',
+                'voucherUnavailable' => 'This Passport voucher was used or is reserved for another booking.',
                 'applied' => 'Coupon code applied successfully.',
             ],
         ];
 
+        $messages['vi']['voucherUnavailable'] = 'Voucher Passport này đã được dùng hoặc đang được giữ cho booking khác.';
         $locale = $this->locale();
 
         return $messages[$locale][$key] ?? $messages['vi'][$key] ?? '';
@@ -240,5 +245,52 @@ class PromotionCodeService
         return is_array($authUser)
             && (int) ($authUser['id'] ?? 0) > 0
             && (int) ($authUser['id'] ?? 0) === (int) ($voucher['user_id'] ?? 0);
+    }
+
+    /** @param array<string, mixed> $promotion */
+    private function passportVoucherIsAvailable(array $promotion): bool
+    {
+        $db = db_connect();
+        if (! $db->tableExists('loyalty_reward_vouchers')) {
+            return true;
+        }
+
+        $fields = $db->getFieldNames('loyalty_reward_vouchers');
+        if (! in_array('booking_id', $fields, true)) {
+            return true;
+        }
+
+        $voucher = $db->table('loyalty_reward_vouchers')
+            ->select('status, booking_id')
+            ->where('promotion_code_id', (int) ($promotion['id'] ?? 0))
+            ->get()
+            ->getRowArray();
+
+        if (! is_array($voucher)) {
+            return true;
+        }
+
+        $status = strtolower((string) ($voucher['status'] ?? 'issued'));
+        if ($status === 'issued') {
+            return true;
+        }
+        if ($status !== 'reserved') {
+            return false;
+        }
+
+        $bookingCode = trim((string) session()->get('current_booking_code'));
+        if ($bookingCode === '' || ! $db->tableExists('bookings')) {
+            return false;
+        }
+
+        $booking = $db->table('bookings')
+            ->select('id')
+            ->where('booking_code', $bookingCode)
+            ->get()
+            ->getRowArray();
+
+        return is_array($booking)
+            && (int) ($booking['id'] ?? 0) > 0
+            && (int) ($booking['id'] ?? 0) === (int) ($voucher['booking_id'] ?? 0);
     }
 }

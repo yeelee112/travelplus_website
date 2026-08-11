@@ -4,7 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
-use App\Models\PromotionCodeModel;
+use App\Services\BookingDiscountSettlementService;
 use App\Services\BookingNotificationService;
 use App\Services\LoyaltyPointService;
 
@@ -199,6 +199,7 @@ class Bookings extends BaseAdminController
         $updated = $bookingModel->find($bookingId);
 
         if (is_array($updated)) {
+            (new BookingDiscountSettlementService())->syncTransition($booking, $updated);
             (new LoyaltyPointService())->syncBooking($updated);
         }
 
@@ -211,10 +212,6 @@ class Bookings extends BaseAdminController
                 $status === 'paid' ? (float) ($update['amount_paid_vnd'] ?? 0) : null,
                 (string) ($update['provider_reference'] ?? $booking['provider_reference'] ?? '')
             );
-        }
-
-        if (is_array($updated) && $status === 'paid' && $previousStatus !== 'paid') {
-            $this->incrementCouponUsage($updated);
         }
 
         if (is_array($updated) && $sendBookingEmail && $previousStatus !== $status) {
@@ -386,23 +383,4 @@ class Bookings extends BaseAdminController
         return is_numeric($normalized) ? max(0.0, (float) $normalized) : 0.0;
     }
 
-    /**
-     * @param array<string, mixed> $booking
-     */
-    private function incrementCouponUsage(array $booking): void
-    {
-        $couponId = (int) ($booking['coupon_id'] ?? 0);
-
-        if ($couponId <= 0) {
-            return;
-        }
-
-        $model = new PromotionCodeModel();
-
-        if (! $model->db->tableExists($model->getTable())) {
-            return;
-        }
-
-        $model->where('id', $couponId)->set('used_count', 'used_count + 1', false)->update();
-    }
 }

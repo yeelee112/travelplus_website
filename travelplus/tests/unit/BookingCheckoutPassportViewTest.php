@@ -70,5 +70,10 @@ final class BookingCheckoutPassportViewTest extends CIUnitTestCase
         $this->assertStringContainsString('Cần thêm 1.000.000 VND để sử dụng', $html);
         $this->assertStringContainsString('Ưu đãi Passport hạng Vàng (1,5%)', $html);
         $this->assertStringContainsString('-75.000 VND', $html);
+        $this->assertStringContainsString('checkout-passport-wallet__policy', $html);
+        $this->assertStringContainsString('checkout-passport-voucher__expiry', $html);
+        $this->assertStringContainsString('HSD 06/08/2027', $html);
+        $this->assertStringContainsString('checkout-passport-voucher__value', $html);
+        $this->assertStringContainsString('checkout-passport-voucher__condition is-unavailable', $html);
     }
 }

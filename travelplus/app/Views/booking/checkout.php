@@ -88,6 +88,8 @@ $passportVoucherUi = $locale === 'en'
         'minimum' => 'Booking from',
         'needMore' => 'Add %s more to use',
         'expires' => 'Expires',
+        'discount' => 'Save',
+        'code' => 'Code',
         'apply' => 'Apply voucher',
     ]
     : [
@@ -97,9 +99,14 @@ $passportVoucherUi = $locale === 'en'
         'miles' => 'Voucher đổi Dặm',
         'minimum' => 'Booking từ',
         'needMore' => 'Cần thêm %s để sử dụng',
-        'expires' => 'Hết hạn',
+        'expires' => 'HSD',
+        'discount' => 'Giảm',
+        'code' => 'Mã',
         'apply' => 'Áp dụng voucher',
     ];
+$passportVoucherUi['policy'] = $locale === 'en'
+    ? 'Your tier saving is applied first. You may add one Passport voucher; combined savings never exceed the eligible tour value.'
+    : 'Ưu đãi theo hạng được tính trước. Bạn có thể dùng thêm 1 voucher Passport; tổng mức giảm không vượt quá giá trị tour đủ điều kiện.';
 $membershipTierNames = $locale === 'en'
     ? ['member' => 'Member', 'silver' => 'Silver', 'gold' => 'Gold', 'diamond' => 'Diamond', 'signature' => 'Signature']
     : ['member' => 'Thành viên', 'silver' => 'Bạc', 'gold' => 'Vàng', 'diamond' => 'Kim Cương', 'signature' => 'Signature'];
@@ -381,6 +388,7 @@ $singleRoomValueLabel = $locale === 'en'
                                                         <small><?= esc($passportVoucherUi['hint']) ?></small>
                                                     </div>
                                                 </div>
+                                                <p class="checkout-passport-wallet__policy"><i class="bi bi-shield-check" aria-hidden="true"></i> <?= esc($passportVoucherUi['policy']) ?></p>
                                                 <div class="checkout-passport-wallet__list">
                                                     <?php foreach ($passportVouchers as $voucher): ?>
                                                         <?php
@@ -396,6 +404,7 @@ $singleRoomValueLabel = $locale === 'en'
                                                         $voucherCondition = $voucherEligible
                                                             ? $passportVoucherUi['minimum'] . ' ' . $formatCurrency($voucherMinimum)
                                                             : sprintf($passportVoucherUi['needMore'], $formatCurrency($voucherAmountNeeded));
+                                                        $voucherExpires = app_datetime((string) ($voucher['expires_at'] ?? ''), 'd/m/Y', '-');
                                                         ?>
                                                         <button
                                                             type="button"
@@ -405,13 +414,18 @@ $singleRoomValueLabel = $locale === 'en'
                                                             aria-pressed="<?= $voucherApplied ? 'true' : 'false' ?>"
                                                             aria-label="<?= esc($passportVoucherUi['apply'] . ' ' . $voucherCode, 'attr') ?>"
                                                             <?= $voucherEligible ? '' : 'disabled' ?>>
-                                                            <span class="checkout-passport-voucher__icon"><i class="bi bi-ticket-perforated-fill" aria-hidden="true"></i></span>
-                                                            <span class="checkout-passport-voucher__copy">
-                                                                <strong><?= esc($voucherType) ?></strong>
-                                                                <small><?= esc($voucherCode) ?> · <?= esc($passportVoucherUi['expires']) ?> <?= esc(app_datetime((string) ($voucher['expires_at'] ?? ''), 'd/m/Y', '-')) ?></small>
-                                                                <em><?= esc($voucherCondition) ?></em>
+                                                            <span class="checkout-passport-voucher__top">
+                                                                <span class="checkout-passport-voucher__kind"><i class="bi bi-ticket-perforated-fill" aria-hidden="true"></i> <?= esc($voucherType) ?></span>
+                                                                <span class="checkout-passport-voucher__expiry"><i class="bi bi-calendar3" aria-hidden="true"></i> <?= esc($passportVoucherUi['expires']) ?> <?= esc($voucherExpires) ?></span>
                                                             </span>
-                                                            <b>-<?= esc(number_format($voucherAmount, 0, ',', '.')) ?>đ</b>
+                                                            <span class="checkout-passport-voucher__value">
+                                                                <small><?= esc($passportVoucherUi['discount']) ?></small>
+                                                                <strong><?= esc(number_format($voucherAmount, 0, ',', '.')) ?>đ</strong>
+                                                            </span>
+                                                            <span class="checkout-passport-voucher__meta">
+                                                                <span class="checkout-passport-voucher__code"><small><?= esc($passportVoucherUi['code']) ?></small> <?= esc($voucherCode) ?></span>
+                                                                <span class="checkout-passport-voucher__condition<?= $voucherEligible ? '' : ' is-unavailable' ?>"><i class="bi <?= $voucherEligible ? 'bi-check-circle-fill' : 'bi-info-circle-fill' ?>" aria-hidden="true"></i> <?= esc($voucherCondition) ?></span>
+                                                            </span>
                                                         </button>
                                                     <?php endforeach; ?>
                                                 </div>

@@ -387,6 +387,11 @@ if ($booking !== null) {
                     </div>
                 </div>
 
+                <?= view('booking/_passport-breakdown', [
+                    'passportSummary' => $passportSummary ?? [],
+                    'locale' => $locale,
+                ]) ?>
+
                 <div class="travelplus-booking-success__detail-grid">
                     <section class="travelplus-booking-success__panel">
                         <h2><?= esc($labels['trip']) ?></h2>

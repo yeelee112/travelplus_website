@@ -72,7 +72,14 @@ $featureLink = (string) ($featureTour['link'] ?? $searchUrl);
 $featureImage = (string) ($featureTour['image'] ?? base_url('assets/images/home/banner02.webp'));
 $featureImageSrcset = responsive_image_srcset($featureImage, [480, 960, 1440]);
 $featurePrice = (string) ($featureTour['price']['label'] ?? '');
-$featurePoints = \App\Services\LoyaltyPointService::previewPoints((float) ($featureTour['price']['amount'] ?? 0));
+$featurePriceAmount = (float) ($featureTour['price']['amount'] ?? 0);
+$featurePassportPrice = \App\Services\TourPassportPricePresenter::build(
+    $featurePriceAmount,
+    is_array($authUser ?? null) ? $authUser : null,
+    is_array($headerMembership ?? null) ? $headerMembership : null,
+    $locale
+);
+$featurePoints = \App\Services\LoyaltyPointService::previewPoints($featurePriceAmount);
 $formatPoints = static fn(int $points): string => number_format($points, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
 $pointsCopy = static fn(int $points): string => $locale === 'en'
     ? 'Earn from ' . $formatPoints($points) . ' Journey Miles'
@@ -190,9 +197,18 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                     <?php if ($featurePrice !== '' || $featureDeparture !== ''): ?>
                         <div class="home-promo-feature__facts">
                             <?php if ($featurePrice !== ''): ?>
-                                <div class="home-promo-price">
-                                    <span><?= esc($copy['priceLabel']) ?></span>
-                                    <strong><?= esc($featurePrice) ?></strong>
+                                <div class="home-promo-price<?= ($featurePassportPrice['state'] ?? '') === 'active' ? ' home-promo-price--passport-active' : '' ?>">
+                                    <?php if (($featurePassportPrice['state'] ?? '') === 'active'): ?>
+                                        <?= view('components/passport-price-benefit', [
+                                            'benefit' => $featurePassportPrice,
+                                            'originalPrice' => $featurePrice,
+                                            'originalPriceLabel' => $locale === 'en' ? 'Tour price' : 'Giá tour',
+                                        ]) ?>
+                                    <?php else: ?>
+                                        <span><?= esc($copy['priceLabel']) ?></span>
+                                        <strong><?= esc($featurePrice) ?></strong>
+                                        <?= view('components/passport-price-benefit', ['benefit' => $featurePassportPrice]) ?>
+                                    <?php endif; ?>
                                     <?php if ($featurePoints > 0): ?>
                                         <small class="home-promo-points" title="<?= esc($pointsTitle, 'attr') ?>">
                                             <i class="bi bi-stars" aria-hidden="true"></i><?= esc($pointsCopy($featurePoints)) ?>
@@ -253,7 +269,14 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                         $tourPromotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
                         $tourBadge = trim((string) ($tourPromotion['badge'] ?? '')) ?: (string) $copy['moreBadge'];
                         $tourPrice = (string) ($tour['price']['label'] ?? '');
-                        $tourPoints = \App\Services\LoyaltyPointService::previewPoints((float) ($tour['price']['amount'] ?? 0));
+                        $tourPriceAmount = (float) ($tour['price']['amount'] ?? 0);
+                        $tourPassportPrice = \App\Services\TourPassportPricePresenter::build(
+                            $tourPriceAmount,
+                            is_array($authUser ?? null) ? $authUser : null,
+                            is_array($headerMembership ?? null) ? $headerMembership : null,
+                            $locale
+                        );
+                        $tourPoints = \App\Services\LoyaltyPointService::previewPoints($tourPriceAmount);
                         $tourPriceLabel = $tourPromotion !== []
                             ? (string) $copy['priceLabel']
                             : ($locale === 'en' ? 'Tour price' : 'Giá tour');
@@ -298,9 +321,18 @@ $allToursCompactLabel = $locale === 'en' ? 'View all' : 'Xem tất cả';
                                     </div>
                                     <div class="home-promo-card__footer">
                                         <?php if ($tourPrice !== ''): ?>
-                                            <div class="home-promo-card__price">
-                                                <span><?= esc($tourPriceLabel) ?></span>
-                                                <strong><?= esc($tourPrice) ?></strong>
+                                            <div class="home-promo-card__price<?= ($tourPassportPrice['state'] ?? '') === 'active' ? ' home-promo-card__price--passport-active' : '' ?>">
+                                                <?php if (($tourPassportPrice['state'] ?? '') === 'active'): ?>
+                                                    <?= view('components/passport-price-benefit', [
+                                                        'benefit' => $tourPassportPrice,
+                                                        'originalPrice' => $tourPrice,
+                                                        'originalPriceLabel' => $locale === 'en' ? 'Tour price' : 'Giá tour',
+                                                    ]) ?>
+                                                <?php else: ?>
+                                                    <span><?= esc($tourPriceLabel) ?></span>
+                                                    <strong><?= esc($tourPrice) ?></strong>
+                                                    <?= view('components/passport-price-benefit', ['benefit' => $tourPassportPrice]) ?>
+                                                <?php endif; ?>
                                                 <?php if ($tourPoints > 0): ?>
                                                     <small class="home-promo-points" title="<?= esc($pointsTitle, 'attr') ?>">
                                                         <i class="bi bi-stars" aria-hidden="true"></i><?= esc($pointsCopy($tourPoints)) ?>

@@ -4,9 +4,10 @@ namespace App\Controllers;
 
 use App\Data\LocalizedPathCatalog;
 use App\Models\BookingModel;
-use App\Models\PromotionCodeModel;
 use App\Models\UserModel;
+use App\Services\BookingDiscountSettlementService;
 use App\Services\BookingNotificationService;
+use App\Services\BookingPassportSummaryService;
 use App\Services\CrmLeadCaptureService;
 use App\Services\LoyaltyPointService;
 use App\Services\LoyaltyRewardService;
@@ -200,8 +201,13 @@ class BookingController extends BaseController
             }
         }
 
+        $passportSummary = count($bookings) === 1
+            ? (new BookingPassportSummaryService())->summarize($bookings[0])
+            : [];
+
         return view('booking/lookup', [
             'bookings' => $bookings,
+            'passportSummary' => $passportSummary,
             'error' => $error,
             'submitted' => $submitted,
             'bookingCode' => $bookingCode,
@@ -293,6 +299,14 @@ class BookingController extends BaseController
         }
 
         $status = strtolower((string) ($booking['payment_status'] ?? ''));
+        if ($status === 'paid' && (int) ($booking['user_id'] ?? 0) > 0) {
+            $loyaltyPoints = new LoyaltyPointService();
+            $loyaltyPoints->syncBooking($booking);
+            $qualifyingPoints = (int) ($loyaltyPoints->qualifyingPointsForUser((int) $booking['user_id']) ?? 0);
+            (new LoyaltyTierBenefitService())->syncForUser((int) $booking['user_id'], $qualifyingPoints);
+            session()->remove('header_membership');
+        }
+        $passportSummary = (new BookingPassportSummaryService())->summarize($booking);
         $analyticsEvents = [];
         if ($status === 'paid') {
             $analyticsEvents[] = [
@@ -328,6 +342,7 @@ class BookingController extends BaseController
             'booking' => $booking,
             'departureFrom' => $this->resolveBookingDepartureFrom((int) ($booking['tour_id'] ?? 0), $this->request->getLocale()),
             'bookingTourType' => $this->resolveBookingTourType((int) ($booking['tour_id'] ?? 0)),
+            'passportSummary' => $passportSummary,
             'analytics_events' => $analyticsEvents,
         ]);
     }
@@ -522,7 +537,7 @@ class BookingController extends BaseController
 
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => $this->paymentRequestErrorMessage(),
+                'message' => $exception instanceof \DomainException ? $exception->getMessage() : $this->paymentRequestErrorMessage(),
             ]);
         }
     }
@@ -621,7 +636,7 @@ class BookingController extends BaseController
 
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => $this->paymentRequestErrorMessage(),
+                'message' => $exception instanceof \DomainException ? $exception->getMessage() : $this->paymentRequestErrorMessage(),
             ]);
         }
     }
@@ -721,7 +736,7 @@ class BookingController extends BaseController
 
             return $this->response->setStatusCode(500)->setJSON([
                 'ok' => false,
-                'message' => $this->paymentRequestErrorMessage(),
+                'message' => $exception instanceof \DomainException ? $exception->getMessage() : $this->paymentRequestErrorMessage(),
             ]);
         }
     }
@@ -759,7 +774,7 @@ class BookingController extends BaseController
         $updatedBooking = $bookingModel->find((int) $booking['id']);
 
         if (is_array($updatedBooking)) {
-            $this->incrementCouponUsage($booking, $updatedBooking);
+            (new BookingDiscountSettlementService())->syncTransition($booking, $updatedBooking);
             (new BookingNotificationService())->sendBookingEmails($updatedBooking);
         }
 
@@ -828,7 +843,7 @@ class BookingController extends BaseController
             $updatedBooking = $bookingModel->find((int) $booking['id']);
 
             if (is_array($updatedBooking)) {
-                $this->incrementCouponUsage($booking, $updatedBooking);
+                (new BookingDiscountSettlementService())->syncTransition($booking, $updatedBooking);
                 (new LoyaltyPointService())->syncBooking($updatedBooking);
                 (new BookingNotificationService())->sendBookingEmails($updatedBooking);
             }
@@ -844,6 +859,11 @@ class BookingController extends BaseController
                 'paypal_status' => 'FAILED',
             ]);
 
+            $failedBooking = $bookingModel->find((int) $booking['id']);
+            if (is_array($failedBooking)) {
+                (new BookingDiscountSettlementService())->syncTransition($booking, $failedBooking);
+            }
+
             log_message('error', 'PayPal capture failed: {message}', ['message' => $exception->getMessage()]);
             session()->setFlashdata('checkout_error', $this->paymentRequestErrorMessage());
         }
@@ -856,13 +876,19 @@ class BookingController extends BaseController
         $paypalCheckout = session()->get('paypal_checkout');
 
         if (is_array($paypalCheckout) && ! empty($paypalCheckout['booking_code'])) {
-            (new BookingModel())
-                ->where('booking_code', (string) $paypalCheckout['booking_code'])
-                ->set([
+            $bookingModel = new BookingModel();
+            $booking = $bookingModel->where('booking_code', (string) $paypalCheckout['booking_code'])->first();
+
+            if (is_array($booking)) {
+                $bookingModel->update((int) $booking['id'], [
                     'payment_status' => 'cancelled',
                     'cancelled_at' => date('Y-m-d H:i:s'),
-                ])
-                ->update();
+                ]);
+                $cancelledBooking = $bookingModel->find((int) $booking['id']);
+                if (is_array($cancelledBooking)) {
+                    (new BookingDiscountSettlementService())->syncTransition($booking, $cancelledBooking);
+                }
+            }
         }
 
         session()->remove('paypal_checkout');
@@ -914,6 +940,11 @@ class BookingController extends BaseController
                 'cancelled_at' => $result['response_code'] === '24' ? date('Y-m-d H:i:s') : null,
             ]);
 
+            $failedBooking = $bookingModel->find((int) $booking['id']);
+            if (is_array($failedBooking)) {
+                (new BookingDiscountSettlementService())->syncTransition($booking, $failedBooking);
+            }
+
             if ($result['response_code'] === '11') {
                 session()->setFlashdata('checkout_error', lang('Frontend.checkout.vnpayExpired', [], $locale));
                 session()->setFlashdata('checkout_retry', true);
@@ -942,7 +973,7 @@ class BookingController extends BaseController
         $updatedBooking = $bookingModel->find((int) $booking['id']);
 
         if (is_array($updatedBooking)) {
-            $this->incrementCouponUsage($booking, $updatedBooking);
+            (new BookingDiscountSettlementService())->syncTransition($booking, $updatedBooking);
             (new LoyaltyPointService())->syncBooking($updatedBooking);
             (new BookingNotificationService())->sendBookingEmails($updatedBooking);
         }
@@ -988,6 +1019,11 @@ class BookingController extends BaseController
                 'cancelled_at' => $result['response_code'] === '24' ? date('Y-m-d H:i:s') : null,
             ]);
 
+            $failedBooking = $bookingModel->find((int) $booking['id']);
+            if (is_array($failedBooking)) {
+                (new BookingDiscountSettlementService())->syncTransition($booking, $failedBooking);
+            }
+
             return $this->response->setJSON(['RspCode' => '00', 'Message' => 'Confirm failed']);
         }
 
@@ -1003,7 +1039,7 @@ class BookingController extends BaseController
         $updatedBooking = $bookingModel->find((int) $booking['id']);
 
         if (is_array($updatedBooking)) {
-            $this->incrementCouponUsage($booking, $updatedBooking);
+            (new BookingDiscountSettlementService())->syncTransition($booking, $updatedBooking);
             (new LoyaltyPointService())->syncBooking($updatedBooking);
             (new BookingNotificationService())->sendBookingEmails($updatedBooking);
         }
@@ -1414,6 +1450,7 @@ class BookingController extends BaseController
         $bookingModel = new BookingModel();
         $currentCode = (string) session()->get('current_booking_code');
         $existing = $currentCode !== '' ? $bookingModel->where('booking_code', $currentCode)->first() : null;
+        $isNewBooking = ! is_array($existing);
 
         $payload = [
             'user_id' => (int) (session()->get('auth_user')['id'] ?? 0) ?: null,
@@ -1466,6 +1503,20 @@ class BookingController extends BaseController
 
         if (! is_array($booking)) {
             throw new \RuntimeException('Không thể tạo booking.');
+        }
+
+        $reservation = (new BookingDiscountSettlementService())->reserveForBooking($booking);
+        if (! $reservation['ok']) {
+            if ($isNewBooking) {
+                $bookingModel->delete((int) $booking['id']);
+            } elseif (is_array($existing)) {
+                $bookingModel->update(
+                    (int) $existing['id'],
+                    array_intersect_key($existing, $payload)
+                );
+            }
+
+            throw new \DomainException($reservation['message']);
         }
 
         session()->set('current_booking_code', (string) $booking['booking_code']);
@@ -1563,31 +1614,6 @@ class BookingController extends BaseController
         }
 
         return json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: null;
-    }
-
-    /**
-     * @param array<string, mixed> $before
-     * @param array<string, mixed> $after
-     */
-    private function incrementCouponUsage(array $before, array $after): void
-    {
-        if ((string) ($before['payment_status'] ?? '') === 'paid' || (string) ($after['payment_status'] ?? '') !== 'paid') {
-            return;
-        }
-
-        $couponId = (int) ($after['coupon_id'] ?? 0);
-
-        if ($couponId <= 0) {
-            return;
-        }
-
-        $model = new PromotionCodeModel();
-
-        if (! $model->db->tableExists($model->getTable())) {
-            return;
-        }
-
-        $model->where('id', $couponId)->set('used_count', 'used_count + 1', false)->update();
     }
 
     /**

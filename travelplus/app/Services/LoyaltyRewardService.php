@@ -58,8 +58,16 @@ final class LoyaltyRewardService
             return [];
         }
 
+        (new BookingDiscountSettlementService())->releaseExpiredReservations();
+
+        $voucherSelect = 'rv.id, rv.code, rv.reward_key, rv.points_spent, rv.voucher_amount_vnd, rv.min_order_vnd, rv.status, rv.expires_at, rv.created_at, pc.used_count, pc.is_active';
+        $voucherFields = $this->database()->getFieldNames(self::VOUCHER_TABLE);
+        if (in_array('booking_id', $voucherFields, true)) {
+            $voucherSelect .= ', rv.booking_id, rv.reserved_at, rv.reservation_expires_at, rv.used_at';
+        }
+
         return $this->database()->table(self::VOUCHER_TABLE . ' rv')
-            ->select('rv.id, rv.code, rv.points_spent, rv.voucher_amount_vnd, rv.min_order_vnd, rv.status, rv.expires_at, rv.created_at, pc.used_count, pc.is_active')
+            ->select($voucherSelect)
             ->join(self::PROMOTION_TABLE . ' pc', 'pc.id = rv.promotion_code_id', 'left')
             ->where('rv.user_id', $userId)
             ->orderBy('rv.created_at', 'DESC')
@@ -74,6 +82,8 @@ final class LoyaltyRewardService
         if ($userId <= 0 || ! $this->isAvailable()) {
             return [];
         }
+
+        (new BookingDiscountSettlementService())->releaseExpiredReservations();
 
         $now = date('Y-m-d H:i:s');
         $rows = $this->database()->table(self::VOUCHER_TABLE . ' rv')

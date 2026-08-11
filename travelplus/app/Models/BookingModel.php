@@ -47,6 +47,7 @@ class BookingModel extends Model
         'coupon_id',
         'coupon_code',
         'coupon_snapshot',
+        'coupon_settled_at',
         'grand_total',
         'currency',
         'payment_method',

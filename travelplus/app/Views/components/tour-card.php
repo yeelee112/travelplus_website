@@ -56,6 +56,12 @@ $departureLabel = trim((string) ($tour['departure'] ?? ''));
 $priceLabel = trim((string) ($tour['price']['label'] ?? ''));
 $priceAmount = (float) ($tour['price']['amount'] ?? 0);
 $priceCurrency = trim((string) ($tour['price']['currency'] ?? 'VND')) ?: 'VND';
+$passportPriceBenefit = \App\Services\TourPassportPricePresenter::build(
+    $priceAmount,
+    is_array($authUser ?? null) ? $authUser : null,
+    is_array($headerMembership ?? null) ? $headerMembership : null,
+    $locale
+);
 $loyaltyPoints = \App\Services\LoyaltyPointService::previewPoints($priceAmount);
 $loyaltyPointsLabel = number_format($loyaltyPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
 $loyaltyCopy = $locale === 'en'
@@ -202,9 +208,18 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
             </div>
 
             <div class="tp-tour-card__footer" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                <div class="tp-tour-card__price">
-                    <span><?= esc($copy['pricePrefix']) ?></span>
-                    <strong><?= esc($priceLabel !== '' ? $priceLabel : $t('tour.sidebar.checkAvailability')) ?></strong>
+                <div class="tp-tour-card__price<?= ($passportPriceBenefit['state'] ?? '') === 'active' ? ' tp-tour-card__price--passport-active' : '' ?>">
+                    <?php if (($passportPriceBenefit['state'] ?? '') === 'active'): ?>
+                        <?= view('components/passport-price-benefit', [
+                            'benefit' => $passportPriceBenefit,
+                            'originalPrice' => $priceLabel !== '' ? $priceLabel : $t('tour.sidebar.checkAvailability'),
+                            'originalPriceLabel' => $locale === 'en' ? 'Tour price' : 'Giá tour',
+                        ]) ?>
+                    <?php else: ?>
+                        <span><?= esc($copy['pricePrefix']) ?></span>
+                        <strong><?= esc($priceLabel !== '' ? $priceLabel : $t('tour.sidebar.checkAvailability')) ?></strong>
+                        <?= view('components/passport-price-benefit', ['benefit' => $passportPriceBenefit]) ?>
+                    <?php endif; ?>
                     <?php if ($loyaltyPoints > 0): ?>
                         <small class="tp-tour-card__points" title="<?= esc($locale === 'en' ? 'Actual points are based on the paid booking amount.' : 'Điểm thực nhận được tính theo số tiền booking đã thanh toán.', 'attr') ?>">
                             <i class="bi bi-stars" aria-hidden="true"></i>

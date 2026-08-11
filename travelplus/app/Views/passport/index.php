@@ -47,6 +47,16 @@ $copy = $locale === 'en'
         'termsTitle' => 'Important conditions',
         'ctaTitle' => 'Ready to start your Passport?',
         'ctaText' => 'Create an account, book an eligible tour and your Journey Miles will be credited after payment is confirmed.',
+        'cardTierLabel' => 'Membership tier',
+        'cardTierCompactLabel' => 'Current tier',
+        'cardMilesLabel' => 'qualifying miles',
+        'cardMilesUnit' => 'miles',
+        'cardMemberLabel' => 'TravelPlus member',
+        'cardStatus' => 'Active',
+        'cardProgressLabel' => 'Tier progress',
+        'cardNextTier' => 'To %s',
+        'cardRemainingMiles' => '%s miles remaining',
+        'cardHighestTier' => 'Highest tier achieved',
     ]
     : [
         'eyebrow' => 'TravelPlus Passport',
@@ -87,6 +97,16 @@ $copy = $locale === 'en'
         'termsTitle' => 'Điều kiện quan trọng',
         'ctaTitle' => 'Sẵn sàng bắt đầu Passport?',
         'ctaText' => 'Tạo tài khoản, đặt tour đủ điều kiện và Dặm Hành Trình sẽ được cộng sau khi thanh toán được xác nhận.',
+        'cardTierLabel' => 'Hạng thành viên',
+        'cardTierCompactLabel' => 'Hạng hiện tại',
+        'cardMilesLabel' => 'Dặm xét hạng',
+        'cardMilesUnit' => 'Dặm',
+        'cardMemberLabel' => 'Thành viên TravelPlus',
+        'cardStatus' => 'Đang hoạt động',
+        'cardProgressLabel' => 'Tiến độ lên hạng',
+        'cardNextTier' => 'Lên %s',
+        'cardRemainingMiles' => 'Còn %s Dặm',
+        'cardHighestTier' => 'Đã đạt hạng cao nhất',
     ];
 
 $tiers = $locale === 'en'
@@ -104,6 +124,31 @@ $tiers = $locale === 'en'
         ['key' => 'diamond', 'name' => 'Kim Cương', 'points' => 60000, 'discount' => 300000, 'minimum' => 10000000, 'rate' => 2, 'cap' => 600000, 'icon' => 'bi-gem', 'tone' => 'diamond'],
         ['key' => 'signature', 'name' => 'Signature', 'points' => 150000, 'discount' => 500000, 'minimum' => 15000000, 'rate' => 3, 'cap' => 1000000, 'icon' => 'bi-stars', 'tone' => 'signature'],
     ];
+
+$currentCardTier = $tiers[0];
+$currentCardTierIndex = 0;
+foreach ($tiers as $tierIndex => $tier) {
+    if ($tier['key'] === $currentTierKey) {
+        $currentCardTier = $tier;
+        $currentCardTierIndex = $tierIndex;
+        break;
+    }
+}
+$cardTierKey = $isMember ? (string) $currentCardTier['key'] : 'member';
+$cardTierName = $isMember
+    ? (string) $currentCardTier['name']
+    : ($locale === 'en' ? 'Member' : 'Thành viên');
+$cardTierIcon = (string) ($currentCardTier['icon'] ?? 'bi-person-badge');
+$cardQualifyingMiles = max(0, (int) ($headerMembership['qualifying_points'] ?? 0));
+$cardMemberName = $isMember
+    ? strtoupper((string) ($authUser['full_name'] ?? $authUser['email'] ?? 'MEMBER'))
+    : ($locale === 'en' ? 'YOUR JOURNEY' : 'HÀNH TRÌNH CỦA BẠN');
+$nextCardTier = $tiers[$currentCardTierIndex + 1] ?? null;
+$nextCardTierPoints = is_array($nextCardTier) ? max(1, (int) ($nextCardTier['points'] ?? 0)) : 0;
+$cardRemainingMiles = $nextCardTierPoints > 0 ? max(0, $nextCardTierPoints - $cardQualifyingMiles) : 0;
+$cardTierProgress = $nextCardTierPoints > 0
+    ? min(100, max(0, ($cardQualifyingMiles / $nextCardTierPoints) * 100))
+    : 100;
 
 $rewards = [
     ['points' => 500, 'amount' => 50000, 'minimum' => 2000000],
@@ -133,10 +178,67 @@ $terms = $locale === 'en'
                     <a class="travelplus-passport-btn travelplus-passport-btn--ghost" href="<?= esc(\App\Data\LocalizedPathCatalog::url('search', $locale), 'attr') ?>"><?= esc($copy['secondary']) ?></a>
                 </div>
             </div>
-            <div class="travelplus-passport-card" aria-hidden="true">
-                <div class="travelplus-passport-card__top"><i class="bi bi-passport-fill"></i><span>TravelPlus<br><strong>Passport</strong></span></div>
-                <div class="travelplus-passport-card__mark"><i class="bi bi-airplane-fill"></i></div>
-                <div class="travelplus-passport-card__foot"><span>JOURNEY MEMBER</span><strong><?= esc($isMember ? strtoupper((string) ($authUser['full_name'] ?? $authUser['email'] ?? 'MEMBER')) : 'YOUR JOURNEY') ?></strong></div>
+            <div class="travelplus-passport-card travelplus-passport-card--<?= esc($cardTierKey, 'attr') ?><?= $isMember ? ' is-authenticated' : '' ?>" aria-label="<?= esc($copy['cardTierLabel'] . ': ' . $cardTierName, 'attr') ?>">
+                <span class="travelplus-passport-card__glow" aria-hidden="true"></span>
+                <div class="travelplus-passport-card__top">
+                    <span class="travelplus-passport-card__brand"><i class="bi bi-passport-fill" aria-hidden="true"></i><span>TravelPlus<br><strong>Passport</strong></span></span>
+                    <?php if ($isMember): ?>
+                        <span class="travelplus-passport-card__status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><?= esc($copy['cardStatus']) ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="travelplus-passport-card__tier">
+                    <span class="travelplus-passport-card__tier-icon"><i class="bi <?= esc($cardTierIcon, 'attr') ?>" aria-hidden="true"></i></span>
+                    <span>
+                        <small><?= esc($copy['cardTierCompactLabel']) ?></small>
+                        <strong><?= esc($cardTierName) ?></strong>
+                        <?php if ($isMember): ?>
+                            <b><?= number_format($cardQualifyingMiles, 0, ',', '.') ?> <?= esc($copy['cardMilesUnit']) ?></b>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                <?php if ($isMember): ?>
+                    <div class="travelplus-passport-card__progress">
+                        <span>
+                            <small>
+                                <?php if (is_array($nextCardTier)): ?>
+                                    <?= esc(sprintf($copy['cardNextTier'], (string) $nextCardTier['name'])) ?>
+                                <?php else: ?>
+                                    <?= esc($copy['cardProgressLabel']) ?>
+                                <?php endif; ?>
+                            </small>
+                            <strong>
+                                <?php if (is_array($nextCardTier)): ?>
+                                    <?= esc(sprintf(
+                                        $copy['cardRemainingMiles'],
+                                        number_format($cardRemainingMiles, 0, ',', '.')
+                                    )) ?>
+                                <?php else: ?>
+                                    <?= esc($copy['cardHighestTier']) ?>
+                                <?php endif; ?>
+                            </strong>
+                        </span>
+                        <div
+                            class="travelplus-passport-card__progress-track"
+                            role="progressbar"
+                            aria-label="<?= esc($copy['cardProgressLabel'], 'attr') ?>"
+                            aria-valuemin="0"
+                            aria-valuemax="<?= esc((string) ($nextCardTierPoints > 0 ? $nextCardTierPoints : $cardQualifyingMiles), 'attr') ?>"
+                            aria-valuenow="<?= esc((string) $cardQualifyingMiles, 'attr') ?>">
+                            <i style="width:<?= esc(number_format($cardTierProgress, 2, '.', ''), 'attr') ?>%"></i>
+                        </div>
+                        <b>
+                            <?= number_format($cardQualifyingMiles, 0, ',', '.') ?>
+                            <?php if ($nextCardTierPoints > 0): ?> / <?= number_format($nextCardTierPoints, 0, ',', '.') ?><?php endif; ?>
+                            <?= esc($copy['cardMilesUnit']) ?>
+                        </b>
+                    </div>
+                <?php endif; ?>
+                <div class="travelplus-passport-card__foot">
+                    <span><small><?= esc($copy['cardMemberLabel']) ?></small><strong><?= esc($cardMemberName) ?></strong></span>
+                    <span class="travelplus-passport-card__seal" aria-hidden="true">
+                        <img src="<?= esc(base_url('assets/images/logo-white.svg'), 'attr') ?>" alt="">
+                    </span>
+                </div>
             </div>
             <dl class="travelplus-passport-stats">
                 <div><dt><?= esc($copy['earnValue']) ?></dt><dd><?= esc($copy['earnLabel']) ?></dd></div>
