@@ -64,17 +64,15 @@ $passportPriceBenefit = \App\Services\TourPassportPricePresenter::build(
 );
 $loyaltyPoints = \App\Services\LoyaltyPointService::previewPoints($priceAmount);
 $loyaltyPointsLabel = number_format($loyaltyPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
-$loyaltyCopy = $locale === 'en'
-    ? 'Earn ' . $loyaltyPointsLabel . '+ Journey Miles'
-    : 'Nhận từ ' . $loyaltyPointsLabel . ' Dặm Hành Trình';
+$loyaltyCopy = ($locale === 'en' ? 'Earn from ' : 'Nhận từ ') . $loyaltyPointsLabel . ($locale === 'en' ? ' Journey Miles' : ' Dặm Hành Trình');
 $memberBalance = max(0, (int) ($headerMembership['points'] ?? 0));
 $unlockedReward = is_array($authUser ?? null)
     ? (new \App\Services\LoyaltyRewardService())->bestNewlyUnlockedReward($memberBalance, $loyaltyPoints)
     : null;
 $unlockCopy = $unlockedReward !== null
-    ? ($locale === 'en'
-        ? 'Book this tour to unlock a ' . number_format((int) ($unlockedReward['amount_vnd'] ?? 0), 0, '.', ',') . ' VND voucher'
-        : 'Đặt tour này, đủ đổi voucher ' . number_format((int) ($unlockedReward['amount_vnd'] ?? 0), 0, ',', '.') . 'đ')
+    ? ($locale === 'en' ? 'Book this tour to unlock a ' : 'Đặt tour này, đủ đổi voucher ')
+        . number_format((int) ($unlockedReward['amount_vnd'] ?? 0), 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.')
+        . ($locale === 'en' ? ' VND voucher' : 'đ')
     : '';
 $ariaLabel = $title !== '' ? $t('tourCard.viewDetails', [$title]) : $t('tourCard.cta');
 $tourToolCopy = [
@@ -217,10 +215,12 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
                     <?php else: ?>
                         <span><?= esc($copy['pricePrefix']) ?></span>
                         <strong><?= esc($priceLabel !== '' ? $priceLabel : $t('tour.sidebar.checkAvailability')) ?></strong>
-                        <?= view('components/passport-price-benefit', ['benefit' => $passportPriceBenefit]) ?>
+                        <?php if (($passportPriceBenefit['state'] ?? '') === 'guest'): ?>
+                            <?= view('components/passport-price-benefit', ['benefit' => $passportPriceBenefit]) ?>
+                        <?php endif; ?>
                     <?php endif; ?>
                     <?php if ($loyaltyPoints > 0): ?>
-                        <small class="tp-tour-card__points" title="<?= esc($locale === 'en' ? 'Actual points are based on the paid booking amount.' : 'Điểm thực nhận được tính theo số tiền booking đã thanh toán.', 'attr') ?>">
+                        <small class="tp-tour-card__points" title="<?= esc($locale === 'en' ? 'Actual miles are based on the paid booking amount.' : 'Dặm thực nhận được tính theo số tiền booking đã thanh toán.', 'attr') ?>">
                             <i class="bi bi-stars" aria-hidden="true"></i>
                             <?= esc($loyaltyCopy) ?>
                         </small>
@@ -234,7 +234,8 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
                 </div>
                 <?php if ($unlockCopy !== ''): ?>
                     <small class="tp-tour-card__passport-unlock">
-                        <i class="bi bi-gift-fill" aria-hidden="true"></i><?= esc($unlockCopy) ?>
+                        <i class="bi bi-gift-fill" aria-hidden="true"></i>
+                        <?= esc($unlockCopy) ?>
                     </small>
                 <?php endif; ?>
                 <a class="tp-tour-card__cta" href="<?= esc($link, 'attr') ?>">
