@@ -22,6 +22,7 @@ $routes->GET('zalo/oauth/callback', 'ZaloOAuthController::callback');
 
 $routes->GET('/', 'Home::index');
 $routes->GET('thiep-moi-12e', 'Invitation::index');
+$routes->GET('thiep-moi-ktdl-b', 'Invitation::ktdlB');
 $routes->GET('thiep-moi-an-cuu', 'Invitation::index');
 $routes->GET('api/destinations', 'Api\Destination::search');
 $routes->POST('api/ai-chat', 'Api\ChatController::message');

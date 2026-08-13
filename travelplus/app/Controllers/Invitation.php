@@ -10,4 +10,11 @@ class Invitation extends BaseController
             'invitationImage' => 'assets/images/invitations/12E%20Invitation.png',
         ]);
     }
+
+    public function ktdlB()
+    {
+        return view('invitation/ktdl-b', [
+            'invitationImage' => 'assets/images/invitations/KTDL%20B%20Invitation.png',
+        ]);
+    }
 }
