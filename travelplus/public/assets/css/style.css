@@ -21419,8 +21419,8 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list li a
     .home-promo-feature {
         position: relative;
         display: grid;
-        height: 340px;
-        min-height: 340px;
+        height: 390px;
+        min-height: 390px;
         grid-template-columns: minmax(0, 1.08fr) minmax(420px, .92fr);
         grid-template-rows: minmax(0, 1fr);
         overflow: hidden;

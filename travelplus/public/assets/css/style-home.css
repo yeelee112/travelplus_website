@@ -2445,8 +2445,8 @@ body.home-search-layer-open .tp-ai-chatbox{z-index: 12;
 .home-promo-feature{
         position: relative;
         display: grid;
-        height: 340px;
-        min-height: 340px;
+        height: 390px;
+        min-height: 390px;
         grid-template-columns: minmax(0, 1.08fr) minmax(420px, .92fr);
         grid-template-rows: minmax(0, 1fr);
         overflow: hidden;
