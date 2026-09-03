@@ -50,6 +50,8 @@ class GeminiWebsiteChatService
             ];
         }
 
+        $chatState = $this->knowledgeService->hydrateChatStateFromHistory($locale, $history, $chatState);
+
         $referenceFacts = $this->knowledgeService->getReferenceFacts($locale, $message, $chatState);
 
         if ($referenceFacts !== null) {
@@ -106,7 +108,7 @@ class GeminiWebsiteChatService
                 || $factsType === 'destination_trip_consultation'
                 || $factsType === 'mice_service'
                 || ($factsType === 'visa_support' && $factsIntent === 'visa_cost')
-                || ($factsType === 'tour_detail' && in_array($factsIntent, ['price', 'departure'], true))
+                || $factsType === 'tour_detail'
             ) {
                 return [
                     'message' => $this->buildFactsFallbackMessage($locale, $structuredFacts),

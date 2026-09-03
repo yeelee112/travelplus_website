@@ -21,6 +21,63 @@ class WebsiteKnowledgeService
     }
 
     /**
+     * @param list<array{role: string, text: string}> $history
+     * @param array<string, mixed> $chatState
+     * @return array<string, mixed>
+     */
+    public function hydrateChatStateFromHistory(string $locale, array $history, array $chatState = []): array
+    {
+        if ($this->getLastMatchedTourFromState($locale, $chatState) !== null) {
+            return $chatState;
+        }
+
+        $recentUserText = [];
+        foreach (array_slice($history, -8) as $item) {
+            if (($item['role'] ?? '') !== 'user') {
+                continue;
+            }
+
+            $text = trim((string) ($item['text'] ?? ''));
+            if ($text !== '') {
+                $recentUserText[] = $text;
+            }
+        }
+
+        if ($recentUserText !== []) {
+            try {
+                $matches = $this->findMatchingTours($locale, implode("\n", $recentUserText), 1);
+                if ($matches !== []) {
+                    return $this->buildTourChatState($matches[0], $locale);
+                }
+            } catch (Throwable) {
+                // History hydration is best-effort. Normal intent matching still runs below.
+            }
+        }
+
+        foreach (array_reverse(array_slice($history, -8)) as $item) {
+            if (($item['role'] ?? '') !== 'assistant') {
+                continue;
+            }
+
+            $text = trim((string) ($item['text'] ?? ''));
+            if ($text === '') {
+                continue;
+            }
+
+            try {
+                $matches = $this->findMatchingTours($locale, $text, 1);
+                if ($matches !== []) {
+                    return $this->buildTourChatState($matches[0], $locale);
+                }
+            } catch (Throwable) {
+                continue;
+            }
+        }
+
+        return $chatState;
+    }
+
+    /**
      * @return array{summary: string, sources: list<array{title: string, url: string}>}
      */
     public function getRelevantContext(string $locale, string $question, int $limit = 8): array
@@ -99,6 +156,14 @@ class WebsiteKnowledgeService
 
         if ($this->looksLikeVisaQuestion($question)) {
             return $this->buildStructuredVisaFacts($locale, $question);
+        }
+
+        if ($this->referencesCurrentTour($question)) {
+            $selectedTour = $this->getLastMatchedTourFromState($locale, $chatState);
+
+            if ($selectedTour !== null) {
+                return $this->buildStructuredTourDetailFacts($locale, $question, $selectedTour);
+            }
         }
 
         if ($this->looksLikeMiceQuestion($question)) {
@@ -541,16 +606,7 @@ class WebsiteKnowledgeService
                 'title' => (string) ($tour['title'] ?? ''),
                 'url' => (string) ($tour['url'] ?? ''),
             ]],
-            'chat_state' => [
-                'last_tour_slug' => (string) ($tour['slug'] ?? ''),
-                'last_tour_type' => (string) ($tour['tour_type'] ?? ''),
-                'last_tour_title' => (string) ($tour['title'] ?? ''),
-                'last_tour_departure' => (string) ($tour['departure'] ?? ''),
-                'last_tour_price_label' => (string) ($tour['price_label'] ?? ''),
-                'last_tour_duration_label' => (string) ($tour['duration_label'] ?? ''),
-                'last_tour_url' => (string) ($tour['url'] ?? ''),
-                'last_locale' => $locale,
-            ],
+            'chat_state' => $this->buildTourChatState($tour, $locale),
         ];
     }
 
@@ -725,16 +781,7 @@ class WebsiteKnowledgeService
 
                 return ['title' => $title, 'url' => $url];
             }, array_slice($matches, 0, 3)))),
-            'chat_state' => [
-                'last_tour_slug' => (string) ($matches[0]['slug'] ?? ''),
-                'last_tour_type' => (string) ($matches[0]['tour_type'] ?? ''),
-                'last_tour_title' => (string) ($matches[0]['title'] ?? ''),
-                'last_tour_departure' => (string) ($matches[0]['departure'] ?? ''),
-                'last_tour_price_label' => (string) ($matches[0]['price_label'] ?? ''),
-                'last_tour_duration_label' => (string) ($matches[0]['duration_label'] ?? ''),
-                'last_tour_url' => (string) ($matches[0]['url'] ?? ''),
-                'last_locale' => $locale,
-            ],
+            'chat_state' => $this->buildTourChatState($matches[0], $locale),
         ];
     }
 
@@ -972,6 +1019,24 @@ class WebsiteKnowledgeService
             'price_label' => (string) ($tour['price_label'] ?? ''),
             'duration_label' => (string) ($tour['duration_label'] ?? ''),
             'url' => (string) ($tour['url'] ?? ''),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $tour
+     * @return array<string, mixed>
+     */
+    private function buildTourChatState(array $tour, string $locale): array
+    {
+        return [
+            'last_tour_slug' => (string) ($tour['slug'] ?? ''),
+            'last_tour_type' => (string) ($tour['tour_type'] ?? ''),
+            'last_tour_title' => (string) ($tour['title'] ?? ''),
+            'last_tour_departure' => (string) ($tour['departure'] ?? ''),
+            'last_tour_price_label' => (string) ($tour['price_label'] ?? ''),
+            'last_tour_duration_label' => (string) ($tour['duration_label'] ?? ''),
+            'last_tour_url' => (string) ($tour['url'] ?? ''),
+            'last_locale' => $locale,
         ];
     }
 
@@ -2393,6 +2458,11 @@ class WebsiteKnowledgeService
         foreach ([
             'tour co gi',
             'co gi',
+            'chi tiet chuong trinh',
+            'chuong trinh chi tiet',
+            'chi tiet lich trinh',
+            'chi tiet tour',
+            'noi dung chuong trinh',
             'noi dung tour',
             'chuong trinh co gi',
             'tour gom nhung gi',
