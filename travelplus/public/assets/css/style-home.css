@@ -1808,7 +1808,7 @@ body.home-search-layer-open .tp-ai-chatbox{z-index: 12;
     grid-template-rows: repeat(3, minmax(0, 1fr));
     gap: 12px;
 }
-@media (min-width: 1200px){.home-promo-feature{
+@media (min-width: 992px){.home-promo-feature{
         position: relative;
         display: block;
         min-height: 584px;
@@ -2070,7 +2070,7 @@ body.home-search-layer-open .tp-ai-chatbox{z-index: 12;
     color: #684900;
     font-size: 9px;
 }
-@media (max-width: 1199px){.home-promo-head{
+@media (max-width: 991px){.home-promo-head{
         grid-template-columns: 1fr;
     }
 .home-promo-head__aside{

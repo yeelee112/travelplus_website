@@ -20637,7 +20637,7 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list li a
     gap: 12px;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 992px) {
     .home-promo-feature {
         position: relative;
         display: block;
@@ -20955,7 +20955,7 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list li a
     font-size: 9px;
 }
 
-@media (max-width: 1199px) {
+@media (max-width: 991px) {
     .home-promo-head {
         grid-template-columns: 1fr;
     }
