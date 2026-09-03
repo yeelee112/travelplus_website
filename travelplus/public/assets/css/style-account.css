@@ -1104,7 +1104,7 @@
 .travelplus-passport-cta>.container{display:flex;align-items:center;justify-content:space-between;gap:30px}
 .travelplus-passport-cta h2{margin:8px 0 6px;color:#17394a;font-size:30px;font-weight:950}
 .travelplus-passport-cta p{max-width:720px;margin:0;color:#526f7b;font-size:15px;line-height:1.65}
-.travelplus-passport-cta>a{display:inline-flex;min-height:48px;align-items:center;gap:8px;padding:11px 19px;border-radius:8px;background:#087eae;color:#fff;font-size:14px;font-weight:900;white-space:nowrap}
+.travelplus-passport-cta>.container>a{display:inline-flex;min-height:48px;align-items:center;gap:8px;padding:11px 19px;border-radius:8px;background:#087eae;color:#fff;font-size:14px;font-weight:900;white-space:nowrap}
 @media (max-width:1199px){.travelplus-passport-tier-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .travelplus-passport-hero>.container{grid-template-columns:minmax(0,1fr) 380px;gap:38px}
 }
@@ -1140,7 +1140,7 @@
 .travelplus-passport-tier{padding:18px}
 .travelplus-passport-heading h2{font-size:32px}
 .travelplus-passport-cta>.container{display:grid}
-.travelplus-passport-cta>a{justify-content:center}
+.travelplus-passport-cta>.container>a{justify-content:center}
 .travelplus-passport-how__layout{gap:28px}
 .travelplus-passport-steps li{grid-template-columns:26px 40px minmax(0,1fr);gap:9px}
 .travelplus-passport-steps li>i{width:40px;height:40px}
