@@ -228,6 +228,9 @@ class GeminiWebsiteChatService
             'If multiple tours are listed, keep the answer easy to scan.',
             'If a follow-up references "this tour", use the selected tour in the structured facts.',
             'When tour advisory data is present, use it to explain why a tour fits, who it suits, cautions, add-on services, and 1 to 2 relevant next questions.',
+            'When advisory known_context or missing_information is present, do not ask again for details the user already provided. Ask only the highest-priority missing details.',
+            'When advisory lead_readiness is "high", move toward the recommended_cta instead of asking broad discovery questions.',
+            'When a tour fit score is present, use it to rank and qualify suggestions. Do not present expired or unknown-departure tours as actively available.',
             'For tour lists, recommend the strongest matching option first and state the matching reason instead of repeating a generic tour list.',
             'Vary wording across follow-up answers. Do not reuse the same consultation paragraph when the user has already provided destination, guest count, travel month, or budget.',
             'Do not say the website lacks information when the structured facts already contain relevant data.',
@@ -814,6 +817,47 @@ class GeminiWebsiteChatService
         return $this->completeSentences($text, 2, 260);
     }
 
+    private function buildTourListFallbackHeading(string $locale, string $intent): string
+    {
+        if ($locale === 'en') {
+            return match ($intent) {
+                'general_availability' => 'The website currently has these tours with upcoming open departures:',
+                'upcoming_departures' => 'These tours have the nearest upcoming open departures:',
+                default => 'The strongest matching tours are:',
+            };
+        }
+
+        return match ($intent) {
+            'general_availability' => 'Hiện website có các tour còn lịch khởi hành như sau:',
+            'upcoming_departures' => 'Các tour sắp khởi hành còn mở bán:',
+            default => 'Các tour khớp nhất với nhu cầu của anh/chị:',
+        };
+    }
+
+    /**
+     * @param array<string, mixed> $fit
+     */
+    private function formatTourFitLine(string $locale, array $fit): string
+    {
+        $score = (int) ($fit['score'] ?? 0);
+        $label = trim((string) ($fit['label'] ?? ''));
+
+        if ($score <= 0 || $label === '') {
+            return '';
+        }
+
+        $reasons = array_slice(array_values(array_filter((array) ($fit['reasons'] ?? []), 'is_string')), 0, 2);
+        $line = ($locale === 'en' ? 'Fit score: ' : 'Mức khớp: ') . $label . ' (' . $score . '%)';
+
+        if ($reasons !== []) {
+            $line .= $locale === 'en'
+                ? ' because it ' . implode(', ', $reasons) . '.'
+                : ' vì ' . implode(', ', $reasons) . '.';
+        }
+
+        return $line;
+    }
+
     private function completeSentences(string $text, int $maxSentences, int $maxLength): string
     {
         $sentences = preg_split('/(?<=[\.\!\?…])\s+/u', trim($text)) ?: [];
@@ -876,12 +920,15 @@ class GeminiWebsiteChatService
         $summary = trim((string) ($advisory['summary'] ?? ''));
         $strengths = array_values(array_filter((array) ($advisory['strengths'] ?? []), 'is_string'));
         $suitableFor = array_values(array_filter((array) ($advisory['suitable_for'] ?? []), 'is_string'));
+        $destinationNotes = array_values(array_filter((array) ($advisory['destination_notes'] ?? []), 'is_string'));
         $personalizedNotes = array_values(array_filter((array) ($advisory['personalized_notes'] ?? []), 'is_string'));
+        $budgetNotes = array_values(array_filter((array) ($advisory['budget_notes'] ?? []), 'is_string'));
         $paceNote = trim((string) ($advisory['pace_note'] ?? ''));
         $caution = trim((string) ($advisory['sales_caution'] ?? ''));
+        $recommendedCta = trim((string) ($advisory['recommended_cta'] ?? ''));
         $questions = array_values(array_filter((array) ($advisory['next_questions'] ?? []), 'is_string'));
 
-        if ($summary === '' && $strengths === [] && $suitableFor === [] && $personalizedNotes === [] && $questions === []) {
+        if ($summary === '' && $strengths === [] && $suitableFor === [] && $destinationNotes === [] && $personalizedNotes === [] && $budgetNotes === [] && $questions === []) {
             return $lines;
         }
 
@@ -900,8 +947,12 @@ class GeminiWebsiteChatService
             $lines[] = '- ' . ($locale === 'en' ? 'Suitable for: ' : 'Phù hợp với: ') . implode(', ', array_slice($suitableFor, 0, 4)) . '.';
         }
 
-        if ($personalizedNotes !== []) {
-            foreach (array_slice($personalizedNotes, 0, $compact ? 1 : 2) as $note) {
+        $contextNotes = array_values(array_filter(
+            array_unique(array_merge($destinationNotes, $personalizedNotes, $budgetNotes)),
+            static fn (string $note): bool => trim($note) !== $summary
+        ));
+        if ($contextNotes !== []) {
+            foreach (array_slice($contextNotes, 0, $compact ? 1 : 2) as $note) {
                 $lines[] = '- ' . $note;
             }
         }
@@ -920,6 +971,9 @@ class GeminiWebsiteChatService
             $lines[] = $locale === 'en'
                 ? 'To advise more accurately, please share: ' . implode('; ', array_slice($questions, 0, $compact ? 2 : 3)) . '.'
                 : 'Để tư vấn sát hơn, anh/chị cho em xin thêm: ' . implode('; ', array_slice($questions, 0, $compact ? 2 : 3)) . '.';
+        } elseif ($recommendedCta !== '') {
+            $lines[] = '';
+            $lines[] = $recommendedCta;
         }
 
         return $lines;
@@ -933,10 +987,9 @@ class GeminiWebsiteChatService
         $type = (string) ($facts['type'] ?? '');
 
         if ($type === 'tour_list') {
+            $intent = (string) ($facts['intent'] ?? 'availability');
             $lines = [
-                $locale === 'en'
-                    ? 'The website currently has these matching tours:'
-                    : 'Hiện website có các tour phù hợp sau:',
+                $this->buildTourListFallbackHeading($locale, $intent),
                 '',
             ];
 
@@ -959,6 +1012,13 @@ class GeminiWebsiteChatService
                     $parts[] = ($locale === 'en' ? 'Duration' : 'Thời lượng') . ': ' . $tour['duration_label'];
                 }
 
+                $fit = is_array($tour['fit'] ?? null) ? $tour['fit'] : [];
+                $fitScore = (int) ($fit['score'] ?? 0);
+                $fitLabel = trim((string) ($fit['label'] ?? ''));
+                if ($fitScore > 0 && $fitLabel !== '') {
+                    $parts[] = ($locale === 'en' ? 'Fit' : 'Mức khớp') . ': ' . $fitLabel . ' (' . $fitScore . '%)';
+                }
+
                 $lines[] = implode(' | ', $parts);
             }
 
@@ -973,70 +1033,110 @@ class GeminiWebsiteChatService
             $intent = (string) ($facts['intent'] ?? 'itinerary');
             $title = trim((string) ($tour['title'] ?? ''));
             $lines = [];
-
-            if ($title !== '') {
-                $lines[] = $intent === 'highlights'
-                    ? ($locale === 'en' ? 'Highlights of ' . $title . ':' : 'Điểm nổi bật của tour ' . $title . ':')
-                    : ($locale === 'en' ? 'This tour includes these main points: ' . $title : 'Tour ' . $title . ' có các nội dung chính:');
-            }
-
-            $overview = trim((string) ($tour['overview'] ?? ''));
-            if ($overview !== '') {
-                $lines[] = $overview;
-            }
+            $advisory = is_array($tour['advisory'] ?? null) ? $tour['advisory'] : [];
+            $fit = is_array($tour['fit'] ?? null) ? $tour['fit'] : [];
 
             $routeStops = array_values(array_filter((array) ($tour['route_stops'] ?? []), 'is_string'));
-            if ($routeStops !== []) {
-                $lines[] = '';
-                $lines[] = $locale === 'en' ? 'Main route:' : 'Tuyến điểm chính:';
-                $lines[] = '- ' . implode(' - ', array_slice($routeStops, 0, 8));
-            }
-
             $attractions = array_values(array_filter((array) ($tour['attraction_highlights'] ?? []), 'is_string'));
-            if ($attractions !== []) {
-                $lines[] = '';
-                $lines[] = $locale === 'en' ? 'Notable experiences:' : 'Điểm tham quan/trải nghiệm nổi bật:';
-                $lines[] = '- ' . implode(', ', array_slice($attractions, 0, 8));
-            }
-
             $itineraryHighlights = array_values(array_filter((array) ($tour['itinerary_highlights'] ?? []), 'is_array'));
-            if ($itineraryHighlights !== []) {
-                $lines[] = '';
-                $lines[] = $locale === 'en' ? 'Itinerary by day:' : 'Tóm tắt lịch trình theo ngày:';
-
-                foreach (array_slice($itineraryHighlights, 0, 5) as $day) {
-                    $dayNumber = (int) ($day['day'] ?? 0);
-                    $dayTitle = trim((string) ($day['title'] ?? ''));
-                    $summary = trim((string) ($day['summary'] ?? ''));
-                    $label = $dayNumber > 0
-                        ? ($locale === 'en' ? 'Day ' . $dayNumber : 'Ngày ' . $dayNumber)
-                        : ($locale === 'en' ? 'Itinerary' : 'Lịch trình');
-                    $line = '- ' . $label;
-
-                    if ($dayTitle !== '') {
-                        $line .= ': ' . $dayTitle;
-                    }
-
-                    if ($summary !== '') {
-                        $line .= ' - ' . $summary;
-                    }
-
-                    $lines[] = $line;
-                }
-            }
-
             $factsLine = array_values(array_filter([
                 ! empty($tour['departure']) ? (($locale === 'en' ? 'Departure' : 'Khởi hành') . ': ' . $tour['departure']) : '',
                 ! empty($tour['price_label']) ? (($locale === 'en' ? 'Price from' : 'Giá từ') . ': ' . $tour['price_label']) : '',
                 ! empty($tour['duration_label']) ? (($locale === 'en' ? 'Duration' : 'Thời lượng') . ': ' . $tour['duration_label']) : '',
             ]));
+            $fitLine = $this->formatTourFitLine($locale, $fit);
 
-            if ($factsLine !== []) {
-                $lines[] = '';
-                $lines[] = implode(' | ', $factsLine);
+            if ($intent === 'price') {
+                $priceLabel = trim((string) ($tour['price_label'] ?? ''));
+                $lines[] = $locale === 'en'
+                    ? ($priceLabel !== ''
+                        ? 'The listed starting price for ' . ($title !== '' ? $title : 'this tour') . ' is ' . $priceLabel . '.'
+                        : 'The starting price for ' . ($title !== '' ? $title : 'this tour') . ' is not published yet.')
+                    : ($priceLabel !== ''
+                        ? 'Giá từ của tour ' . ($title !== '' ? $title : 'này') . ' hiện là ' . $priceLabel . '.'
+                        : 'Giá tour ' . ($title !== '' ? $title : 'này') . ' hiện chưa được công bố.');
+                if (! empty($tour['departure'])) {
+                    $lines[] = $locale === 'en'
+                        ? 'The current open departure is ' . $tour['departure'] . '.'
+                        : 'Lịch khởi hành còn hiệu lực hiện là ' . $tour['departure'] . '.';
+                }
+                $lines[] = $locale === 'en'
+                    ? 'Final quotation should recheck guest count, rooming, airfare and peak-season surcharge before confirming.'
+                    : 'Khi báo giá cuối, nên kiểm tra lại số khách, phòng ở, vé máy bay và phụ thu mùa cao điểm trước khi chốt.';
+            } elseif ($intent === 'departure') {
+                $departure = trim((string) ($tour['departure'] ?? ''));
+                $lines[] = $locale === 'en'
+                    ? ($departure !== ''
+                        ? 'The current open departure for ' . ($title !== '' ? $title : 'this tour') . ' is ' . $departure . '.'
+                        : 'The open departure date for ' . ($title !== '' ? $title : 'this tour') . ' is not published yet.')
+                    : ($departure !== ''
+                        ? 'Tour ' . ($title !== '' ? $title : 'này') . ' hiện có lịch khởi hành còn hiệu lực là ' . $departure . '.'
+                        : 'Tour ' . ($title !== '' ? $title : 'này') . ' hiện chưa công bố lịch khởi hành còn hiệu lực.');
+                if ($factsLine !== []) {
+                    $lines[] = implode(' | ', $factsLine);
+                }
+            } else {
+                if ($title !== '') {
+                    $lines[] = match ($intent) {
+                        'highlights' => $locale === 'en' ? 'Highlights of ' . $title . ':' : 'Điểm nổi bật của tour ' . $title . ':',
+                        'destinations' => $locale === 'en' ? 'Main places in ' . $title . ':' : 'Tour ' . $title . ' đi qua các điểm chính:',
+                        default => $locale === 'en' ? 'Program details for ' . $title . ':' : 'Chi tiết chương trình tour ' . $title . ':',
+                    };
+                }
+
+                $overview = trim((string) ($tour['overview'] ?? ''));
+                if ($overview !== '') {
+                    $lines[] = $overview;
+                }
+
+                if ($routeStops !== []) {
+                    $lines[] = '';
+                    $lines[] = $locale === 'en' ? 'Main route:' : 'Tuyến điểm chính:';
+                    $lines[] = '- ' . implode(' - ', array_slice($routeStops, 0, 8));
+                }
+
+                if ($attractions !== []) {
+                    $lines[] = '';
+                    $lines[] = $locale === 'en' ? 'Notable experiences:' : 'Điểm tham quan/trải nghiệm nổi bật:';
+                    $lines[] = '- ' . implode(', ', array_slice($attractions, 0, 8));
+                }
+
+                if ($intent !== 'destinations' && $itineraryHighlights !== []) {
+                    $lines[] = '';
+                    $lines[] = $locale === 'en' ? 'Itinerary by day:' : 'Tóm tắt lịch trình theo ngày:';
+
+                    foreach (array_slice($itineraryHighlights, 0, 5) as $day) {
+                        $dayNumber = (int) ($day['day'] ?? 0);
+                        $dayTitle = trim((string) ($day['title'] ?? ''));
+                        $summary = trim((string) ($day['summary'] ?? ''));
+                        $label = $dayNumber > 0
+                            ? ($locale === 'en' ? 'Day ' . $dayNumber : 'Ngày ' . $dayNumber)
+                            : ($locale === 'en' ? 'Itinerary' : 'Lịch trình');
+                        $line = '- ' . $label;
+
+                        if ($dayTitle !== '') {
+                            $line .= ': ' . $dayTitle;
+                        }
+
+                        if ($summary !== '') {
+                            $line .= ' - ' . $summary;
+                        }
+
+                        $lines[] = $line;
+                    }
+                }
+
+                if ($factsLine !== []) {
+                    $lines[] = '';
+                    $lines[] = implode(' | ', $factsLine);
+                }
             }
 
-            $advisory = is_array($tour['advisory'] ?? null) ? $tour['advisory'] : [];
+            if ($fitLine !== '') {
+                $lines[] = '';
+                $lines[] = $fitLine;
+            }
+
             $lines = $this->appendTourAdvisoryLines($lines, $locale, $advisory);
 
             return trim(implode("\n", $lines));
@@ -1063,10 +1163,23 @@ class GeminiWebsiteChatService
             }
 
             $summary = $details !== [] ? ' (' . implode(', ', $details) . ')' : '';
+            $lines = [
+                $locale === 'en'
+                    ? 'Travel Plus can advise a suitable ' . ($destination !== '' ? $destination . ' ' : '') . "tour or tailor-made itinerary{$summary}. The team will check available website tours first; if there is no exact match, Travel Plus can propose a custom plan."
+                    : 'Travel Plus có thể tư vấn tour ' . ($destination !== '' ? $destination . ' ' : '') . "phù hợp hoặc thiết kế lịch trình riêng{$summary}. Đội ngũ sẽ kiểm tra tour có sẵn trước; nếu chưa có tour khớp đúng, Travel Plus có thể đề xuất phương án riêng.",
+            ];
 
-            return $locale === 'en'
-                ? 'Travel Plus can advise a suitable ' . ($destination !== '' ? $destination . ' ' : '') . "tour or tailor-made itinerary{$summary}. The team will check available website tours first; if there is no exact match, Travel Plus can propose a custom plan.\n\nTo quote accurately, please share the exact departure date, preferred trip length, departure city, hotel standard and your phone/email for callback."
-                : 'Travel Plus có thể tư vấn tour ' . ($destination !== '' ? $destination . ' ' : '') . "phù hợp hoặc thiết kế lịch trình riêng{$summary}. Đội ngũ sẽ kiểm tra tour có sẵn trước; nếu chưa có tour khớp đúng, Travel Plus có thể đề xuất phương án riêng.\n\nĐể báo phương án chính xác, anh/chị cho em xin thêm ngày đi cụ thể, số ngày muốn đi, điểm khởi hành, tiêu chuẩn khách sạn và số điện thoại/email để tư vấn lại.";
+            $advisory = is_array($facts['advisory'] ?? null) ? $facts['advisory'] : [];
+            $lines = $this->appendTourAdvisoryLines($lines, $locale, $advisory, true);
+
+            if ($advisory === []) {
+                $lines[] = '';
+                $lines[] = $locale === 'en'
+                    ? 'To quote accurately, please share the exact departure date, preferred trip length, departure city, hotel standard and your phone/email for callback.'
+                    : 'Để báo phương án chính xác, anh/chị cho em xin thêm ngày đi cụ thể, số ngày muốn đi, điểm khởi hành, tiêu chuẩn khách sạn và số điện thoại/email để tư vấn lại.';
+            }
+
+            return trim(implode("\n", $lines));
         }
 
         if ($type === 'visa_support') {

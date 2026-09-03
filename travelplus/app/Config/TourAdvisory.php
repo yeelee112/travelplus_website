@@ -179,7 +179,7 @@ class TourAdvisory extends BaseConfig
      */
     public array $requestSignals = [
         'family' => [
-            'keywords' => ['gia đình', 'tre em', 'trẻ em', 'con nhỏ', 'em bé', 'ba mẹ', 'bố mẹ', 'nguoi lon tuoi', 'người lớn tuổi'],
+            'keywords' => ['gia đình', 'tre em', 'trẻ em', 'con nhỏ', 'em bé', 'ba mẹ', 'bố mẹ'],
             'note' => [
                 'vi' => 'Khách đi gia đình nên kiểm tra độ tuổi trẻ em/người lớn tuổi, nhu cầu phòng gần nhau và nhịp đi nhẹ.',
                 'en' => 'For family trips, check children/senior ages, room proximity and preferred pace.',
@@ -187,6 +187,39 @@ class TourAdvisory extends BaseConfig
             'questions' => [
                 'vi' => ['Trong đoàn có trẻ em hoặc người lớn tuổi không?', 'Gia đình muốn phòng gần nhau hay cần phòng family?'],
                 'en' => ['Are there children or senior guests in the group?', 'Do you need nearby rooms or family rooms?'],
+            ],
+        ],
+        'children' => [
+            'keywords' => ['trẻ em', 'tre em', 'em bé', 'con nhỏ', 'bé', 'kids', 'children'],
+            'note' => [
+                'vi' => 'Có trẻ em thì nên ưu tiên lịch trình không quá dày, giờ bay thuận tiện và khách sạn dễ di chuyển.',
+                'en' => 'For children, prioritize a lighter pace, convenient flight times and easy hotel access.',
+            ],
+            'questions' => [
+                'vi' => ['Bé bao nhiêu tuổi để kiểm tra giá trẻ em và lịch trình phù hợp?', 'Gia đình có cần phòng family hoặc giường phụ không?'],
+                'en' => ['How old are the children for child pricing and itinerary fit?', 'Do you need family rooms or extra beds?'],
+            ],
+        ],
+        'senior' => [
+            'keywords' => ['người lớn tuổi', 'nguoi lon tuoi', 'ba mẹ', 'bố mẹ', 'ông bà', 'cao tuổi', 'sức khỏe'],
+            'note' => [
+                'vi' => 'Có người lớn tuổi thì nên tránh lịch trình quá dày, nhiều bậc thang hoặc đổi khách sạn liên tục.',
+                'en' => 'For senior guests, avoid overly dense itineraries, too many stairs or frequent hotel changes.',
+            ],
+            'questions' => [
+                'vi' => ['Trong đoàn có ai cần hạn chế đi bộ hoặc leo bậc thang không?', 'Anh/chị muốn lịch trình nhẹ hơn hay vẫn ưu tiên tham quan nhiều điểm?'],
+                'en' => ['Does anyone need to limit walking or stairs?', 'Would you prefer a lighter pace or more sightseeing?'],
+            ],
+        ],
+        'couple' => [
+            'keywords' => ['cặp đôi', 'cap doi', 'honeymoon', 'tuần trăng mật', 'trăng mật', 'kỷ niệm'],
+            'note' => [
+                'vi' => 'Khách cặp đôi nên ưu tiên khách sạn đẹp, thời gian riêng tư và trải nghiệm ăn tối/view đẹp nếu ngân sách cho phép.',
+                'en' => 'For couples, prioritize nicer hotels, private time and scenic dining or experiences if budget allows.',
+            ],
+            'questions' => [
+                'vi' => ['Chuyến đi thiên về nghỉ dưỡng hay chụp hình/trải nghiệm?', 'Có cần gợi ý khách sạn hoặc trải nghiệm riêng cho cặp đôi không?'],
+                'en' => ['Is the trip more for relaxation or photo/experience-focused?', 'Do you need hotel or private experience suggestions for couples?'],
             ],
         ],
         'company' => [
@@ -231,6 +264,124 @@ class TourAdvisory extends BaseConfig
             'questions' => [
                 'vi' => ['Khách muốn nghỉ gần biển/trung tâm hay resort riêng tư?', 'Có muốn giảm bớt điểm tham quan để nghỉ nhiều hơn không?'],
                 'en' => ['Do you prefer beach/central hotels or a more private resort?', 'Would you like fewer sightseeing stops for more rest time?'],
+            ],
+        ],
+    ];
+
+    /**
+     * Destination guides provide specific advisory notes for popular routes.
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    public array $destinationGuides = [
+        'da_nang' => [
+            'keywords' => ['đà nẵng', 'danang', 'mỹ khê', 'bà nà', 'cầu vàng', 'hội an', 'ngũ hành sơn', 'sơn trà'],
+            'note' => [
+                'vi' => 'Đà Nẵng dễ tư vấn cho gia đình vì có biển, Bà Nà/Cầu Vàng và có thể kết hợp Hội An trong lịch trình ngắn.',
+                'en' => 'Da Nang is easy to recommend for families because it combines beach time, Ba Na/Golden Bridge and optional Hoi An in a short trip.',
+            ],
+            'questions' => [
+                'vi' => ['Khách muốn ở gần biển Mỹ Khê hay trung tâm sông Hàn?', 'Có muốn đi Bà Nà Hills/Cầu Vàng không?'],
+                'en' => ['Do you prefer My Khe Beach or Han River city center?', 'Would you like Ba Na Hills/Golden Bridge included?'],
+            ],
+        ],
+        'nha_trang' => [
+            'keywords' => ['nha trang', 'cam ranh', 'vinwonders', 'tháp bà', 'ponagar', 'tắm bùn', 'tour đảo', 'bãi dài'],
+            'note' => [
+                'vi' => 'Nha Trang hợp khách thích biển, tour đảo, hải sản và các trải nghiệm nhẹ như VinWonders hoặc tắm bùn khoáng.',
+                'en' => 'Nha Trang suits beach-focused guests, island tours, seafood and lighter experiences such as VinWonders or mud baths.',
+            ],
+            'questions' => [
+                'vi' => ['Khách muốn nghỉ khu trung tâm Nha Trang hay resort Bãi Dài/Cam Ranh?', 'Có muốn thêm tour đảo hoặc VinWonders không?'],
+                'en' => ['Do you prefer central Nha Trang or Bai Dai/Cam Ranh resorts?', 'Would you like island tours or VinWonders included?'],
+            ],
+        ],
+        'phu_quoc' => [
+            'keywords' => ['phú quốc', 'phu quoc', 'sunset town', 'hòn thơm', 'vinwonders', 'safari', 'nam đảo', 'bắc đảo'],
+            'note' => [
+                'vi' => 'Phú Quốc mạnh về nghỉ dưỡng biển, resort, sunset và các cụm vui chơi phù hợp gia đình.',
+                'en' => 'Phu Quoc is strong for beach resorts, sunsets and family-friendly entertainment complexes.',
+            ],
+            'questions' => [
+                'vi' => ['Khách muốn ở resort biển hay khách sạn trung tâm?', 'Lịch trình có cần Hòn Thơm, VinWonders hoặc Safari không?'],
+                'en' => ['Do you prefer a beach resort or central hotel?', 'Should the itinerary include Hon Thom, VinWonders or Safari?'],
+            ],
+        ],
+        'da_lat' => [
+            'keywords' => ['đà lạt', 'da lat', 'dalat', 'langbiang', 'săn mây', 'fresh garden', 'puppy farm', 'hồ xuân hương'],
+            'note' => [
+                'vi' => 'Đà Lạt hợp khách muốn khí hậu mát, cafe/view đẹp, lịch trình nhẹ và nhiều điểm chụp hình.',
+                'en' => 'Da Lat suits guests who want cool weather, scenic cafes, a lighter pace and photo-friendly stops.',
+            ],
+            'questions' => [
+                'vi' => ['Khách muốn đi xe hay bay đến Đà Lạt?', 'Có muốn thêm săn mây hoặc các điểm cafe/view đẹp không?'],
+                'en' => ['Will guests travel by road or by flight?', 'Would you like cloud hunting or scenic cafes included?'],
+            ],
+        ],
+        'sa_pa' => [
+            'keywords' => ['sa pa', 'sapa', 'fansipan', 'cát cát', 'ô quy hồ', 'thác bạc', 'cầu kính'],
+            'note' => [
+                'vi' => 'Sa Pa hợp khách thích cảnh núi, khí hậu mát và trải nghiệm bản làng, nhưng cần lưu ý thời tiết và sức khỏe khi di chuyển.',
+                'en' => 'Sa Pa suits mountain scenery, cool weather and village experiences, but weather and guest mobility should be checked.',
+            ],
+            'questions' => [
+                'vi' => ['Khách có muốn đi Fansipan không?', 'Trong đoàn có ai ngại đi bộ nhiều hoặc say xe đường núi không?'],
+                'en' => ['Would guests like to visit Fansipan?', 'Does anyone avoid long walks or mountain roads?'],
+            ],
+        ],
+        'japan' => [
+            'keywords' => ['nhật bản', 'japan', 'tokyo', 'osaka', 'kyoto', 'núi phú sĩ', 'fuji'],
+            'note' => [
+                'vi' => 'Nhật Bản dễ tư vấn theo mùa hoa anh đào, lá đỏ, mua sắm và văn hóa; cần kiểm tra visa và ngày khởi hành sớm.',
+                'en' => 'Japan is easy to advise by cherry blossom, autumn foliage, shopping and culture; visa and departure dates should be checked early.',
+            ],
+            'questions' => [
+                'vi' => ['Khách muốn đi mùa nào: hoa anh đào, hè, lá đỏ hay mùa đông?', 'Khách đã có visa Nhật hoặc cần Travel Plus hỗ trợ hồ sơ chưa?'],
+                'en' => ['Which season do guests prefer: cherry blossom, summer, autumn foliage or winter?', 'Do guests already have Japan visas or need support?'],
+            ],
+        ],
+        'korea' => [
+            'keywords' => ['hàn quốc', 'han quoc', 'korea', 'seoul', 'nami', 'everland', 'busan'],
+            'note' => [
+                'vi' => 'Hàn Quốc hợp khách đi lần đầu nhờ tuyến Seoul/Nami/mua sắm dễ đi, dễ kết hợp trải nghiệm văn hóa và ẩm thực.',
+                'en' => 'South Korea suits first-time travelers with accessible Seoul/Nami/shopping routes plus culture and food experiences.',
+            ],
+            'questions' => [
+                'vi' => ['Khách muốn tập trung Seoul hay kết hợp Nami/Busan?', 'Khách cần hỗ trợ visa Hàn Quốc không?'],
+                'en' => ['Do guests prefer Seoul only or adding Nami/Busan?', 'Do guests need Korea visa support?'],
+            ],
+        ],
+        'thailand' => [
+            'keywords' => ['thái lan', 'thai lan', 'thailand', 'bangkok', 'pattaya', 'phuket', 'chiang mai'],
+            'note' => [
+                'vi' => 'Thái Lan phù hợp khách muốn tour nước ngoài dễ đi, ngân sách mềm, mua sắm và ẩm thực rõ ràng.',
+                'en' => 'Thailand suits guests who want an easy outbound trip with approachable budget, shopping and food.',
+            ],
+            'questions' => [
+                'vi' => ['Khách muốn Bangkok/Pattaya hay biển Phuket?', 'Ưu tiên mua sắm, vui chơi hay nghỉ dưỡng?'],
+                'en' => ['Do guests prefer Bangkok/Pattaya or Phuket beach?', 'Is the priority shopping, entertainment or resort time?'],
+            ],
+        ],
+        'singapore' => [
+            'keywords' => ['singapore', 'sentosa', 'gardens by the bay', 'marina bay', 'jewel changi', 'universal'],
+            'note' => [
+                'vi' => 'Singapore hợp lịch trình ngắn, sạch sẽ, dễ đi cho gia đình và khách lần đầu đi nước ngoài.',
+                'en' => 'Singapore works well for short, clean and easy trips for families and first-time outbound guests.',
+            ],
+            'questions' => [
+                'vi' => ['Khách có muốn thêm Universal/Sentosa không?', 'Ngân sách đã gồm vé tham quan chưa?'],
+                'en' => ['Would guests like Universal/Sentosa included?', 'Does the budget include attraction tickets?'],
+            ],
+        ],
+        'europe' => [
+            'keywords' => ['châu âu', 'chau au', 'europe', 'pháp', 'france', 'ý', 'italy', 'thụy sĩ', 'switzerland', 'đức', 'germany'],
+            'note' => [
+                'vi' => 'Châu Âu là tuyến giá trị cao, cần chuẩn bị sớm về visa Schengen, lịch bay, sức khỏe và số ngày đi.',
+                'en' => 'Europe is a higher-value route that needs early Schengen visa, flight, health and trip-length planning.',
+            ],
+            'questions' => [
+                'vi' => ['Khách đã từng có visa Schengen chưa?', 'Muốn đi một nước sâu hơn hay liên tuyến nhiều nước?'],
+                'en' => ['Have guests held a Schengen visa before?', 'Do they prefer one country in depth or a multi-country route?'],
             ],
         ],
     ];
