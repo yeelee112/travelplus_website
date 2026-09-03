@@ -227,6 +227,9 @@ class GeminiWebsiteChatService
             'If structured facts intent is "highlights", explain what makes the selected tour notable. Do not answer by listing alternative tours.',
             'If multiple tours are listed, keep the answer easy to scan.',
             'If a follow-up references "this tour", use the selected tour in the structured facts.',
+            'When tour advisory data is present, use it to explain why a tour fits, who it suits, cautions, add-on services, and 1 to 2 relevant next questions.',
+            'For tour lists, recommend the strongest matching option first and state the matching reason instead of repeating a generic tour list.',
+            'Vary wording across follow-up answers. Do not reuse the same consultation paragraph when the user has already provided destination, guest count, travel month, or budget.',
             'Do not say the website lacks information when the structured facts already contain relevant data.',
             'Write in plain text. Do not use markdown bold, markdown bullet markers, raw URLs, or citation markers like [1].',
             'Conversation history:',
@@ -864,6 +867,65 @@ class GeminiWebsiteChatService
     }
 
     /**
+     * @param array<int, string> $lines
+     * @param array<string, mixed> $advisory
+     * @return array<int, string>
+     */
+    private function appendTourAdvisoryLines(array $lines, string $locale, array $advisory, bool $compact = false): array
+    {
+        $summary = trim((string) ($advisory['summary'] ?? ''));
+        $strengths = array_values(array_filter((array) ($advisory['strengths'] ?? []), 'is_string'));
+        $suitableFor = array_values(array_filter((array) ($advisory['suitable_for'] ?? []), 'is_string'));
+        $personalizedNotes = array_values(array_filter((array) ($advisory['personalized_notes'] ?? []), 'is_string'));
+        $paceNote = trim((string) ($advisory['pace_note'] ?? ''));
+        $caution = trim((string) ($advisory['sales_caution'] ?? ''));
+        $questions = array_values(array_filter((array) ($advisory['next_questions'] ?? []), 'is_string'));
+
+        if ($summary === '' && $strengths === [] && $suitableFor === [] && $personalizedNotes === [] && $questions === []) {
+            return $lines;
+        }
+
+        $lines[] = '';
+        $lines[] = $compact
+            ? ($locale === 'en' ? 'Consultation angle:' : 'Gợi ý tư vấn:')
+            : ($locale === 'en' ? 'Why this option fits:' : 'Vì sao tour này phù hợp:');
+
+        if ($summary !== '') {
+            $lines[] = '- ' . $summary;
+        } elseif ($strengths !== []) {
+            $lines[] = '- ' . implode(' ', array_slice($strengths, 0, 2));
+        }
+
+        if (! $compact && $suitableFor !== []) {
+            $lines[] = '- ' . ($locale === 'en' ? 'Suitable for: ' : 'Phù hợp với: ') . implode(', ', array_slice($suitableFor, 0, 4)) . '.';
+        }
+
+        if ($personalizedNotes !== []) {
+            foreach (array_slice($personalizedNotes, 0, $compact ? 1 : 2) as $note) {
+                $lines[] = '- ' . $note;
+            }
+        }
+
+        if (! $compact && $paceNote !== '') {
+            $lines[] = '- ' . $paceNote;
+        }
+
+        if (! $compact && $caution !== '') {
+            $lines[] = '';
+            $lines[] = ($locale === 'en' ? 'Consultation note: ' : 'Lưu ý tư vấn: ') . $caution;
+        }
+
+        if ($questions !== []) {
+            $lines[] = '';
+            $lines[] = $locale === 'en'
+                ? 'To advise more accurately, please share: ' . implode('; ', array_slice($questions, 0, $compact ? 2 : 3)) . '.'
+                : 'Để tư vấn sát hơn, anh/chị cho em xin thêm: ' . implode('; ', array_slice($questions, 0, $compact ? 2 : 3)) . '.';
+        }
+
+        return $lines;
+    }
+
+    /**
      * @param array<string, mixed> $facts
      */
     private function buildFactsFallbackMessage(string $locale, array $facts): string
@@ -899,6 +961,9 @@ class GeminiWebsiteChatService
 
                 $lines[] = implode(' | ', $parts);
             }
+
+            $selectedAdvisory = is_array($facts['selected_advisory'] ?? null) ? $facts['selected_advisory'] : [];
+            $lines = $this->appendTourAdvisoryLines($lines, $locale, $selectedAdvisory, true);
 
             return trim(implode("\n", $lines));
         }
@@ -970,6 +1035,9 @@ class GeminiWebsiteChatService
                 $lines[] = '';
                 $lines[] = implode(' | ', $factsLine);
             }
+
+            $advisory = is_array($tour['advisory'] ?? null) ? $tour['advisory'] : [];
+            $lines = $this->appendTourAdvisoryLines($lines, $locale, $advisory);
 
             return trim(implode("\n", $lines));
         }
@@ -1326,6 +1394,11 @@ class GeminiWebsiteChatService
             $lines[] = '';
             $lines[] = implode(' | ', $factsLine);
         }
+
+        $advisory = is_array($tour['advisory'] ?? null)
+            ? $tour['advisory']
+            : (is_array($facts['selected_advisory'] ?? null) ? $facts['selected_advisory'] : []);
+        $lines = $this->appendTourAdvisoryLines($lines, $locale, $advisory, $intent !== 'highlights');
 
         return trim(implode("\n", $lines));
     }
