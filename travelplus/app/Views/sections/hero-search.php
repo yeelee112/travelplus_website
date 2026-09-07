@@ -129,8 +129,8 @@ $trustItems = $locale === 'en'
         <a class="home-hero-offer" href="<?= esc($passportUrl, 'attr') ?>">
             <i class="bi bi-passport"></i>
             <span>
-                <strong>TravelPlus Passport</strong>
-                <small><?= esc($locale === 'en' ? 'Book tours and earn journey miles' : 'Đặt tour để tích Dặm Hành Trình') ?></small>
+                <strong>Travel Plus Reward</strong>
+                <small><?= esc($locale === 'en' ? 'Book tours and earn journey points' : 'Đặt tour để tích Điểm thành viên') ?></small>
                 <em><?= esc($locale === 'en' ? 'View benefits' : 'Xem quyền lợi') ?> →</em>
             </span>
         </a>

@@ -113,8 +113,8 @@ $priceDisplay = $adultPrice > 0 ? number_format($adultPrice, 0, ',', '.') . 'đ'
 $loyaltyPreviewPoints = \App\Services\LoyaltyPointService::previewPoints($adultPrice);
 $loyaltyPreviewLabel = number_format($loyaltyPreviewPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
 $loyaltyPreviewCopy = $locale === 'en'
-    ? 'Earn ' . $loyaltyPreviewLabel . '+ Journey Miles'
-    : 'Nhận +' . $loyaltyPreviewLabel . ' Dặm Hành Trình';
+    ? 'Earn ' . $loyaltyPreviewLabel . '+ Member Points'
+    : 'Nhận +' . $loyaltyPreviewLabel . ' Điểm thành viên';
 $authUser = session()->get('auth_user');
 $isLoggedIn = is_array($authUser) && (int) ($authUser['id'] ?? 0) > 0;
 $loyaltyPreviewTooltip = $locale === 'en'
@@ -135,8 +135,8 @@ $unlocksPassportReward = $nextPassportReward !== null
     && $projectedPassportBalance >= (int) ($nextPassportReward['points'] ?? 0);
 $passportMilestoneCopy = $unlocksPassportReward
     ? ($locale === 'en'
-        ? 'After this tour: ' . number_format($projectedPassportBalance, 0, '.', ',') . ' miles — enough for a ' . number_format((int) ($nextPassportReward['amount_vnd'] ?? 0), 0, '.', ',') . ' VND voucher.'
-        : 'Sau tour này: ' . number_format($projectedPassportBalance, 0, ',', '.') . ' dặm — đủ đổi voucher ' . number_format((int) ($nextPassportReward['amount_vnd'] ?? 0), 0, ',', '.') . 'đ.')
+        ? 'After this tour: ' . number_format($projectedPassportBalance, 0, '.', ',') . ' points — enough for a ' . number_format((int) ($nextPassportReward['amount_vnd'] ?? 0), 0, '.', ',') . ' VND voucher.'
+        : 'Sau tour này: ' . number_format($projectedPassportBalance, 0, ',', '.') . ' điểm — đủ đổi voucher ' . number_format((int) ($nextPassportReward['amount_vnd'] ?? 0), 0, ',', '.') . 'đ.')
     : '';
 $destinationLabel = trim((string) ($tour['continent'] ?? ''));
 $departureFrom = trim((string) ($tour['departure_from'] ?? ''));

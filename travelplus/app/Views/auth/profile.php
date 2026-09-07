@@ -178,7 +178,7 @@ foreach ($rewardVouchers as $rewardVoucher) {
                         <article class="travelplus-profile-passport-card" aria-label="<?= esc(($locale === 'en' ? 'Current tier: ' : 'Hạng hiện tại: ') . ($membershipTierLabels[$membershipCurrentKey] ?? ucfirst($membershipCurrentKey)), 'attr') ?>">
                             <span class="travelplus-profile-passport-card__shine" aria-hidden="true"></span>
                             <div class="travelplus-profile-passport-card__top">
-                                <span class="travelplus-profile-passport-card__brand"><i class="bi bi-passport-fill" aria-hidden="true"></i><span>TravelPlus<strong>Passport</strong></span></span>
+                                <span class="travelplus-profile-passport-card__brand"><i class="bi bi-passport-fill" aria-hidden="true"></i><span>TravelPlus<strong>Reward</strong></span></span>
                                 <span class="travelplus-profile-passport-card__status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Active' : 'Đang hoạt động') ?></span>
                             </div>
                             <div class="travelplus-profile-passport-card__tier">
@@ -186,7 +186,7 @@ foreach ($rewardVouchers as $rewardVoucher) {
                                 <div>
                                     <small><?= esc($locale === 'en' ? 'Current member tier' : 'Hạng thành viên hiện tại') ?></small>
                                     <strong><?= esc($membershipTierLabels[$membershipCurrentKey] ?? ucfirst($membershipCurrentKey)) ?></strong>
-                                    <b><?= esc(number_format($membershipQualifyingPoints, 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'qualifying miles' : 'Dặm xét hạng') ?></b>
+                                    <b><?= esc(number_format($membershipQualifyingPoints, 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'qualifying points' : 'Điểm xét hạng') ?></b>
                                 </div>
                             </div>
                             <div class="travelplus-profile-passport-card__foot">
@@ -198,21 +198,21 @@ foreach ($rewardVouchers as $rewardVoucher) {
                         <div class="travelplus-profile-passport__content">
                             <header class="travelplus-profile-passport__head">
                                 <div>
-                                    <span><i class="bi bi-stars" aria-hidden="true"></i> <?= esc($locale === 'en' ? 'My membership' : 'Passport của tôi') ?></span>
-                                    <h2 id="membership-title"><?= esc($locale === 'en' ? 'Your miles and benefits' : 'Dặm và quyền lợi của bạn') ?></h2>
+                                    <span><i class="bi bi-stars" aria-hidden="true"></i> <?= esc($locale === 'en' ? 'My membership' : 'Reward của tôi') ?></span>
+                                    <h2 id="membership-title"><?= esc($locale === 'en' ? 'Your points and benefits' : 'Điểm và quyền lợi của bạn') ?></h2>
                                 </div>
                                 <a href="<?= esc($passportProgramUrl, 'attr') ?>"><?= esc($locale === 'en' ? 'View tier benefits' : 'Xem quyền lợi hạng') ?> <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
                             </header>
 
                             <div class="travelplus-profile-passport__balances">
                                 <article class="travelplus-profile-passport__balance travelplus-profile-passport__balance--available">
-                                    <header><span class="travelplus-profile-passport__balance-icon"><i class="bi bi-ticket-perforated-fill" aria-hidden="true"></i></span><small><?= esc($locale === 'en' ? 'Available miles' : 'Dặm khả dụng') ?></small></header>
-                                    <strong><?= esc(number_format($membershipPoints, 0, ',', '.')) ?><small><?= esc($locale === 'en' ? ' miles' : ' Dặm') ?></small></strong>
+                                    <header><span class="travelplus-profile-passport__balance-icon"><i class="bi bi-ticket-perforated-fill" aria-hidden="true"></i></span><small><?= esc($locale === 'en' ? 'Available points' : 'Điểm khả dụng') ?></small></header>
+                                    <strong><?= esc(number_format($membershipPoints, 0, ',', '.')) ?><small><?= esc($locale === 'en' ? ' points' : ' Điểm') ?></small></strong>
                                     <span class="travelplus-profile-passport__balance-use"><i class="bi bi-arrow-left-right" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Redeem tour vouchers' : 'Dùng để đổi voucher tour') ?></span>
                                 </article>
                                 <article class="travelplus-profile-passport__balance travelplus-profile-passport__balance--qualifying">
-                                    <header><span class="travelplus-profile-passport__balance-icon"><i class="bi bi-award-fill" aria-hidden="true"></i></span><small><?= esc($locale === 'en' ? 'Qualifying miles' : 'Dặm xét hạng') ?></small></header>
-                                    <strong><?= esc(number_format($membershipQualifyingPoints, 0, ',', '.')) ?><small><?= esc($locale === 'en' ? ' miles' : ' Dặm') ?></small></strong>
+                                    <header><span class="travelplus-profile-passport__balance-icon"><i class="bi bi-award-fill" aria-hidden="true"></i></span><small><?= esc($locale === 'en' ? 'Qualifying points' : 'Điểm xét hạng') ?></small></header>
+                                    <strong><?= esc(number_format($membershipQualifyingPoints, 0, ',', '.')) ?><small><?= esc($locale === 'en' ? ' points' : ' Điểm') ?></small></strong>
                                     <span class="travelplus-profile-passport__balance-use"><i class="bi bi-bar-chart-steps" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Determines your member tier' : 'Dùng để xác định hạng') ?></span>
                                 </article>
                             </div>
@@ -229,20 +229,20 @@ foreach ($rewardVouchers as $rewardVoucher) {
                                             : ($locale === 'en' ? 'Highest tier reached' : 'Đã đạt hạng cao nhất')) ?></strong>
                                     </span>
                                     <b><?= esc($membershipNextTier !== null
-                                        ? ($locale === 'en' ? 'Only ' : 'Còn ') . number_format((int) ($membership['remaining_points'] ?? 0), 0, ',', '.') . ($locale === 'en' ? ' miles' : ' Dặm')
+                                        ? ($locale === 'en' ? 'Only ' : 'Còn ') . number_format((int) ($membership['remaining_points'] ?? 0), 0, ',', '.') . ($locale === 'en' ? ' points' : ' Điểm')
                                         : '100%') ?></b>
                                 </div>
                                 <span class="travelplus-profile-passport__progress-track" role="progressbar" aria-label="<?= esc($locale === 'en' ? 'Tier progress' : 'Tiến độ lên hạng', 'attr') ?>" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= esc((string) $membershipProgress, 'attr') ?>"><i style="width:<?= esc((string) $membershipProgress, 'attr') ?>%"></i></span>
                                 <div class="travelplus-profile-passport__progress-foot">
                                     <?php if ($membershipNextTier !== null): ?>
-                                        <small><strong><?= esc(number_format($membershipQualifyingPoints, 0, ',', '.')) ?></strong> / <?= esc(number_format((int) ($membershipNextTier['minimum_points'] ?? 0), 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'qualifying miles' : 'Dặm xét hạng') ?></small>
+                                        <small><strong><?= esc(number_format($membershipQualifyingPoints, 0, ',', '.')) ?></strong> / <?= esc(number_format((int) ($membershipNextTier['minimum_points'] ?? 0), 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'qualifying points' : 'Điểm xét hạng') ?></small>
                                     <?php endif; ?>
                                     <span><?= esc((string) $membershipProgress) ?>% <?= esc($locale === 'en' ? 'completed' : 'chặng lên hạng') ?></span>
                                 </div>
                             </div>
 
                             <div class="travelplus-profile-passport__actions">
-                                <a class="is-primary" href="<?= esc($passportSearchUrl, 'attr') ?>"><i class="bi bi-luggage-fill" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Book a tour to earn miles' : 'Đặt tour tích thêm Dặm') ?></a>
+                                <a class="is-primary" href="<?= esc($passportSearchUrl, 'attr') ?>"><i class="bi bi-luggage-fill" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Book a tour to earn points' : 'Đặt tour tích thêm Điểm') ?></a>
                                 <a href="#passport-wallet"><i class="bi bi-ticket-detailed" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Open voucher wallet' : 'Mở ví voucher') ?></a>
                             </div>
                         </div>
@@ -391,16 +391,16 @@ foreach ($rewardVouchers as $rewardVoucher) {
                 <section id="passport-wallet" class="travelplus-account-card travelplus-passport-rewards travelplus-profile-voucher-center" aria-labelledby="passport-rewards-title" data-passport-rewards>
                     <div class="travelplus-passport-rewards__head">
                         <div>
-                            <span><i class="bi bi-passport-fill" aria-hidden="true"></i> TravelPlus Passport</span>
-                            <h2 id="passport-rewards-title"><?= esc($locale === 'en' ? 'Vouchers and mile redemption' : 'Ví voucher & đổi Dặm') ?></h2>
+                            <span><i class="bi bi-passport-fill" aria-hidden="true"></i> Travel Plus Reward</span>
+                            <h2 id="passport-rewards-title"><?= esc($locale === 'en' ? 'Vouchers and point redemption' : 'Ví voucher & đổi Điểm') ?></h2>
                             <p><?= esc($locale === 'en'
-                                ? 'Use an available voucher first, or redeem more with your available miles. Redeemed vouchers are valid for 180 days.'
-                                : 'Ưu tiên dùng voucher đang có, hoặc đổi thêm bằng Dặm khả dụng. Voucher sau khi đổi có hạn 180 ngày.') ?></p>
+                                ? 'Use an available voucher first, or redeem more with your available points. Redeemed vouchers are valid for 180 days.'
+                                : 'Ưu tiên dùng voucher đang có, hoặc đổi thêm bằng Điểm khả dụng. Voucher sau khi đổi có hạn 180 ngày.') ?></p>
                         </div>
                         <span class="travelplus-passport-rewards__balance">
                             <small><?= esc($locale === 'en' ? 'Available' : 'Hiện có') ?></small>
                             <strong><?= esc(number_format($membershipPoints, 0, ',', '.')) ?></strong>
-                            <em><?= esc($locale === 'en' ? 'miles' : 'dặm') ?></em>
+                            <em><?= esc($locale === 'en' ? 'points' : 'điểm') ?></em>
                         </span>
                     </div>
 
@@ -420,7 +420,7 @@ foreach ($rewardVouchers as $rewardVoucher) {
                         <?php if ($rewardVouchers === []): ?>
                             <div class="travelplus-profile-voucher-wallet__empty">
                                 <i class="bi bi-ticket-perforated" aria-hidden="true"></i>
-                                <span><strong><?= esc($locale === 'en' ? 'Your voucher wallet is empty' : 'Ví voucher đang trống') ?></strong><small><?= esc($locale === 'en' ? 'Choose a reward below when you have enough available miles.' : 'Chọn một mức đổi bên dưới khi bạn có đủ Dặm khả dụng.') ?></small></span>
+                                <span><strong><?= esc($locale === 'en' ? 'Your voucher wallet is empty' : 'Ví voucher đang trống') ?></strong><small><?= esc($locale === 'en' ? 'Choose a reward below when you have enough available points.' : 'Chọn một mức đổi bên dưới khi bạn có đủ Điểm khả dụng.') ?></small></span>
                             </div>
                         <?php else: ?>
                             <div class="travelplus-profile-voucher-wallet__grid">
@@ -460,7 +460,7 @@ foreach ($rewardVouchers as $rewardVoucher) {
                                             <span class="travelplus-profile-voucher__expiry<?= $voucherExpiringSoon ? ' is-warning' : '' ?>"><i class="bi bi-calendar-event" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Expires ' : 'Hạn dùng ') ?><?= esc(app_datetime((string) ($voucher['expires_at'] ?? ''), 'd/m/Y', '-')) ?></span>
                                         </div>
                                         <div class="travelplus-profile-voucher__code"><small><?= esc($locale === 'en' ? 'Voucher code' : 'Mã voucher') ?></small><strong><?= esc((string) ($voucher['code'] ?? '')) ?></strong></div>
-                                        <small class="travelplus-profile-voucher__condition"><?= esc(($locale === 'en' ? 'For bookings from ' : 'Áp dụng booking từ ') . number_format((int) ($voucher['min_order_vnd'] ?? 0), 0, ',', '.') . 'đ') ?></small>
+                                        <small class="travelplus-profile-voucher__condition"><?= esc(($locale === 'en' ? 'Any booking value' : 'Mọi booking, mọi mức giá')) ?></small>
                                     </article>
                                 <?php endforeach; ?>
                             </div>
@@ -480,12 +480,12 @@ foreach ($rewardVouchers as $rewardVoucher) {
                                     <em><?= esc($locale === 'en' ? 'Single use' : '1 lần dùng') ?></em>
                                 </div>
                                 <span class="travelplus-passport-reward__value"><?= esc(number_format((int) ($reward['amount_vnd'] ?? 0), 0, ',', '.')) ?><sup>đ</sup></span>
-                                <strong><?= esc(number_format((int) ($reward['points'] ?? 0), 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'miles' : 'dặm') ?></strong>
-                                <small><?= esc(($locale === 'en' ? 'For bookings from ' : 'Booking từ ') . number_format((int) ($reward['min_order_vnd'] ?? 0), 0, ',', '.') . 'đ') ?></small>
+                                <strong><?= esc(number_format((int) ($reward['points'] ?? 0), 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'points' : 'điểm') ?></strong>
+                                <small><?= esc(($locale === 'en' ? 'Any booking value' : 'Mọi booking, mọi mức giá')) ?></small>
                                 <form method="post" action="<?= esc(site_url(($locale === 'en' ? 'en/' : '') . 'account/passport/redeem')) ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="reward_key" value="<?= esc((string) ($reward['key'] ?? ''), 'attr') ?>">
-                                    <button type="submit"<?= $canRedeem ? '' : ' disabled' ?> onclick="return confirm('<?= esc($locale === 'en' ? 'Redeem this voucher now?' : 'Dùng Dặm Hành Trình để đổi voucher này?', 'attr') ?>')">
+                                    <button type="submit"<?= $canRedeem ? '' : ' disabled' ?> onclick="return confirm('<?= esc($locale === 'en' ? 'Redeem this voucher now?' : 'Dùng Điểm thành viên để đổi voucher này?', 'attr') ?>')">
                                         <?= esc($canRedeem
                                             ? ($locale === 'en' ? 'Redeem voucher →' : 'Đổi voucher →')
                                             : (($reward['points_needed'] ?? 0) > 0
@@ -505,7 +505,7 @@ foreach ($rewardVouchers as $rewardVoucher) {
                             <i class="bi bi-clock-history"></i>
                         </span>
                         <span class="travelplus-loyalty-history-heading">
-                            <strong><?= esc($locale === 'en' ? 'Journey Miles history' : 'Lịch sử Dặm Hành Trình') ?></strong>
+                            <strong><?= esc($locale === 'en' ? 'Member Points history' : 'Lịch sử Điểm thành viên') ?></strong>
                             <small><?= esc($locale === 'en'
                                 ? 'Track points earned and adjusted from your paid bookings.'
                                 : 'Theo dõi điểm được cộng và điều chỉnh từ các booking đã thanh toán.') ?></small>
@@ -535,7 +535,7 @@ foreach ($rewardVouchers as $rewardVoucher) {
                                     $transactionTitle = match ($transactionType) {
                                         'booking_earned' => $locale === 'en' ? 'Points earned from booking' : 'Cộng điểm từ booking',
                                         'booking_reversed' => $locale === 'en' ? 'Booking points adjusted' : 'Điều chỉnh điểm booking',
-                                        'voucher_redeemed' => $locale === 'en' ? 'Passport voucher redeemed' : 'Đổi voucher Passport',
+                                        'voucher_redeemed' => $locale === 'en' ? 'Reward voucher redeemed' : 'Đổi voucher Reward',
                                         default => $locale === 'en' ? 'Points adjustment' : 'Điều chỉnh điểm',
                                     };
                                     ?>

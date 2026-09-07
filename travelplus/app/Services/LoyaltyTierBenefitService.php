@@ -11,10 +11,10 @@ final class LoyaltyTierBenefitService
     private const VALIDITY_DAYS = 365;
 
     private const BENEFITS = [
-        ['key' => 'silver', 'minimum_points' => 5000, 'amount_vnd' => 100000, 'min_order_vnd' => 3000000],
-        ['key' => 'gold', 'minimum_points' => 20000, 'amount_vnd' => 200000, 'min_order_vnd' => 6000000],
-        ['key' => 'diamond', 'minimum_points' => 60000, 'amount_vnd' => 300000, 'min_order_vnd' => 10000000],
-        ['key' => 'signature', 'minimum_points' => 150000, 'amount_vnd' => 500000, 'min_order_vnd' => 15000000],
+        ['key' => 'silver', 'minimum_points' => 5000, 'amount_vnd' => 100000, 'min_order_vnd' => 0],
+        ['key' => 'gold', 'minimum_points' => 20000, 'amount_vnd' => 200000, 'min_order_vnd' => 0],
+        ['key' => 'diamond', 'minimum_points' => 60000, 'amount_vnd' => 300000, 'min_order_vnd' => 0],
+        ['key' => 'signature', 'minimum_points' => 150000, 'amount_vnd' => 500000, 'min_order_vnd' => 0],
     ];
 
     private ?BaseConnection $database = null;
@@ -77,7 +77,7 @@ final class LoyaltyTierBenefitService
 
                 $db->table(self::PROMOTION_TABLE)->insert([
                     'code' => $code,
-                    'name' => 'TravelPlus Passport ' . ucfirst((string) $benefit['key']) . ' welcome benefit',
+                    'name' => 'Travel Plus Reward ' . ucfirst((string) $benefit['key']) . ' welcome benefit',
                     'description' => 'One-time membership tier welcome voucher.',
                     'discount_type' => 'fixed',
                     'discount_value' => $benefit['amount_vnd'],
@@ -122,7 +122,7 @@ final class LoyaltyTierBenefitService
             return $issuedCodes;
         } catch (\Throwable $exception) {
             $db->transRollback();
-            log_message('error', 'Passport tier benefit sync failed: {message}', [
+            log_message('error', 'Reward tier benefit sync failed: {message}', [
                 'message' => $exception->getMessage(),
             ]);
 

@@ -56,8 +56,8 @@ final class TourPassportPricePresenter
                 'state' => 'locked',
                 'eyebrow' => $locale === 'en' ? 'Member benefits' : 'Ưu đãi thành viên',
                 'label' => $locale === 'en'
-                    ? self::formatNumber($remaining, $locale) . ' Miles to unlock Silver pricing'
-                    : 'Còn ' . self::formatNumber($remaining, $locale) . ' Dặm để mở giá Bạc',
+                    ? self::formatNumber($remaining, $locale) . ' Points to unlock Silver pricing'
+                    : 'Còn ' . self::formatNumber($remaining, $locale) . ' Điểm để mở giá Bạc',
                 'tooltip' => $locale === 'en'
                     ? 'Tier pricing starts from Silver membership.'
                     : 'Ưu đãi giá bắt đầu từ hạng Bạc.',
@@ -83,8 +83,8 @@ final class TourPassportPricePresenter
             'price' => self::formatMoney(max(0, $priceAmount - $discountAmount), $locale),
             'saving' => ($locale === 'en' ? 'Save ' : 'Tiết kiệm ') . self::formatMoney($discountAmount, $locale),
             'tooltip' => $locale === 'en'
-                ? self::formatRate($discountRate) . '% tier saving, capped at ' . self::formatMoney($discountCap, $locale) . ' per booking.'
-                : 'Giảm ' . self::formatRate($discountRate) . '% theo hạng, tối đa ' . self::formatMoney($discountCap, $locale) . ' mỗi booking.',
+                ? self::formatRate($discountRate) . '% tier saving on every booking, with no discount cap.'
+                : 'Giảm ' . self::formatRate($discountRate) . '% theo hạng cho mọi booking, không giới hạn số tiền giảm.',
             'discount_amount' => $discountAmount,
         ];
     }

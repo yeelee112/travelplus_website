@@ -9,120 +9,118 @@ $currentTierKey = (string) ($headerMembership['tier_key'] ?? '');
 
 $copy = $locale === 'en'
     ? [
-        'eyebrow' => 'TravelPlus Passport',
+        'eyebrow' => 'Travel Plus Reward',
         'title' => 'Every journey unlocks more',
-        'lead' => 'Earn Journey Miles when you complete a paid tour, move through five membership tiers and enjoy clearer benefits at every milestone.',
-        'primary' => $isMember ? 'View my Passport' : 'Join for free',
+        'lead' => 'Earn Member Points when you complete a paid tour, move through five membership tiers and enjoy clearer benefits at every milestone.',
+        'primary' => $isMember ? 'View my Reward' : 'Join for free',
         'secondary' => 'Explore tours',
-        'earnValue' => '1 mile / 10,000 VND',
+        'earnValue' => '1 point / 10,000 VND',
         'earnLabel' => 'on eligible paid tour value',
         'tierValue' => '5 membership tiers',
         'tierLabel' => 'from Member to Signature',
         'expiryValue' => '180 days',
         'expiryLabel' => 'for redeemed vouchers',
         'tiersEyebrow' => 'Membership tiers',
-        'tiersTitle' => 'Earn miles, unlock more value',
-        'tiersLead' => 'Every member receives the same Travel Plus service standard. Passport tiers add financial benefits through welcome vouchers and capped automatic tour savings.',
+        'tiersTitle' => 'Earn points, unlock more value',
+        'tiersLead' => 'Every member receives the same Travel Plus service standard. Reward tiers add financial benefits through automatic tour savings, welcome vouchers and point redemption.',
         'currentBadge' => 'Current tier',
         'from' => 'From',
-        'miles' => 'qualifying miles',
+        'points' => 'qualifying points',
         'welcome' => 'Tier welcome benefit',
-        'bookingFrom' => 'Booking from',
+        'bookingFrom' => 'Any booking value',
         'once' => 'One welcome voucher when first reaching the tier',
-        'memberRewardLabel' => 'Join Passport',
+        'memberRewardLabel' => 'Join Reward',
         'memberRewardValue' => 'Free',
-        'memberRewardHint' => 'Earn miles from your first eligible booking',
+        'memberRewardHint' => 'Earn points from your first eligible booking',
         'sharedTitle' => 'Included for every member',
-        'sharedBenefits' => ['Earn 1 Journey Mile per 10,000 VND', 'Redeem available miles for tour vouchers', 'The same support standard before, during and after every tour'],
+        'sharedBenefits' => ['Earn 1 Member Point per 10,000 VND', 'Redeem available points for tour vouchers', 'The same support standard before, during and after every tour'],
         'tierDiscount' => 'Automatic tour saving',
         'tierDiscountSuffix' => 'off every tour',
-        'tierDiscountCap' => 'Up to',
         'noTierDiscount' => 'Starts from Silver',
-        'memberNote' => 'No qualifying-mile threshold',
-        'rewardsEyebrow' => 'Redeem miles',
+        'memberNote' => 'No qualifying-point threshold',
+        'rewardsEyebrow' => 'Redeem points',
         'rewardsTitle' => 'Choose a voucher for your next tour',
-        'rewardsLead' => 'Available miles can be exchanged for a single-use voucher valid for 180 days.',
+        'rewardsLead' => 'Available points can be exchanged for a single-use voucher valid for 180 days.',
         'howEyebrow' => 'How it works',
         'howTitle' => 'Simple from booking to benefits',
         'termsTitle' => 'Important conditions',
-        'ctaTitle' => 'Ready to start your Passport?',
-        'ctaText' => 'Create an account, book an eligible tour and your Journey Miles will be credited after payment is confirmed.',
+        'ctaTitle' => 'Ready to start your Reward?',
+        'ctaText' => 'Create an account, book an eligible tour and your Member Points will be credited after payment is confirmed.',
         'cardTierLabel' => 'Membership tier',
         'cardTierCompactLabel' => 'Current tier',
-        'cardMilesLabel' => 'qualifying miles',
-        'cardMilesUnit' => 'miles',
+        'cardMilesLabel' => 'qualifying points',
+        'cardMilesUnit' => 'points',
         'cardMemberLabel' => 'TravelPlus member',
         'cardStatus' => 'Active',
         'cardProgressLabel' => 'Tier progress',
         'cardNextTier' => 'To %s',
-        'cardRemainingMiles' => '%s miles remaining',
+        'cardRemainingMiles' => '%s points remaining',
         'cardHighestTier' => 'Highest tier achieved',
     ]
     : [
-        'eyebrow' => 'TravelPlus Passport',
+        'eyebrow' => 'Travel Plus Reward',
         'title' => 'Mỗi hành trình, thêm nhiều quyền lợi',
-        'lead' => 'Tích Dặm Hành Trình sau khi hoàn tất thanh toán tour, nâng dần qua 5 hạng thành viên và nhận quyền lợi rõ ràng ở từng cột mốc.',
-        'primary' => $isMember ? 'Xem Passport của tôi' : 'Tham gia miễn phí',
+        'lead' => 'Tích Điểm thành viên sau khi hoàn tất thanh toán tour, nâng dần qua 5 hạng thành viên và nhận quyền lợi rõ ràng ở từng cột mốc.',
+        'primary' => $isMember ? 'Xem Reward của tôi' : 'Tham gia miễn phí',
         'secondary' => 'Khám phá tour',
-        'earnValue' => '1 dặm / 10.000đ',
+        'earnValue' => '1 điểm / 10.000đ',
         'earnLabel' => 'trên giá trị tour đủ điều kiện',
         'tierValue' => '5 hạng thành viên',
         'tierLabel' => 'từ Thành viên đến Signature',
         'expiryValue' => '180 ngày',
         'expiryLabel' => 'thời hạn voucher đã đổi',
         'tiersEyebrow' => 'Hạng thành viên',
-        'tiersTitle' => 'Tích Dặm, mở thêm giá trị',
-        'tiersLead' => 'Mọi thành viên đều được phục vụ theo cùng một tiêu chuẩn Travel Plus. Hạng Passport tăng quyền lợi tài chính qua voucher chào hạng và mức giảm tour tự động có giới hạn.',
+        'tiersTitle' => 'Tích Điểm, mở thêm giá trị',
+        'tiersLead' => 'Mọi thành viên đều được phục vụ theo cùng một tiêu chuẩn Travel Plus. Hạng Reward tăng quyền lợi tài chính qua giảm giá tour tự động, voucher chào hạng và đổi điểm lấy voucher.',
         'currentBadge' => 'Hạng hiện tại',
         'from' => 'Từ',
-        'miles' => 'Dặm xét hạng',
+        'points' => 'Điểm xét hạng',
         'welcome' => 'Quyền lợi chào hạng',
-        'bookingFrom' => 'Booking từ',
+        'bookingFrom' => 'Mọi booking, mọi mức giá',
         'once' => '01 voucher chào hạng khi lần đầu đạt hạng',
-        'memberRewardLabel' => 'Tham gia Passport',
+        'memberRewardLabel' => 'Tham gia Reward',
         'memberRewardValue' => 'Miễn phí',
-        'memberRewardHint' => 'Tích Dặm từ booking đủ điều kiện đầu tiên',
+        'memberRewardHint' => 'Tích Điểm từ booking đủ điều kiện đầu tiên',
         'sharedTitle' => 'Áp dụng cho mọi thành viên',
-        'sharedBenefits' => ['Tích 1 Dặm cho mỗi 10.000đ', 'Đổi Dặm khả dụng lấy voucher tour', 'Cùng một tiêu chuẩn hỗ trợ trước, trong và sau tour'],
+        'sharedBenefits' => ['Tích 1 Điểm cho mỗi 10.000đ', 'Đổi Điểm khả dụng lấy voucher tour', 'Cùng một tiêu chuẩn hỗ trợ trước, trong và sau tour'],
         'tierDiscount' => 'Ưu đãi tự động mỗi tour',
         'tierDiscountSuffix' => 'giảm trên giá tour',
-        'tierDiscountCap' => 'Tối đa',
         'noTierDiscount' => 'Bắt đầu từ hạng Bạc',
-        'memberNote' => 'Không yêu cầu mốc Dặm xét hạng',
-        'rewardsEyebrow' => 'Đổi Dặm',
+        'memberNote' => 'Không yêu cầu mốc Điểm xét hạng',
+        'rewardsEyebrow' => 'Đổi Điểm',
         'rewardsTitle' => 'Chọn voucher cho chuyến đi tiếp theo',
-        'rewardsLead' => 'Dặm khả dụng có thể đổi thành voucher dùng một lần, hiệu lực trong 180 ngày.',
+        'rewardsLead' => 'Điểm khả dụng có thể đổi thành voucher dùng một lần, hiệu lực trong 180 ngày.',
         'howEyebrow' => 'Cách hoạt động',
         'howTitle' => 'Đơn giản từ lúc đặt tour đến khi nhận quyền lợi',
         'termsTitle' => 'Điều kiện quan trọng',
-        'ctaTitle' => 'Sẵn sàng bắt đầu Passport?',
-        'ctaText' => 'Tạo tài khoản, đặt tour đủ điều kiện và Dặm Hành Trình sẽ được cộng sau khi thanh toán được xác nhận.',
+        'ctaTitle' => 'Sẵn sàng bắt đầu Reward?',
+        'ctaText' => 'Tạo tài khoản, đặt tour đủ điều kiện và Điểm thành viên sẽ được cộng sau khi thanh toán được xác nhận.',
         'cardTierLabel' => 'Hạng thành viên',
         'cardTierCompactLabel' => 'Hạng hiện tại',
-        'cardMilesLabel' => 'Dặm xét hạng',
-        'cardMilesUnit' => 'Dặm',
+        'cardMilesLabel' => 'Điểm xét hạng',
+        'cardMilesUnit' => 'Điểm',
         'cardMemberLabel' => 'Thành viên TravelPlus',
         'cardStatus' => 'Đang hoạt động',
         'cardProgressLabel' => 'Tiến độ lên hạng',
         'cardNextTier' => 'Lên %s',
-        'cardRemainingMiles' => 'Còn %s Dặm',
+        'cardRemainingMiles' => 'Còn %s Điểm',
         'cardHighestTier' => 'Đã đạt hạng cao nhất',
     ];
 
 $tiers = $locale === 'en'
     ? [
-        ['key' => 'member', 'name' => 'Member', 'points' => 0, 'discount' => 0, 'minimum' => 0, 'rate' => 0, 'cap' => 0, 'icon' => 'bi-person-badge', 'tone' => 'member'],
-        ['key' => 'silver', 'name' => 'Silver', 'points' => 5000, 'discount' => 100000, 'minimum' => 3000000, 'rate' => 1, 'cap' => 200000, 'icon' => 'bi-shield-fill-check', 'tone' => 'silver'],
-        ['key' => 'gold', 'name' => 'Gold', 'points' => 20000, 'discount' => 200000, 'minimum' => 6000000, 'rate' => 1.5, 'cap' => 400000, 'icon' => 'bi-award-fill', 'tone' => 'gold'],
-        ['key' => 'diamond', 'name' => 'Diamond', 'points' => 60000, 'discount' => 300000, 'minimum' => 10000000, 'rate' => 2, 'cap' => 600000, 'icon' => 'bi-gem', 'tone' => 'diamond'],
-        ['key' => 'signature', 'name' => 'Signature', 'points' => 150000, 'discount' => 500000, 'minimum' => 15000000, 'rate' => 3, 'cap' => 1000000, 'icon' => 'bi-stars', 'tone' => 'signature'],
+        ['key' => 'member', 'name' => 'Member', 'points' => 0, 'discount' => 0, 'minimum' => 0, 'rate' => 0, 'icon' => 'bi-person-badge', 'tone' => 'member'],
+        ['key' => 'silver', 'name' => 'Silver', 'points' => 5000, 'discount' => 100000, 'minimum' => 0, 'rate' => 0.5, 'icon' => 'bi-shield-fill-check', 'tone' => 'silver'],
+        ['key' => 'gold', 'name' => 'Gold', 'points' => 20000, 'discount' => 200000, 'minimum' => 0, 'rate' => 0.75, 'icon' => 'bi-award-fill', 'tone' => 'gold'],
+        ['key' => 'diamond', 'name' => 'Diamond', 'points' => 60000, 'discount' => 300000, 'minimum' => 0, 'rate' => 1.0, 'icon' => 'bi-gem', 'tone' => 'diamond'],
+        ['key' => 'signature', 'name' => 'Signature', 'points' => 150000, 'discount' => 500000, 'minimum' => 0, 'rate' => 1.5, 'icon' => 'bi-stars', 'tone' => 'signature'],
     ]
     : [
-        ['key' => 'member', 'name' => 'Thành viên', 'points' => 0, 'discount' => 0, 'minimum' => 0, 'rate' => 0, 'cap' => 0, 'icon' => 'bi-person-badge', 'tone' => 'member'],
-        ['key' => 'silver', 'name' => 'Bạc', 'points' => 5000, 'discount' => 100000, 'minimum' => 3000000, 'rate' => 1, 'cap' => 200000, 'icon' => 'bi-shield-fill-check', 'tone' => 'silver'],
-        ['key' => 'gold', 'name' => 'Vàng', 'points' => 20000, 'discount' => 200000, 'minimum' => 6000000, 'rate' => 1.5, 'cap' => 400000, 'icon' => 'bi-award-fill', 'tone' => 'gold'],
-        ['key' => 'diamond', 'name' => 'Kim Cương', 'points' => 60000, 'discount' => 300000, 'minimum' => 10000000, 'rate' => 2, 'cap' => 600000, 'icon' => 'bi-gem', 'tone' => 'diamond'],
-        ['key' => 'signature', 'name' => 'Signature', 'points' => 150000, 'discount' => 500000, 'minimum' => 15000000, 'rate' => 3, 'cap' => 1000000, 'icon' => 'bi-stars', 'tone' => 'signature'],
+        ['key' => 'member', 'name' => 'Thành viên', 'points' => 0, 'discount' => 0, 'minimum' => 0, 'rate' => 0, 'icon' => 'bi-person-badge', 'tone' => 'member'],
+        ['key' => 'silver', 'name' => 'Bạc', 'points' => 5000, 'discount' => 100000, 'minimum' => 0, 'rate' => 0.5, 'icon' => 'bi-shield-fill-check', 'tone' => 'silver'],
+        ['key' => 'gold', 'name' => 'Vàng', 'points' => 20000, 'discount' => 200000, 'minimum' => 0, 'rate' => 0.75, 'icon' => 'bi-award-fill', 'tone' => 'gold'],
+        ['key' => 'diamond', 'name' => 'Kim Cương', 'points' => 60000, 'discount' => 300000, 'minimum' => 0, 'rate' => 1.0, 'icon' => 'bi-gem', 'tone' => 'diamond'],
+        ['key' => 'signature', 'name' => 'Signature', 'points' => 150000, 'discount' => 500000, 'minimum' => 0, 'rate' => 1.5, 'icon' => 'bi-stars', 'tone' => 'signature'],
     ];
 
 $currentCardTier = $tiers[0];
@@ -151,16 +149,16 @@ $cardTierProgress = $nextCardTierPoints > 0
     : 100;
 
 $rewards = [
-    ['points' => 500, 'amount' => 50000, 'minimum' => 2000000],
-    ['points' => 1200, 'amount' => 120000, 'minimum' => 5000000],
-    ['points' => 2500, 'amount' => 250000, 'minimum' => 10000000],
+    ['points' => 500, 'amount' => 50000, 'minimum' => 0],
+    ['points' => 1200, 'amount' => 120000, 'minimum' => 0],
+    ['points' => 2500, 'amount' => 250000, 'minimum' => 0],
 ];
 $steps = $locale === 'en'
-    ? [['bi-luggage-fill', 'Book a tour', 'Sign in and complete payment for an eligible tour.'], ['bi-stars', 'Earn two mile balances', 'Available miles can be redeemed; qualifying miles determine your tier.'], ['bi-ticket-perforated-fill', 'Use your benefits', 'Redeem a voucher or use an issued tier welcome benefit.']]
-    : [['bi-luggage-fill', 'Đặt tour', 'Đăng nhập và hoàn tất thanh toán tour đủ điều kiện.'], ['bi-stars', 'Nhận hai loại số dư Dặm', 'Dặm khả dụng dùng để đổi quà; Dặm xét hạng dùng để xác định hạng.'], ['bi-ticket-perforated-fill', 'Dùng quyền lợi', 'Đổi voucher hoặc sử dụng quyền lợi chào hạng đã được cấp.']];
+    ? [['bi-luggage-fill', 'Book a tour', 'Sign in and complete payment for an eligible tour.'], ['bi-stars', 'Earn two point balances', 'Available points can be redeemed; qualifying points determine your tier.'], ['bi-ticket-perforated-fill', 'Use your benefits', 'Redeem a voucher or use an issued tier welcome benefit.']]
+    : [['bi-luggage-fill', 'Đặt tour', 'Đăng nhập và hoàn tất thanh toán tour đủ điều kiện.'], ['bi-stars', 'Nhận hai loại số dư Điểm', 'Điểm khả dụng dùng để đổi quà; Điểm xét hạng dùng để xác định hạng.'], ['bi-ticket-perforated-fill', 'Dùng quyền lợi', 'Đổi voucher hoặc sử dụng quyền lợi chào hạng đã được cấp.']];
 $terms = $locale === 'en'
-    ? ['Tier welcome benefits are issued once when a tier is reached for the first time and remain valid for 365 days.', 'Automatic tier savings are calculated on eligible tour value, subject to the cap shown for each tier, and may be combined with one valid voucher.', 'Minimum booking values apply before the tier voucher is deducted.', 'Passport vouchers are single-use, non-refundable and cannot be exchanged for cash.', 'Reversed or refunded bookings may reduce qualifying and available miles.']
-    : ['Quyền lợi chào hạng được cấp một lần khi thành viên lần đầu đạt hạng và có hiệu lực 365 ngày.', 'Mức giảm theo hạng được tính trên giá tour đủ điều kiện, theo trần hiển thị của từng hạng và có thể dùng cùng một voucher hợp lệ.', 'Booking phải đạt giá trị tối thiểu trước khi trừ voucher chào hạng.', 'Voucher Passport dùng một lần, không hoàn tiền và không quy đổi thành tiền mặt.', 'Booking hoàn hoặc hủy có thể làm điều chỉnh Dặm khả dụng và Dặm xét hạng.'];
+    ? ['Tier welcome benefits are issued once when a tier is reached for the first time and remain valid for 365 days.', 'Automatic tier savings apply to every booking, with no discount cap. Combine with one voucher; total savings never exceed the tour value.', 'Vouchers apply to bookings of any value.', 'Reward vouchers are single-use, non-refundable and cannot be exchanged for cash.', 'Reversed or refunded bookings may reduce qualifying and available points.']
+    : ['Quyền lợi chào hạng được cấp một lần khi thành viên lần đầu đạt hạng và có hiệu lực 365 ngày.', 'Giảm giá tự động theo hạng áp dụng cho mọi booking, không giới hạn số tiền giảm. Dùng thêm một voucher; tổng mức giảm không vượt quá giá trị tour.', 'Voucher áp dụng cho mọi booking ở mọi mức giá.', 'Voucher Reward dùng một lần, không hoàn tiền và không quy đổi thành tiền mặt.', 'Booking hoàn hoặc hủy có thể làm điều chỉnh Điểm khả dụng và Điểm xét hạng.'];
 ?>
 
 <?= $this->extend('layouts/main') ?>
@@ -181,7 +179,7 @@ $terms = $locale === 'en'
             <div class="travelplus-passport-card travelplus-passport-card--<?= esc($cardTierKey, 'attr') ?><?= $isMember ? ' is-authenticated' : '' ?>" aria-label="<?= esc($copy['cardTierLabel'] . ': ' . $cardTierName, 'attr') ?>">
                 <span class="travelplus-passport-card__glow" aria-hidden="true"></span>
                 <div class="travelplus-passport-card__top">
-                    <span class="travelplus-passport-card__brand"><i class="bi bi-passport-fill" aria-hidden="true"></i><span>TravelPlus<br><strong>Passport</strong></span></span>
+                    <span class="travelplus-passport-card__brand"><i class="bi bi-passport-fill" aria-hidden="true"></i><span>TravelPlus<br><strong>Reward</strong></span></span>
                     <?php if ($isMember): ?>
                         <span class="travelplus-passport-card__status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><?= esc($copy['cardStatus']) ?></span>
                     <?php endif; ?>
@@ -277,29 +275,19 @@ $terms = $locale === 'en'
                             <?php endif; ?>
                         </div>
                         <h3><?= esc($tier['name']) ?></h3>
-                        <p class="travelplus-passport-tier__threshold"><?= esc($copy['from']) ?> <strong><?= number_format($tier['points'], 0, ',', '.') ?></strong> <?= esc($copy['miles']) ?></p>
-                        <div class="travelplus-passport-tier__reward">
-                            <?php if ($tier['discount'] > 0): ?>
-                                <span><?= esc($copy['welcome']) ?></span>
-                                <strong><?= number_format($tier['discount'], 0, ',', '.') ?>đ</strong>
-                                <small><?= esc($copy['bookingFrom']) ?> <?= number_format($tier['minimum'], 0, ',', '.') ?>đ</small>
-                            <?php else: ?>
-                                <span><?= esc($copy['memberRewardLabel']) ?></span>
-                                <strong><?= esc($copy['memberRewardValue']) ?></strong>
-                                <small><?= esc($copy['memberRewardHint']) ?></small>
-                            <?php endif; ?>
+                        <p class="travelplus-passport-tier__threshold"><?= esc($copy['from']) ?> <strong><?= number_format($tier['points'], 0, ',', '.') ?></strong> <?= esc($copy['points']) ?></p>
+                        <div class="travelplus-passport-tier__highlight">
+                            <span><?= esc($tier['rate'] > 0 ? ($locale === 'en' ? 'Automatic tour saving' : 'Giảm tự động mỗi tour') : ($locale === 'en' ? 'Start your journey' : 'Khởi đầu hành trình')) ?></span>
+                            <strong><?= $tier['rate'] > 0 ? esc($tierRateLabel) . '<em>%</em>' : esc($copy['memberRewardValue']) ?></strong>
+                            <small><?= esc($tier['rate'] > 0 ? ($locale === 'en' ? 'No discount cap' : 'Không giới hạn số tiền giảm') : ($locale === 'en' ? 'Earn points from your first booking' : 'Tích điểm ngay từ booking đầu tiên')) ?></small>
                         </div>
-                        <div class="travelplus-passport-tier__saving<?= $tier['rate'] > 0 ? '' : ' is-empty' ?>">
-                            <i class="bi bi-percent" aria-hidden="true"></i>
-                            <span>
-                                <small><?= esc($copy['tierDiscount']) ?></small>
-                                <?php if ($tier['rate'] > 0): ?>
-                                    <strong><?= esc($tierRateLabel) ?>% <em><?= esc($copy['tierDiscountSuffix']) ?></em></strong>
-                                    <b><?= esc($copy['tierDiscountCap']) ?> <?= number_format($tier['cap'], 0, ',', '.') ?>đ</b>
-                                <?php else: ?>
-                                    <strong><?= esc($copy['noTierDiscount']) ?></strong>
-                                <?php endif; ?>
-                            </span>
+                        <div class="travelplus-passport-tier__voucher">
+                            <i class="bi <?= $tier['discount'] > 0 ? 'bi-ticket-perforated' : 'bi-stars' ?>" aria-hidden="true"></i>
+                            <div>
+                                <span><?= esc($tier['discount'] > 0 ? ($locale === 'en' ? 'Welcome voucher' : 'Voucher chào hạng') : ($locale === 'en' ? 'Member points' : 'Điểm thành viên')) ?></span>
+                                <strong><?= $tier['discount'] > 0 ? number_format($tier['discount'], 0, ',', '.') . 'đ' : esc($locale === 'en' ? 'Earn & redeem' : 'Tích điểm, đổi quà') ?></strong>
+                                <small><?= esc($tier['discount'] > 0 ? $copy['bookingFrom'] : ($locale === 'en' ? 'Redeem points for tour vouchers' : 'Đổi điểm lấy voucher tour')) ?></small>
+                            </div>
                         </div>
                         <p class="travelplus-passport-tier__note"><?= esc($tier['discount'] > 0 ? $copy['once'] : $copy['memberNote']) ?></p>
                     </article>
@@ -315,7 +303,7 @@ $terms = $locale === 'en'
             </header>
             <div class="travelplus-passport-reward-grid">
                 <?php foreach ($rewards as $reward): ?>
-                    <article><i class="bi bi-ticket-perforated-fill"></i><span><?= number_format($reward['points'], 0, ',', '.') ?> <?= esc($locale === 'en' ? 'miles' : 'Dặm') ?></span><strong><?= number_format($reward['amount'], 0, ',', '.') ?>đ</strong><small><?= esc($copy['bookingFrom']) ?> <?= number_format($reward['minimum'], 0, ',', '.') ?>đ</small></article>
+                    <article><i class="bi bi-ticket-perforated-fill"></i><span><?= number_format($reward['points'], 0, ',', '.') ?> <?= esc($locale === 'en' ? 'points' : 'Điểm') ?></span><strong><?= number_format($reward['amount'], 0, ',', '.') ?>đ</strong><small><?= esc($copy['bookingFrom']) ?></small></article>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -334,7 +322,7 @@ $terms = $locale === 'en'
     </section>
 
     <section class="travelplus-passport-cta">
-        <div class="container"><div><span><i class="bi bi-stars"></i>TravelPlus Passport</span><h2><?= esc($copy['ctaTitle']) ?></h2><p><?= esc($copy['ctaText']) ?></p></div><a href="<?= esc($primaryUrl, 'attr') ?>"><?= esc($copy['primary']) ?><i class="bi bi-arrow-right"></i></a></div>
+        <div class="container"><div><span><i class="bi bi-stars"></i>Travel Plus Reward</span><h2><?= esc($copy['ctaTitle']) ?></h2><p><?= esc($copy['ctaText']) ?></p></div><a href="<?= esc($primaryUrl, 'attr') ?>"><?= esc($copy['primary']) ?><i class="bi bi-arrow-right"></i></a></div>
     </section>
 </main>
 

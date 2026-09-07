@@ -81,10 +81,10 @@ $couponUi = $locale === 'en'
     ];
 $passportVoucherUi = $locale === 'en'
     ? [
-        'title' => 'Your Passport vouchers',
+        'title' => 'Your Reward vouchers',
         'hint' => 'Choose one voucher to apply to this booking.',
         'tier' => 'Tier welcome benefit',
-        'miles' => 'Journey Miles voucher',
+        'points' => 'Member Points voucher',
         'minimum' => 'Booking from',
         'needMore' => 'Add %s more to use',
         'expires' => 'Expires',
@@ -93,10 +93,10 @@ $passportVoucherUi = $locale === 'en'
         'apply' => 'Apply voucher',
     ]
     : [
-        'title' => 'Voucher Passport của bạn',
+        'title' => 'Voucher Reward của bạn',
         'hint' => 'Chọn một voucher để áp dụng ngay cho booking này.',
         'tier' => 'Quyền lợi chào hạng',
-        'miles' => 'Voucher đổi Dặm',
+        'points' => 'Voucher đổi Điểm',
         'minimum' => 'Booking từ',
         'needMore' => 'Cần thêm %s để sử dụng',
         'expires' => 'HSD',
@@ -105,12 +105,12 @@ $passportVoucherUi = $locale === 'en'
         'apply' => 'Áp dụng voucher',
     ];
 $passportVoucherUi['policy'] = $locale === 'en'
-    ? 'Your tier saving is applied first. You may add one Passport voucher; combined savings never exceed the eligible tour value.'
-    : 'Ưu đãi theo hạng được tính trước. Bạn có thể dùng thêm 1 voucher Passport; tổng mức giảm không vượt quá giá trị tour đủ điều kiện.';
+    ? 'Your tier saving is applied first. Add one Reward voucher on any booking, with no minimum value; combined savings never exceed the tour value.'
+    : 'Giảm giá theo hạng được tính trước. Dùng thêm 1 voucher Reward cho mọi booking, mọi mức giá; tổng mức giảm không vượt quá giá trị tour.';
 $membershipTierNames = $locale === 'en'
     ? ['member' => 'Member', 'silver' => 'Silver', 'gold' => 'Gold', 'diamond' => 'Diamond', 'signature' => 'Signature']
     : ['member' => 'Thành viên', 'silver' => 'Bạc', 'gold' => 'Vàng', 'diamond' => 'Kim Cương', 'signature' => 'Signature'];
-$membershipDiscountLabel = ($locale === 'en' ? 'Passport ' : 'Ưu đãi Passport hạng ')
+$membershipDiscountLabel = ($locale === 'en' ? 'Reward ' : 'Ưu đãi Reward hạng ')
     . ($membershipTierNames[$membershipTierKey] ?? $membershipTierNames['member'])
     . ' (' . $formatRate($membershipDiscountRate) . '%)';
 $singleRoomLabel = $locale === 'en' ? 'Single room supplement' : 'Phụ thu phòng đơn';
@@ -400,7 +400,7 @@ $singleRoomValueLabel = $locale === 'en'
                                                         $voucherAmountNeeded = max(0, (float) ($voucher['amount_needed_vnd'] ?? 0));
                                                         $voucherType = (string) ($voucher['benefit_type'] ?? '') === 'tier'
                                                             ? $passportVoucherUi['tier']
-                                                            : $passportVoucherUi['miles'];
+                                                            : $passportVoucherUi['points'];
                                                         $voucherCondition = $voucherEligible
                                                             ? $passportVoucherUi['minimum'] . ' ' . $formatCurrency($voucherMinimum)
                                                             : sprintf($passportVoucherUi['needMore'], $formatCurrency($voucherAmountNeeded));

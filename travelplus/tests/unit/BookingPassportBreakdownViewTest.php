@@ -36,11 +36,11 @@ final class BookingPassportBreakdownViewTest extends CIUnitTestCase
         ]);
 
         $this->assertStringContainsString('booking-passport-breakdown--earned', $html);
-        $this->assertStringContainsString('Dặm Hành Trình đã được cộng', $html);
+        $this->assertStringContainsString('Điểm thành viên đã được cộng', $html);
         $this->assertStringContainsString('+2.000', $html);
         $this->assertStringContainsString('Số dư khả dụng hiện tại:', $html);
         $this->assertStringContainsString('Chúc mừng! Bạn đã đạt hạng Vàng', $html);
-        $this->assertStringContainsString('Còn 39.000 Dặm để đạt Kim Cương', $html);
+        $this->assertStringContainsString('Còn 39.000 Điểm để đạt Kim Cương', $html);
         $this->assertStringContainsString('Tổng tiết kiệm 300.000đ', $html);
         $this->assertStringContainsString('TPP-SI-TEST0001', $html);
         $this->assertStringContainsString('Đã áp dụng', $html);
@@ -59,7 +59,7 @@ final class BookingPassportBreakdownViewTest extends CIUnitTestCase
         ]);
 
         $this->assertStringContainsString('booking-passport-breakdown--pending', $html);
-        $this->assertStringContainsString('Dặm đang chờ ghi nhận', $html);
+        $this->assertStringContainsString('Điểm đang chờ ghi nhận', $html);
         $this->assertStringContainsString('Dự kiến sau khi xác nhận', $html);
         $this->assertStringContainsString('+500', $html);
     }
@@ -85,7 +85,7 @@ final class BookingPassportBreakdownViewTest extends CIUnitTestCase
         ]);
 
         $this->assertStringContainsString('booking-passport-breakdown--reversed', $html);
-        $this->assertStringContainsString('Dặm của booking đã được điều chỉnh', $html);
+        $this->assertStringContainsString('Điểm của booking đã được điều chỉnh', $html);
         $this->assertStringContainsString('-500', $html);
         $this->assertStringContainsString('Đã hoàn lại ví', $html);
     }

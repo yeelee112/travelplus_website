@@ -1,0 +1,15 @@
+PHPUnit 10.5.63 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.26
+Configuration: E:\WORK\laragon\www\travelplus\phpunit.xml.dist
+
+..........................                                        26 / 26 (100%)
+
+Time: 00:00.363, Memory: 16.00 MB
+
+There was 1 PHPUnit test runner warning:
+
+1) No code coverage driver available
+
+OK, but there were issues!
+Tests: 26, Assertions: 182, PHPUnit Warnings: 1.

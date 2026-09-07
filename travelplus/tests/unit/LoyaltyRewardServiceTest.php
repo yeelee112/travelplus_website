@@ -10,6 +10,7 @@ final class LoyaltyRewardServiceTest extends CIUnitTestCase
     {
         $catalog = (new LoyaltyRewardService())->catalog(1200);
 
+        $this->assertSame([0, 0, 0], array_column($catalog, 'min_order_vnd'));
         $this->assertSame([500, 1200, 2500], array_column($catalog, 'points'));
         $this->assertSame([50000, 120000, 250000], array_column($catalog, 'amount_vnd'));
         $this->assertSame([true, true, false], array_column($catalog, 'available'));

@@ -97,8 +97,8 @@ $headerPassportRemaining = $headerPassportNextReward !== null
     ? max(0, (int) ($headerPassportNextReward['points'] ?? 0) - $headerPassportPoints)
     : 0;
 $headerPassportSubline = $authUser
-    ? number_format($headerPassportPoints, 0, ',', '.') . ' ' . ($locale === 'en' ? 'miles' : 'dặm')
-    : ($locale === 'en' ? 'Earn miles · redeem vouchers' : 'Tích dặm · đổi voucher');
+    ? number_format($headerPassportPoints, 0, ',', '.') . ' ' . ($locale === 'en' ? 'points' : 'điểm')
+    : ($locale === 'en' ? 'Earn points · redeem vouchers' : 'Tích điểm · đổi voucher');
 $headerPassportUrl = \App\Data\LocalizedPathCatalog::url('passport.program', $locale);
 $megaMenuCountryLimit = 7;
 $megaMenuMoreLabel = $locale === 'en' ? 'Show %d more' : 'Xem thêm %d quốc gia';
@@ -191,7 +191,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                 <div class="search-and-login">
                     <a class="header-passport-nav" href="<?= esc($headerPassportUrl, 'attr') ?>">
                         <i class="bi bi-passport-fill" aria-hidden="true"></i>
-                        <span><strong>Passport</strong><small><?= esc($headerPassportSubline) ?></small></span>
+                        <span><strong>Reward</strong><small><?= esc($headerPassportSubline) ?></small></span>
                     </a>
                     <?php if ($authUser): ?>
                         <div class="account-dropdown">
@@ -220,8 +220,8 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                                 <li class="header-passport-summary">
                                     <a href="<?= esc($profileUrl, 'attr') ?>">
                                         <i class="bi bi-stars" aria-hidden="true"></i>
-                                        <span><strong>TravelPlus Passport</strong><small><?= esc($headerPassportNextReward !== null
-                                            ? (($locale === 'en' ? $headerPassportRemaining . ' miles to the next voucher' : number_format($headerPassportRemaining, 0, ',', '.') . ' dặm nữa tới voucher tiếp theo'))
+                                        <span><strong>Travel Plus Reward</strong><small><?= esc($headerPassportNextReward !== null
+                                            ? (($locale === 'en' ? $headerPassportRemaining . ' points to the next voucher' : number_format($headerPassportRemaining, 0, ',', '.') . ' điểm nữa tới voucher tiếp theo'))
                                             : ($locale === 'en' ? 'Highest voucher milestone reached' : 'Đã đạt mốc voucher cao nhất')) ?></small></span>
                                     </a>
                                 </li>
@@ -403,7 +403,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
 
                 <li class="<?= $isActiveHeaderUrl($blogUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $blogUrl ?>"><?= esc(lang('Frontend.header.menu.blog')) ?></a></li>
                 <li class="<?= $isActiveHeaderUrl($contactUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $contactUrl ?>"><?= esc(lang('Frontend.header.menu.contact')) ?></a></li>
-                <li class="mobile-passport-menu-item"><a href="<?= esc($headerPassportUrl, 'attr') ?>"><i class="bi bi-passport-fill" aria-hidden="true"></i>TravelPlus Passport</a></li>
+                <li class="mobile-passport-menu-item"><a href="<?= esc($headerPassportUrl, 'attr') ?>"><i class="bi bi-passport-fill" aria-hidden="true"></i>Travel Plus Reward</a></li>
                 <li class="mobile-booking-menu-item <?= $isActiveHeaderUrl($bookingLookupUrl) ? 'current-menu-item' : '' ?>"><a href="<?= esc($bookingLookupUrl) ?>"><?= esc($bookingLookupLabel) ?></a></li>
             </ul>
 
@@ -462,8 +462,8 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                             <li class="header-passport-summary">
                                 <a href="<?= esc($profileUrl, 'attr') ?>">
                                     <i class="bi bi-stars" aria-hidden="true"></i>
-                                    <span><strong>TravelPlus Passport</strong><small><?= esc($headerPassportNextReward !== null
-                                        ? (($locale === 'en' ? $headerPassportRemaining . ' miles to the next voucher' : number_format($headerPassportRemaining, 0, ',', '.') . ' dặm nữa tới voucher tiếp theo'))
+                                    <span><strong>Travel Plus Reward</strong><small><?= esc($headerPassportNextReward !== null
+                                        ? (($locale === 'en' ? $headerPassportRemaining . ' points to the next voucher' : number_format($headerPassportRemaining, 0, ',', '.') . ' điểm nữa tới voucher tiếp theo'))
                                         : ($locale === 'en' ? 'Highest voucher milestone reached' : 'Đã đạt mốc voucher cao nhất')) ?></small></span>
                                 </a>
                             </li>

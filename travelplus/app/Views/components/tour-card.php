@@ -64,7 +64,7 @@ $passportPriceBenefit = \App\Services\TourPassportPricePresenter::build(
 );
 $loyaltyPoints = \App\Services\LoyaltyPointService::previewPoints($priceAmount);
 $loyaltyPointsLabel = number_format($loyaltyPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
-$loyaltyCopy = ($locale === 'en' ? 'Earn from ' : 'Nhận từ ') . $loyaltyPointsLabel . ($locale === 'en' ? ' Journey Miles' : ' Dặm Hành Trình');
+$loyaltyCopy = ($locale === 'en' ? 'Earn from ' : 'Nhận từ ') . $loyaltyPointsLabel . ($locale === 'en' ? ' Member Points' : ' Điểm thành viên');
 $memberBalance = max(0, (int) ($headerMembership['points'] ?? 0));
 $unlockedReward = is_array($authUser ?? null)
     ? (new \App\Services\LoyaltyRewardService())->bestNewlyUnlockedReward($memberBalance, $loyaltyPoints)
@@ -220,7 +220,7 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
                         <?php endif; ?>
                     <?php endif; ?>
                     <?php if ($loyaltyPoints > 0): ?>
-                        <small class="tp-tour-card__points" title="<?= esc($locale === 'en' ? 'Actual miles are based on the paid booking amount.' : 'Dặm thực nhận được tính theo số tiền booking đã thanh toán.', 'attr') ?>">
+                        <small class="tp-tour-card__points" title="<?= esc($locale === 'en' ? 'Actual points are based on the paid booking amount.' : 'Điểm thực nhận được tính theo số tiền booking đã thanh toán.', 'attr') ?>">
                             <i class="bi bi-stars" aria-hidden="true"></i>
                             <?= esc($loyaltyCopy) ?>
                         </small>

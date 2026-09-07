@@ -74,6 +74,13 @@ class PromotionCodeService
         }
 
         $minimumOrder = max(0, (float) ($promotion['min_order_amount'] ?? 0));
+        $db = db_connect();
+        $isRewardVoucher = $db->tableExists('loyalty_reward_vouchers')
+            && $db->table('loyalty_reward_vouchers')->where('promotion_code_id', (int) ($promotion['id'] ?? 0))->countAllResults() > 0;
+        if ($isRewardVoucher) {
+            $minimumOrder = 0;
+        }
+
 
         if ($minimumOrder > 0 && $eligibleSubtotal < $minimumOrder) {
             return $this->failure('minimumOrder', $subtotal, $beforeCouponTotal);

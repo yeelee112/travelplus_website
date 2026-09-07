@@ -6,18 +6,18 @@ $passportUrl = $isMember
     : \App\Data\LocalizedPathCatalog::url('passport.program', $locale);
 $copy = $locale === 'en'
     ? [
-        'eyebrow' => 'TravelPlus Passport',
+        'eyebrow' => 'Travel Plus Reward',
         'title' => 'Every journey brings the next one closer',
-        'desc' => 'Earn 1 Journey Mile for every 10,000 VND paid, then redeem your miles for a voucher on your next tour.',
-        'cta' => $isMember ? 'View my Passport' : 'Explore benefits',
-        'steps' => [['Book a tour', 'Choose the journey that fits you.'], ['Earn miles', 'Miles are credited after payment.'], ['Redeem vouchers', 'Use your voucher on a future tour.']],
+        'desc' => 'Earn 1 Member Point for every 10,000 VND paid, then redeem your points for a voucher on your next tour.',
+        'cta' => $isMember ? 'View my Reward' : 'Explore benefits',
+        'steps' => [['Book a tour', 'Choose the journey that fits you.'], ['Earn points', 'Points are credited after payment.'], ['Redeem vouchers', 'Use your voucher on a future tour.']],
     ]
     : [
-        'eyebrow' => 'TravelPlus Passport',
+        'eyebrow' => 'Travel Plus Reward',
         'title' => 'Mỗi hành trình, gần hơn với chuyến đi tiếp theo',
-        'desc' => 'Mỗi 10.000đ thanh toán nhận 1 Dặm Hành Trình, tích dặm để đổi voucher cho tour tiếp theo.',
-        'cta' => $isMember ? 'Xem Passport của tôi' : 'Khám phá quyền lợi',
-        'steps' => [['Đặt tour', 'Chọn hành trình phù hợp với bạn.'], ['Nhận dặm', 'Dặm được cộng sau khi thanh toán.'], ['Đổi voucher', 'Dùng cho chuyến đi tiếp theo.']],
+        'desc' => 'Mỗi 10.000đ thanh toán nhận 1 Điểm thành viên, tích điểm để đổi voucher cho tour tiếp theo.',
+        'cta' => $isMember ? 'Xem Reward của tôi' : 'Khám phá quyền lợi',
+        'steps' => [['Đặt tour', 'Chọn hành trình phù hợp với bạn.'], ['Nhận điểm', 'Điểm được cộng sau khi thanh toán.'], ['Đổi voucher', 'Dùng cho chuyến đi tiếp theo.']],
     ];
 $icons = ['bi-luggage-fill', 'bi-stars', 'bi-ticket-perforated-fill'];
 ?>

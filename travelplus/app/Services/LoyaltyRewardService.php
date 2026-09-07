@@ -12,9 +12,9 @@ final class LoyaltyRewardService
     private const VALIDITY_DAYS = 180;
 
     private const REWARDS = [
-        ['key' => 'passport_50', 'points' => 500, 'amount_vnd' => 50000, 'min_order_vnd' => 2000000],
-        ['key' => 'passport_120', 'points' => 1200, 'amount_vnd' => 120000, 'min_order_vnd' => 5000000],
-        ['key' => 'passport_250', 'points' => 2500, 'amount_vnd' => 250000, 'min_order_vnd' => 10000000],
+        ['key' => 'passport_50', 'points' => 500, 'amount_vnd' => 50000, 'min_order_vnd' => 0],
+        ['key' => 'passport_120', 'points' => 1200, 'amount_vnd' => 120000, 'min_order_vnd' => 0],
+        ['key' => 'passport_250', 'points' => 2500, 'amount_vnd' => 250000, 'min_order_vnd' => 0],
     ];
 
     private ?BaseConnection $database = null;
@@ -129,7 +129,8 @@ final class LoyaltyRewardService
         $eligibleSubtotal = max(0, $eligibleSubtotal);
 
         return array_map(static function (array $voucher) use ($eligibleSubtotal): array {
-            $minimumOrder = max(0, (float) ($voucher['min_order_vnd'] ?? 0));
+            $minimumOrder = 0;
+            $voucher['min_order_vnd'] = 0;
             $rewardKey = (string) ($voucher['reward_key'] ?? '');
             $voucher['eligible'] = $eligibleSubtotal >= $minimumOrder;
             $voucher['amount_needed_vnd'] = max(0, $minimumOrder - $eligibleSubtotal);
@@ -170,8 +171,8 @@ final class LoyaltyRewardService
             $expiresAt = date('Y-m-d H:i:s', strtotime('+' . self::VALIDITY_DAYS . ' days'));
             $db->table(self::PROMOTION_TABLE)->insert([
                 'code' => $code,
-                'name' => 'TravelPlus Passport ' . number_format($reward['amount_vnd'], 0, ',', '.') . ' VND',
-                'description' => 'Voucher đổi từ ' . number_format($reward['points'], 0, ',', '.') . ' Dặm Hành Trình.',
+                'name' => 'Travel Plus Reward ' . number_format($reward['amount_vnd'], 0, ',', '.') . ' VND',
+                'description' => 'Voucher đổi từ ' . number_format($reward['points'], 0, ',', '.') . ' Điểm thành viên.',
                 'discount_type' => 'fixed',
                 'discount_value' => $reward['amount_vnd'],
                 'max_discount_amount' => null,
@@ -220,7 +221,7 @@ final class LoyaltyRewardService
             ];
         } catch (\Throwable $exception) {
             $db->transRollback();
-            log_message('error', 'Passport reward redemption failed: {message}', ['message' => $exception->getMessage()]);
+            log_message('error', 'Reward reward redemption failed: {message}', ['message' => $exception->getMessage()]);
 
             return $this->failure($locale, 'failed');
         }
@@ -252,14 +253,14 @@ final class LoyaltyRewardService
     {
         $english = [
             'invalid' => 'This reward is not valid.',
-            'unavailable' => 'Passport rewards are being prepared. Please try again later.',
-            'insufficient' => 'Your Journey Miles balance is not enough for this voucher.',
+            'unavailable' => 'Reward rewards are being prepared. Please try again later.',
+            'insufficient' => 'Your Member Points balance is not enough for this voucher.',
             'failed' => 'The voucher could not be created. No points were deducted.',
         ];
         $vietnamese = [
             'invalid' => 'Quà đổi không hợp lệ.',
-            'unavailable' => 'Kho quà Passport đang được chuẩn bị. Vui lòng thử lại sau.',
-            'insufficient' => 'Bạn chưa đủ Dặm Hành Trình để đổi voucher này.',
+            'unavailable' => 'Kho quà Reward đang được chuẩn bị. Vui lòng thử lại sau.',
+            'insufficient' => 'Bạn chưa đủ Điểm thành viên để đổi voucher này.',
             'failed' => 'Chưa thể tạo voucher. Điểm của bạn không bị trừ.',
         ];
 

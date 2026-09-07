@@ -68,15 +68,15 @@ final class ProfilePassportDashboardViewTest extends CIUnitTestCase
         ]);
 
         $this->assertStringContainsString('travelplus-profile-passport-card', $html);
-        $this->assertStringContainsString('Passport của tôi', $html);
-        $this->assertStringContainsString('Dặm khả dụng', $html);
+        $this->assertStringContainsString('Reward của tôi', $html);
+        $this->assertStringContainsString('Điểm khả dụng', $html);
         $this->assertStringContainsString('1.234', $html);
-        $this->assertStringContainsString('Dặm xét hạng', $html);
+        $this->assertStringContainsString('Điểm xét hạng', $html);
         $this->assertStringContainsString('20.855', $html);
         $this->assertStringContainsString('Mục tiêu hạng tiếp theo', $html);
-        $this->assertStringContainsString('Còn 39.145 Dặm', $html);
+        $this->assertStringContainsString('Còn 39.145 Điểm', $html);
         $this->assertStringContainsString('travelplus-profile-passport__progress--diamond', $html);
-        $this->assertStringContainsString('Đặt tour tích thêm Dặm', $html);
+        $this->assertStringContainsString('Đặt tour tích thêm Điểm', $html);
         $this->assertStringContainsString('Ví voucher của tôi', $html);
         $this->assertStringContainsString('TPP-GO-DASHBOARD', $html);
         $this->assertStringContainsString('Hạn dùng 31/12/2099', $html);

@@ -34,20 +34,20 @@ $pointsShown = match ($state) {
     default => $previewPoints,
 };
 $headline = match ($state) {
-    'earned' => $locale === 'en' ? 'Journey Miles added' : 'Dặm Hành Trình đã được cộng',
-    'reversed' => $locale === 'en' ? 'Journey Miles adjusted' : 'Dặm của booking đã được điều chỉnh',
-    default => $locale === 'en' ? 'Journey Miles pending' : 'Dặm đang chờ ghi nhận',
+    'earned' => $locale === 'en' ? 'Member Points added' : 'Điểm thành viên đã được cộng',
+    'reversed' => $locale === 'en' ? 'Member Points adjusted' : 'Điểm của booking đã được điều chỉnh',
+    default => $locale === 'en' ? 'Member Points pending' : 'Điểm đang chờ ghi nhận',
 };
 $lead = match ($state) {
     'earned' => $locale === 'en'
-        ? 'Your payment has been recorded and the miles are now available in your Passport account.'
-        : 'Thanh toán đã được ghi nhận và Dặm đã có trong tài khoản Passport của bạn.',
+        ? 'Your payment has been recorded and the points are now available in your Reward account.'
+        : 'Thanh toán đã được ghi nhận và Điểm đã có trong tài khoản Reward của bạn.',
     'reversed' => $locale === 'en'
-        ? 'Miles from this booking were removed after its payment status changed.'
-        : 'Dặm từ booking này đã được trừ lại sau khi trạng thái thanh toán thay đổi.',
+        ? 'Points from this booking were removed after its payment status changed.'
+        : 'Điểm từ booking này đã được trừ lại sau khi trạng thái thanh toán thay đổi.',
     default => $locale === 'en'
-        ? 'Miles will be added after Travel Plus confirms the payment.'
-        : 'Dặm sẽ được cộng sau khi Travel Plus xác nhận thanh toán.',
+        ? 'Points will be added after Travel Plus confirms the payment.'
+        : 'Điểm sẽ được cộng sau khi Travel Plus xác nhận thanh toán.',
 };
 $voucherStatus = '';
 if ($voucher !== null) {
@@ -61,13 +61,13 @@ if ($voucher !== null) {
 ?>
 <section class="booking-passport-breakdown booking-passport-breakdown--<?= esc($state, 'attr') ?> booking-passport-breakdown--tier-<?= esc($currentTierKey, 'attr') ?>" aria-labelledby="booking-passport-title">
     <header class="booking-passport-breakdown__head">
-        <span class="booking-passport-breakdown__brand"><i class="bi bi-passport-fill" aria-hidden="true"></i><span>TravelPlus<strong>Passport</strong></span></span>
+        <span class="booking-passport-breakdown__brand"><i class="bi bi-passport-fill" aria-hidden="true"></i><span>TravelPlus<strong>Reward</strong></span></span>
         <div>
             <span><?= esc($locale === 'en' ? 'Membership summary for this booking' : 'Tổng kết thành viên của booking') ?></span>
             <h2 id="booking-passport-title"><?= esc($headline) ?></h2>
             <p><?= esc($lead) ?></p>
         </div>
-        <a href="<?= esc(\App\Data\LocalizedPathCatalog::url('auth.profile', $locale), 'attr') ?>"><?= esc($locale === 'en' ? 'Open my Passport' : 'Mở Passport của tôi') ?><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        <a href="<?= esc(\App\Data\LocalizedPathCatalog::url('auth.profile', $locale), 'attr') ?>"><?= esc($locale === 'en' ? 'Open my Reward' : 'Mở Reward của tôi') ?><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
     </header>
 
     <?php if ((bool) ($passportSummary['tier_up'] ?? false)): ?>
@@ -78,16 +78,16 @@ if ($voucher !== null) {
     <?php endif; ?>
 
     <div class="booking-passport-breakdown__main">
-        <article class="booking-passport-mile-card">
-            <span class="booking-passport-mile-card__icon"><i class="bi <?= $state === 'reversed' ? 'bi-arrow-counterclockwise' : 'bi-stars' ?>" aria-hidden="true"></i></span>
+        <article class="booking-passport-point-card">
+            <span class="booking-passport-point-card__icon"><i class="bi <?= $state === 'reversed' ? 'bi-arrow-counterclockwise' : 'bi-stars' ?>" aria-hidden="true"></i></span>
             <div>
                 <small><?= esc(match ($state) {
                     'earned' => $locale === 'en' ? 'Earned from this payment' : 'Nhận từ lần thanh toán này',
                     'reversed' => $locale === 'en' ? 'Adjusted from this booking' : 'Đã điều chỉnh từ booking',
                     default => $locale === 'en' ? 'Expected after confirmation' : 'Dự kiến sau khi xác nhận',
                 }) ?></small>
-                <strong><?= $state === 'reversed' ? '-' : '+' ?><?= esc(number_format($pointsShown, 0, ',', '.')) ?><span><?= esc($locale === 'en' ? ' miles' : ' Dặm') ?></span></strong>
-                <p><i class="bi bi-wallet2" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Current available balance: ' : 'Số dư khả dụng hiện tại: ') ?><b><?= esc(number_format($availablePoints, 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'miles' : 'Dặm') ?></b></p>
+                <strong><?= $state === 'reversed' ? '-' : '+' ?><?= esc(number_format($pointsShown, 0, ',', '.')) ?><span><?= esc($locale === 'en' ? ' points' : ' Điểm') ?></span></strong>
+                <p><i class="bi bi-wallet2" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Current available balance: ' : 'Số dư khả dụng hiện tại: ') ?><b><?= esc(number_format($availablePoints, 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'points' : 'Điểm') ?></b></p>
             </div>
         </article>
 
@@ -95,15 +95,15 @@ if ($voucher !== null) {
             <div class="booking-passport-tier-progress__top">
                 <span><i class="bi <?= esc($tierIcons[$currentTierKey] ?? 'bi-person-badge', 'attr') ?>" aria-hidden="true"></i></span>
                 <div><small><?= esc($locale === 'en' ? 'Current tier' : 'Hạng hiện tại') ?></small><strong><?= esc($tierLabels[$currentTierKey] ?? ucfirst($currentTierKey)) ?></strong></div>
-                <?php if ($nextTier !== null): ?><b><?= esc($locale === 'en' ? '' : 'Còn ') ?><?= esc(number_format($remainingPoints, 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'miles to ' : 'Dặm để đạt ') ?><?= esc($tierLabels[(string) ($nextTier['key'] ?? '')] ?? '') ?></b><?php endif; ?>
+                <?php if ($nextTier !== null): ?><b><?= esc($locale === 'en' ? '' : 'Còn ') ?><?= esc(number_format($remainingPoints, 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'points to ' : 'Điểm để đạt ') ?><?= esc($tierLabels[(string) ($nextTier['key'] ?? '')] ?? '') ?></b><?php endif; ?>
             </div>
             <span class="booking-passport-tier-progress__track" role="progressbar" aria-label="<?= esc($locale === 'en' ? 'Tier progress' : 'Tiến độ lên hạng', 'attr') ?>" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= esc((string) $progress, 'attr') ?>"><i style="width:<?= esc((string) $progress, 'attr') ?>%"></i></span>
-            <div class="booking-passport-tier-progress__foot"><span><strong><?= esc(number_format($qualifyingPoints, 0, ',', '.')) ?></strong> <?= esc($locale === 'en' ? 'qualifying miles' : 'Dặm xét hạng') ?></span><b><?= esc((string) $progress) ?>%</b></div>
+            <div class="booking-passport-tier-progress__foot"><span><strong><?= esc(number_format($qualifyingPoints, 0, ',', '.')) ?></strong> <?= esc($locale === 'en' ? 'qualifying points' : 'Điểm xét hạng') ?></span><b><?= esc((string) $progress) ?>%</b></div>
         </article>
     </div>
 
     <div class="booking-passport-benefits">
-        <header><span><?= esc($locale === 'en' ? 'Passport benefits used' : 'Quyền lợi Passport đã dùng') ?></span><?php if ($totalBenefit > 0): ?><strong><?= esc($locale === 'en' ? 'Total saved ' : 'Tổng tiết kiệm ') ?><?= esc(number_format($totalBenefit, 0, ',', '.')) ?>đ</strong><?php endif; ?></header>
+        <header><span><?= esc($locale === 'en' ? 'Reward benefits used' : 'Quyền lợi Reward đã dùng') ?></span><?php if ($totalBenefit > 0): ?><strong><?= esc($locale === 'en' ? 'Total saved ' : 'Tổng tiết kiệm ') ?><?= esc(number_format($totalBenefit, 0, ',', '.')) ?>đ</strong><?php endif; ?></header>
         <div class="booking-passport-benefits__grid">
             <article class="<?= $membershipDiscount > 0 ? 'is-applied' : 'is-empty' ?>">
                 <i class="bi bi-percent" aria-hidden="true"></i>
@@ -111,7 +111,7 @@ if ($voucher !== null) {
             </article>
             <article class="<?= $voucher !== null && $voucherDiscount > 0 ? 'is-applied' : 'is-empty' ?>">
                 <i class="bi bi-ticket-perforated-fill" aria-hidden="true"></i>
-                <span><small><?= esc($locale === 'en' ? 'Passport voucher' : 'Voucher thành viên') ?></small><strong><?= esc($voucher !== null ? ((string) ($voucher['code'] ?? '') ?: ($locale === 'en' ? 'Member voucher' : 'Voucher thành viên')) : ($locale === 'en' ? 'No voucher used' : 'Không dùng voucher')) ?></strong><em><?= $voucher !== null && $voucherDiscount > 0 ? '-' . esc(number_format($voucherDiscount, 0, ',', '.')) . 'đ · ' . esc($voucherStatus) : esc($locale === 'en' ? 'No voucher discount' : 'Không có khoản giảm voucher') ?></em></span>
+                <span><small><?= esc($locale === 'en' ? 'Reward voucher' : 'Voucher thành viên') ?></small><strong><?= esc($voucher !== null ? ((string) ($voucher['code'] ?? '') ?: ($locale === 'en' ? 'Member voucher' : 'Voucher thành viên')) : ($locale === 'en' ? 'No voucher used' : 'Không dùng voucher')) ?></strong><em><?= $voucher !== null && $voucherDiscount > 0 ? '-' . esc(number_format($voucherDiscount, 0, ',', '.')) . 'đ · ' . esc($voucherStatus) : esc($locale === 'en' ? 'No voucher discount' : 'Không có khoản giảm voucher') ?></em></span>
             </article>
         </div>
     </div>

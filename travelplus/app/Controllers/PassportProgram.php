@@ -12,15 +12,15 @@ final class PassportProgram extends BaseController
         $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
         $canonicalUrl = LocalizedPathCatalog::url('passport.program', $locale);
         $title = $locale === 'en'
-            ? 'TravelPlus Passport – Membership tiers and benefits'
-            : 'TravelPlus Passport – Hạng thành viên và quyền lợi';
+            ? 'Travel Plus Reward – Membership tiers and benefits'
+            : 'Travel Plus Reward – Hạng thành viên và quyền lợi';
         $description = $locale === 'en'
-            ? 'Explore TravelPlus Passport membership tiers, Journey Miles, tier benefits and voucher redemption.'
-            : 'Khám phá các hạng TravelPlus Passport, cách tích Dặm Hành Trình, quyền lợi theo hạng và đổi voucher.';
+            ? 'Explore Travel Plus Reward membership tiers, Member Points, tier benefits and voucher redemption.'
+            : 'Khám phá các hạng Travel Plus Reward, cách tích Điểm thành viên, quyền lợi theo hạng và đổi voucher.';
         $seo = new SeoService();
         $breadcrumbs = [
             ['label' => $locale === 'en' ? 'Home' : 'Trang chủ', 'url' => localized_url('/')],
-            ['label' => 'TravelPlus Passport'],
+            ['label' => 'Travel Plus Reward'],
         ];
 
         return view('passport/index', [

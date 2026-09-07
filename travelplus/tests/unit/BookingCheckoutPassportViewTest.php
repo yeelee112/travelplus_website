@@ -29,7 +29,7 @@ final class BookingCheckoutPassportViewTest extends CIUnitTestCase
                 'grand_total' => 4925000,
                 'currency' => 'VND',
             ],
-            'authUser' => ['id' => 2, 'full_name' => 'Passport Member'],
+            'authUser' => ['id' => 2, 'full_name' => 'Reward Member'],
             'checkoutMode' => 'member',
             'passportVouchers' => [
                 [
@@ -62,13 +62,13 @@ final class BookingCheckoutPassportViewTest extends CIUnitTestCase
             'currentLocale' => 'vi',
         ]);
 
-        $this->assertStringContainsString('Voucher Passport của bạn', $html);
+        $this->assertStringContainsString('Voucher Reward của bạn', $html);
         $this->assertStringContainsString('data-passport-voucher-code="TPP-SI-TEST0001"', $html);
         $this->assertStringContainsString('data-passport-voucher-eligible="1"', $html);
         $this->assertStringContainsString('data-passport-voucher-code="TPP-GO-TEST0002"', $html);
         $this->assertStringContainsString('data-passport-voucher-eligible="0"', $html);
         $this->assertStringContainsString('Cần thêm 1.000.000 VND để sử dụng', $html);
-        $this->assertStringContainsString('Ưu đãi Passport hạng Vàng (1,5%)', $html);
+        $this->assertStringContainsString('Ưu đãi Reward hạng Vàng (1,5%)', $html);
         $this->assertStringContainsString('-75.000 VND', $html);
         $this->assertStringContainsString('checkout-passport-wallet__policy', $html);
         $this->assertStringContainsString('checkout-passport-voucher__expiry', $html);

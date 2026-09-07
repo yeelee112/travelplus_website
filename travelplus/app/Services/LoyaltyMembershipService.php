@@ -6,10 +6,10 @@ final class LoyaltyMembershipService
 {
     private const TIERS = [
         ['key' => 'member', 'minimum_points' => 0, 'discount_rate' => 0.0, 'discount_cap_vnd' => 0],
-        ['key' => 'silver', 'minimum_points' => 5000, 'discount_rate' => 1.0, 'discount_cap_vnd' => 200000],
-        ['key' => 'gold', 'minimum_points' => 20000, 'discount_rate' => 1.5, 'discount_cap_vnd' => 400000],
-        ['key' => 'diamond', 'minimum_points' => 60000, 'discount_rate' => 2.0, 'discount_cap_vnd' => 600000],
-        ['key' => 'signature', 'minimum_points' => 150000, 'discount_rate' => 3.0, 'discount_cap_vnd' => 1000000],
+        ['key' => 'silver', 'minimum_points' => 5000, 'discount_rate' => 0.5, 'discount_cap_vnd' => 0],
+        ['key' => 'gold', 'minimum_points' => 20000, 'discount_rate' => 0.75, 'discount_cap_vnd' => 0],
+        ['key' => 'diamond', 'minimum_points' => 60000, 'discount_rate' => 1.0, 'discount_cap_vnd' => 0],
+        ['key' => 'signature', 'minimum_points' => 150000, 'discount_rate' => 1.5, 'discount_cap_vnd' => 0],
     ];
 
     /**
