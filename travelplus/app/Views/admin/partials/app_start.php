@@ -18,6 +18,7 @@ $navGroups = [
         'label' => 'Kinh doanh',
         'items' => [
             ['key' => 'leads', 'label' => 'CRM khách hàng', 'url' => site_url('admin/leads')],
+            ['key' => 'chat_history', 'label' => 'Hội thoại AI', 'url' => site_url('admin/chat-history')],
             ['key' => 'bookings', 'label' => 'Booking', 'url' => site_url('admin/bookings')],
             ['key' => 'booking_emails', 'label' => 'Email booking', 'url' => site_url('admin/booking-emails')],
             ['key' => 'promotion_codes', 'label' => 'Mã khuyến mãi', 'url' => site_url('admin/promotion-codes')],
@@ -50,6 +51,7 @@ $sectionMeta = [
     'dashboard' => ['label' => 'Tổng quan', 'hint' => 'Theo dõi việc cần xử lý và dữ liệu chính.'],
     'analytics' => ['label' => 'Analytics', 'hint' => 'Hiểu hành vi truy cập và hiệu quả nội dung.'],
     'leads' => ['label' => 'CRM leads', 'hint' => 'Quản lý lead, nguồn vào và trạng thái tư vấn.'],
+    'chat_history' => ['label' => 'Hội thoại AI', 'hint' => 'Theo dõi nhu cầu khách và nội dung tư vấn.'],
     'bookings' => ['label' => 'Đơn đặt tour', 'hint' => 'Theo dõi booking, thanh toán và đối soát.'],
     'booking_emails' => ['label' => 'Email booking', 'hint' => 'Gửi email nhắc thanh toán có kiểm soát.'],
     'tours' => ['label' => 'Tour', 'hint' => 'Quản lý tour, giá và lịch khởi hành.'],

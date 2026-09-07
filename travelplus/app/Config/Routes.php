@@ -42,6 +42,7 @@ $routes->GET('travelplus-passport', 'PassportProgram::index');
 $routes->GET('admin', 'Admin\Dashboard::index');
 $routes->GET('admin/analytics', 'Admin\Analytics::index');
 $routes->GET('admin/leads', 'Admin\Leads::index');
+$routes->GET('admin/chat-history', 'Admin\ChatHistory::index');
 $routes->POST('admin/leads/(:num)', 'Admin\Leads::update/$1');
 $routes->GET('admin/bookings', 'Admin\Bookings::index');
 $routes->GET('admin/bookings/export', 'Admin\Bookings::exportCsv');
