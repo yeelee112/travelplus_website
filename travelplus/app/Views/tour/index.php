@@ -110,6 +110,10 @@ if (function_exists('mb_strlen') && mb_strlen($heroIntro) > 180) {
     $heroIntro = rtrim(mb_substr($heroIntro, 0, 177)) . '...';
 }
 $priceDisplay = $adultPrice > 0 ? number_format($adultPrice, 0, ',', '.') . 'đ' : (string) ($tour['price']['label'] ?? '');
+$detailMemberBenefit = \App\Services\TourPassportPricePresenter::build($adultPrice, $authUser ?? null, $headerMembership ?? null, $locale);
+$detailMemberActive = ($detailMemberBenefit['state'] ?? '') === 'active';
+$detailMemberRate = (float) ($detailMemberBenefit['discount_rate'] ?? 0);
+$detailMemberPriceHtml = $detailMemberActive ? view('tour/_member-price', ['benefit' => $detailMemberBenefit, 'originalPrice' => $priceDisplay, 'locale' => $locale]) : '';
 $loyaltyPreviewPoints = \App\Services\LoyaltyPointService::previewPoints($adultPrice);
 $loyaltyPreviewLabel = number_format($loyaltyPreviewPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
 $loyaltyPreviewCopy = $locale === 'en'
@@ -119,11 +123,11 @@ $authUser = session()->get('auth_user');
 $isLoggedIn = is_array($authUser) && (int) ($authUser['id'] ?? 0) > 0;
 $loyaltyPreviewTooltip = $locale === 'en'
     ? ($isLoggedIn
-        ? 'Estimated points will be added to your account after the booking is paid.'
-        : 'Sign in to earn points after your booking is paid.')
+        ? 'Estimated points are based on the original tour price, before tier savings and vouchers.'
+        : 'Estimated points are based on the original tour price. Sign in to earn points.')
     : ($isLoggedIn
-        ? 'Điểm tạm tính sẽ tự động cộng vào tài khoản sau khi booking được thanh toán.'
-        : 'Đăng nhập để tích điểm sau khi booking được thanh toán.');
+        ? 'Điểm dự kiến tính theo giá gốc của tour, trước giảm theo hạng và voucher.'
+        : 'Điểm dự kiến tính theo giá gốc của tour. Đăng nhập để tích điểm.');
 $loyaltyAccountUrl = $isLoggedIn
     ? \App\Data\LocalizedPathCatalog::url('auth.profile', $locale)
     : \App\Data\LocalizedPathCatalog::url('auth.login', $locale) . '?return_to=' . rawurlencode(current_url());
@@ -335,7 +339,9 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
             </div>
             <aside class="tour-detail-hero__summary" aria-label="<?= esc($t('tour.sidebar.price')) ?>">
                 <span><?= esc($t('tour.sidebar.price')) ?></span>
-                <?php if ($priceDisplay !== ''): ?>
+                <?php if ($detailMemberActive): ?>
+                    <?= $detailMemberPriceHtml ?>
+                <?php elseif ($priceDisplay !== ''): ?>
                     <strong><?= esc($priceDisplay) ?><small><?= esc($t('tour.booking.perPerson')) ?></small></strong>
                 <?php endif; ?>
                 <?php if ($loyaltyPreviewPoints > 0): ?>
@@ -563,9 +569,16 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
                                 </div>
                             </li>
                         </ul>
+                        <?php if ($detailMemberActive): ?>
+                            <div class="tour-member-estimate" data-member-rate="<?= esc((string) $detailMemberRate, 'attr') ?>">
+                                <span><?= esc(($locale === 'en' ? 'Tier saving · ' : 'Giảm hạng ') . $detailMemberBenefit['label'] . ' (' . $detailMemberRate . '%)') ?></span>
+                                <strong data-member-saving>-<?= number_format((float) $detailMemberBenefit['discount_amount'], 0, ',', '.') ?>đ</strong>
+                                <small><?= esc($locale === 'en' ? 'Applied automatically. Voucher not included; single room supplement is excluded from tier savings.' : 'Tự động áp dụng, chưa gồm voucher. Phụ thu phòng đơn không tính giảm theo hạng.') ?></small>
+                            </div>
+                        <?php endif; ?>
                         <div class="booking-total-area">
                             <span class="booking-total-label"><?= esc($t('tour.booking.total')) ?> </span>
-                            <strong class="booking-grand-total"><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?></strong>
+                            <strong class="booking-grand-total"><?= esc(number_format($adultPrice - (float) ($detailMemberBenefit['discount_amount'] ?? 0), 0, ',', '.') . 'đ') ?></strong>
                         </div>
                     </div>
 
@@ -770,6 +783,11 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
         <div class="row g-lg-4 gy-5 justify-content-between">
             <div class="col-xl-7 col-lg-8">
                 <div class="package-details-warpper">
+                    <?php if ($detailMemberActive): ?>
+                        <div class="tour-member-mobile-details" aria-label="<?= esc($locale === 'en' ? 'Member price details' : 'Chi tiết giá thành viên', 'attr') ?>">
+                            <?= $detailMemberPriceHtml ?>
+                        </div>
+                    <?php endif; ?>
                     <div class="package-info-wrap mb-60" id="tour-overview">
                         <h4><?= esc($t('tour.overview.title')) ?></h4>
                         <div class="tour-detail-richtext"><?= tour_detail_html($tour['description']) ?></div>
@@ -1157,8 +1175,12 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
                         data-tour-included="<?= esc($tourToolIncluded, 'attr') ?>">
                         <div class="price-area">
                             <h6><?= esc($t('tour.sidebar.price')) ?></h6>
+                            <?php if ($detailMemberActive): ?>
+                                <?= $detailMemberPriceHtml ?>
+                            <?php else: ?>
                             <span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub><?= esc($t('tour.booking.perPerson')) ?></sub>
                             </span> 
+                            <?php endif; ?>
                             <?php if ($loyaltyPreviewPoints > 0): ?>
                                 <a
                                     class="tour-detail-loyalty-preview tour-detail-loyalty-preview--sidebar"

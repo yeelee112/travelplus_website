@@ -897,6 +897,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         errorBox.hidden = false;
         errorBox.textContent = message;
+        errorBox.setAttribute('role', 'alert');
+        errorBox.setAttribute('tabindex', '-1');
+        errorBox.focus({ preventScroll: true });
+        errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
     const setVietQrState = function (state) {
@@ -1346,6 +1350,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 continue;
             }
 
+            setStep(1);
+            field.focus({ preventScroll: true });
+            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            window.travelplusTrackEvent?.('booking_validation_error', { stage: 'contact_details' });
             field.reportValidity();
             return false;
         }
@@ -1360,6 +1368,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return true;
         }
 
+        window.travelplusTrackEvent?.('booking_validation_error', { stage: 'terms' });
         setError(<?= json_encode($t('checkout.invalidTerms')) ?>);
         return false;
     };

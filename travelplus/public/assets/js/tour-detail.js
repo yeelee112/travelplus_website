@@ -553,12 +553,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 singleRoomHidden.value = singleRoomToggle instanceof HTMLInputElement && singleRoomToggle.checked ? '1' : '0';
             }
 
+            const memberEstimate = serviceArea.querySelector('[data-member-rate]');
+            const memberRate = Number(memberEstimate?.dataset.memberRate || 0);
+            const memberSaving = Math.round(grandTotal * memberRate / 100);
+            const memberSavingOutput = memberEstimate?.querySelector('[data-member-saving]');
+            if (memberSavingOutput) memberSavingOutput.textContent = '-' + formatVnd(memberSaving);
+
             if (singleRoomToggle instanceof HTMLInputElement && singleRoomToggle.checked) {
                 grandTotal += singleRoomSupplement;
             }
 
             if (totalElement) {
-                totalElement.textContent = formatVnd(grandTotal);
+                totalElement.textContent = formatVnd(Math.max(0, grandTotal - memberSaving));
             }
 
             if (bookingForm) {
@@ -705,8 +711,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (bookingProceedForm) {
         const errorBox = bookingProceedForm.querySelector('[data-booking-proceed-error]');
 
+        let proceeding = false;
+        const proceedButtons = Array.from(bookingProceedForm.querySelectorAll('[type=submit]'));
+        const trackProceed = (name, reason) => window.travelplusTrackEvent?.(name, { stage: 'tour_selection', reason, language: document.documentElement.lang || 'vi' });
         bookingProceedForm.addEventListener('submit', async (event) => {
             event.preventDefault();
+            if (proceeding) return;
 
             if (errorBox) {
                 errorBox.className = 'alert alert-danger d-none mt-3';
@@ -722,6 +732,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            proceeding = true;
+            proceedButtons.forEach(button => { button.disabled = true; });
+            bookingProceedForm.setAttribute('aria-busy', 'true');
+            trackProceed('booking_proceed', 'submit');
             const formData = new FormData(bookingProceedForm);
 
             try {
@@ -734,6 +748,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const payload = await response.json();
 
                 if (!response.ok || !payload.ok) {
+                    trackProceed('booking_proceed_error', 'server_rejected');
                     if (errorBox) {
                         errorBox.className = 'alert alert-danger mt-3';
                         errorBox.textContent = payload.message || messages.bookingProceedFailed;
@@ -753,9 +768,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     bootstrap.Modal.getOrCreateInstance(proceedModal).show();
                 }
             } catch (error) {
+                trackProceed('booking_proceed_error', 'network_or_response');
                 if (errorBox) {
                     errorBox.className = 'alert alert-danger mt-3';
                     errorBox.textContent = messages.bookingProceedFailedNow;
+                }
+            } finally {
+                proceeding = false;
+                proceedButtons.forEach(button => { button.disabled = false; });
+                bookingProceedForm.removeAttribute('aria-busy');
+                if (errorBox && !errorBox.classList.contains('d-none')) {
+                    errorBox.setAttribute('role', 'alert');
+                    errorBox.setAttribute('tabindex', '-1');
+                    errorBox.focus();
                 }
             }
         });

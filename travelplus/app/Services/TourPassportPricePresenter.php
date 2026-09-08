@@ -86,6 +86,7 @@ final class TourPassportPricePresenter
                 ? self::formatRate($discountRate) . '% tier saving on every booking, with no discount cap.'
                 : 'Giảm ' . self::formatRate($discountRate) . '% theo hạng cho mọi booking, không giới hạn số tiền giảm.',
             'discount_amount' => $discountAmount,
+            'discount_rate' => $discountRate,
         ];
     }
 

@@ -94,6 +94,9 @@ if (str_contains($contentSection, 'travelplus-account-')
     || str_contains($contentSection, 'travelplus-auth-')) {
     $pageStyleAssets[] = 'account';
 }
+if (str_contains($contentSection, 'tour-member-') || str_contains($contentSection, 'tour-passport-price')) {
+    $pageStyleAssets[] = 'reward';
+}
 $pageStyleAssetUrls = array_map(
     static fn (string $asset): string => frontend_asset_url('assets/css/style-' . $asset . '.css'),
     array_values(array_unique($pageStyleAssets))
@@ -254,6 +257,7 @@ if ($analyticsEventName === '') {
 <?php if ($showCookieConsent): ?>
 <?= $this->include('partials/cookie-consent') ?>
 <script defer src="<?= esc($cookieConsentJsAssetUrl, 'attr') ?>"></script>
+<script defer src="<?= esc(frontend_asset_url('assets/js/site-performance.js'), 'attr') ?>"></script>
 <?php endif; ?>
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

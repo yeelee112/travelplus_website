@@ -1157,8 +1157,6 @@
 .travelplus-passport-reward__topline,.travelplus-passport-reward>strong,.travelplus-passport-reward>small,.travelplus-passport-reward button{font-size:12px}
 .travelplus-loyalty-history-heading small,.travelplus-loyalty-transaction-copy small,.travelplus-loyalty-transaction-points small{font-size:12px}
 }
-
-/* Reward tier comparison: aligned benefits and prominent automatic savings. */
 .travelplus-passport-tier-grid{gap:16px}
 .travelplus-passport-tier{--tier-deep:#415d6b;display:grid;grid-template-rows:48px 28px 38px 164px 116px minmax(56px,auto);align-content:start;padding:22px 18px 16px;border:1px solid color-mix(in srgb,var(--tier) 26%,#fff);border-top:4px solid var(--tier);border-radius:18px;background:linear-gradient(155deg,var(--tier-soft),#fff 38%);box-shadow:0 12px 32px rgba(16,57,76,.08)}
 .travelplus-passport-tier--silver{--tier:#678292;--tier-deep:#365566}
@@ -1186,6 +1184,3 @@
 .travelplus-passport-tier--member .travelplus-passport-tier__voucher strong{font-size:17px}
 .travelplus-passport-tier__voucher small{color:#536e7b;font-size:11px;line-height:1.5}
 .travelplus-passport-tier__note{align-self:stretch;margin:0;padding:13px 0 0;border-top:1px solid #dfe9ee;color:#607783;font-size:11px;line-height:1.6}
-@media(min-width:992px) and (max-width:1199px){.travelplus-passport-tier-grid{gap:10px}.travelplus-passport-tier{padding:18px 12px 14px}.travelplus-passport-tier__highlight{padding:16px 10px}.travelplus-passport-tier__voucher{gap:6px}.travelplus-passport-tier__voucher strong{font-size:21px}}
-@media(max-width:991px){.travelplus-passport-tier-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.travelplus-passport-tier{grid-template-rows:48px 28px 38px 164px 116px minmax(56px,auto)}}
-@media(max-width:575px){.travelplus-passport-tier-grid{grid-template-columns:1fr}.travelplus-passport-tier{padding:20px;grid-template-rows:44px 28px 34px auto auto auto}.travelplus-passport-tier__highlight{min-height:138px;padding:18px}.travelplus-passport-tier__voucher{min-height:108px}.travelplus-passport-tier__note{min-height:44px}}

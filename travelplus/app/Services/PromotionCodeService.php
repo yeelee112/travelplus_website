@@ -170,7 +170,7 @@ class PromotionCodeService
                 'minimumOrder' => 'Đơn hàng chưa đạt giá trị tối thiểu để áp mã.',
                 'tourMismatch' => 'Mã khuyến mãi này không áp dụng cho tour bạn đang chọn.',
                 'invalidDiscount' => 'Mã khuyến mãi không tạo ra mức giảm hợp lệ.',
-                'notOwned' => 'Mã Passport này không thuộc tài khoản của bạn.',
+                'notOwned' => 'Mã Reward này không thuộc tài khoản của bạn.',
                 'applied' => 'Áp dụng mã khuyến mãi thành công.',
             ],
             'en' => [
@@ -185,13 +185,13 @@ class PromotionCodeService
                 'minimumOrder' => 'This booking does not meet the minimum order amount for the coupon.',
                 'tourMismatch' => 'This coupon code does not apply to the selected tour.',
                 'invalidDiscount' => 'This coupon code does not produce a valid discount.',
-                'notOwned' => 'This Passport voucher does not belong to your account.',
-                'voucherUnavailable' => 'This Passport voucher was used or is reserved for another booking.',
+                'notOwned' => 'This Reward voucher does not belong to your account.',
+                'voucherUnavailable' => 'This Reward voucher was used or is reserved for another booking.',
                 'applied' => 'Coupon code applied successfully.',
             ],
         ];
 
-        $messages['vi']['voucherUnavailable'] = 'Voucher Passport này đã được dùng hoặc đang được giữ cho booking khác.';
+        $messages['vi']['voucherUnavailable'] = 'Voucher Reward này đã được dùng hoặc đang được giữ cho booking khác.';
         $locale = $this->locale();
 
         return $messages[$locale][$key] ?? $messages['vi'][$key] ?? '';

@@ -59,7 +59,7 @@ final class BookingDiscountSettlementService
             if ($userId <= 0 || (int) ($voucher['user_id'] ?? 0) !== $userId) {
                 $db->transRollback();
 
-                return ['ok' => false, 'message' => 'Voucher Passport không thuộc tài khoản đang đặt tour.'];
+                return ['ok' => false, 'message' => 'Voucher Reward không thuộc tài khoản đang đặt tour.'];
             }
 
             $status = strtolower((string) ($voucher['status'] ?? 'issued'));
@@ -68,7 +68,7 @@ final class BookingDiscountSettlementService
             if ($status === 'used') {
                 $db->transRollback();
 
-                return ['ok' => false, 'message' => 'Voucher Passport này đã được sử dụng.'];
+                return ['ok' => false, 'message' => 'Voucher Reward này đã được sử dụng.'];
             }
 
             if ($status === 'reserved' && $reservedBookingId > 0 && $reservedBookingId !== $bookingId) {

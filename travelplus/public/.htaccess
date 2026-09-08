@@ -116,7 +116,9 @@ ErrorDocument 404 /error-404.php
 	RewriteCond %{THE_REQUEST} (?:%3C|%3E|[<>]) [NC]
 	RewriteRule ^ - [F,L]
 
-	RewriteRule ^tim/ - [F,L,NC]
+	# These fake search URLs are SEO spam, not protected content. Return 410 so
+	# crawlers can retire them instead of repeatedly treating them as forbidden.
+	RewriteRule ^tim/ - [G,L,NC]
 
 	# Legacy paths from the old site should not hit CodeIgniter catch-all routes.
 	RewriteRule ^timthumb/ - [G,L,NC]

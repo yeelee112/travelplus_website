@@ -38,6 +38,7 @@ $run([PHP_BINARY, 'scripts/minify-css.php'], $root);
 $run([PHP_BINARY, 'scripts/split-frontend-css.php'], $root);
 
 $assets = [
+    ['public/assets/css/style-reward.css', 'public/assets/css/style-reward.min.css'],
     ['public/assets/css/widgets.css', 'public/assets/css/widgets.min.css'],
     ['public/assets/css/style-common.css', 'public/assets/css/style-common.min.css'],
     ['public/assets/css/style-tour-detail.css', 'public/assets/css/style-tour-detail.min.css'],
@@ -51,6 +52,7 @@ $assets = [
     ['public/assets/css/style-blog.css', 'public/assets/css/style-blog.min.css'],
     ['public/assets/css/style-legal.css', 'public/assets/css/style-legal.min.css'],
     ['public/assets/css/style-account.css', 'public/assets/css/style-account.min.css'],
+    ['public/assets/js/site-performance.js', 'public/assets/js/site-performance.min.js'],
     ['public/assets/js/main.js', 'public/assets/js/main.min.js'],
     ['public/assets/js/ai-chatbox.js', 'public/assets/js/ai-chatbox.min.js'],
     ['public/assets/js/tour-tools.js', 'public/assets/js/tour-tools.min.js'],

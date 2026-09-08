@@ -6,6 +6,7 @@ $root = dirname(__DIR__);
 $sourcePath = $root . DIRECTORY_SEPARATOR . 'public/assets/css/style.css';
 $targetDirectory = $root . DIRECTORY_SEPARATOR . 'public/assets/css';
 $bundlePatterns = [
+    'reward' => '/\.(?:tour-member[a-z0-9_-]*|tour-passport-price[a-z0-9_-]*)\b/i',
     'tour-detail' => '/\.(?:package-details-page|tour-detail(?:-[a-z0-9_-]+)?|booking-modal|rating-modal)\b/i',
     'mice' => '/\.mice-page(?:__[a-z0-9_-]+)?\b/i',
     'visa' => '/\.visa-(?:lead|seo|risk|stats?|why|checklist|case)[a-z0-9_-]*\b/i',
