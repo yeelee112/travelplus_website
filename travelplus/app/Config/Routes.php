@@ -37,7 +37,8 @@ $routes->GET('dieu-khoan-su-dung', 'LegalController::terms/vi');
 $routes->GET('chinh-sach-bao-mat', 'LegalController::privacy/vi');
 $routes->GET('tim-kiem-tour', 'SearchController::tours');
 $routes->GET('tour-he', 'SummerTours::index');
-$routes->GET('travelplus-passport', 'PassportProgram::index');
+$routes->GET('travelplus-reward', 'PassportProgram::index');
+    $routes->GET('travelplus-passport', 'PassportProgram::legacyRedirect');
 
 $routes->GET('admin', 'Admin\Dashboard::index');
 $routes->GET('admin/analytics', 'Admin\Analytics::index');
@@ -162,7 +163,8 @@ $routes->group('en', function ($routes) {
     $routes->GET('privacy-statement', 'LegalController::privacy/en');
     $routes->GET('tour-search', 'SearchController::tours');
     $routes->GET('summer-tours', 'SummerTours::index');
-    $routes->GET('travelplus-passport', 'PassportProgram::index');
+    $routes->GET('travelplus-reward', 'PassportProgram::index');
+    $routes->GET('travelplus-passport', 'PassportProgram::legacyRedirect');
 
     $routes->match(['GET', 'POST'], 'account/register', 'AuthController::register');
     $routes->match(['GET', 'POST'], 'account/login', 'AuthController::login');

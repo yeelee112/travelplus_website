@@ -7,6 +7,11 @@ use App\Services\SeoService;
 
 final class PassportProgram extends BaseController
 {
+    public function legacyRedirect()
+    {
+        return redirect()->to(LocalizedPathCatalog::url('passport.program', $this->request->getLocale()))->setStatusCode(301);
+    }
+
     public function index()
     {
         $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';

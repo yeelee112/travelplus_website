@@ -29,8 +29,8 @@ final class LocalizedPathCatalog
             'en' => 'summer-tours',
         ],
         'passport.program' => [
-            'vi' => 'travelplus-passport',
-            'en' => 'travelplus-passport',
+            'vi' => 'travelplus-reward',
+            'en' => 'travelplus-reward',
         ],
         'outbound' => [
             'vi' => 'tour-nuoc-ngoai',
