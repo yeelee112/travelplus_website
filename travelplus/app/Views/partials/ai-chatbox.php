@@ -62,11 +62,6 @@ $zaloUrl = $websiteSettings->get('zalo_url');
     <div class="tp-ai-chatbox__contact">
         <div class="tp-ai-chatbox__contact-panel" id="tp-ai-contact-panel" hidden>
             <span><?= esc($contactUi['panel']) ?></span>
-            <button type="button" class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--ai" data-open-ai-chat>
-                <i class="bi bi-chat-dots-fill" aria-hidden="true"></i>
-                <strong><?= esc($chatUi['button']) ?></strong>
-                <small><?= esc($currentLocale === 'en' ? 'Ask a question' : 'Hỏi đáp nhanh') ?></small>
-            </button>
             <a class="tp-ai-chatbox__contact-option tp-ai-chatbox__contact-option--phone<?= $currentLocale === 'en' ? ' tp-ai-chatbox__contact-option--phone-en' : '' ?>" href="tel:<?= esc($contactPhone, 'attr') ?>" data-contact-placement="floating_contact">
                 <i class="bi bi-telephone-fill"></i>
                 <strong><?= esc($contactPhoneDisplay) ?></strong>

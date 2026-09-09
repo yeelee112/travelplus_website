@@ -297,9 +297,7 @@
     }
 
     toggle.addEventListener('click', () => setOpen(panel.hidden));
-    const mobileSupport = window.matchMedia('(max-width: 767px)');
-    const focusLauncher = () => (mobileSupport.matches ? contactToggle : toggle)?.focus();
-    root.querySelector('[data-open-ai-chat]')?.addEventListener('click', () => setOpen(true));
+    const focusLauncher = () => toggle.focus();
     closeButton.addEventListener('click', () => { setOpen(false); focusLauncher(); });
     if (contactToggle && contactPanel) {
         contactToggle.addEventListener('click', () => {
@@ -313,10 +311,10 @@
         });
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
-                const wasOpen = !panel.hidden || !contactPanel.hidden;
+                const launcher = !panel.hidden ? toggle : (!contactPanel.hidden ? contactToggle : null);
                 setContactOpen(false);
                 setOpen(false);
-                if (wasOpen) focusLauncher();
+                launcher?.focus();
             }
         });
     }

@@ -88,6 +88,14 @@ foreach ($departures as $departure) {
         'infant_price' => round($departureAdultPrice * $infantPriceRate, 0),
     ];
 }
+$otherDepartureCount = max(0, count($departureOptions) - 1);
+$departureAdultPrices = array_values(array_filter(
+    array_map(static fn(array $option): float => (float) ($option['adult_price'] ?? 0), $departureOptions),
+    static fn(float $price): bool => $price > 0
+));
+$uniqueDeparturePrices = array_values(array_unique(array_map(static fn(float $price): int => (int) round($price), $departureAdultPrices)));
+$heroHasVariablePrices = count($uniqueDeparturePrices) > 1;
+$heroPriceAmount = $departureAdultPrices !== [] ? min($departureAdultPrices) : $adultPrice;
 $reviewSummary = $tour['review_summary'] ?? ['count' => 0, 'overall' => 0, 'destination' => 0, 'transport' => 0, 'value' => 0];
 
 $reviewAverage = ($reviewSummary['overall'] + $reviewSummary['destination'] + $reviewSummary['transport'] + $reviewSummary['value']) / 4;
@@ -110,9 +118,11 @@ if (function_exists('mb_strlen') && mb_strlen($heroIntro) > 180) {
     $heroIntro = rtrim(mb_substr($heroIntro, 0, 177)) . '...';
 }
 $priceDisplay = $adultPrice > 0 ? number_format($adultPrice, 0, ',', '.') . 'đ' : (string) ($tour['price']['label'] ?? '');
+$heroPriceDisplay = $heroPriceAmount > 0 ? number_format($heroPriceAmount, 0, ',', '.') . 'đ' : $priceDisplay;
 $detailMemberBenefit = \App\Services\TourPassportPricePresenter::build($adultPrice, $authUser ?? null, $headerMembership ?? null, $locale);
 $detailMemberActive = ($detailMemberBenefit['state'] ?? '') === 'active';
 $detailMemberRate = (float) ($detailMemberBenefit['discount_rate'] ?? 0);
+$detailMemberRateLabel = rtrim(rtrim(number_format($detailMemberRate, 2, $locale === 'en' ? '.' : ',', ''), '0'), $locale === 'en' ? '.' : ',');
 $detailMemberPriceHtml = $detailMemberActive ? view('tour/_member-price', ['benefit' => $detailMemberBenefit, 'originalPrice' => $priceDisplay, 'locale' => $locale]) : '';
 $loyaltyPreviewPoints = \App\Services\LoyaltyPointService::previewPoints($adultPrice);
 $loyaltyPreviewLabel = number_format($loyaltyPreviewPoints, 0, $locale === 'en' ? '.' : ',', $locale === 'en' ? ',' : '.');
@@ -132,21 +142,18 @@ $loyaltyAccountUrl = $isLoggedIn
     ? \App\Data\LocalizedPathCatalog::url('auth.profile', $locale)
     : \App\Data\LocalizedPathCatalog::url('auth.login', $locale) . '?return_to=' . rawurlencode(current_url());
 $memberBalance = max(0, (int) ($headerMembership['points'] ?? 0));
-$nextPassportReward = is_array($headerMembership['next_reward'] ?? null) ? $headerMembership['next_reward'] : null;
 $projectedPassportBalance = $memberBalance + $loyaltyPreviewPoints;
-$unlocksPassportReward = $nextPassportReward !== null
-    && $memberBalance < (int) ($nextPassportReward['points'] ?? 0)
-    && $projectedPassportBalance >= (int) ($nextPassportReward['points'] ?? 0);
+$bestPassportReward = (new \App\Services\LoyaltyRewardService())->bestNewlyUnlockedReward($memberBalance, $loyaltyPreviewPoints);
+$unlocksPassportReward = $bestPassportReward !== null;
 $passportMilestoneCopy = $unlocksPassportReward
     ? ($locale === 'en'
-        ? 'After this tour: ' . number_format($projectedPassportBalance, 0, '.', ',') . ' points — enough for a ' . number_format((int) ($nextPassportReward['amount_vnd'] ?? 0), 0, '.', ',') . ' VND voucher.'
-        : 'Sau tour này: ' . number_format($projectedPassportBalance, 0, ',', '.') . ' điểm — đủ đổi voucher ' . number_format((int) ($nextPassportReward['amount_vnd'] ?? 0), 0, ',', '.') . 'đ.')
+        ? 'After this tour: ' . number_format($projectedPassportBalance, 0, '.', ',') . ' points — redeem a voucher worth up to ' . number_format((int) ($bestPassportReward['amount_vnd'] ?? 0), 0, '.', ',') . ' VND.'
+        : 'Sau tour này: ' . number_format($projectedPassportBalance, 0, ',', '.') . ' điểm — đổi được voucher đến ' . number_format((int) ($bestPassportReward['amount_vnd'] ?? 0), 0, ',', '.') . 'đ.')
     : '';
 $destinationLabel = trim((string) ($tour['continent'] ?? ''));
 $departureFrom = trim((string) ($tour['departure_from'] ?? ''));
 $heroMetaItems = array_values(array_filter([
     ['icon' => 'bi-clock', 'label' => $durationLabel],
-    $departureLabel !== '' ? ['icon' => 'bi-calendar3', 'label' => $t('tour.booking.departurePrefix') . ' ' . $departureLabel] : null,
     $departureFrom !== '' ? ['icon' => 'bi-airplane', 'label' => $departureFrom] : null,
     $destinationLabel !== '' ? ['icon' => 'bi-geo-alt', 'label' => $destinationLabel] : null,
 ]));
@@ -338,34 +345,32 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
                 </div>
             </div>
             <aside class="tour-detail-hero__summary" aria-label="<?= esc($t('tour.sidebar.price')) ?>">
-                <span><?= esc($t('tour.sidebar.price')) ?></span>
-                <?php if ($detailMemberActive): ?>
-                    <?= $detailMemberPriceHtml ?>
-                <?php elseif ($priceDisplay !== ''): ?>
-                    <strong><?= esc($priceDisplay) ?><small><?= esc($t('tour.booking.perPerson')) ?></small></strong>
-                <?php endif; ?>
-                <?php if ($loyaltyPreviewPoints > 0): ?>
-                    <a
-                        class="tour-detail-loyalty-preview tour-detail-loyalty-preview--hero"
-                        href="<?= esc($loyaltyAccountUrl, 'attr') ?>"
-                        data-loyalty-tooltip="<?= esc($loyaltyPreviewTooltip, 'attr') ?>"
-                        aria-label="<?= esc($loyaltyPreviewCopy . '. ' . $loyaltyPreviewTooltip, 'attr') ?>">
-                        <i class="bi bi-stars" aria-hidden="true"></i><?= esc($loyaltyPreviewCopy) ?>
-                        <i class="bi bi-info-circle" aria-hidden="true"></i>
-                    </a>
-                    <?php if ($passportMilestoneCopy !== ''): ?>
-                        <span class="tour-detail-passport-milestone"><i class="bi bi-gift-fill" aria-hidden="true"></i><?= esc($passportMilestoneCopy) ?></span>
-                    <?php endif; ?>
+                <span><?= esc($heroHasVariablePrices ? ($locale === 'en' ? 'Price from' : 'Giá từ') : $t('tour.sidebar.price')) ?></span>
+                <?php if ($heroPriceDisplay !== ''): ?>
+                    <strong><?= esc($heroPriceDisplay) ?><small><?= esc($t('tour.booking.perPerson')) ?></small></strong>
                 <?php endif; ?>
                 <?php if ($departureLabel !== ''): ?>
-                    <p><i class="bi bi-calendar-check" aria-hidden="true"></i><?= esc($departureLabel) ?></p>
+                    <div class="tour-detail-hero__departure">
+                        <div class="tour-detail-hero__departure-label">
+                            <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                            <span><?= $locale === 'en' ? 'Nearest departure' : 'Khởi hành gần nhất' ?></span>
+                        </div>
+                        <div class="tour-detail-hero__departure-value">
+                            <b><?= esc($departureLabel) ?></b>
+                            <?php if ($otherDepartureCount > 0): ?>
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#bookingModal">
+                                    <?= esc($locale === 'en' ? '+' . $otherDepartureCount . ' more dates' : '+' . $otherDepartureCount . ' ngày khác') ?>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 <?php endif; ?>
                 <?php if ($singleRoomSupplementLabel !== ''): ?>
-                    <p><i class="bi bi-door-closed" aria-hidden="true"></i><?= esc($locale === 'en' ? 'Single room supplement: ' : 'Phụ thu phòng đơn: ') ?><?= esc($singleRoomSupplementLabel) ?></p>
+                    <p class="tour-detail-hero__meta"><i class="bi bi-door-closed" aria-hidden="true"></i><span><?= esc($locale === 'en' ? 'Single room supplement' : 'Phụ thu phòng đơn') ?></span><b>+<?= esc($singleRoomSupplementLabel) ?></b></p>
                 <?php endif; ?>
                 <button class="primary-btn1 two" <?= $hasBookableDepartures ? 'data-bs-toggle="modal" data-bs-target="#bookingModal"' : 'disabled' ?>>
-                    <span><?= esc($hasBookableDepartures ? $t('tour.booking.bookNow') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
-                    <span><?= esc($hasBookableDepartures ? $t('tour.booking.bookNow') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
+                    <span><?= esc($hasBookableDepartures ? ($locale === 'en' ? 'Select date' : 'Chọn ngày') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
+                    <span><?= esc($hasBookableDepartures ? ($locale === 'en' ? 'Select date' : 'Chọn ngày') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
                 </button>
             </aside>
         </div>
@@ -1173,13 +1178,32 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
                         data-tour-room="<?= esc($singleRoomSupplementCompareLabel, 'attr') ?>"
                         data-tour-highlight="<?= esc($tourToolHighlight, 'attr') ?>"
                         data-tour-included="<?= esc($tourToolIncluded, 'attr') ?>">
+                        <div class="tour-detail-booking-dock">
+                            <div class="tour-detail-booking-dock__price">
+                                <div class="tour-detail-booking-dock__label">
+                                    <?php if ($detailMemberActive): ?>
+                                        <i class="bi bi-stars" aria-hidden="true"></i><?= esc(($locale === 'en' ? 'Member · ' : 'Thành viên ') . $detailMemberBenefit['label']) ?>
+                                        <em>−<?= esc($detailMemberRateLabel) ?>%</em>
+                                    <?php else: ?>
+                                        <?= esc($t('tour.sidebar.price')) ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="tour-detail-booking-dock__amount"><?= esc($detailMemberActive ? $detailMemberBenefit['price'] : $priceDisplay) ?></div>
+                                <small><?= esc($locale === 'en' ? 'per person' : '/ khách') ?></small>
+                            </div>
+                            <button class="tour-detail-booking-dock__cta" <?= $hasBookableDepartures ? 'data-bs-toggle="modal" data-bs-target="#bookingModal"' : 'disabled' ?>>
+                                <?= esc($hasBookableDepartures ? ($locale === 'en' ? 'Select date' : 'Chọn ngày') : $t('tour.booking.noDeparturesShort')) ?>
+                                <?php if ($hasBookableDepartures): ?><i class="bi bi-arrow-right" aria-hidden="true"></i><?php endif; ?>
+                            </button>
+                        </div>
                         <div class="price-area">
-                            <h6><?= esc($t('tour.sidebar.price')) ?></h6>
+                            <h6><?= $detailMemberActive
+                                ? ($locale === 'en' ? 'MEMBER PRICE & BENEFITS' : 'GIÁ THÀNH VIÊN & QUYỀN LỢI')
+                                : ($locale === 'en' ? 'BOOKING PRICE & BENEFITS' : 'GIÁ ĐẶT TOUR & QUYỀN LỢI') ?></h6>
                             <?php if ($detailMemberActive): ?>
                                 <?= $detailMemberPriceHtml ?>
                             <?php else: ?>
-                            <span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub><?= esc($t('tour.booking.perPerson')) ?></sub>
-                            </span> 
+                                <span><?= esc(number_format($adultPrice, 0, ',', '.') . 'đ') ?><sub><?= esc($t('tour.booking.perPerson')) ?></sub></span>
                             <?php endif; ?>
                             <?php if ($loyaltyPreviewPoints > 0): ?>
                                 <a

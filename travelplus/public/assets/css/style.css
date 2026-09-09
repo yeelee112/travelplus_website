@@ -23552,7 +23552,7 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list li a
 
 /* Keep the mobile booking dock compact; full pricing stays in page flow. */
 .tour-member-mobile-details{display:none}
-@media(max-width:767px){
+@media (max-width:767px){
 .tour-member-mobile-details{display:block;margin:0 0 24px;padding:18px;border:1px solid #d7edf6;border-radius:12px;background:#fff}
 .tour-member-mobile-details .tour-member-price{margin:0}
 .tour-detail-content .package-details-sidebar .pricing-and-booking-area{grid-template-columns:minmax(0,1fr) 128px;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-radius:12px 12px 0 0;box-shadow:0 -4px 18px rgba(0,0,0,.09);background:#fff}
@@ -23567,9 +23567,9 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list li a
 .tour-detail-content .package-details-sidebar .pricing-and-booking-area .tour-member-price__original,.tour-detail-content .package-details-sidebar .pricing-and-booking-area .tour-member-price__saving,.tour-detail-content .package-details-sidebar .pricing-and-booking-area .tour-member-price__note{display:none}
 .tour-detail-content .package-details-sidebar .pricing-and-booking-area .primary-btn1{min-height:44px;padding:8px 10px;font-size:12px;line-height:16px}
 }
-@media(max-width:359px){.tour-detail-content .package-details-sidebar .pricing-and-booking-area{grid-template-columns:minmax(0,1fr) 106px;gap:8px}.tour-detail-content .package-details-sidebar .pricing-and-booking-area .tour-member-price__amount{font-size:18px}.tour-detail-content .package-details-sidebar .pricing-and-booking-area .tour-member-price__badge{font-size:9px}}
+@media (max-width:359px){.tour-detail-content .package-details-sidebar .pricing-and-booking-area{grid-template-columns:minmax(0,1fr) 106px;gap:8px}.tour-detail-content .package-details-sidebar .pricing-and-booking-area .tour-member-price__amount{font-size:18px}.tour-detail-content .package-details-sidebar .pricing-and-booking-area .tour-member-price__badge{font-size:9px}}
 
-@media(max-width:767px){
+@media (max-width:767px){
 .tour-member-mobile-details{margin-bottom:18px;padding:12px 14px;border-radius:10px}
 .tour-member-mobile-details .tour-member-price{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px}
 .tour-member-mobile-details .tour-member-price__head{order:0;flex-basis:100%;margin:0 0 2px;gap:6px}
@@ -23583,8 +23583,59 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list li a
 .tour-member-mobile-details .tour-member-price__note{order:4;flex-basis:100%;margin:1px 0 0;padding:0;border:0;font-size:10px;line-height:16px}
 }
 
-@media(max-width:767px){
+@media (max-width:767px){
 .booking-modal input:not([type=checkbox]):not([type=radio]),.booking-modal select,.booking-modal textarea,.checkout-stepper-page input:not([type=checkbox]):not([type=radio]),.checkout-stepper-page select,.checkout-stepper-page textarea{font-size:16px}
 .booking-modal .modal-body{overscroll-behavior:contain}
 body.modal-open .tour-detail-content .pricing-and-booking-area{visibility:hidden;pointer-events:none}
 }
+/* Tour pricing: opaque surfaces, compact hierarchy and a dedicated mobile dock. */
+.tour-detail-hero__summary{gap:10px;padding:24px;border:1px solid #dce8ed;border-top:4px solid #009cde;border-radius:18px;background:#fff;backdrop-filter:none;box-shadow:0 18px 48px rgba(8,34,49,.23);color:#17394a}
+.tour-detail-hero__summary>span:first-child{margin:0;color:#087eae;font-size:11px;font-weight:850;letter-spacing:.09em;line-height:18px;text-shadow:none}
+.tour-detail-hero__summary>strong{margin:0;color:#17394a;font-size:34px;line-height:1.15;letter-spacing:-.04em;text-shadow:none}
+.tour-detail-hero__summary>strong>small{margin-left:5px;color:#647986;font-size:12px;font-weight:650;letter-spacing:0;text-shadow:none}
+.tour-detail-hero__summary .tour-member-price{margin:0;gap:0}
+.tour-detail-hero__summary .tour-member-price__head{margin-bottom:12px}
+.tour-detail-hero__summary .tour-member-price__badge{border-color:#ead59d;background:#fff8e5;color:#805c13}
+.tour-detail-hero__summary .tour-member-price__amount{color:#087eae;font-size:34px;line-height:1.15}
+.tour-detail-hero__summary .tour-member-price__original,.tour-detail-hero__summary .tour-member-price__unit{color:#647986}
+.tour-detail-hero__summary .tour-member-price__saving{margin-top:8px;color:#217149}
+.tour-detail-hero__summary .tour-member-price__note{margin-top:10px;padding-top:9px;border-color:#e3ecf0;color:#647986}
+.tour-detail-hero__summary .tour-detail-loyalty-preview--hero{justify-self:stretch;margin:0;padding:9px 10px;border:1px solid #f0e1bb;border-radius:8px;background:#fff9eb;color:#875d09;font-size:12px;line-height:18px;text-transform:none;letter-spacing:0}
+.tour-detail-hero__summary .tour-detail-loyalty-preview--hero i{color:#a57713}
+.tour-detail-hero__summary .tour-detail-loyalty-preview--hero:hover,.tour-detail-hero__summary .tour-detail-loyalty-preview--hero:focus{background:#fff2cc;color:#754e00}
+.tour-detail-hero__summary .tour-detail-passport-milestone{margin:0;padding:8px 10px;border:0;border-radius:8px;background:#f2f8fb;color:#47616e;font-size:11px;font-weight:600;line-height:17px;text-transform:none}
+.tour-detail-hero__summary .tour-detail-hero__meta{display:flex;align-items:center;gap:8px;margin:0;padding:5px 0;color:#526d79;font-size:12px;font-weight:650;line-height:20px}
+.tour-detail-hero__summary .tour-detail-hero__meta>i{color:#009cde;font-size:16px}
+.tour-detail-hero__summary .tour-detail-hero__meta>b{margin-left:auto;color:#17394a;font-size:14px;font-weight:850;text-shadow:none}
+.tour-detail-hero__departure{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0;padding:12px 0;border-top:1px solid #d5e4ea}
+.tour-detail-hero__departure-label{display:flex;align-items:center;gap:8px;min-width:0;color:#526d79;font-size:12px;font-weight:700;line-height:18px}
+.tour-detail-hero__departure-label i{flex:0 0 auto;color:#009cde;font-size:16px}
+.tour-detail-hero__departure-value{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:0 0 auto;text-align:right}
+.tour-detail-hero__departure-value b{color:#17394a;font-size:15px;font-weight:850;line-height:20px;text-shadow:none}
+.tour-detail-hero__departure-value button{padding:0;border:0;background:none;color:#007eae;font-size:11px;font-weight:800;line-height:17px;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.tour-detail-hero__departure-value button:hover,.tour-detail-hero__departure-value button:focus-visible{color:#005f86}
+.tour-detail-hero__departure-value button:focus-visible{outline:2px solid #087eae;outline-offset:3px;border-radius:2px}
+.tour-detail-hero__summary>.primary-btn1{margin:3px 0 0;min-height:48px;padding:12px 18px;border-radius:12px}
+.tour-detail-booking-dock{display:none}
+@media (max-width:767px){
+.tour-detail-content .package-details-sidebar .pricing-and-booking-area{display:block;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border:0;border-top:1px solid #dce8ed;border-radius:16px 16px 0 0;background:#fff;box-shadow:0 -6px 24px rgba(17,56,75,.1)}
+.tour-detail-content .package-details-sidebar .pricing-and-booking-area>.price-area,.tour-detail-content .package-details-sidebar .pricing-and-booking-area>.primary-btn1,.tour-detail-content .package-details-sidebar .pricing-and-booking-area>ul,.tour-detail-content .package-details-sidebar .pricing-and-booking-area>span{display:none}
+.tour-detail-booking-dock{display:grid;grid-template-columns:minmax(0,1fr) 112px;align-items:center;gap:16px;min-height:68px}
+.tour-detail-booking-dock__price{min-width:0}
+.tour-detail-booking-dock__label{display:flex;align-items:center;gap:4px;margin-bottom:3px;color:#805c13;font-size:11px;font-weight:700;line-height:17px;white-space:nowrap}
+.tour-detail-booking-dock__label em{margin-left:3px;padding:0 4px;border-radius:4px;background:#e9f7ef;color:#217149;font-size:10px;font-style:normal}
+.tour-detail-booking-dock__amount{color:#087eae;font-size:23px;font-weight:850;letter-spacing:-.045em;line-height:27px;white-space:nowrap}
+.tour-detail-booking-dock__price>small{display:block;color:#647986;font-size:11px;line-height:15px}
+.tour-detail-booking-dock__cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;padding:10px;border:0;border-radius:12px;background:#008fc9;color:#fff;font-size:13px;font-weight:750;line-height:18px;box-shadow:0 4px 10px rgba(0,143,201,.15)}
+.tour-detail-booking-dock__cta:not(:disabled){white-space:nowrap}
+.tour-detail-booking-dock__cta:disabled{background:#e6edf0;color:#647986;box-shadow:none}
+.tour-detail-booking-dock__cta:focus-visible{outline:3px solid #17394a;outline-offset:3px}
+}
+@media (max-width:359px){.tour-detail-booking-dock{grid-template-columns:minmax(0,1fr) 96px;gap:10px}.tour-detail-booking-dock__amount{font-size:21px}.tour-detail-booking-dock__cta{font-size:12px;gap:5px}}
+
+/* Hero is a quick price summary; the sidebar carries full benefits. */
+.tour-detail-hero__summary{padding:22px;border:1px solid rgba(255,255,255,.72);border-left:4px solid #009cde;border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(241,248,251,.86));backdrop-filter:blur(18px) saturate(115%);-webkit-backdrop-filter:blur(18px) saturate(115%);box-shadow:0 18px 48px rgba(8,34,49,.25);gap:12px}
+.tour-detail-hero__summary .tour-member-price__head{margin-bottom:10px}
+.tour-detail-hero__summary .tour-member-price__saving{margin-top:7px;font-size:12px}
+.tour-detail-hero__summary .tour-detail-hero__meta{padding-top:12px;border-top:1px solid #d5e4ea}
+@media (max-width:575px){.tour-detail-hero__departure{gap:10px}.tour-detail-hero__departure-label{font-size:11px}.tour-detail-hero__departure-value b{font-size:13px}}
