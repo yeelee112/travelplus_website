@@ -47,8 +47,10 @@
         .tour-progress { height:6px; overflow:hidden; border-radius:999px; background:#e2e8f0; margin:12px 0 6px; }
         .tour-progress-bar { height:100%; width:20%; border-radius:inherit; background:linear-gradient(90deg,#0ea5e9,#0284c7); transition:width .2s ease; }
         .tour-progress-label { color:#64748b; font-size:11px; }
-        .sticky-action-bar { position:sticky; bottom:14px; z-index:20; display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:20px; padding:14px 18px; background:rgba(255,255,255,.96); border:1px solid #dce4ec; border-radius:18px; box-shadow:0 16px 36px rgba(15,23,42,.10); }
-        .sticky-action-bar .meta { color:#64748b; font-size:13px; }
+        .sticky-action-bar { position:sticky; bottom:8px; z-index:20; display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:14px; padding:8px 12px; background:rgba(255,255,255,.96); border:1px solid #dce4ec; border-radius:12px; box-shadow:0 4px 16px rgba(15,23,42,.08); }
+        .sticky-action-bar #stickyStepTitle { font-size:13px; }
+        .sticky-action-bar .toolbar-wrap { flex-wrap:nowrap; flex-shrink:0; }
+        .sticky-action-bar .btn { padding:7px 12px; font-size:14px; white-space:nowrap; }
         .toolbar-wrap { flex-wrap:wrap; }
         .summary-pills { display:flex; gap:8px; flex-wrap:wrap; }
         .summary-pill { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background:#f8fafc; border:1px solid #e2e8f0; color:#334155; font-size:12px; font-weight:600; }
@@ -120,7 +122,6 @@
         .field-group-label:after { content:""; height:1px; flex:1; background:#e2e8f0; }
         .tour-promotion-fields { padding:16px; border:1px dashed #f4c76b; border-radius:14px; background:#fffaf0; }
         @media (max-width: 991px) {
-            .sticky-action-bar { flex-direction:column; align-items:stretch; }
             .tour-form-workspace { grid-template-columns:1fr; }
             .tour-form-nav { position:sticky; top:0; padding:10px; margin:0 -4px; border-radius:14px; z-index:30; }
             .tour-form-nav .nav { flex-direction:row; overflow-x:auto; padding-bottom:3px; scrollbar-width:thin; }
@@ -136,7 +137,8 @@
         @media (max-width: 575px) {
             .admin-shell { margin:16px auto; padding:0 10px; }
             .admin-card { padding:14px; border-radius:18px; }
-            .sticky-action-bar .meta { display:none; }
+            .sticky-action-bar > div:first-child { display:none; }
+            .sticky-action-bar .toolbar-wrap { width:100%; }
             .toolbar-wrap .btn { flex:1 1 auto; }
             .step-nav-actions { width:100%; }
             .step-nav-actions .btn { flex:1; }
@@ -183,6 +185,14 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
         </div>
 
         <?php if (! empty($success)): ?><div class="alert alert-success"><?= esc($success) ?></div><?php endif; ?>
+        <?php if (! empty($documentImport)): ?>
+            <div class="alert alert-info">
+                <strong>Đã đọc <?= count($formData['itinerary_days'] ?? []) ?> ngày lịch trình từ tài liệu.</strong>
+                Kiểm tra tên tour, thời lượng, điểm đến, giá bán và ngày khởi hành trước khi lưu.
+                Bảng giá, phụ thu và lưu ý được giữ ở Mô tả chi tiết tiếng Việt để đối chiếu.
+                Hình ảnh cần tải riêng. Nội dung giữ nguyên văn bản gốc, có thể cần sửa khoảng trắng.
+            </div>
+        <?php endif; ?>
         <?php if (! empty($errors)): ?>
             <div class="alert alert-danger" role="alert" tabindex="-1" data-tour-form-errors>
                 <?php foreach ($errors as $error): ?><div><?= esc($error) ?></div><?php endforeach; ?>
@@ -611,7 +621,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 <div class="itinerary-importer__head">
                     <div>
                         <h3 class="itinerary-importer__title">Import lịch trình từ Word</h3>
-                        <p class="itinerary-importer__hint">Copy toàn bộ lịch trình từ Word rồi dán vào ô rich text bên dưới. Bold, bullet và xuống dòng sẽ được giữ lại trong mô tả từng ngày. Import chỉ cập nhật ngôn ngữ đang chọn.</p>
+                        <p class="itinerary-importer__hint">Lịch trình Word vừa nhập nằm sẵn trong ô bên dưới, giữ in đậm/in nghiêng. Copy toàn bộ để dịch, chọn English rồi dán bản dịch và import thay thế. Nội dung từng ngày chỉ thay đổi khi bấm Import.</p>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="clearItineraryImport">Xóa nội dung dán</button>
                 </div>
@@ -635,12 +645,15 @@ Quý khách tập trung tại sân bay Tân Sơn Nhất...
 
 Ngày 2: PARIS CITY TOUR
 Tham quan tháp Eiffel, bảo tàng Louvre..."
-                ></div>
+                ><?= ! empty($documentImport) ? ($formData['itinerary_import_html'] ?? '') : '' ?></div>
                 <div class="itinerary-importer__actions">
+                    <button type="button" class="btn btn-outline-secondary" id="collectItineraryImport">Lấy lịch trình đang chọn bên dưới</button>
+                    <button type="button" class="btn btn-outline-secondary" id="copyItineraryRich">Copy giữ định dạng</button>
                     <button type="button" class="btn btn-outline-primary" id="previewItineraryImport">Xem trước</button>
                     <button type="button" class="btn btn-primary" id="replaceItineraryImport">Import thay thế ngôn ngữ đã chọn</button>
                     <button type="button" class="btn btn-outline-success" id="appendItineraryImport">Import thêm vào cuối</button>
                 </div>
+                <div id="itineraryCopyStatus" class="form-text" role="status" aria-live="polite"></div>
                 <div class="itinerary-importer__preview" id="itineraryImportPreview" aria-live="polite"></div>
             </div>
             <div id="itineraryRows">
@@ -863,14 +876,13 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."
             <div class="sticky-action-bar">
                 <div>
                     <div class="fw-semibold" id="stickyStepTitle">Bước 1/5 · Thông tin cơ bản</div>
-                    <div class="meta">Tour được tự lưu tạm trên trình duyệt trong lúc nhập.</div>
                 </div>
                 <div class="d-flex gap-2 toolbar-wrap">
                     <div class="step-nav-actions">
-                        <button class="btn btn-outline-secondary btn-lg" type="button" id="previousTourStep">Quay lại</button>
-                        <button class="btn btn-outline-primary btn-lg" type="button" id="nextTourStep">Tiếp theo</button>
+                        <button class="btn btn-outline-secondary" type="button" id="previousTourStep">Quay lại</button>
+                        <button class="btn btn-outline-primary" type="button" id="nextTourStep">Tiếp theo</button>
                     </div>
-                    <button class="btn btn-primary btn-lg" type="submit"><?= esc($submitLabel ?? 'Lưu tour') ?></button>
+                    <button class="btn btn-primary" type="submit"><?= esc($submitLabel ?? 'Lưu tour') ?></button>
                 </div>
             </div>
         </form>
@@ -1575,6 +1587,15 @@ function sanitizeImportedHtml(html) {
 
       const tag = child.tagName;
 
+      // Word and rich-text clipboard sources often use styled spans instead of B/I.
+      const weight = child.style.fontWeight;
+      const italic = child.style.fontStyle === 'italic';
+      const underline = child.style.textDecoration.includes('underline');
+      if (weight === 'bold' || Number.parseInt(weight, 10) >= 600) child.innerHTML = `<strong>${child.innerHTML}</strong>`;
+      if (italic) child.innerHTML = `<em>${child.innerHTML}</em>`;
+      if (underline) child.innerHTML = `<u>${child.innerHTML}</u>`;
+      child.removeAttribute('style');
+
       if (tag === 'B') {
         const strong = document.createElement('strong');
         strong.innerHTML = child.innerHTML;
@@ -1881,6 +1902,55 @@ function initItineraryImporter() {
   const replaceButton = document.getElementById('replaceItineraryImport');
   const appendButton = document.getElementById('appendItineraryImport');
   const clearButton = document.getElementById('clearItineraryImport');
+  const status = document.getElementById('itineraryCopyStatus');
+  const notify = message => { if (status) status.textContent = message; };
+
+  document.getElementById('collectItineraryImport')?.addEventListener('click', () => {
+    if (input.innerText.trim() && !window.confirm('Thay nội dung trong ô bằng lịch trình đang chọn bên dưới?')) return;
+    const locale = localeInput.value === 'en' ? 'en' : 'vi';
+    input.innerHTML = Array.from(document.querySelectorAll('#itineraryRows .itinerary-row')).map((row, index) => {
+      const title = row.querySelector(`[name$="[title_${locale}]"]`)?.value || '';
+      const source = row.querySelector(`[name$="[description_${locale}]"]`);
+      const description = source?.closest('.col-md-6')?.querySelector('.js-rich-editor')?.innerHTML || source?.value || '';
+      if (!title.trim() && !htmlToPlainText(description)) return '';
+      const day = row.querySelector('[name$="[day_number]"]')?.value || index + 1;
+      return `<p><strong>${locale === 'en' ? 'Day' : 'Ngày'} ${escapeHtml(day)}: ${escapeHtml(title)}</strong></p>${sanitizeImportedHtml(description)}`;
+    }).join('');
+    notify('Đã lấy nội dung mới nhất của ngôn ngữ đang chọn.');
+  });
+
+  async function copyItinerary() {
+    const html = sanitizeImportedHtml(input.innerHTML);
+    if (!htmlToPlainText(html)) { notify('Chưa có lịch trình để copy.'); return; }
+    try {
+      if (navigator.clipboard?.write && window.ClipboardItem) {
+        const readable = document.createElement('div');
+        readable.innerHTML = html.replace(/<\/p>|<\/li>|<br\s*\/?>/gi, '$&\n');
+        await navigator.clipboard.write([new ClipboardItem({
+          'text/html': new Blob([html], {type: 'text/html'}),
+          'text/plain': new Blob([readable.textContent], {type: 'text/plain'}),
+        })]);
+      } else {
+        throw new Error('Clipboard API unavailable');
+      }
+      notify('Đã copy toàn bộ lịch trình kèm định dạng.');
+    } catch (error) {
+      // Also works on local HTTP admin pages where Clipboard API is unavailable.
+        input.focus();
+        const range = document.createRange(); range.selectNodeContents(input);
+        const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+      let copied = false;
+      try { copied = document.execCommand('copy'); } catch (_) { /* Manual selection remains available. */ }
+      notify(copied ? 'Đã copy toàn bộ lịch trình.' : 'Đã chọn nội dung. Nhấn Ctrl+C để copy.');
+    }
+  }
+  document.getElementById('copyItineraryRich')?.addEventListener('click', copyItinerary);
+  input?.addEventListener('paste', event => {
+    event.preventDefault();
+    const html = event.clipboardData?.getData('text/html');
+    const clean = html ? sanitizeImportedHtml(html) : plainTextToImporterHtml(event.clipboardData?.getData('text/plain') || '');
+    document.execCommand('insertHTML', false, clean);
+  });
 
   previewButton?.addEventListener('click', () => {
     const locale = localeInput?.value === 'en' ? 'en' : 'vi';

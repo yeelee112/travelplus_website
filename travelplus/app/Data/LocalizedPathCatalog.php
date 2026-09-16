@@ -8,6 +8,7 @@ final class LocalizedPathCatalog
      * @var array<string, array<string, string>>
      */
     private const MAP = [
+        'autumn' => ['vi' => 'tour-mua-thu', 'en' => 'autumn-tours'],
         'search' => [
             'vi' => 'tim-kiem-tour',
             'en' => 'tour-search',

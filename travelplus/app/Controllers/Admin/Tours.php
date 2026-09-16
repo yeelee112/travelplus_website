@@ -105,6 +105,51 @@ class Tours extends BaseAdminController
         ]);
     }
 
+    public function createV2()
+    {
+        if ($redirect = $this->requireAdmin()) {
+            return $redirect;
+        }
+        return view('admin/tours/import', ['error' => session()->getFlashdata('error')]);
+    }
+
+    public function importV2()
+    {
+        if ($redirect = $this->requireAdmin()) {
+            return $redirect;
+        }
+        $temporaryPath = null;
+        try {
+            $importer = new \App\Services\TourDocumentImporter();
+            $file = $this->request->getFile('document');
+            if ($file && $file->getError() !== UPLOAD_ERR_NO_FILE) {
+                if (! $file->isValid() || strtolower($file->getClientExtension()) !== 'docx' || $file->getSize() > 20 * 1024 * 1024) {
+                    throw new \RuntimeException('Chọn file .docx tối đa 20 MB (và trong giới hạn upload của máy chủ).');
+                }
+                $temporaryPath = WRITEPATH . 'uploads/tour-import-' . bin2hex(random_bytes(16)) . '.docx';
+                $file->move(dirname($temporaryPath), basename($temporaryPath));
+                $imported = $importer->fromDocx($temporaryPath);
+            } else {
+                $imported = $importer->fromText((string) $this->request->getPost('document_text'));
+            }
+        } catch (\RuntimeException $e) {
+            return redirect()->to(site_url('admin/tours/create-v2'))->withInput()->with('error', $e->getMessage());
+        } finally {
+            if ($temporaryPath !== null && is_file($temporaryPath)) {
+                unlink($temporaryPath);
+            }
+        }
+        return $this->renderForm([
+            'pageTitle' => 'Tạo tour v2 — Kiểm tra nội dung',
+            'pageDesc' => 'Nội dung đã được điền từ tài liệu. Kiểm tra thông tin trước khi lưu.',
+            'formAction' => site_url('admin/tours'),
+            'submitLabel' => 'Lưu tour',
+            'tourId' => null,
+            'documentImport' => true,
+            'formData' => array_replace($this->defaultFormData(), $imported),
+        ]);
+    }
+
     public function store()
     {
         if ($redirect = $this->requireAdmin()) {

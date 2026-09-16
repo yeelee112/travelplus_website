@@ -62,6 +62,9 @@ $cookieConsentJsAssetUrl = frontend_asset_url('assets/js/cookie-consent.js');
 $languagePreferenceJsAssetUrl = frontend_asset_url('assets/js/language-preference.js');
 $languagePreferenceCssAssetUrl = frontend_asset_url('assets/css/language-preference.css');
 $pageStyleAssets = [];
+if (str_contains($contentSection, 'autumn-landing')) {
+    $pageStyleAssets[] = 'autumn';
+}
 if ($bodyClass === 'is-home-page' || str_contains($contentSection, 'home-search-date')) {
     $pageStyleAssets[] = 'home';
 }

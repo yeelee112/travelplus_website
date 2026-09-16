@@ -37,6 +37,7 @@ $routes->GET('dieu-khoan-su-dung', 'LegalController::terms/vi');
 $routes->GET('chinh-sach-bao-mat', 'LegalController::privacy/vi');
 $routes->GET('tim-kiem-tour', 'SearchController::tours');
 $routes->GET('tour-he', 'SummerTours::legacyRedirect');
+$routes->GET('tour-mua-thu', 'AutumnTours::index');
 $routes->GET('travelplus-reward', 'PassportProgram::index');
     $routes->GET('travelplus-passport', 'PassportProgram::legacyRedirect');
 
@@ -53,6 +54,8 @@ $routes->GET('admin/bookings/(:num)', 'Admin\Bookings::show/$1');
 $routes->POST('admin/bookings/(:num)/status', 'Admin\Bookings::updateStatus/$1');
 $routes->GET('admin/tours', 'Admin\Tours::index');
 $routes->GET('admin/tours/create', 'Admin\Tours::create');
+$routes->GET('admin/tours/create-v2', 'Admin\Tours::createV2');
+$routes->POST('admin/tours/create-v2', 'Admin\Tours::importV2');
 $routes->POST('admin/tours', 'Admin\Tours::store');
 $routes->GET('admin/tours/(:num)/edit', 'Admin\Tours::edit/$1');
 $routes->POST('admin/tours/(:num)', 'Admin\Tours::update/$1');
@@ -169,6 +172,7 @@ $routes->group('en', function ($routes) {
     $routes->GET('privacy-statement', 'LegalController::privacy/en');
     $routes->GET('tour-search', 'SearchController::tours');
     $routes->GET('summer-tours', 'SummerTours::legacyRedirect');
+    $routes->GET('autumn-tours', 'AutumnTours::index');
     $routes->GET('travelplus-reward', 'PassportProgram::index');
     $routes->GET('travelplus-passport', 'PassportProgram::legacyRedirect');
 
