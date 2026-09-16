@@ -110,7 +110,22 @@ class Tours extends BaseAdminController
         if ($redirect = $this->requireAdmin()) {
             return $redirect;
         }
+        $this->response->setHeader('Cache-Control', 'no-store, private');
         return view('admin/tours/import', ['error' => session()->getFlashdata('error')]);
+    }
+
+    public function importToken()
+    {
+        $this->response->setHeader('Cache-Control', 'no-store, private');
+        if ($redirect = $this->requireAdmin()) {
+            return $redirect;
+        }
+        return $this->response->setJSON([
+            'name' => csrf_token(),
+            'hash' => csrf_hash(),
+            'uploadLimit' => min(20 * 1024 * 1024, $this->iniSizeToBytes((string) ini_get('upload_max_filesize')) ?: PHP_INT_MAX),
+            'postLimit' => $this->iniSizeToBytes((string) ini_get('post_max_size')),
+        ]);
     }
 
     public function importV2()

@@ -55,6 +55,7 @@ $routes->POST('admin/bookings/(:num)/status', 'Admin\Bookings::updateStatus/$1')
 $routes->GET('admin/tours', 'Admin\Tours::index');
 $routes->GET('admin/tours/create', 'Admin\Tours::create');
 $routes->GET('admin/tours/create-v2', 'Admin\Tours::createV2');
+$routes->GET('admin/tours/create-v2/token', 'Admin\Tours::importToken');
 $routes->POST('admin/tours/create-v2', 'Admin\Tours::importV2');
 $routes->POST('admin/tours', 'Admin\Tours::store');
 $routes->GET('admin/tours/(:num)/edit', 'Admin\Tours::edit/$1');
