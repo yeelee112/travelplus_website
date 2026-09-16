@@ -5,7 +5,7 @@ use CodeIgniter\Test\CIUnitTestCase;
 /** @internal */
 final class BookingCheckoutPassportViewTest extends CIUnitTestCase
 {
-    public function testCheckoutRendersSelectableAndLockedPassportVouchers(): void
+    public function testCheckoutRendersRewardVouchersForEveryBookingAndOriginalPricePoints(): void
     {
         service('request')->setLocale('vi');
 
@@ -36,7 +36,7 @@ final class BookingCheckoutPassportViewTest extends CIUnitTestCase
                     'code' => 'TPP-SI-TEST0001',
                     'reward_key' => 'tier_welcome_silver',
                     'voucher_amount_vnd' => 100000,
-                    'min_order_vnd' => 3000000,
+                    'min_order_vnd' => 0,
                     'expires_at' => '2027-08-06 12:00:00',
                     'eligible' => true,
                     'amount_needed_vnd' => 0,
@@ -46,10 +46,10 @@ final class BookingCheckoutPassportViewTest extends CIUnitTestCase
                     'code' => 'TPP-GO-TEST0002',
                     'reward_key' => 'tier_welcome_gold',
                     'voucher_amount_vnd' => 200000,
-                    'min_order_vnd' => 6000000,
+                    'min_order_vnd' => 0,
                     'expires_at' => '2027-08-06 12:00:00',
-                    'eligible' => false,
-                    'amount_needed_vnd' => 1000000,
+                    'eligible' => true,
+                    'amount_needed_vnd' => 0,
                     'benefit_type' => 'tier',
                 ],
             ],
@@ -66,14 +66,16 @@ final class BookingCheckoutPassportViewTest extends CIUnitTestCase
         $this->assertStringContainsString('data-passport-voucher-code="TPP-SI-TEST0001"', $html);
         $this->assertStringContainsString('data-passport-voucher-eligible="1"', $html);
         $this->assertStringContainsString('data-passport-voucher-code="TPP-GO-TEST0002"', $html);
-        $this->assertStringContainsString('data-passport-voucher-eligible="0"', $html);
-        $this->assertStringContainsString('Cần thêm 1.000.000 VND để sử dụng', $html);
+        $this->assertStringContainsString('data-passport-voucher-eligible="1"', $html);
+        $this->assertStringContainsString('Áp dụng mọi booking', $html);
+        $this->assertStringNotContainsString('Booking từ 0 VND', $html);
         $this->assertStringContainsString('Ưu đãi Reward hạng Vàng (1,5%)', $html);
         $this->assertStringContainsString('-75.000 VND', $html);
         $this->assertStringContainsString('checkout-passport-wallet__policy', $html);
         $this->assertStringContainsString('checkout-passport-voucher__expiry', $html);
         $this->assertStringContainsString('HSD 06/08/2027', $html);
         $this->assertStringContainsString('checkout-passport-voucher__value', $html);
-        $this->assertStringContainsString('checkout-passport-voucher__condition is-unavailable', $html);
+        $this->assertStringContainsString('Điểm thành viên dự kiến', $html);
+        $this->assertStringContainsString('+500 Điểm', $html);
     }
 }

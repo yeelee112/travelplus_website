@@ -27,12 +27,14 @@ class SearchController extends BaseController
             }
         }
         $tourType = trim((string) $this->request->getGet('tour_type'));
-        $tourType = in_array($tourType, ['outbound', 'inbound'], true) ? $tourType : '';
+        $allowedTourTypes = $locale === 'en' ? ['outbound', 'inbound'] : ['outbound', 'domestic'];
+        $tourType = in_array($tourType, $allowedTourTypes, true) ? $tourType : '';
+        $excludedTourType = $locale === 'en' ? 'domestic' : 'inbound';
         $promotionOnly = (string) $this->request->getGet('promotion') === '1';
         $page = (int) ($this->request->getGet('page') ?? 1);
 
         $tourService = new TourCatalogService();
-        $result = $tourService->searchTours($locale, $query, $departureFrom, $departureTo, 9, $page, $tourType !== '' ? $tourType : null, $promotionOnly);
+        $result = $tourService->searchTours($locale, $query, $departureFrom, $departureTo, 9, $page, $tourType !== '' ? $tourType : null, $promotionOnly, $excludedTourType);
         $fallbackTours = [];
 
         (new SearchAnalyticsService())->track(
@@ -47,7 +49,7 @@ class SearchController extends BaseController
         );
 
         if (((int) ($result['total'] ?? 0)) === 0) {
-            $fallback = $tourService->getPagedTours($locale, 999, 1, $tourType !== '' ? $tourType : null, [], $promotionOnly);
+            $fallback = $tourService->getPagedTours($locale, 999, 1, $tourType !== '' ? $tourType : null, [], $promotionOnly, $excludedTourType);
             $fallbackTours = $fallback['tours'];
         }
 

@@ -13,6 +13,7 @@ if (form && submitButton) {
   const emailInvalidError = form.dataset.emailInvalid || form.dataset.emailError || "Please enter a valid email address.";
   const phoneRequiredError = form.dataset.phoneRequired || form.dataset.phoneError || "Please enter your phone number.";
   const phoneInvalidError = form.dataset.phoneInvalid || form.dataset.phoneError || "Please enter a valid Vietnamese phone number.";
+  const phoneMode = form.dataset.phoneMode || "vietnam";
   const messageError = form.dataset.messageError || "Your message must be at least 10 characters.";
   const messageOptional = form.dataset.messageOptional === "true";
   const privacyError = form.dataset.privacyError || "Please agree to the privacy statement and terms of service.";
@@ -144,9 +145,11 @@ if (form && submitButton) {
       const phone = phoneField.value.trim();
       if (!phone) {
         rememberInvalid(phoneField, phoneRequiredError);
-      } else if (!isValidVietnamPhone(phone)) {
+      } else if (phoneMode === "international" && !/^\+?[0-9][0-9 ()-]{4,28}[0-9]$/.test(phone)) {
         rememberInvalid(phoneField, phoneInvalidError);
-      } else {
+      } else if (phoneMode !== "international" && !isValidVietnamPhone(phone)) {
+        rememberInvalid(phoneField, phoneInvalidError);
+      } else if (phoneMode !== "international") {
         phoneField.value = normalizePhone(phone);
       }
     }

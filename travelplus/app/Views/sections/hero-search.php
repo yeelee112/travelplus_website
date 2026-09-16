@@ -22,7 +22,7 @@ $copy = $locale === 'en'
     ? [
         'eyebrow' => 'Travel Plus Vietnam',
         'titleParts' => ['Tours, visa and MICE', 'designed with purpose'],
-        'desc' => 'Travel Plus plans outbound tours, domestic journeys, visa support and corporate MICE programs for families, teams and business groups.',
+        'desc' => 'Travel Plus plans inbound and outbound tours, visa support and corporate MICE programs for international travelers, groups and companies.',
         'primaryCta' => 'Find a tour',
         'secondaryCta' => 'Explore MICE services',
         'secondaryUrl' => $miceUrl,

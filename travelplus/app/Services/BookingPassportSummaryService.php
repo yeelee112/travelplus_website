@@ -23,8 +23,7 @@ final class BookingPassportSummaryService
         $bookingId = (int) ($booking['id'] ?? 0);
         $userId = (int) ($booking['user_id'] ?? 0);
         $paymentStatus = strtolower(trim((string) ($booking['payment_status'] ?? '')));
-        $amountPaid = max(0, (float) ($booking['amount_paid_vnd'] ?? 0));
-        $amountDue = max(0, (float) ($booking['amount_due_vnd'] ?? $booking['grand_total'] ?? 0));
+        $earningBase = LoyaltyPointService::earningBaseForBooking($booking);
         $membershipDiscount = max(0, (float) ($booking['membership_discount_amount_vnd'] ?? 0));
         $couponDiscount = max(0, (float) ($booking['discount_amount_vnd'] ?? 0));
 
@@ -38,7 +37,7 @@ final class BookingPassportSummaryService
             'earned_points' => 0,
             'reversed_points' => 0,
             'net_points' => 0,
-            'preview_points' => LoyaltyPointService::previewPoints($paymentStatus === 'paid' ? $amountPaid : $amountDue),
+            'preview_points' => LoyaltyPointService::previewPoints($earningBase),
             'available_points' => 0,
             'qualifying_points' => 0,
             'current_tier' => ['key' => 'member', 'minimum_points' => 0],
@@ -144,8 +143,8 @@ final class BookingPassportSummaryService
                 && $netPoints > 0
                 && $currentTierKey !== $previousTierKey;
 
-            if ($paymentStatus === 'paid' && $earnedPoints === 0 && $amountPaid > 0) {
-                $summary['earned_points'] = LoyaltyPointService::previewPoints($amountPaid);
+            if ($paymentStatus === 'paid' && $earnedPoints === 0 && $earningBase > 0) {
+                $summary['earned_points'] = LoyaltyPointService::previewPoints($earningBase);
             }
             if ($paymentStatus === 'paid' && $reversedPoints > 0 && $netPoints <= 0) {
                 $summary['state'] = 'reversed';

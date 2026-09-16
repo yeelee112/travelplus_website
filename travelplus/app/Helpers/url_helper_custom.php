@@ -2,6 +2,7 @@
 
 use App\Services\DomesticRegionService;
 use App\Models\LocationModel;
+use App\Data\LocalizedPathCatalog;
 
 function frontend_asset_url(string $source, ?string $minified = null): string
 {
@@ -175,6 +176,8 @@ function switch_locale_url(string $targetLocale): string
         'privacy-statement' => ['vi' => 'chinh-sach-bao-mat', 'en' => 'privacy-statement'],
         'cam-hung-du-lich' => ['vi' => 'cam-hung-du-lich', 'en' => 'travel-inspiration'],
         'travel-inspiration' => ['vi' => 'cam-hung-du-lich', 'en' => 'travel-inspiration'],
+        'tour-inbound' => ['vi' => 'tour-inbound', 'en' => 'inbound-tours'],
+        'inbound-tours' => ['vi' => 'tour-inbound', 'en' => 'inbound-tours'],
     ];
 
     if (count($segments) === 1 && isset($staticMap[$segments[0]][$targetLocale])) {
@@ -194,7 +197,7 @@ function switch_locale_url(string $targetLocale): string
             : base_url(ltrim($path, '/'));
     }
 
-    if (count($segments) === 2) {
+    if (count($segments) === 2 && ! in_array($segments[0], ['tour-inbound', 'inbound-tours'], true)) {
         $baseSegment = $segments[0];
 
         if (isset($staticMap[$baseSegment][$targetLocale])) {
@@ -271,8 +274,50 @@ function translate_location_segments(array $segments, string $fromLocale, string
             'tour-trong-nuoc',
             (string) ($translatedRegionPath[1] ?? $segments[1]),
             'tour',
-            translate_tour_slug($fromLocale, $toLocale, $segments[3], 'inbound'),
+            translate_tour_slug($fromLocale, $toLocale, $segments[3], 'domestic'),
         ];
+    }
+
+    if (in_array(($segments[0] ?? ''), ['tour-inbound', 'inbound-tours'], true)) {
+        $domesticRegionService = new DomesticRegionService();
+        $translatedLocationSlug = (string) ($segments[1] ?? '');
+        if ($translatedLocationSlug !== '') {
+            $locationModel = new LocationModel();
+            $sourceLocation = $locationModel->findTranslatedLocationBySlug($fromLocale, $translatedLocationSlug);
+            $targetLocation = $sourceLocation !== null
+                ? $locationModel->findTranslatedLocationById($toLocale, (int) $sourceLocation['id'])
+                : null;
+
+            if ($targetLocation !== null && ! empty($targetLocation['slug'])) {
+                $translatedLocationSlug = (string) $targetLocation['slug'];
+            } else {
+                $translatedRegionPath = $domesticRegionService->translatePathSegments(
+                    ['tour-trong-nuoc', $translatedLocationSlug],
+                    $fromLocale,
+                    $toLocale
+                );
+                $translatedLocationSlug = (string) ($translatedRegionPath[1] ?? $translatedLocationSlug);
+            }
+        }
+        $translated = [LocalizedPathCatalog::path('inbound', $toLocale)];
+
+        if (isset($segments[1])) {
+            $translated[] = $translatedLocationSlug;
+        }
+
+        if (isset($segments[2], $segments[3]) && $segments[2] === 'tour') {
+            $translated[] = 'tour';
+            $translated[] = translate_tour_slug($fromLocale, $toLocale, $segments[3], 'inbound');
+        } elseif (isset($segments[2])) {
+            $provincePath = $domesticRegionService->translatePathSegments(
+                ['tour-trong-nuoc', $segments[1], $segments[2]],
+                $fromLocale,
+                $toLocale
+            );
+            $translated[] = (string) ($provincePath[2] ?? $segments[2]);
+        }
+
+        return $translated;
     }
 
     if (($segments[0] ?? '') === 'tour-trong-nuoc') {

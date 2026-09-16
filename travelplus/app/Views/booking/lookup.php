@@ -224,9 +224,16 @@ if ($booking !== null) {
     $paymentItems = [
         ['label' => $labels['method'], 'value' => $paymentMethodLabel],
         ['label' => $labels['plan'], 'value' => $paymentPlanLabel],
-        ['label' => $amountLabel, 'value' => $amountValue],
-        ['label' => $labels['total'], 'value' => $formatCurrency((float) ($booking['grand_total'] ?? 0))],
+        ['label' => $locale === 'en' ? 'Tour price & supplements' : 'Giá tour & phụ thu', 'value' => $formatCurrency((float) ($booking['subtotal_vnd'] ?? $booking['grand_total'] ?? 0))],
     ];
+    if ((float) ($booking['membership_discount_amount_vnd'] ?? 0) > 0) {
+        $paymentItems[] = ['label' => $locale === 'en' ? 'Tier saving' : 'Giảm theo hạng', 'value' => '-' . $formatCurrency((float) $booking['membership_discount_amount_vnd'])];
+    }
+    if ((float) ($booking['discount_amount_vnd'] ?? 0) > 0) {
+        $paymentItems[] = ['label' => $locale === 'en' ? 'Voucher saving' : 'Giảm voucher', 'value' => '-' . $formatCurrency((float) $booking['discount_amount_vnd'])];
+    }
+    $paymentItems[] = ['label' => $labels['total'], 'value' => $formatCurrency((float) ($booking['grand_total'] ?? 0))];
+    $paymentItems[] = ['label' => $amountLabel, 'value' => $amountValue];
     $nextSteps = match ($statusTone) {
         'paid' => $locale === 'en'
             ? ['Keep this booking code for support.', 'Travel Plus may contact you to confirm service details.', 'Contact support if your itinerary details need adjustment.']

@@ -34,7 +34,11 @@ $isFocusedFlow = in_array($routeSegment, ['account', 'auth', 'booking'], true);
 $showAiChatbox = ! in_array($routeSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
 $showTourTools = ! in_array($routeSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
 $showCookieConsent = ! in_array($routeSegment, ['admin', 'api'], true);
+$savedLanguage = strtolower(trim((string) service('request')->getCookie('travelplus_locale')));
+$showLanguageEntry = ! in_array($savedLanguage, ['vi', 'en'], true)
+    && ! in_array($routeSegment, ['admin', 'api', 'account', 'auth', 'booking'], true);
 $contentSection = $this->renderSection('content');
+$isInboundLanding = str_contains($contentSection, 'inbound-landing');
 $usesSwiper = str_contains($contentSection, 'swiper-wrapper');
 $publicPath = rtrim(FCPATH, DIRECTORY_SEPARATOR);
 $requestHost = strtolower($requestUri->getHost());
@@ -55,8 +59,10 @@ $mainJsAssetUrl = frontend_asset_url('assets/js/main.js');
 $aiChatboxJsAssetUrl = frontend_asset_url('assets/js/ai-chatbox.js');
 $tourToolsJsAssetUrl = frontend_asset_url('assets/js/tour-tools.js');
 $cookieConsentJsAssetUrl = frontend_asset_url('assets/js/cookie-consent.js');
+$languagePreferenceJsAssetUrl = frontend_asset_url('assets/js/language-preference.js');
+$languagePreferenceCssAssetUrl = frontend_asset_url('assets/css/language-preference.css');
 $pageStyleAssets = [];
-if ($bodyClass === 'is-home-page') {
+if ($bodyClass === 'is-home-page' || str_contains($contentSection, 'home-search-date')) {
     $pageStyleAssets[] = 'home';
 }
 if (str_contains($contentSection, 'visa-lead-') || str_contains($contentSection, 'visa-seo-')) {
@@ -73,6 +79,9 @@ if (str_contains($contentSection, 'mice-page')) {
 }
 if (str_contains($contentSection, 'summer-landing-page')) {
     $pageStyleAssets[] = 'summer';
+}
+if (str_contains($contentSection, 'inbound-landing')) {
+    $pageStyleAssets[] = 'inbound';
 }
 if (str_contains($contentSection, 'checkout-stepper-')
     || str_contains($contentSection, 'travelplus-booking-')
@@ -230,6 +239,7 @@ if ($analyticsEventName === '') {
 <link rel="stylesheet" href="<?= esc($pageStyleAssetUrl, 'attr') ?>">
 <?php endforeach; ?>
 <link rel="stylesheet" href="<?= esc($widgetCssAssetUrl, 'attr') ?>">
+<link rel="stylesheet" href="<?= esc($languagePreferenceCssAssetUrl, 'attr') ?>">
 <?php if ($usesSwiper): ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"/>
 
@@ -243,9 +253,12 @@ if ($analyticsEventName === '') {
     data-csrf-token-name="<?= esc(csrf_token(), 'attr') ?>"
     data-csrf-token="<?= esc(csrf_hash(), 'attr') ?>">
 
-<?= $this->include('partials/header') ?>
+<?php if ($showLanguageEntry): ?>
+<?= $this->include('partials/language-entry') ?>
+<?php endif; ?>
+<?= $this->include($isInboundLanding ? 'inbound/header' : 'partials/header') ?>
 <?= $contentSection ?>
-<?= $this->include('partials/footer') ?>
+<?= $this->include($isInboundLanding ? 'inbound/footer' : 'partials/footer') ?>
 <?php if ($showAiChatbox): ?>
 <?= $this->include('partials/ai-chatbox') ?>
 <script defer src="<?= esc($aiChatboxJsAssetUrl, 'attr') ?>"></script>
@@ -260,6 +273,7 @@ if ($analyticsEventName === '') {
 <script defer src="<?= esc(frontend_asset_url('assets/js/site-performance.js'), 'attr') ?>"></script>
 <?php endif; ?>
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script defer src="<?= esc($languagePreferenceJsAssetUrl, 'attr') ?>"></script>
 
 <script type="module" src="<?= esc($mainJsAssetUrl, 'attr') ?>"></script>
 <?= $this->renderSection('scripts') ?>

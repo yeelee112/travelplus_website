@@ -14,6 +14,10 @@ class SetLocale implements FilterInterface
     {
         $segment = $request->getUri()->getSegment(1);
 
+        if ($segment === '' && strtolower(trim((string) $request->getCookie('travelplus_locale'))) === 'en') {
+            return redirect()->to(base_url('en'))->setStatusCode(302);
+        }
+
         if ($segment === 'en') {
             $request->setLocale('en');
         } else {

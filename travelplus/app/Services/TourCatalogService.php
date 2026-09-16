@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Data\FeaturedDestinationCatalog;
 use App\Data\FeaturedDestinationImageMap;
+use App\Data\LocalizedPathCatalog;
 use App\Data\TourCard;
 use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\BaseConnection;
@@ -241,13 +242,32 @@ class TourCatalogService
      */
     private function findCardForLocationSlug(array $cards, string $locationSlug, ?string $tourType): ?array
     {
+        if (
+            ($tourType === 'domestic' && $locationSlug === 'viet-nam')
+            || ($tourType === 'inbound' && in_array($locationSlug, ['hanh-trinh', 'journeys', 'viet-nam'], true))
+            || ($tourType === 'outbound' && $locationSlug === 'diem-den')
+        ) {
+            return $cards[0] ?? null;
+        }
+
         foreach ($cards as $card) {
-            $cardLocationSlugs = $tourType === 'inbound'
-                ? array_values(array_filter(array_map(
+            if ($tourType === 'domestic') {
+                $cardLocationSlugs = array_values(array_filter(array_map(
                     static fn($slug): string => trim((string) $slug),
                     (array) ($card['region_slugs'] ?? [$card['region_slug'] ?? ''])
-                )))
-                : [trim((string) ($card['continent_slug'] ?? ''))];
+                )));
+            } elseif ($tourType === 'inbound') {
+                $cardLocationSlugs = array_values(array_unique(array_filter(array_map(
+                    static fn($slug): string => trim((string) $slug),
+                    array_merge(
+                        (array) ($card['region_slugs'] ?? []),
+                        (array) ($card['destination_slugs'] ?? []),
+                        [(string) ($card['region_slug'] ?? '')]
+                    )
+                ))));
+            } else {
+                $cardLocationSlugs = [trim((string) ($card['continent_slug'] ?? ''))];
+            }
 
             if (in_array($locationSlug, $cardLocationSlugs, true)) {
                 return $card;
@@ -327,7 +347,8 @@ class TourCatalogService
         int $page = 1,
         ?string $tourType = null,
         array $locationFilter = [],
-        bool $promotionOnly = false
+        bool $promotionOnly = false,
+        ?string $excludedTourType = null
     ): array
     {
         $page = max(1, $page);
@@ -349,7 +370,7 @@ class TourCatalogService
         }
 
         try {
-            $countRow = $this->baseToursBuilder($locale, $tourType, $locationFilter, false, $promotionOnly)
+            $countRow = $this->baseToursBuilder($locale, $tourType, $locationFilter, false, $promotionOnly, $excludedTourType)
             ->select('COUNT(DISTINCT t.id) AS total', false)
             ->get()
             ->getRowArray();
@@ -358,7 +379,7 @@ class TourCatalogService
         $page = min($page, $lastPage);
         $offset = ($page - 1) * $perPage;
 
-        $rows = $this->baseToursBuilder($locale, $tourType, $locationFilter, false, $promotionOnly)
+        $rows = $this->baseToursBuilder($locale, $tourType, $locationFilter, false, $promotionOnly, $excludedTourType)
             ->select(
                 't.id, t.duration_days, t.duration_nights, t.thumbnail, t.is_featured, t.tour_type,' .
                 'tt.name AS title, tt.slug AS slug,' .
@@ -413,15 +434,17 @@ class TourCatalogService
         int $perPage = 9,
         int $page = 1,
         ?string $tourType = null,
-        bool $promotionOnly = false
+        bool $promotionOnly = false,
+        ?string $excludedTourType = null
     ): array {
         $page = max(1, $page);
         $perPage = max(1, $perPage);
         $query = trim($query);
-        $tourType = in_array($tourType, ['outbound', 'inbound'], true) ? $tourType : null;
+        $tourType = in_array($tourType, ['outbound', 'domestic', 'inbound'], true) ? $tourType : null;
+        $excludedTourType = in_array($excludedTourType, ['outbound', 'domestic', 'inbound'], true) ? $excludedTourType : null;
 
         if ($query === '' && $departureFrom === '' && $departureTo === '') {
-            return $this->getPagedTours($locale, $perPage, $page, $tourType, [], $promotionOnly);
+            return $this->getPagedTours($locale, $perPage, $page, $tourType, [], $promotionOnly, $excludedTourType);
         }
 
         if (!$this->hasSchemaForTourCatalog()) {
@@ -435,7 +458,7 @@ class TourCatalogService
         }
 
         try {
-            $builder = $this->baseToursBuilder($locale, $tourType, [], false, $promotionOnly)
+            $builder = $this->baseToursBuilder($locale, $tourType, [], false, $promotionOnly, $excludedTourType)
             ->join('tour_media tm', 'tm.tour_id = t.id AND tm.type = "gallery"', 'left');
 
         if ($query !== '') {
@@ -572,7 +595,8 @@ class TourCatalogService
         ?string $tourType = null,
         array $locationFilter = [],
         bool $featuredOnly = false,
-        bool $promotionOnly = false
+        bool $promotionOnly = false,
+        ?string $excludedTourType = null
     ): BaseBuilder
     {
         $today = $this->db->escape(date('Y-m-d'));
@@ -592,6 +616,10 @@ class TourCatalogService
 
         if ($tourType !== null) {
             $builder->where('t.tour_type', $tourType);
+        }
+
+        if ($excludedTourType !== null && $excludedTourType !== $tourType) {
+            $builder->where('t.tour_type !=', $excludedTourType);
         }
 
         if ($featuredOnly && $this->fieldExists('is_featured', 'tours')) {
@@ -633,7 +661,7 @@ class TourCatalogService
                 ->join('locations dl', 'dl.id = tdst.location_id AND dl.type = "province"', 'inner')
                 ->join('location_translations dltn', 'dltn.location_id = dl.id AND dltn.locale = ' . $this->db->escape($locale), 'inner')
                 ->where('t.status', 'published')
-                ->where('t.tour_type', 'inbound')
+                ->where('t.tour_type', 'domestic')
                 ->groupBy('dl.id, dl.code, dltn.name, dltn.slug')
                 ->orderBy('tour_count', 'DESC')
                 ->orderBy('dltn.name', 'ASC')
@@ -978,19 +1006,41 @@ class TourCatalogService
             $departureLocationName = TextEncodingService::repairNullable($row['departure_location_name'] ?? '');
             $locationLink = !empty($row['continent_slug']) ? localized_url_for((string) $row['continent_slug'], $locale) : '#';
 
-            if ($tourType === 'inbound' && $destinationId > 0) {
+            if ($this->usesVietnamDestinations($tourType) && $destinationId > 0) {
                 $region = $domesticRegionService->getRegionByProvinceId($locale, $destinationId);
 
                 if ($region !== null) {
                     $locationName = TextEncodingService::repairNullable($region['name'] ?? '');
-                    $locationLink = localized_url_for('tour-trong-nuoc/' . $region['slug'], $locale);
+                    $locationLink = localized_url_for(
+                        LocalizedPathCatalog::path($tourType, $locale) . '/' . $region['slug'],
+                        $locale
+                    );
                 }
             }
 
+            if ($tourType === 'inbound' && $region === null) {
+                $locationName = $destinationName !== '' ? $destinationName : $locationName;
+                $destinationSlug = trim((string) ($row['destination_slug'] ?? ''));
+                $locationLink = $destinationSlug !== ''
+                    ? localized_url_for(LocalizedPathCatalog::path('inbound', $locale) . '/' . $destinationSlug, $locale)
+                    : LocalizedPathCatalog::url('inbound', $locale);
+            }
+
             $tourSlug = (string) ($row['slug'] ?? ('tour-' . $id));
-            $tourLink = $tourType === 'inbound'
-                ? localized_url_for('tour-trong-nuoc/' . ($region['slug'] ?? 'viet-nam') . '/tour/' . $tourSlug, $locale)
-                : localized_url_for('tour-nuoc-ngoai/' . ((string) ($row['continent_slug'] ?? '') ?: 'diem-den') . '/' . $tourSlug, $locale);
+            if ($tourType === 'domestic') {
+                $tourLink = localized_url_for(
+                    LocalizedPathCatalog::path('domestic', $locale) . '/' . ($region['slug'] ?? 'viet-nam') . '/tour/' . $tourSlug,
+                    $locale
+                );
+            } elseif ($tourType === 'inbound') {
+                $inboundLocationSlug = trim((string) ($region['slug'] ?? $row['destination_slug'] ?? '')) ?: 'hanh-trinh';
+                $tourLink = localized_url_for(
+                    LocalizedPathCatalog::path('inbound', $locale) . '/' . $inboundLocationSlug . '/tour/' . $tourSlug,
+                    $locale
+                );
+            } else {
+                $tourLink = localized_url_for('tour-nuoc-ngoai/' . ((string) ($row['continent_slug'] ?? '') ?: 'diem-den') . '/' . $tourSlug, $locale);
+            }
             $coverPath = (string) ($tourMedia[$id]['cover'] ?? $row['thumbnail'] ?? '');
             $bannerPath = (string) ($tourMedia[$id]['banner'] ?? $coverPath);
 
@@ -1001,8 +1051,13 @@ class TourCatalogService
                 trim((string) $locationName)
             );
             $regionSlugs = [];
-            if ($tourType === 'inbound') {
+            $destinationSlugs = [];
+            if ($this->usesVietnamDestinations($tourType)) {
                 foreach ($tourDestinations[$id] ?? [] as $destination) {
+                    $destinationSlug = trim((string) ($destination['location_slug'] ?? ''));
+                    if ($destinationSlug !== '') {
+                        $destinationSlugs[] = $destinationSlug;
+                    }
                     $destinationRegion = $domesticRegionService->getRegionByProvinceId(
                         $locale,
                         (int) ($destination['location_id'] ?? 0)
@@ -1013,6 +1068,7 @@ class TourCatalogService
                     }
                 }
                 $regionSlugs = array_values(array_unique($regionSlugs));
+                $destinationSlugs = array_values(array_unique($destinationSlugs));
             }
 
             $cards[] = [
@@ -1041,8 +1097,9 @@ class TourCatalogService
                 'continent_slug' => (string) ($row['continent_slug'] ?? ''),
                 'continent_link' => $locationLink,
                 'departure_from' => trim($departureLocationName),
-                'region_slug' => $tourType === 'inbound' ? (string) ($region['slug'] ?? '') : '',
+                'region_slug' => $this->usesVietnamDestinations($tourType) ? (string) ($region['slug'] ?? '') : '',
                 'region_slugs' => $regionSlugs,
+                'destination_slugs' => $destinationSlugs,
                 'departure' => $this->formatDate((string) ($row['departure_date'] ?? '')),
                 'duration'  => [
                     'days'   => $days,
@@ -1082,6 +1139,7 @@ class TourCatalogService
                     'COALESCE(dl.code, "") AS location_code,' .
                     'dl.type AS location_type,' .
                     'COALESCE(dltn.name, "") AS location_name,' .
+                    'COALESCE(dltn.slug, "") AS location_slug,' .
                     'COALESCE(dlp.type, "") AS parent_type,' .
                     'COALESCE(dlptn.name, "") AS parent_name'
                 )
@@ -1111,6 +1169,7 @@ class TourCatalogService
                 'location_code' => trim((string) ($row['location_code'] ?? '')),
                 'location_type' => trim((string) ($row['location_type'] ?? '')),
                 'location_name' => TextEncodingService::repairNullable($row['location_name'] ?? ''),
+                'location_slug' => trim((string) ($row['location_slug'] ?? '')),
                 'parent_type' => trim((string) ($row['parent_type'] ?? '')),
                 'parent_name' => TextEncodingService::repairNullable($row['parent_name'] ?? ''),
             ];
@@ -1181,7 +1240,7 @@ class TourCatalogService
             $parentName = TextEncodingService::repairNullable($destination['parent_name'] ?? '');
 
             if (
-                $tourType === 'inbound'
+                $this->usesVietnamDestinations($tourType)
                 && (
                     $locationCode === 'VN-ALL'
                     || strcasecmp($locationName, 'Xuyên Việt') === 0
@@ -1194,7 +1253,7 @@ class TourCatalogService
 
             $label = '';
 
-            if ($tourType === 'inbound') {
+            if ($this->usesVietnamDestinations($tourType)) {
                 $label = $locationName;
             } else {
                 if ($locationType === 'country') {
@@ -1214,12 +1273,12 @@ class TourCatalogService
             $items[] = $label;
         }
 
-        if ($tourType === 'inbound' && $xuyenVietLabel !== '') {
+        if ($this->usesVietnamDestinations($tourType) && $xuyenVietLabel !== '') {
             $items = [$xuyenVietLabel];
         }
 
         if ($items === []) {
-            $fallback = trim($tourType === 'inbound' ? $fallbackDestination : ($fallbackDestination !== '' ? $fallbackDestination : $fallbackLocation));
+            $fallback = trim($this->usesVietnamDestinations($tourType) ? $fallbackDestination : ($fallbackDestination !== '' ? $fallbackDestination : $fallbackLocation));
             if ($fallback !== '') {
                 $items[] = $fallback;
             }
@@ -1243,7 +1302,7 @@ class TourCatalogService
         $tourType = (string) ($tour['tour_type'] ?? '');
         $destinationId = (int) ($tour['destination_id'] ?? 0);
 
-        if ($tourType === 'inbound' && $destinationId > 0) {
+        if ($this->usesVietnamDestinations($tourType) && $destinationId > 0) {
             try {
                 $region = (new DomesticRegionService())->getRegionByProvinceId($locale, $destinationId);
             } catch (Throwable $exception) {
@@ -1251,15 +1310,24 @@ class TourCatalogService
 
                 return [];
             }
-            $provinceIds = array_values(array_filter(array_map(
-                static fn(array $province): int => (int) ($province['id'] ?? 0),
-                $region['provinces'] ?? []
-            )));
+            $provinceIds = $region === null
+                ? []
+                : array_values(array_filter(array_map(
+                    static fn(array $province): int => (int) ($province['id'] ?? 0),
+                    $region['provinces'] ?? []
+                )));
 
             if ($provinceIds !== []) {
                 return [
                     'type' => 'region',
                     'ids' => $provinceIds,
+                ];
+            }
+
+            if ($tourType === 'inbound') {
+                return [
+                    'type' => 'country',
+                    'id' => $destinationId,
                 ];
             }
         }
@@ -1728,6 +1796,11 @@ class TourCatalogService
         ];
 
         return $patterns[$index % count($patterns)];
+    }
+
+    private function usesVietnamDestinations(string $tourType): bool
+    {
+        return in_array($tourType, ['domestic', 'inbound'], true);
     }
 }
 

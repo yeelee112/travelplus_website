@@ -149,6 +149,81 @@ class Tours extends BaseAdminController
         return $this->saveTour($tourId);
     }
 
+    public function duplicate(int $tourId)
+    {
+        if ($redirect = $this->requireAdmin()) {
+            return $redirect;
+        }
+
+        $formData = $this->loadTourFormData($tourId);
+        if ($formData === null) {
+            return redirect()->to(site_url('admin/tours'))->with('error', 'Không tìm thấy tour để nhân bản.');
+        }
+
+        $db = db_connect();
+        $now = date('Y-m-d H:i:s');
+        $sourceThumbnail = (string) ($formData['thumbnail'] ?? '');
+        $sourceNameVi = trim((string) ($formData['name_vi'] ?? '')) ?: 'Tour';
+        $sourceNameEn = trim((string) ($formData['name_en'] ?? '')) ?: $sourceNameVi;
+        $formData['name_vi'] = $sourceNameVi . ' (Bản sao)';
+        $formData['name_en'] = $sourceNameEn . ' (Copy)';
+        $formData['slug_vi'] = $this->uniqueTourSlug($db, (string) ($formData['slug_vi'] ?? ''), 'vi', (string) ($formData['tour_type'] ?? 'outbound'));
+        $formData['slug_en'] = $this->uniqueTourSlug($db, (string) ($formData['slug_en'] ?? ''), 'en', (string) ($formData['tour_type'] ?? 'outbound'));
+        $formData['code'] = '';
+        $formData['sku'] = '';
+        $formData['status'] = 'draft';
+        $formData['is_featured'] = 0;
+        $formData['is_promotion'] = 0;
+        $formData['promotion_badge'] = '';
+        $formData['promotion_ends_at'] = '';
+        $formData['promotion_sort'] = 0;
+        $formData['thumbnail'] = '';
+        $newTourId = 0;
+
+        try {
+            $db->transBegin();
+            $newTourId = $this->persistTour($db, null, $formData, $now);
+            if ($newTourId <= 0) {
+                throw new \RuntimeException('Không tạo được mã tour mới.');
+            }
+
+            $formData['thumbnail'] = $sourceThumbnail;
+            $formData = $this->copyTourAssetsForDuplicate($tourId, $newTourId, $formData);
+            $db->table('tours')->where('id', $newTourId)->update([
+                'thumbnail' => (string) ($formData['thumbnail'] ?? ''),
+                'updated_at' => $now,
+            ]);
+            $this->replaceTourTranslations($db, $newTourId, $formData);
+            $this->replaceTourDestinations($db, $newTourId, $formData);
+            $this->replaceTourDepartures($db, $newTourId, $formData, $now);
+            $this->replaceTourInclusions($db, $newTourId, $formData, $now);
+            $this->replaceTourMedia($db, $newTourId, $formData, $now);
+            $this->replaceTourItinerary($db, $newTourId, $formData, $now);
+            $this->replaceTourFaqs($db, $newTourId, $formData, $now);
+
+            if (! $db->transStatus()) {
+                throw new \RuntimeException('Không thể sao chép toàn bộ dữ liệu tour.');
+            }
+            $db->transCommit();
+        } catch (Throwable $exception) {
+            $db->transRollback();
+            if ($newTourId > 0) {
+                $this->deleteDirectory($this->tourUploadDirectory($newTourId));
+            }
+            log_message('error', 'Unable to duplicate tour #{tourId}: {message}', [
+                'tourId' => $tourId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()->to(site_url('admin/tours'))->with('error', 'Không thể nhân bản tour lúc này.');
+        }
+
+        $this->clearNavigationCaches();
+
+        return redirect()->to(site_url('admin/tours/' . $newTourId . '/edit'))
+            ->with('success', 'Đã nhân bản tour #' . $tourId . ' thành bản nháp #' . $newTourId . '. Chỉ cần sửa các phần khác biệt rồi xuất bản.');
+    }
+
     public function delete(int $tourId)
     {
         if ($redirect = $this->requireAdmin()) {
@@ -342,6 +417,63 @@ class Tours extends BaseAdminController
         }
     }
 
+    /**
+     * @param array<string, mixed> $formData
+     * @return array<string, mixed>
+     */
+    private function copyTourAssetsForDuplicate(int $sourceTourId, int $newTourId, array $formData): array
+    {
+        $sourceDirectory = $this->tourUploadDirectory($sourceTourId);
+        $targetDirectory = $this->tourUploadDirectory($newTourId);
+        if (is_dir($sourceDirectory)) {
+            $this->copyDirectory($sourceDirectory, $targetDirectory);
+        }
+
+        $sourcePrefix = 'uploads/tours/' . $sourceTourId . '/';
+        $targetPrefix = 'uploads/tours/' . $newTourId . '/';
+        $rewrite = static function ($path) use ($sourcePrefix, $targetPrefix): string {
+            $path = trim(str_replace('\\', '/', (string) $path));
+            return str_starts_with($path, $sourcePrefix)
+                ? $targetPrefix . substr($path, strlen($sourcePrefix))
+                : $path;
+        };
+
+        $formData['thumbnail'] = $rewrite($formData['thumbnail'] ?? '');
+        foreach ((array) ($formData['media'] ?? []) as $index => $media) {
+            if (! is_array($media)) {
+                continue;
+            }
+            $formData['media'][$index]['file_path'] = $rewrite($media['file_path'] ?? '');
+        }
+
+        return $formData;
+    }
+
+    private function copyDirectory(string $source, string $target): void
+    {
+        if (! is_dir($target) && ! mkdir($target, 0755, true) && ! is_dir($target)) {
+            throw new \RuntimeException('Không thể tạo thư mục ảnh cho bản sao.');
+        }
+
+        $items = scandir($source);
+        if ($items === false) {
+            throw new \RuntimeException('Không thể đọc thư mục ảnh nguồn.');
+        }
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $sourcePath = $source . DIRECTORY_SEPARATOR . $item;
+            $targetPath = $target . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($sourcePath)) {
+                $this->copyDirectory($sourcePath, $targetPath);
+            } elseif (is_file($sourcePath) && ! copy($sourcePath, $targetPath)) {
+                throw new \RuntimeException('Không thể sao chép ảnh ' . $item . '.');
+            }
+        }
+    }
+
     private function tourUploadDirectory(int $tourId): string
     {
         return rtrim(FCPATH, '\\/') . DIRECTORY_SEPARATOR . 'uploads'
@@ -431,7 +563,7 @@ class Tours extends BaseAdminController
         $rules = [
             'category_id' => 'required|is_natural_no_zero',
             'departure_location_id' => 'required|is_natural_no_zero',
-            'tour_type' => 'required|in_list[inbound,outbound]',
+            'tour_type' => 'required|in_list[outbound,domestic,inbound]',
             'duration_days' => 'required|is_natural_no_zero',
             'duration_nights' => 'required|is_natural',
             'name_vi' => 'required|min_length[3]',
@@ -455,6 +587,17 @@ class Tours extends BaseAdminController
         }
 
         $db = db_connect();
+        $selectedCategory = $db->table('tour_categories')
+            ->select('type')
+            ->where('id', (int) ($post['category_id'] ?? 0))
+            ->get()
+            ->getRowArray();
+        if ((string) ($selectedCategory['type'] ?? '') !== (string) ($post['tour_type'] ?? '')) {
+            return redirect()->to($formUrl)->withInput()->with('errors', [
+                'Danh mục không thuộc loại tour đã chọn. Vui lòng chọn lại danh mục.',
+            ]);
+        }
+
         $slugErrors = $this->validateUniqueTourSlugs($db, $post, $tourId);
         if ($slugErrors !== []) {
             return redirect()->to($formUrl)->withInput()->with('errors', $slugErrors);
@@ -563,6 +706,26 @@ class Tours extends BaseAdminController
         }
 
         return $errors;
+    }
+
+    private function uniqueTourSlug($db, string $sourceSlug, string $locale, string $tourType): string
+    {
+        $base = trim($sourceSlug) !== '' ? trim($sourceSlug) : 'tour';
+        $base = mb_substr($base . ($locale === 'vi' ? '-ban-sao' : '-copy'), 0, 240);
+        $candidate = $base;
+        $suffix = 2;
+
+        while ($db->table('tour_translations tt')
+            ->join('tours t', 't.id = tt.tour_id', 'inner')
+            ->where('tt.locale', $locale)
+            ->where('tt.slug', $candidate)
+            ->where('t.tour_type', $tourType)
+            ->countAllResults() > 0) {
+            $candidate = $base . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $candidate;
     }
 
     private function persistTour($db, ?int $tourId, array $post, string $now): int
@@ -674,7 +837,7 @@ class Tours extends BaseAdminController
         $tourType = (string) ($post['tour_type'] ?? 'outbound');
 
         foreach ($destinationRows as $row) {
-            if ($tourType === 'inbound') {
+            if (in_array($tourType, ['domestic', 'inbound'], true)) {
                 $provinceId = (int) ($row['province_id'] ?? 0);
 
                 if ($provinceId <= 0 && ! empty($row['new_province_name_vi']) && ! empty($row['region_key'])) {
@@ -685,17 +848,21 @@ class Tours extends BaseAdminController
                     $destinationIds[] = $provinceId;
                 }
 
-                continue;
+                if ($tourType === 'domestic') {
+                    continue;
+                }
             }
 
-            $countryId = (int) ($row['country_id'] ?? 0);
+            if (in_array($tourType, ['outbound', 'inbound'], true)) {
+                $countryId = (int) ($row['country_id'] ?? 0);
 
-            if ($countryId <= 0 && ! empty($row['new_country_name_vi']) && ! empty($row['continent_id'])) {
-                $countryId = $this->createCountryLocation($db, $row);
-            }
+                if ($countryId <= 0 && ! empty($row['new_country_name_vi']) && ! empty($row['continent_id'])) {
+                    $countryId = $this->createCountryLocation($db, $row);
+                }
 
-            if ($countryId > 0) {
-                $destinationIds[] = $countryId;
+                if ($countryId > 0) {
+                    $destinationIds[] = $countryId;
+                }
             }
         }
 
@@ -1018,12 +1185,15 @@ class Tours extends BaseAdminController
 
         $destinationRows = [];
         foreach ($destinations as $destination) {
-            if (($tour['tour_type'] ?? 'outbound') === 'inbound') {
+            $tourType = (string) ($tour['tour_type'] ?? 'outbound');
+            $locationType = (string) ($destination['type'] ?? '');
+
+            if (in_array($tourType, ['domestic', 'inbound'], true) && $locationType === 'province') {
                 $destinationRows[] = [
                     'region_key' => $provinceRegionMap[(int) $destination['location_id']] ?? '',
                     'province_id' => (int) $destination['location_id'],
                 ];
-            } else {
+            } elseif (in_array($tourType, ['outbound', 'inbound'], true) && $locationType === 'country') {
                 $destinationRows[] = [
                     'continent_id' => (int) $destination['parent_id'],
                     'country_id' => (int) $destination['location_id'],
@@ -1115,11 +1285,17 @@ class Tours extends BaseAdminController
             'short_description_vi' => $translationMap['vi']['short_description'] ?? '',
             'overview_vi' => $translationMap['vi']['overview'] ?? '',
             'description_vi' => $translationMap['vi']['description'] ?? '',
+            'booking_policy_vi' => $translationMap['vi']['booking_policy'] ?? '',
+            'cancellation_policy_vi' => $translationMap['vi']['cancellation_policy'] ?? '',
+            'price_note_vi' => $translationMap['vi']['price_note'] ?? '',
             'name_en' => $translationMap['en']['name'] ?? '',
             'slug_en' => $translationMap['en']['slug'] ?? '',
             'short_description_en' => $translationMap['en']['short_description'] ?? '',
             'overview_en' => $translationMap['en']['overview'] ?? '',
             'description_en' => $translationMap['en']['description'] ?? '',
+            'booking_policy_en' => $translationMap['en']['booking_policy'] ?? '',
+            'cancellation_policy_en' => $translationMap['en']['cancellation_policy'] ?? '',
+            'price_note_en' => $translationMap['en']['price_note'] ?? '',
             'departure_date' => $departure['departure_date'] ?? '',
             'available_slots' => $departure['available_slots'] ?? '',
             'departure_status' => $departure['status'] ?? 'open',
@@ -1291,9 +1467,11 @@ class Tours extends BaseAdminController
 
     private function defaultDestinationRow(string $tourType): array
     {
-        return $tourType === 'inbound'
-            ? ['region_key' => '', 'province_id' => 0]
-            : ['continent_id' => 0, 'country_id' => 0];
+        return match ($tourType) {
+            'domestic' => ['region_key' => '', 'province_id' => 0],
+            'inbound' => ['region_key' => '', 'province_id' => 0, 'continent_id' => 0, 'country_id' => 0],
+            default => ['continent_id' => 0, 'country_id' => 0],
+        };
     }
 
     private function defaultItineraryRow(): array

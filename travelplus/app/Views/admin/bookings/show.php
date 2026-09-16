@@ -79,7 +79,8 @@ $customerNote = trim((string) ($booking['customer_note'] ?? ''));
             </div>
             <div class="meta-item"><small>Phương thức</small><div class="fw-semibold"><?= esc($methodLabels[$bookingMethod] ?? strtoupper($bookingMethod !== '' ? $bookingMethod : '-')) ?> / <?= esc((string) ($booking['payment_plan'] ?? '-')) ?></div></div>
             <div class="meta-item"><small>Tạm tính</small><div class="fw-semibold"><?= esc(number_format((float) ($booking['subtotal_vnd'] ?? $booking['grand_total'] ?? 0), 0, ',', '.')) ?> đ</div></div>
-            <div class="meta-item"><small>Giảm giá</small><div class="fw-semibold"><?= esc(number_format((float) ($booking['discount_amount_vnd'] ?? 0), 0, ',', '.')) ?> đ</div></div>
+            <div class="meta-item"><small>Giảm theo hạng<?= ! empty($booking['membership_tier_key']) ? ' (' . esc(ucfirst((string) $booking['membership_tier_key'])) . ')' : '' ?></small><div class="fw-semibold">-<?= esc(number_format((float) ($booking['membership_discount_amount_vnd'] ?? 0), 0, ',', '.')) ?> đ</div></div>
+            <div class="meta-item"><small>Giảm voucher / mã</small><div class="fw-semibold">-<?= esc(number_format((float) ($booking['discount_amount_vnd'] ?? 0), 0, ',', '.')) ?> đ</div></div>
             <div class="meta-item"><small>Mã khuyến mãi</small><div class="fw-semibold"><?= esc((string) ($booking['coupon_code'] ?? '-')) ?></div></div>
             <div class="meta-item"><small>Tổng booking</small><div class="fw-semibold"><?= esc(number_format((float) ($booking['grand_total'] ?? 0), 0, ',', '.')) ?> đ</div></div>
             <div class="meta-item"><small>Cần thu</small><div class="fw-semibold"><?= esc(number_format($amountDue, 0, ',', '.')) ?> đ</div></div>

@@ -14,7 +14,8 @@ if (trim((string) $searchState['departure_date']) !== '') {
     $searchState['departure_to'] = $searchState['departure_to'] !== '' ? $searchState['departure_to'] : $searchState['departure_date'];
 }
 
-$searchState['tour_type'] = in_array($searchState['tour_type'], ['outbound', 'inbound'], true) ? $searchState['tour_type'] : '';
+$allowedTourTypes = $locale === 'en' ? ['outbound', 'inbound'] : ['outbound', 'domestic'];
+$searchState['tour_type'] = in_array($searchState['tour_type'], $allowedTourTypes, true) ? $searchState['tour_type'] : '';
 
 $parseDateValue = static function (string $value): ?\DateTime {
     $value = trim($value);
@@ -52,7 +53,8 @@ $copy = $locale === 'en'
         'dateClear' => 'Clear',
         'allTypes' => 'All tours',
         'outbound' => 'Outbound tours',
-        'inbound' => 'Domestic tours',
+        'domestic' => 'Domestic tours',
+        'inbound' => 'Inbound tours',
         'submit' => 'Search tours',
         'clear' => 'Clear',
         'mobileToggle' => 'Tour filters',
@@ -72,7 +74,8 @@ $copy = $locale === 'en'
         'dateClear' => 'Xóa',
         'allTypes' => 'Tất cả tour',
         'outbound' => 'Tour nước ngoài',
-        'inbound' => 'Tour trong nước',
+        'domestic' => 'Tour trong nước',
+        'inbound' => 'Tour inbound & Đông Dương',
         'submit' => 'Tìm tour',
         'clear' => 'Xóa lọc',
         'mobileToggle' => 'Bộ lọc tour',
@@ -171,7 +174,11 @@ $filterTotal = (int) (($pagination['total'] ?? null) ?? count($tours ?? []));
                     <select name="tour_type">
                         <option value=""<?= $searchState['tour_type'] === '' ? ' selected' : '' ?>><?= esc($copy['allTypes']) ?></option>
                         <option value="outbound"<?= $searchState['tour_type'] === 'outbound' ? ' selected' : '' ?>><?= esc($copy['outbound']) ?></option>
-                        <option value="inbound"<?= $searchState['tour_type'] === 'inbound' ? ' selected' : '' ?>><?= esc($copy['inbound']) ?></option>
+                        <?php if ($locale === 'vi'): ?>
+                            <option value="domestic"<?= $searchState['tour_type'] === 'domestic' ? ' selected' : '' ?>><?= esc($copy['domestic']) ?></option>
+                        <?php else: ?>
+                            <option value="inbound"<?= $searchState['tour_type'] === 'inbound' ? ' selected' : '' ?>><?= esc($copy['inbound']) ?></option>
+                        <?php endif; ?>
                     </select>
                 </label>
 

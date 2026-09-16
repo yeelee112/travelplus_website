@@ -308,6 +308,34 @@ class BookingNotificationService
         $status = strtolower((string) ($booking['payment_status'] ?? ''));
         $amount = number_format((float) ($status === 'paid' ? ($booking['amount_paid_vnd'] ?? 0) : ($booking['amount_due_vnd'] ?? 0)), 0, ',', '.') . ' VND';
         $isPaid = $status === 'paid';
+        $subtotal = max(0, (float) ($booking['subtotal_vnd'] ?? $booking['grand_total'] ?? 0));
+        $membershipDiscount = max(0, (float) ($booking['membership_discount_amount_vnd'] ?? 0));
+        $voucherDiscount = max(0, (float) ($booking['discount_amount_vnd'] ?? 0));
+        $grandTotal = max(0, (float) ($booking['grand_total'] ?? 0));
+        $tierKey = trim((string) ($booking['membership_tier_key'] ?? ''));
+        $tierNames = ['member' => 'Thành viên', 'silver' => 'Bạc', 'gold' => 'Vàng', 'diamond' => 'Kim Cương', 'signature' => 'Signature'];
+        $detailRows = [
+            ['label' => 'Tour', 'value' => $tourTitle],
+            ['label' => 'Ngày khởi hành', 'value' => $departure],
+            ['label' => 'Giá tour & phụ thu', 'value' => number_format($subtotal, 0, ',', '.') . ' VND'],
+        ];
+        if ($membershipDiscount > 0) {
+            $detailRows[] = [
+                'label' => 'Giảm hạng ' . ($tierNames[$tierKey] ?? ucfirst($tierKey)),
+                'value' => '-' . number_format($membershipDiscount, 0, ',', '.') . ' VND',
+            ];
+        }
+        if ($voucherDiscount > 0) {
+            $detailRows[] = [
+                'label' => 'Voucher' . (trim((string) ($booking['coupon_code'] ?? '')) !== '' ? ' ' . trim((string) $booking['coupon_code']) : ''),
+                'value' => '-' . number_format($voucherDiscount, 0, ',', '.') . ' VND',
+            ];
+        }
+        $detailRows[] = ['label' => 'Tổng booking', 'value' => number_format($grandTotal, 0, ',', '.') . ' VND'];
+        $detailRows[] = ['label' => 'Số điện thoại', 'value' => (string) ($booking['customer_phone'] ?? '')];
+        $detailRows[] = ['label' => 'Địa chỉ', 'value' => (string) ($booking['customer_address'] ?? '')];
+        $detailRows[] = ['label' => 'Phương thức', 'value' => $paymentMethod];
+        $detailRows[] = ['label' => 'Trạng thái', 'value' => $isPaid ? 'Đã thanh toán' : 'Chờ đối soát'];
         $template = new EmailTemplateService();
 
         return $template->render(
@@ -318,14 +346,7 @@ class BookingNotificationService
                 'Mã booking' => $code,
                 'Số tiền' => $amount,
             ],
-            [
-                ['label' => 'Tour', 'value' => $tourTitle],
-                ['label' => 'Ngày khởi hành', 'value' => $departure],
-                ['label' => 'Số điện thoại', 'value' => (string) ($booking['customer_phone'] ?? '')],
-                ['label' => 'Địa chỉ', 'value' => (string) ($booking['customer_address'] ?? '')],
-                ['label' => 'Phương thức', 'value' => $paymentMethod],
-                ['label' => 'Trạng thái', 'value' => $isPaid ? 'Đã thanh toán' : 'Chờ đối soát'],
-            ],
+            $detailRows,
             '',
             'Xem booking',
             $this->bookingUrl($booking)
@@ -428,6 +449,10 @@ class BookingNotificationService
         $paymentMethod = strtoupper((string) ($booking['payment_method'] ?? '-'));
         $amountDue = number_format((float) ($booking['amount_due_vnd'] ?? 0), 0, ',', '.') . ' VND';
         $amountPaid = number_format((float) ($booking['amount_paid_vnd'] ?? 0), 0, ',', '.') . ' VND';
+        $subtotal = max(0, (float) ($booking['subtotal_vnd'] ?? $booking['grand_total'] ?? 0));
+        $membershipDiscount = max(0, (float) ($booking['membership_discount_amount_vnd'] ?? 0));
+        $voucherDiscount = max(0, (float) ($booking['discount_amount_vnd'] ?? 0));
+        $grandTotal = max(0, (float) ($booking['grand_total'] ?? 0));
         $template = new EmailTemplateService();
 
         return $template->render(
@@ -446,6 +471,10 @@ class BookingNotificationService
                 ['label' => 'Khởi hành', 'value' => (string) ($booking['departure_label'] ?? '-')],
                 ['label' => 'Phương thức', 'value' => $paymentMethod],
                 ['label' => 'Trạng thái', 'value' => $status],
+                ['label' => 'Giá tour & phụ thu', 'value' => number_format($subtotal, 0, ',', '.') . ' VND'],
+                ['label' => 'Giảm theo hạng', 'value' => '-' . number_format($membershipDiscount, 0, ',', '.') . ' VND'],
+                ['label' => 'Giảm voucher', 'value' => '-' . number_format($voucherDiscount, 0, ',', '.') . ' VND'],
+                ['label' => 'Tổng booking', 'value' => number_format($grandTotal, 0, ',', '.') . ' VND'],
                 ['label' => 'Cần thu', 'value' => $amountDue],
                 ['label' => 'Đã thu', 'value' => $amountPaid],
             ],

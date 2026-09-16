@@ -40,6 +40,10 @@ final class LocalizedPathCatalog
             'vi' => 'tour-trong-nuoc',
             'en' => 'tour-trong-nuoc',
         ],
+        'inbound' => [
+            'vi' => 'tour-inbound',
+            'en' => 'inbound-tours',
+        ],
         'service.visa' => [
             'vi' => 'dich-vu-visa',
             'en' => 'dich-vu-visa',

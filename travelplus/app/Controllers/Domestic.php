@@ -17,7 +17,7 @@ class Domestic extends BaseController
         $seo = new SeoService();
         $tourService = new TourCatalogService();
         $page = (int) ($this->request->getGet('page') ?? 1);
-        $result = $tourService->getPagedTours($locale, 9, $page, 'inbound');
+        $result = $tourService->getPagedTours($locale, 9, $page, 'domestic');
 
         $data['breadcrumbs'] = [
             ['label' => $t('common.home'), 'url' => localized_url('/')],
@@ -30,7 +30,7 @@ class Domestic extends BaseController
             'lastPage' => $result['lastPage'],
         ];
         $data['listingSearch'] = [
-            'tour_type' => 'inbound',
+            'tour_type' => 'domestic',
         ];
         $data['meta_title'] = $t('domestic.metaTitle');
         $data['meta_desc'] = $t('domestic.metaDesc');
@@ -87,7 +87,7 @@ class Domestic extends BaseController
         $tourService = new TourCatalogService();
         $seo = new SeoService();
         $page = (int) ($this->request->getGet('page') ?? 1);
-        $result = $tourService->getPagedTours($locale, 9, $page, 'inbound', $filter);
+        $result = $tourService->getPagedTours($locale, 9, $page, 'domestic', $filter);
 
         $data['breadcrumbs'] = $this->buildBreadcrumbs($locale, $locations);
         $data['tours'] = $result['tours'];
@@ -97,7 +97,7 @@ class Domestic extends BaseController
             'lastPage' => $result['lastPage'],
         ];
         $data['listingSearch'] = [
-            'tour_type' => 'inbound',
+            'tour_type' => 'domestic',
         ];
         $activeLocation = $locations[array_key_last($locations)] ?? ['name' => ''];
         $data['meta_title'] = $locale === 'en'

@@ -1,0 +1,213 @@
+.language-entry {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.language-entry__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 31, 48, .68);
+    backdrop-filter: blur(10px);
+}
+
+.language-entry__dialog {
+    position: relative;
+    width: min(760px, 100%);
+    padding: 34px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .8);
+    border-radius: 26px;
+    background: linear-gradient(145deg, #fff 0%, #f4fbff 100%);
+    box-shadow: 0 28px 80px rgba(0, 39, 62, .3);
+    color: #102f43;
+}
+
+.language-entry__dialog::after {
+    content: "";
+    position: absolute;
+    top: -100px;
+    right: -80px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: rgba(15, 169, 224, .09);
+    pointer-events: none;
+}
+
+.language-entry__brand {
+    width: 124px;
+    margin-bottom: 20px;
+}
+
+.language-entry__brand img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.language-entry__eyebrow {
+    display: block;
+    margin-bottom: 7px;
+    color: #008ec5;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.language-entry__dialog h2 {
+    margin: 0;
+    color: #092f46;
+    font-size: clamp(25px, 4vw, 36px);
+    font-weight: 750;
+    line-height: 1.18;
+}
+
+.language-entry__dialog h2 span {
+    color: #9db1bd;
+    font-weight: 400;
+}
+
+.language-entry__dialog > p:not(.language-entry__note) {
+    margin: 10px 0 24px;
+    color: #66808f;
+    font-size: 15px;
+}
+
+.language-entry__options {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.language-entry__option {
+    display: grid;
+    grid-template-columns: 42px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    min-height: 132px;
+    padding: 20px;
+    border: 1px solid #d7e7ee;
+    border-radius: 18px;
+    background: #fff;
+    color: #17384b;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(17, 78, 108, .06);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.language-entry__option:hover,
+.language-entry__option:focus-visible {
+    transform: translateY(-3px);
+    border-color: #16a9df;
+    color: #17384b;
+    box-shadow: 0 14px 32px rgba(0, 145, 202, .15);
+    outline: none;
+}
+
+.language-entry__option > img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 45, 66, .12);
+}
+
+.language-entry__option-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.language-entry__option-copy strong {
+    color: #082f46;
+    font-size: 19px;
+    line-height: 1.25;
+}
+
+.language-entry__option-copy > span {
+    margin-top: 5px;
+    color: #385a6c;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.language-entry__option-copy small {
+    margin-top: 3px;
+    color: #6f8794;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.language-entry__option > i {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 50%;
+    background: #eaf8fd;
+    color: #039bd3;
+}
+
+.language-entry__note {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    justify-content: center;
+    margin: 18px 0 0;
+    color: #718793;
+    font-size: 12px;
+    text-align: center;
+}
+
+.language-entry__note i {
+    color: #1c9c6b;
+}
+
+body.language-entry-open {
+    overflow: hidden;
+}
+
+@media (max-width: 767px) {
+    .language-entry {
+        align-items: end;
+        padding: 12px;
+    }
+
+    .language-entry__dialog {
+        max-height: calc(100dvh - 24px);
+        padding: 25px 18px 20px;
+        overflow-y: auto;
+        border-radius: 24px;
+    }
+
+    .language-entry__brand {
+        width: 105px;
+        margin-bottom: 15px;
+    }
+
+    .language-entry__dialog > p:not(.language-entry__note) {
+        margin-bottom: 18px;
+    }
+
+    .language-entry__options {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .language-entry__option {
+        min-height: 106px;
+        padding: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .language-entry__option {
+        transition: none;
+    }
+}

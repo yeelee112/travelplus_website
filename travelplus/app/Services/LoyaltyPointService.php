@@ -30,14 +30,64 @@ final class LoyaltyPointService
         }
     }
 
-    public function calculatePoints(float $amountPaidVnd): int
+    public function calculatePoints(float $earningBaseVnd): int
     {
-        return self::previewPoints($amountPaidVnd);
+        return self::previewPoints($earningBaseVnd);
     }
 
     public static function previewPoints(float $amountVnd): int
     {
         return (int) floor(max(0, $amountVnd) / self::VND_PER_POINT);
+    }
+
+    /**
+     * Points follow the original tour fare for every traveler. Tier savings,
+     * vouchers, the selected payment plan and the single-room supplement do
+     * not reduce or increase this earning base.
+     *
+     * @param array<string, mixed> $booking
+     */
+    public static function earningBaseForBooking(array $booking): float
+    {
+        $travelerFare = 0.0;
+        $hasTravelers = false;
+        $hasCompleteTravelerPricing = true;
+
+        foreach (['adult', 'child', 'infant'] as $travelerType) {
+            $quantityKey = $travelerType . '_quantity';
+            $priceKey = $travelerType . '_price';
+            $quantity = max(0, (int) ($booking[$quantityKey] ?? 0));
+            $price = max(0, (float) ($booking[$priceKey] ?? 0));
+
+            if ($quantity <= 0) {
+                continue;
+            }
+
+            $hasTravelers = true;
+            if ($price <= 0) {
+                $hasCompleteTravelerPricing = false;
+                continue;
+            }
+
+            $travelerFare += $quantity * $price;
+        }
+
+        if ($hasTravelers && $hasCompleteTravelerPricing) {
+            return $travelerFare;
+        }
+
+        if (array_key_exists('coupon_eligible_subtotal_vnd', $booking)) {
+            return max(0, (float) $booking['coupon_eligible_subtotal_vnd']);
+        }
+
+        if (array_key_exists('subtotal_vnd', $booking)) {
+            return max(
+                0,
+                (float) $booking['subtotal_vnd'] - max(0, (float) ($booking['single_room_supplement_vnd'] ?? 0))
+            );
+        }
+
+        return max(0, (float) ($booking['grand_total'] ?? $booking['amount_due_vnd'] ?? $booking['amount_paid_vnd'] ?? 0));
     }
 
     /**
@@ -84,14 +134,14 @@ final class LoyaltyPointService
         foreach ($eligibleBookings as $bookingId => $booking) {
             $current = $currentByBooking[$bookingId] ?? ['points' => 0, 'count' => 0];
             $status = strtolower(trim((string) ($booking['payment_status'] ?? '')));
-            $amountPaid = max(0, (float) ($booking['amount_paid_vnd'] ?? 0));
-            $targetPoints = $status === 'paid' ? $this->calculatePoints($amountPaid) : 0;
+            $earningBase = self::earningBaseForBooking($booking);
+            $targetPoints = $status === 'paid' ? $this->calculatePoints($earningBase) : 0;
 
             if ($targetPoints === $current['points']) {
                 continue;
             }
 
-            $this->syncEligibleBooking($booking, $targetPoints, $amountPaid);
+            $this->syncEligibleBooking($booking, $targetPoints, $earningBase);
         }
     }
 
@@ -159,7 +209,7 @@ final class LoyaltyPointService
     /**
      * @param array<string, mixed> $booking
      */
-    private function syncEligibleBooking(array $booking, int $targetPoints, float $amountPaid): void
+    private function syncEligibleBooking(array $booking, int $targetPoints, float $earningBase): void
     {
         $bookingId = (int) ($booking['id'] ?? 0);
         $db = $this->database();
@@ -198,7 +248,7 @@ final class LoyaltyPointService
                 'event_key' => $eventKey,
                 'type' => $pointDelta > 0 ? 'booking_earned' : 'booking_reversed',
                 'points' => $pointDelta,
-                'amount_vnd' => $amountPaid,
+                'amount_vnd' => $earningBase,
                 'description' => trim((string) ($booking['booking_code'] ?? '')) ?: 'Booking #' . $bookingId,
                 'created_at' => date('Y-m-d H:i:s'),
             ]);

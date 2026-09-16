@@ -24,6 +24,7 @@ $passportVouchers = is_array($passportVouchers ?? null) ? array_values($passport
 $singleRoomRequested = ! empty($booking['single_room_requested']);
 $singleRoomSupplementAmount = max(0, (float) ($booking['single_room_supplement_vnd'] ?? 0));
 $baseTourSubtotalAmount = max(0, (float) ($booking['coupon_eligible_subtotal_vnd'] ?? ($subtotalAmount - $singleRoomSupplementAmount)));
+$projectedPoints = \App\Services\LoyaltyPointService::previewPoints($baseTourSubtotalAmount);
 $depositRate = 0.10;
 $depositAmount = $grandTotal * $depositRate;
 $checkoutNotice = trim((string) ($checkoutNotice ?? ''));
@@ -86,6 +87,7 @@ $passportVoucherUi = $locale === 'en'
         'tier' => 'Tier welcome benefit',
         'points' => 'Member Points voucher',
         'minimum' => 'Booking from',
+        'allBookings' => 'Valid on every booking',
         'needMore' => 'Add %s more to use',
         'expires' => 'Expires',
         'discount' => 'Save',
@@ -98,6 +100,7 @@ $passportVoucherUi = $locale === 'en'
         'tier' => 'Quyền lợi chào hạng',
         'points' => 'Voucher đổi Điểm',
         'minimum' => 'Booking từ',
+        'allBookings' => 'Áp dụng mọi booking',
         'needMore' => 'Cần thêm %s để sử dụng',
         'expires' => 'HSD',
         'discount' => 'Giảm',
@@ -402,7 +405,9 @@ $singleRoomValueLabel = $locale === 'en'
                                                             ? $passportVoucherUi['tier']
                                                             : $passportVoucherUi['points'];
                                                         $voucherCondition = $voucherEligible
-                                                            ? $passportVoucherUi['minimum'] . ' ' . $formatCurrency($voucherMinimum)
+                                                            ? ($voucherMinimum > 0
+                                                                ? $passportVoucherUi['minimum'] . ' ' . $formatCurrency($voucherMinimum)
+                                                                : $passportVoucherUi['allBookings'])
                                                             : sprintf($passportVoucherUi['needMore'], $formatCurrency($voucherAmountNeeded));
                                                         $voucherExpires = app_datetime((string) ($voucher['expires_at'] ?? ''), 'd/m/Y', '-');
                                                         ?>
@@ -573,6 +578,12 @@ $singleRoomValueLabel = $locale === 'en'
                                                     <span><?= esc($t('checkout.total')) ?></span>
                                                     <strong data-grand-total><?= esc($formatCurrency($grandTotal)) ?></strong>
                                                 </div>
+                                                <?php if ($authUser !== null && $projectedPoints > 0): ?>
+                                                    <div class="checkout-summary-price-row checkout-summary-price-row--passport">
+                                                        <span><?= esc($locale === 'en' ? 'Expected Member Points · based on original tour price' : 'Điểm thành viên dự kiến · tính theo giá tour gốc') ?></span>
+                                                        <strong>+<?= esc(number_format($projectedPoints, 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'points' : 'Điểm') ?></strong>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div class="checkout-summary-price-row checkout-summary-price-row--due">
                                                     <span data-payment-plan-label><?= esc($t('checkout.depositLine')) ?></span>
                                                     <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>
@@ -652,6 +663,12 @@ $singleRoomValueLabel = $locale === 'en'
                                     <span><?= esc($t('checkout.total')) ?></span>
                                     <strong data-grand-total><?= esc($formatCurrency($grandTotal)) ?></strong>
                                 </div>
+                                <?php if ($authUser !== null && $projectedPoints > 0): ?>
+                                    <div class="checkout-finish-item">
+                                        <span><?= esc($locale === 'en' ? 'Expected Member Points · based on original tour price' : 'Điểm thành viên dự kiến · tính theo giá tour gốc') ?></span>
+                                        <strong>+<?= esc(number_format($projectedPoints, 0, ',', '.')) ?> <?= esc($locale === 'en' ? 'points' : 'Điểm') ?></strong>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="checkout-finish-item">
                                     <span data-payment-plan-label><?= esc($t('checkout.depositLine')) ?></span>
                                     <strong data-payment-amount><?= esc($formatCurrency($depositAmount)) ?></strong>

@@ -56,7 +56,6 @@ abstract class BaseController extends Controller
         $authUser = session()->get('auth_user');
         try {
             if (is_array($authUser) && ! empty($authUser['id']) && ! $sessionControl->isSessionUserValid($authUser)) {
-                (new RememberLoginService())->clear();
                 session()->remove(['auth_user', 'checkout_mode', 'header_membership']);
                 $authUser = null;
             }

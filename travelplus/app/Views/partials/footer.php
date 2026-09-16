@@ -31,7 +31,7 @@ $footerCopy = [
         'ctaDesc' => 'Send your requirements and Travel Plus will recommend the right itinerary, budget and operating plan for families, groups or corporate teams.',
         'ctaPrimary' => 'Contact Travel Plus',
         'ctaSecondary' => 'Find tours',
-        'brandDesc' => 'Travel Plus provides outbound tours, domestic tours, visa services and MICE programs for individuals, families, groups and companies.',
+        'brandDesc' => 'Travel Plus provides inbound and outbound tours, visa services and MICE programs for individuals, families, groups and companies.',
         'contactTitle' => 'Quick contact',
         'taxLabel' => 'Tax code',
         'travelLicenseLabel' => 'Tour operator license',
@@ -44,7 +44,9 @@ $copyrightText = html_entity_decode(lang('Frontend.footer.copyright'), ENT_QUOTE
 
 $tourLinks = [
     ['label' => lang('Frontend.footer.link.outbound'), 'url' => \App\Data\LocalizedPathCatalog::url('outbound', $locale)],
-    ['label' => lang('Frontend.footer.link.domestic'), 'url' => \App\Data\LocalizedPathCatalog::url('domestic', $locale)],
+    $locale === 'en'
+        ? ['label' => lang('Frontend.footer.link.inbound'), 'url' => \App\Data\LocalizedPathCatalog::url('inbound', $locale)]
+        : ['label' => lang('Frontend.footer.link.domestic'), 'url' => \App\Data\LocalizedPathCatalog::url('domestic', $locale)],
     ['label' => lang('Frontend.footer.link.search'), 'url' => \App\Data\LocalizedPathCatalog::url('search', $locale)],
     ['label' => lang('Frontend.footer.link.blog'), 'url' => \App\Data\LocalizedPathCatalog::url('blog', $locale)],
 ];

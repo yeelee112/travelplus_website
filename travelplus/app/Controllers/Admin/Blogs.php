@@ -139,6 +139,93 @@ class Blogs extends BaseAdminController
         return $this->saveBlog($blogId);
     }
 
+    public function duplicate(int $blogId)
+    {
+        if ($redirect = $this->requireAdmin()) {
+            return $redirect;
+        }
+
+        $db = db_connect();
+        $source = $this->getBlogForAdmin($db, $blogId);
+        if ($source === null) {
+            return redirect()->to(site_url('admin/blogs'))->with('error', 'Không tìm thấy bài viết để nhân bản.');
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $newBlogId = 0;
+
+        try {
+            $db->transBegin();
+            $blogFields = $db->getFieldNames('blogs');
+            $db->table('blogs')->insert(array_intersect_key([
+                'category' => (string) ($source['category'] ?? ''),
+                'author_name' => (string) ($source['author_name'] ?? ''),
+                'thumbnail' => '',
+                'cover_image' => '',
+                'featured_image' => '',
+                'status' => 'draft',
+                'is_featured' => 0,
+                'published_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ], array_flip($blogFields)));
+            $newBlogId = (int) $db->insertID();
+            if ($newBlogId <= 0) {
+                throw new \RuntimeException('Không tạo được mã bài viết mới.');
+            }
+
+            $source = $this->copyBlogAssetsForDuplicate($blogId, $newBlogId, $source);
+            $db->table('blogs')->where('id', $newBlogId)->update([
+                'thumbnail' => (string) ($source['thumbnail'] ?? ''),
+                'cover_image' => (string) ($source['cover_image'] ?? ''),
+                'featured_image' => (string) ($source['featured_image'] ?? ''),
+                'updated_at' => $now,
+            ]);
+
+            $sourceTitleVi = trim((string) ($source['title_vi'] ?? '')) ?: 'Bài viết';
+            $sourceTitleEn = trim((string) ($source['title_en'] ?? '')) ?: $sourceTitleVi;
+            $titleVi = $sourceTitleVi . ' (Bản sao)';
+            $titleEn = $sourceTitleEn . ' (Copy)';
+            $this->upsertTranslation($db, $newBlogId, 'vi', [
+                'title' => $titleVi,
+                'slug' => $this->uniqueBlogSlug($db, (string) ($source['slug_vi'] ?? ''), 'vi'),
+                'excerpt' => (string) ($source['excerpt_vi'] ?? ''),
+                'content' => (string) ($source['content_vi'] ?? ''),
+                'meta_title' => $titleVi . ' | Travel Plus',
+                'meta_description' => (string) ($source['meta_description_vi'] ?? $source['excerpt_vi'] ?? ''),
+            ], $now);
+            $this->upsertTranslation($db, $newBlogId, 'en', [
+                'title' => $titleEn,
+                'slug' => $this->uniqueBlogSlug($db, (string) ($source['slug_en'] ?? $source['slug_vi'] ?? ''), 'en'),
+                'excerpt' => (string) ($source['excerpt_en'] ?? $source['excerpt_vi'] ?? ''),
+                'content' => (string) ($source['content_en'] ?? $source['content_vi'] ?? ''),
+                'meta_title' => $titleEn . ' | Travel Plus',
+                'meta_description' => (string) ($source['meta_description_en'] ?? $source['excerpt_en'] ?? ''),
+            ], $now);
+
+            if (! $db->transStatus()) {
+                throw new \RuntimeException('Không thể sao chép toàn bộ dữ liệu bài viết.');
+            }
+            $db->transCommit();
+        } catch (\Throwable $exception) {
+            $db->transRollback();
+            if ($newBlogId > 0) {
+                $this->deleteDirectory($this->blogUploadDirectory($newBlogId));
+            }
+            log_message('error', 'Unable to duplicate blog #{blogId}: {message}', [
+                'blogId' => $blogId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()->to(site_url('admin/blogs'))->with('error', 'Không thể nhân bản bài viết lúc này.');
+        }
+
+        (new PublicContentCacheService())->invalidate();
+
+        return redirect()->to(site_url('admin/blogs/' . $newBlogId . '/edit'))
+            ->with('success', 'Đã nhân bản bài viết #' . $blogId . ' thành bản nháp #' . $newBlogId . '. Chỉ cần sửa nội dung khác biệt rồi xuất bản.');
+    }
+
     public function updateStatus(int $blogId)
     {
         if ($redirect = $this->requireAdmin()) {
@@ -485,6 +572,24 @@ class Blogs extends BaseAdminController
         return $errors;
     }
 
+    private function uniqueBlogSlug($db, string $sourceSlug, string $locale): string
+    {
+        $base = trim($sourceSlug) !== '' ? trim($sourceSlug) : 'bai-viet';
+        $base = mb_substr($base . ($locale === 'vi' ? '-ban-sao' : '-copy'), 0, 240);
+        $candidate = $base;
+        $suffix = 2;
+
+        while ($db->table('blog_translations')
+            ->where('locale', $locale)
+            ->where('slug', $candidate)
+            ->countAllResults() > 0) {
+            $candidate = $base . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $candidate;
+    }
+
     /**
      * @return array<string, mixed>|null
      */
@@ -676,6 +781,55 @@ class Blogs extends BaseAdminController
         return rtrim(FCPATH, '\\/') . DIRECTORY_SEPARATOR . 'uploads'
             . DIRECTORY_SEPARATOR . 'blogs'
             . DIRECTORY_SEPARATOR . $blogId;
+    }
+
+    /**
+     * @param array<string, mixed> $source
+     * @return array<string, mixed>
+     */
+    private function copyBlogAssetsForDuplicate(int $sourceBlogId, int $newBlogId, array $source): array
+    {
+        $sourceDirectory = $this->blogUploadDirectory($sourceBlogId);
+        $targetDirectory = $this->blogUploadDirectory($newBlogId);
+        if (is_dir($sourceDirectory)) {
+            $this->copyDirectory($sourceDirectory, $targetDirectory);
+        }
+
+        $sourcePrefix = 'uploads/blogs/' . $sourceBlogId . '/';
+        $targetPrefix = 'uploads/blogs/' . $newBlogId . '/';
+        foreach (['thumbnail', 'cover_image', 'featured_image'] as $field) {
+            $path = trim(str_replace('\\', '/', (string) ($source[$field] ?? '')));
+            $source[$field] = str_starts_with($path, $sourcePrefix)
+                ? $targetPrefix . substr($path, strlen($sourcePrefix))
+                : $path;
+        }
+
+        return $source;
+    }
+
+    private function copyDirectory(string $source, string $target): void
+    {
+        if (! is_dir($target) && ! mkdir($target, 0755, true) && ! is_dir($target)) {
+            throw new \RuntimeException('Không thể tạo thư mục ảnh cho bản sao.');
+        }
+
+        $items = scandir($source);
+        if ($items === false) {
+            throw new \RuntimeException('Không thể đọc thư mục ảnh nguồn.');
+        }
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $sourcePath = $source . DIRECTORY_SEPARATOR . $item;
+            $targetPath = $target . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($sourcePath)) {
+                $this->copyDirectory($sourcePath, $targetPath);
+            } elseif (is_file($sourcePath) && ! copy($sourcePath, $targetPath)) {
+                throw new \RuntimeException('Không thể sao chép ảnh ' . $item . '.');
+            }
+        }
     }
 
     private function deleteDirectory(string $directory): void

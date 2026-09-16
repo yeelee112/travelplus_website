@@ -6,9 +6,11 @@ $pageDesc = trim((string) ($page_description ?? $meta_desc ?? ''));
 
 if ($pageHeading === '') {
     $tourType = (string) (($listingSearch ?? [])['tour_type'] ?? '');
-    $pageHeading = $tourType === 'inbound'
-        ? lang('Frontend.common.domesticTours', [], $locale)
-        : lang('Frontend.common.outboundTours', [], $locale);
+    $pageHeading = match ($tourType) {
+        'domestic' => lang('Frontend.common.domesticTours', [], $locale),
+        'inbound' => lang('Frontend.common.inboundTours', [], $locale),
+        default => lang('Frontend.common.outboundTours', [], $locale),
+    };
 }
 
 $eyebrow = $locale === 'en' ? 'Tour collection' : 'Danh sách tour';

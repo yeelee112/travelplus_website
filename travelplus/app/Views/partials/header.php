@@ -32,6 +32,7 @@ $serviceMenuItems = [
 ];
 $languageOptions = [
     'en' => [
+        'value' => 'en',
         'code' => 'EN',
         'label' => lang('Frontend.language.en'),
         'url' => $enUrl,
@@ -39,6 +40,7 @@ $languageOptions = [
         'alt' => 'English',
     ],
     'vi' => [
+        'value' => 'vi',
         'code' => 'VI',
         'label' => lang('Frontend.language.vi'),
         'url' => $viUrl,
@@ -49,9 +51,9 @@ $languageOptions = [
 $currentLanguage = $languageOptions[$locale] ?? $languageOptions['vi'];
 $blogUrl = \App\Data\LocalizedPathCatalog::url('blog', $locale);
 $aboutUrl = \App\Data\LocalizedPathCatalog::url('about', $locale);
-$summerUrl = \App\Data\LocalizedPathCatalog::url('summer', $locale);
 $outboundUrl = \App\Data\LocalizedPathCatalog::url('outbound', $locale);
 $domesticUrl = \App\Data\LocalizedPathCatalog::url('domestic', $locale);
+$inboundUrl = \App\Data\LocalizedPathCatalog::url('inbound', $locale);
 $visaUrl = \App\Data\LocalizedPathCatalog::url('service.visa', $locale);
 $miceUrl = \App\Data\LocalizedPathCatalog::url('service.mice', $locale);
 $contactUrl = \App\Data\LocalizedPathCatalog::url('contact', $locale);
@@ -68,7 +70,6 @@ $authPrimaryLabel = $authUser
     ? lang('Frontend.auth.profile.menu', [], $locale)
     : $loginLabel;
 $logoutUrl = \App\Data\LocalizedPathCatalog::url('auth.logout', $locale);
-$summerHeaderLabel = $locale === 'en' ? 'Summer deals' : 'Tour hè';
 $headerMemberName = trim((string) ($authUser['full_name'] ?? ''))
     ?: trim((string) ($authUser['username'] ?? ''))
     ?: $authPrimaryLabel;
@@ -103,6 +104,65 @@ $headerPassportUrl = \App\Data\LocalizedPathCatalog::url('passport.program', $lo
 $megaMenuCountryLimit = 7;
 $megaMenuMoreLabel = $locale === 'en' ? 'Show %d more' : 'Xem thêm %d quốc gia';
 $megaMenuLessLabel = $locale === 'en' ? 'Show less' : 'Thu gọn';
+$inboundMenuGroups = [];
+if ($locale === 'en') {
+    $vietnamRegionKeys = ['north', 'central', 'south', 'mekong'];
+    $vietnamRegions = [];
+    foreach ($vietnamRegionKeys as $regionKey) {
+        if (! empty($domesticMenu[$regionKey])) {
+            $vietnamRegions[] = [
+                'name' => (string) $domesticMenu[$regionKey]['name'],
+                'slug' => (string) $domesticMenu[$regionKey]['slug'],
+                'code' => 'vn',
+            ];
+        }
+    }
+
+    $availableInboundCountries = [];
+    foreach ($menu as $continent) {
+        foreach ((array) ($continent['countries'] ?? []) as $country) {
+            $code = strtolower(trim((string) ($country['code'] ?? '')));
+            if ($code !== '') {
+                $availableInboundCountries[$code] = $country;
+            }
+        }
+    }
+
+    $makeInboundCountry = static function (string $code, string $fallbackName, string $fallbackSlug) use ($availableInboundCountries): array {
+        $country = $availableInboundCountries[$code] ?? [];
+
+        return [
+            'name' => trim((string) ($country['name'] ?? '')) ?: $fallbackName,
+            'slug' => trim((string) ($country['slug'] ?? '')) ?: $fallbackSlug,
+            'code' => $code,
+        ];
+    };
+
+    $inboundMenuGroups = [
+        [
+            'name' => 'Vietnam',
+            'url' => $inboundUrl,
+            'items' => $vietnamRegions,
+        ],
+        [
+            'name' => 'Indochina',
+            'url' => $inboundUrl,
+            'items' => [
+                $makeInboundCountry('kh', 'Cambodia', 'cambodia'),
+                $makeInboundCountry('la', 'Laos', 'laos'),
+            ],
+        ],
+        [
+            'name' => 'Nearby Asia',
+            'url' => $inboundUrl,
+            'items' => [
+                $makeInboundCountry('th', 'Thailand', 'thailand'),
+                $makeInboundCountry('sg', 'Singapore', 'singapore'),
+                $makeInboundCountry('my', 'Malaysia', 'malaysia'),
+            ],
+        ],
+    ];
+}
 $headerAdminMenuItems = [
     [
         'label' => $locale === 'en' ? 'Dashboard' : 'Bảng điều khiển',
@@ -178,7 +238,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                         <ul class="language-list">
                             <?php foreach ($languageOptions as $languageOption): ?>
                                 <li>
-                                    <a href="<?= esc($languageOption['url']) ?>">
+                                    <a href="<?= esc($languageOption['url']) ?>" data-language-choice="<?= esc($languageOption['value'], 'attr') ?>">
                                         <img alt="<?= esc($languageOption['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" src="<?= esc($languageOption['flag']) ?>">
                                         <?= esc($languageOption['label']) ?>
                                     </a>
@@ -288,13 +348,6 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
             </div>
 
             <ul class="menu-list">
-                <li class="<?= $isActiveHeaderUrl($summerUrl) ? 'current-menu-item current-menu-item--summer' : 'current-menu-item--summer' ?>">
-                    <a href="<?= $summerUrl ?>" class="header-season-menu-link">
-                        <span class="header-season-menu-text"><?= esc($summerHeaderLabel) ?></span>
-                        <small class="header-season-menu-badge"><?= esc($locale === 'en' ? 'Sale' : 'Deal') ?></small>
-                    </a>
-                </li>
-
                 <li class="menu-item-has-children position-inherit <?= $isActiveHeaderUrl($outboundUrl) ? 'current-menu-item' : '' ?>">
                     <a class="drop-down" href="<?= $outboundUrl ?>"><?= esc(lang('Frontend.header.menu.outbound')) ?><i class="bi bi-caret-down-fill"></i></a>
                     <i class="bi bi-plus dropdown-icon"></i>
@@ -357,6 +410,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                     </div>
                 </li>
 
+                <?php if ($locale === 'vi'): ?>
                 <li class="menu-item-has-children position-inherit <?= $isActiveHeaderUrl($domesticUrl) ? 'current-menu-item' : '' ?>">
                     <a class="drop-down" href="<?= $domesticUrl ?>"><?= esc(lang('Frontend.header.menu.domestic')) ?><i class="bi bi-caret-down-fill"></i></a>
                     <i class="bi bi-plus dropdown-icon"></i>
@@ -387,6 +441,45 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                         </div>
                     </div>
                 </li>
+                <?php endif; ?>
+
+                <?php if ($locale === 'en'): ?>
+                <li class="menu-item-has-children position-inherit <?= $isActiveHeaderUrl($inboundUrl) ? 'current-menu-item' : '' ?>">
+                    <a class="drop-down" href="<?= esc($inboundUrl, 'attr') ?>"><?= esc(lang('Frontend.header.menu.inbound')) ?><i class="bi bi-caret-down-fill"></i></a>
+                    <i class="bi bi-plus dropdown-icon"></i>
+                    <div class="mega-menu none">
+                        <div class="container">
+                            <div class="menu-row inbound-menu-row">
+                                <?php foreach ($inboundMenuGroups as $group): ?>
+                                    <div class="menu-single-item">
+                                        <div class="menu-title">
+                                            <a href="<?= esc($group['url'], 'attr') ?>"><h5><?= esc($group['name']) ?></h5></a>
+                                        </div>
+                                        <i class="bi bi-plus dropdown-icon"></i>
+                                        <ul class="none">
+                                            <?php foreach ($group['items'] as $item): ?>
+                                                <li>
+                                                    <a href="<?= esc(rtrim($inboundUrl, '/') . '/' . $item['slug'], 'attr') ?>">
+                                                        <img src="https://flagcdn.com/w20/<?= esc($item['code'], 'attr') ?>.png" alt="" loading="lazy" decoding="async" width="20" height="15">
+                                                        <?= esc($item['name']) ?>
+                                                    </a>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                <?php endforeach; ?>
+                                <div class="menu-single-item">
+                                    <div class="menu-title"><a href="<?= esc($inboundUrl, 'attr') ?>"><h5>Plan your trip</h5></a></div>
+                                    <ul class="none">
+                                        <li><a href="<?= esc($inboundUrl, 'attr') ?>"><i class="bi bi-grid" aria-hidden="true"></i> View all inbound tours</a></li>
+                                        <li><a href="<?= esc($contactUrl, 'attr') ?>"><i class="bi bi-chat-dots" aria-hidden="true"></i> Request a custom tour</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <?php endif; ?>
 
                 <li class="<?= $isActiveHeaderUrl($visaUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $visaUrl ?>"><?= esc(lang('Frontend.header.menu.visa')) ?></a></li>
                 <li class="<?= $isActiveHeaderUrl($miceUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $miceUrl ?>"><?= esc(lang('Frontend.header.menu.mice')) ?></a></li>
@@ -426,7 +519,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                     <ul class="language-list">
                         <?php foreach ($languageOptions as $languageOption): ?>
                             <li>
-                                <a href="<?= esc($languageOption['url']) ?>">
+                                <a href="<?= esc($languageOption['url']) ?>" data-language-choice="<?= esc($languageOption['value'], 'attr') ?>">
                                     <img alt="<?= esc($languageOption['alt']) ?>" loading="lazy" width="18" height="18" decoding="async" src="<?= esc($languageOption['flag']) ?>">
                                     <?= esc($languageOption['label']) ?>
                                 </a>

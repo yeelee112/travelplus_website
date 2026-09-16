@@ -123,6 +123,10 @@
                             <td class="text-end">
                                 <div class="blog-actions">
                                     <a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/blogs/' . (int) $blog['id'] . '/edit') ?>">Sửa</a>
+                                    <form method="post" action="<?= site_url('admin/blogs/' . (int) $blog['id'] . '/duplicate') ?>">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Nhân bản</button>
+                                    </form>
                                     <?php if ($slugVi !== ''): ?>
                                         <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('cam-hung-du-lich/' . $slugVi) ?>" target="_blank" rel="noopener">Xem</a>
                                     <?php endif; ?>

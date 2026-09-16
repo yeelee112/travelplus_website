@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Data\LocalizedPathCatalog;
 use App\Services\EntityViewService;
 use App\Services\CrmLeadCaptureService;
 use App\Services\SeoService;
@@ -29,6 +30,10 @@ class TourController extends BaseController
 
     public function detail(string $tourType, string $locale, string $locationSlug, string $tourSlug)
     {
+        if ($tourType === 'inbound' && $locale !== 'en') {
+            return redirect()->to(switch_locale_url('en'))->setStatusCode(302);
+        }
+
         $tourService = new TourCatalogService();
         $seo = new SeoService();
         $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);
@@ -40,10 +45,16 @@ class TourController extends BaseController
 
         (new EntityViewService())->incrementOncePerSession('tours', (int) ($tour['id'] ?? 0), 'tour');
 
-        $listPath = $tourType === 'inbound' ? 'tour-trong-nuoc' : 'tour-nuoc-ngoai';
-        $listLabel = $tourType === 'inbound'
-            ? $t('common.domesticTours')
-            : $t('common.outboundTours');
+        $listKey = match ($tourType) {
+            'domestic' => 'domestic',
+            'inbound' => 'inbound',
+            default => 'outbound',
+        };
+        $listLabel = match ($tourType) {
+            'domestic' => $t('common.domesticTours'),
+            'inbound' => $t('common.inboundTours'),
+            default => $t('common.outboundTours'),
+        };
         $canonicalUrl = trim((string) ($tour['link'] ?? '')) ?: current_url();
         $metaTitle = trim((string) ($tour['meta_title'] ?? '')) ?: (string) $tour['title'];
         if ($metaTitle !== '' && stripos($metaTitle, 'Travel Plus') === false) {
@@ -57,7 +68,7 @@ class TourController extends BaseController
         );
         $breadcrumbs = [
             ['label' => $t('common.home'), 'url' => localized_url('/')],
-            ['label' => $listLabel, 'url' => localized_url($listPath)],
+            ['label' => $listLabel, 'url' => LocalizedPathCatalog::url($listKey, $locale)],
         ];
         $continentLabel = trim((string) ($tour['continent'] ?? ''));
 

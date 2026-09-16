@@ -301,6 +301,7 @@ class AnalyticsTrackingService
             'App\\Controllers\\Mice' => 'mice',
             'App\\Controllers\\Services' => 'services',
             'App\\Controllers\\Domestic' => 'domestic',
+            'App\\Controllers\\Inbound' => 'inbound',
             'App\\Controllers\\Outbound' => 'outbound',
             'App\\Controllers\\LocationController' => 'location_listing',
             'App\\Controllers\\AuthController' => 'auth',

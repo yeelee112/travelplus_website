@@ -20,9 +20,9 @@ $copy = $locale === 'en'
                 'image' => 'assets/images/mice-corporate-travel.webp',
             ],
             [
-                'title' => 'Outbound and domestic tours',
-                'desc' => 'Curated journeys for families, groups and companies with clear departures, transparent pricing and reliable booking flow.',
-                'meta' => 'Asia, Europe, America and Vietnam',
+                'title' => 'Inbound and outbound tours',
+                'desc' => 'Curated journeys for international travelers, groups and companies with clear departures, transparent pricing and reliable booking flow.',
+                'meta' => 'Vietnam, Indochina and worldwide',
                 'url' => $searchUrl,
                 'icon' => 'bi-compass-fill',
                 'image' => 'assets/images/home/banner02.webp',

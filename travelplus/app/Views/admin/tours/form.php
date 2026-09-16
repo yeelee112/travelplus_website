@@ -8,8 +8,8 @@
     <link href="<?= esc(frontend_asset_url('assets/css/admin.css'), 'attr') ?>" rel="stylesheet">
     <style>
         body { background:#f4f6f8; color:#172033; }
-        .admin-shell { max-width:1220px; margin:32px auto; padding:0 16px; }
-        .admin-card { background:#fff; border:1px solid #e6ebf0; border-radius:18px; box-shadow:0 16px 40px rgba(23,32,51,.06); padding:22px; }
+        .admin-shell { max-width:1380px; margin:32px auto; padding:0 16px; }
+        .admin-card { background:#fff; border:1px solid #e6ebf0; border-radius:22px; box-shadow:0 18px 48px rgba(23,32,51,.07); padding:24px; }
         .section-title { font-size:18px; font-weight:700; margin:0 0 14px; }
         label { font-weight:600; margin-bottom:6px; }
         textarea { min-height:105px; }
@@ -26,21 +26,35 @@
         .rich-editor-toolbar { display:flex; gap:6px; padding:8px; border-bottom:1px solid #edf1f5; background:#f8fafc; }
         .rich-editor-toolbar button { border:1px solid #d8dee6; background:#fff; border-radius:6px; padding:4px 9px; font-weight:700; }
         .rich-editor { min-height:118px; padding:10px 12px; outline:0; }
-        .form-section { border:1px solid #e6ebf0; border-radius:18px; background:#fff; padding:22px; margin-bottom:18px; scroll-margin-top:120px; }
+        .form-section { border:1px solid #e2e8f0; border-radius:18px; background:#fff; padding:24px; margin-bottom:16px; scroll-margin-top:120px; box-shadow:0 7px 22px rgba(15,23,42,.035); }
+        .form-section.is-step-hidden { display:none; }
         .section-meta { color:#6b778c; font-size:12px; margin:-4px 0 12px; }
-        .tour-form-nav { position:sticky; top:12px; z-index:10; background:rgba(244,246,248,.92); backdrop-filter:blur(8px); padding:10px 12px; border:1px solid #e6ebf0; border-radius:16px; margin-bottom:16px; }
-        .tour-form-nav .nav { gap:8px; flex-wrap:wrap; }
-        .tour-form-nav .nav-link { border:1px solid #d9e2ec; border-radius:999px; padding:7px 12px; color:#334155; font-weight:600; background:#fff; font-size:13px; }
-        .tour-form-nav .nav-link:hover { background:#f8fafc; color:#0f172a; }
+        .tour-form-workspace { display:grid; grid-template-columns:248px minmax(0,1fr); gap:20px; align-items:start; }
+        .tour-form-main { min-width:0; }
+        .tour-form-nav { position:sticky; top:18px; z-index:10; background:#f8fafc; padding:16px; border:1px solid #e2e8f0; border-radius:18px; }
+        .tour-form-nav .nav { display:flex; flex-direction:column; gap:8px; }
+        .tour-step-button { width:100%; display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:10px; align-items:center; border:1px solid transparent; border-radius:13px; padding:11px; color:#475569; background:transparent; text-align:left; transition:.16s ease; }
+        .tour-step-button:hover { background:#fff; border-color:#dce6ee; color:#0f172a; }
+        .tour-step-button.is-active { color:#075985; background:#fff; border-color:#7dd3fc; box-shadow:0 7px 18px rgba(14,165,233,.10); }
+        .tour-step-button.is-complete .tour-step-number { background:#dcfce7; color:#15803d; }
+        .tour-step-number { width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:#e2e8f0; color:#475569; font-weight:800; font-size:13px; }
+        .tour-step-button.is-active .tour-step-number { background:#0ea5e9; color:#fff; }
+        .tour-step-copy { min-width:0; }
+        .tour-step-title { display:block; font-size:13px; font-weight:800; color:inherit; }
+        .tour-step-desc { display:block; margin-top:2px; color:#94a3b8; font-size:11px; line-height:1.3; }
+        .tour-step-state { color:#16a34a; font-size:13px; font-weight:900; opacity:0; }
+        .tour-step-button.is-complete .tour-step-state { opacity:1; }
+        .tour-progress { height:6px; overflow:hidden; border-radius:999px; background:#e2e8f0; margin:12px 0 6px; }
+        .tour-progress-bar { height:100%; width:20%; border-radius:inherit; background:linear-gradient(90deg,#0ea5e9,#0284c7); transition:width .2s ease; }
+        .tour-progress-label { color:#64748b; font-size:11px; }
         .sticky-action-bar { position:sticky; bottom:14px; z-index:20; display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:20px; padding:14px 18px; background:rgba(255,255,255,.96); border:1px solid #dce4ec; border-radius:18px; box-shadow:0 16px 36px rgba(15,23,42,.10); }
         .sticky-action-bar .meta { color:#64748b; font-size:13px; }
         .toolbar-wrap { flex-wrap:wrap; }
         .summary-pills { display:flex; gap:8px; flex-wrap:wrap; }
         .summary-pill { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background:#f8fafc; border:1px solid #e2e8f0; color:#334155; font-size:12px; font-weight:600; }
         .subtle-card { border:1px dashed #d9e2ec; border-radius:14px; padding:14px 16px; background:#fbfdff; }
-        .live-summary { display:grid; grid-template-columns:1.5fr 1fr; gap:10px; margin-top:12px; }
+        .live-summary { display:grid; grid-template-columns:1.35fr .85fr 1.2fr; gap:10px; margin:0 0 14px; }
         .live-summary-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:14px; }
-        .live-summary-card:last-child { display:none; }
         .live-summary-label { color:#64748b; font-size:12px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
         .live-summary-value { font-size:15px; font-weight:700; color:#0f172a; }
         .live-summary-sub { color:#64748b; font-size:13px; margin-top:4px; }
@@ -96,10 +110,36 @@
         .draft-status { font-size:12px; color:#64748b; }
         .compact-links { display:flex; gap:8px; flex-wrap:wrap; }
         .compact-links .btn { padding:8px 12px; }
+        .tour-step-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:18px 20px; margin-bottom:14px; border:1px solid #bae6fd; border-radius:18px; background:linear-gradient(135deg,#f0f9ff 0%,#fff 72%); }
+        .tour-step-kicker { color:#0284c7; font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+        .tour-step-heading h2 { margin:3px 0 3px; color:#0f172a; font-size:21px; font-weight:800; }
+        .tour-step-heading p { margin:0; color:#64748b; font-size:13px; }
+        .tour-step-badge { flex:0 0 auto; padding:7px 10px; border-radius:999px; color:#0369a1; background:#e0f2fe; font-size:11px; font-weight:800; }
+        .step-nav-actions { display:flex; gap:8px; }
+        .field-group-label { display:flex; align-items:center; gap:10px; margin:5px 0 0; color:#0f172a; font-size:12px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
+        .field-group-label:after { content:""; height:1px; flex:1; background:#e2e8f0; }
+        .tour-promotion-fields { padding:16px; border:1px dashed #f4c76b; border-radius:14px; background:#fffaf0; }
         @media (max-width: 991px) {
             .sticky-action-bar { flex-direction:column; align-items:stretch; }
-            .tour-form-nav { position:static; }
+            .tour-form-workspace { grid-template-columns:1fr; }
+            .tour-form-nav { position:sticky; top:0; padding:10px; margin:0 -4px; border-radius:14px; z-index:30; }
+            .tour-form-nav .nav { flex-direction:row; overflow-x:auto; padding-bottom:3px; scrollbar-width:thin; }
+            .tour-step-button { flex:0 0 160px; grid-template-columns:30px minmax(0,1fr); padding:8px; }
+            .tour-step-number { width:30px; height:30px; }
+            .tour-step-desc, .tour-step-state, .nav-head .text-muted, .summary-pills { display:none; }
+            .tour-progress { margin-top:9px; }
             .live-summary { grid-template-columns:1fr; }
+            .live-summary-card:last-child { display:none; }
+            .tour-step-heading { padding:15px 16px; }
+            .form-section { padding:18px 16px; }
+        }
+        @media (max-width: 575px) {
+            .admin-shell { margin:16px auto; padding:0 10px; }
+            .admin-card { padding:14px; border-radius:18px; }
+            .sticky-action-bar .meta { display:none; }
+            .toolbar-wrap .btn { flex:1 1 auto; }
+            .step-nav-actions { width:100%; }
+            .step-nav-actions .btn { flex:1; }
         }
     </style>
 </head>
@@ -161,30 +201,37 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             </div>
         </div>
 
-        <div class="tour-form-nav">
+        <div class="tour-form-workspace">
+        <aside class="tour-form-nav" aria-label="Các bước tạo tour">
             <div class="nav-head">
                 <div>
-                    <div class="title">Điều hướng nhanh</div>
-                    <div class="text-muted">Nhảy nhanh giữa các nhóm thông tin.</div>
-                </div>
-                <div class="summary-pills">
-                    <span class="summary-pill">Loại tour: <?= esc(ucfirst($tourType)) ?></span>
-                    <span class="summary-pill">Trạng thái: <?= esc((string) $fv('status', 'draft')) ?></span>
+                    <div class="title">Tiến độ tạo tour</div>
+                    <div class="text-muted">Làm lần lượt hoặc chọn bước cần sửa.</div>
                 </div>
             </div>
-            <div class="nav mt-3">
-                <a class="nav-link" href="#section-main">Thông tin chính</a>
-                <a class="nav-link" href="#section-locations">Điểm đi/đến</a>
-                <a class="nav-link" href="#section-destinations">Điểm đến</a>
-                <a class="nav-link" href="#section-content-vi">Nội dung</a>
-                <a class="nav-link" href="#section-seo">SEO</a>
-                <a class="nav-link" href="#section-departure">Khởi hành</a>
-                <a class="nav-link" href="#section-itinerary">Lịch trình</a>
-                <a class="nav-link" href="#section-media">Hình ảnh</a>
-                <a class="nav-link" href="#section-inclusions">Chi tiết giá</a>
+            <div class="nav" role="tablist">
+                <button type="button" class="tour-step-button is-active" data-tour-step="1" data-step-title="Thông tin cơ bản" data-step-description="Thiết lập loại tour, giá, thời lượng và các điểm đến." data-step-badge="Bắt buộc" aria-selected="true">
+                    <span class="tour-step-number">1</span><span class="tour-step-copy"><span class="tour-step-title">Thông tin cơ bản</span><span class="tour-step-desc">Giá, thời lượng, điểm đến</span></span><span class="tour-step-state">✓</span>
+                </button>
+                <button type="button" class="tour-step-button" data-tour-step="2" data-step-title="Nội dung & SEO" data-step-description="Nhập tên, mô tả và thông tin hiển thị trên Google." data-step-badge="Bắt buộc" aria-selected="false">
+                    <span class="tour-step-number">2</span><span class="tour-step-copy"><span class="tour-step-title">Nội dung & SEO</span><span class="tour-step-desc">Tên, mô tả, tìm kiếm</span></span><span class="tour-step-state">✓</span>
+                </button>
+                <button type="button" class="tour-step-button" data-tour-step="3" data-step-title="Giá & khởi hành" data-step-description="Tạo một hoặc nhiều ngày khởi hành và điều chỉnh giá theo ngày." data-step-badge="Nên có" aria-selected="false">
+                    <span class="tour-step-number">3</span><span class="tour-step-copy"><span class="tour-step-title">Giá & khởi hành</span><span class="tour-step-desc">Ngày đi, chỗ trống, giá</span></span><span class="tour-step-state">✓</span>
+                </button>
+                <button type="button" class="tour-step-button" data-tour-step="4" data-step-title="Lịch trình & quyền lợi" data-step-description="Xây lịch trình từng ngày, các mục bao gồm và câu hỏi thường gặp." data-step-badge="Nội dung bán tour" aria-selected="false">
+                    <span class="tour-step-number">4</span><span class="tour-step-copy"><span class="tour-step-title">Lịch trình & quyền lợi</span><span class="tour-step-desc">Chương trình, bao gồm, FAQ</span></span><span class="tour-step-state">✓</span>
+                </button>
+                <button type="button" class="tour-step-button" data-tour-step="5" data-step-title="Hình ảnh & hoàn tất" data-step-description="Thêm ảnh đại diện, banner và gallery rồi kiểm tra trước khi lưu." data-step-badge="Bước cuối" aria-selected="false">
+                    <span class="tour-step-number">5</span><span class="tour-step-copy"><span class="tour-step-title">Hình ảnh & hoàn tất</span><span class="tour-step-desc">Cover, banner, gallery</span></span><span class="tour-step-state">✓</span>
+                </button>
             </div>
+            <div class="tour-progress" aria-hidden="true"><div class="tour-progress-bar" id="tourProgressBar"></div></div>
+            <div class="tour-progress-label" id="tourProgressLabel">Bước 1/5</div>
             <div class="draft-status mt-2" id="draftStatusText">Tự lưu cục bộ: chưa có cập nhật mới.</div>
-        </div>
+        </aside>
+
+        <div class="tour-form-main">
 
         <div class="live-summary mb-3">
             <div class="live-summary-card">
@@ -211,17 +258,28 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             </div>
         </div>
 
+        <div class="tour-step-heading" aria-live="polite">
+            <div>
+                <div class="tour-step-kicker" id="activeStepKicker">Bước 1 / 5</div>
+                <h2 id="activeStepTitle">Thông tin cơ bản</h2>
+                <p id="activeStepDescription">Thiết lập loại tour, giá, thời lượng và các điểm đến.</p>
+            </div>
+            <span class="tour-step-badge" id="activeStepBadge">Bắt buộc</span>
+        </div>
+
         <form method="post" action="<?= esc($formAction) ?>" enctype="multipart/form-data" id="tourForm">
             <?= csrf_field() ?>
-            <section id="section-main" class="form-section">
+            <section id="section-main" class="form-section" data-tour-step-panel="1">
             <h2 class="section-title">Thông tin chính</h2>
             <div class="section-meta">Thông tin nền của tour, giá cơ bản, trạng thái hiển thị và giới hạn khách.</div>
             <div class="row g-3">
+                <div class="col-12"><div class="field-group-label">Phân loại tour</div></div>
                 <div class="col-md-3">
                     <label>Loại tour</label>
                     <select name="tour_type" class="form-select" required>
-                        <option value="outbound" <?= $tourType === 'outbound' ? 'selected' : '' ?>>Tour nước ngoài</option>
-                        <option value="inbound" <?= $tourType === 'inbound' ? 'selected' : '' ?>>Tour trong nước</option>
+                        <option value="outbound" <?= $tourType === 'outbound' ? 'selected' : '' ?>>Outbound — khách Việt đi nước ngoài</option>
+                        <option value="domestic" <?= $tourType === 'domestic' ? 'selected' : '' ?>>Domestic — khách Việt đi trong nước</option>
+                        <option value="inbound" <?= $tourType === 'inbound' ? 'selected' : '' ?>>Inbound — khách quốc tế đi Việt Nam / Đông Dương</option>
                     </select>
                 </div>
                 <div class="col-md-5">
@@ -229,7 +287,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                     <select name="category_id" class="form-select" required>
                         <option value="">-- Chọn danh mục --</option>
                         <?php foreach ($categories as $category): ?>
-                            <option value="<?= esc($category['id']) ?>" <?= (string) $fv('category_id') === (string) $category['id'] ? 'selected' : '' ?>>
+                            <option value="<?= esc($category['id']) ?>" data-tour-type="<?= esc((string) $category['type'], 'attr') ?>" <?= (string) $fv('category_id') === (string) $category['id'] ? 'selected' : '' ?>>
                                 #<?= esc($category['id']) ?> - <?= esc($category['name']) ?> (<?= esc($category['type']) ?>)
                             </option>
                         <?php endforeach; ?>
@@ -237,10 +295,12 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 </div>
                 <div class="col-md-2"><label>Mã tour</label><input name="code" class="form-control" value="<?= esc($fv('code')) ?>"></div>
                 <div class="col-md-2"><label>SKU</label><input name="sku" class="form-control" value="<?= esc($fv('sku')) ?>"></div>
+                <div class="col-12"><div class="field-group-label">Thời lượng & sức chứa</div></div>
                 <div class="col-md-2"><label>Số ngày</label><input type="number" min="1" name="duration_days" class="form-control" value="<?= esc($fv('duration_days', '5')) ?>" required></div>
                 <div class="col-md-2"><label>Số đêm</label><input type="number" min="0" name="duration_nights" class="form-control" value="<?= esc($fv('duration_nights', '4')) ?>" required></div>
                 <div class="col-md-2"><label>Số khách tối thiểu</label><input type="number" min="0" name="min_travelers" class="form-control" value="<?= esc($fv('min_travelers')) ?>"></div>
                 <div class="col-md-2"><label>Số khách tối đa</label><input type="number" min="0" name="max_travelers" class="form-control" value="<?= esc($fv('max_travelers', '15')) ?>"></div>
+                <div class="col-12"><div class="field-group-label">Giá mặc định</div></div>
                 <div class="col-md-3"><label>Giá người lớn</label><input type="number" min="0" name="base_price" class="form-control" value="<?= esc($fv('base_price')) ?>"></div>
                 <div class="col-md-3"><label>Giá khuyến mãi</label><input type="number" min="0" name="sale_price" class="form-control" value="<?= esc($fv('sale_price')) ?>"></div>
                   <div class="col-md-3">
@@ -259,6 +319,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                     <div class="help">0.25 = 25% giá người lớn</div>
                 </div>
                 <input type="hidden" name="thumbnail" value="<?= esc($fv('thumbnail'), 'attr') ?>">
+                <div class="col-12"><div class="field-group-label">Hiển thị & khuyến mãi</div></div>
                 <div class="col-md-3">
                     <label>Trạng thái</label>
                     <select name="status" class="form-select">
@@ -278,13 +339,17 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                         <span class="form-check-label">Hiển thị ở khuyến mãi trang chủ</span>
                     </label>
                 </div>
-                <div class="col-md-3"><label>Nhãn khuyến mãi</label><input name="promotion_badge" class="form-control" value="<?= esc($fv('promotion_badge', 'Tour khuyến mãi')) ?>"></div>
-                <div class="col-md-3"><label>Thời điểm kết thúc ưu đãi</label><input type="datetime-local" name="promotion_ends_at" class="form-control" value="<?= esc($fv('promotion_ends_at')) ?>"></div>
-                <div class="col-md-3"><label>Thứ tự khuyến mãi</label><input type="number" name="promotion_sort" class="form-control" value="<?= esc($fv('promotion_sort', '0')) ?>"></div>
+                <div class="col-12 tour-promotion-fields" id="tourPromotionFields">
+                    <div class="row g-3">
+                        <div class="col-md-4"><label>Nhãn khuyến mãi</label><input name="promotion_badge" class="form-control" value="<?= esc($fv('promotion_badge', 'Tour khuyến mãi')) ?>"></div>
+                        <div class="col-md-4"><label>Thời điểm kết thúc ưu đãi</label><input type="datetime-local" name="promotion_ends_at" class="form-control" value="<?= esc($fv('promotion_ends_at')) ?>"></div>
+                        <div class="col-md-4"><label>Thứ tự khuyến mãi</label><input type="number" name="promotion_sort" class="form-control" value="<?= esc($fv('promotion_sort', '0')) ?>"></div>
+                    </div>
+                </div>
             </div>
             </section>
 
-            <section id="section-locations" class="form-section">
+            <section id="section-locations" class="form-section" data-tour-step-panel="1">
             <h2 class="section-title">Điểm đi và điểm đến chính</h2>
             <div class="section-meta">Điểm khởi hành và điểm đến chính dùng cho phân loại, breadcrumb và filter.</div>
             <div class="row g-3">
@@ -303,16 +368,16 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                     <label>Điểm đến chính</label>
                     <select name="primary_destination_id" class="form-select">
                         <option value="">-- Không bắt buộc --</option>
-                        <optgroup label="Quốc gia cho tour nước ngoài" data-tour-type="outbound">
+                        <optgroup label="Quốc gia ngoài Việt Nam" data-tour-types="outbound,inbound">
                             <?php foreach ($countries as $country): ?>
-                                <option value="<?= esc($country['id']) ?>" data-tour-type="outbound" <?= (string) $fv('primary_destination_id') === (string) $country['id'] ? 'selected' : '' ?>>
+                                <option value="<?= esc($country['id']) ?>" data-tour-types="outbound,inbound" <?= (string) $fv('primary_destination_id') === (string) $country['id'] ? 'selected' : '' ?>>
                                     #<?= esc($country['id']) ?> - <?= esc($country['name']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </optgroup>
-                        <optgroup label="Tỉnh/thành cho tour trong nước" data-tour-type="inbound">
+                        <optgroup label="Tỉnh/thành tại Việt Nam" data-tour-types="domestic,inbound">
                             <?php foreach ($provinces as $province): ?>
-                                <option value="<?= esc($province['id']) ?>" data-tour-type="inbound" <?= (string) $fv('primary_destination_id') === (string) $province['id'] ? 'selected' : '' ?>>
+                                <option value="<?= esc($province['id']) ?>" data-tour-types="domestic,inbound" <?= (string) $fv('primary_destination_id') === (string) $province['id'] ? 'selected' : '' ?>>
                                     #<?= esc($province['id']) ?> - <?= esc($province['name']) ?>
                                 </option>
                             <?php endforeach; ?>
@@ -322,11 +387,11 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             </div>
             </section>
 
-            <section id="section-destinations" class="form-section is-collapsed">
+            <section id="section-destinations" class="form-section is-collapsed" data-tour-step-panel="1">
             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
                 <div>
                     <h2 class="section-title">Danh sách điểm đến</h2>
-                    <div class="section-meta mb-0">Tour nước ngoài: châu lục - quốc gia. Tour trong nước: vùng - tỉnh/thành.</div>
+                    <div class="section-meta mb-0">Outbound dùng quốc gia; domestic dùng tỉnh/thành Việt Nam; inbound có thể kết hợp cả hai cho hành trình Việt Nam, Đông Dương và các nước lân cận.</div>
                 </div>
                 <div class="subtle-card">
                     <div class="fw-semibold small mb-1">Gợi ý</div>
@@ -345,7 +410,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                         <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
                         <div class="row g-3 js-outbound-fields">
                             <div class="col-md-4">
-                                <label>Châu lục</label>
+                                <label>Châu lục / tuyến quốc tế</label>
                                 <select name="destinations[<?= $index ?>][continent_id]" class="form-select js-continent-select">
                                     <option value="">-- Chọn châu lục --</option>
                                     <?php foreach ($continents as $continent): ?>
@@ -363,7 +428,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                         </div>
                         <div class="row g-3 js-inbound-fields d-none">
                             <div class="col-md-4">
-                                <label>Vùng miền</label>
+                                <label>Vùng miền tại Việt Nam</label>
                                 <select name="destinations[<?= $index ?>][region_key]" class="form-select js-region-select">
                                     <option value="">-- Chọn vùng miền --</option>
                                     <?php foreach ($domesticRegions as $region): ?>
@@ -400,7 +465,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             </div>
             </section>
 
-            <section id="section-content-vi" class="form-section">
+            <section id="section-content-vi" class="form-section is-step-hidden" data-tour-step-panel="2">
             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-2">
                 <div>
                     <h2 class="section-title">Nội dung tour</h2>
@@ -435,7 +500,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             </div>
             </section>
 
-            <section id="section-seo" class="form-section">
+            <section id="section-seo" class="form-section is-step-hidden" data-tour-step-panel="2">
             <h2 class="section-title">SEO</h2>
             <div class="section-meta">Meta title và meta description nên chốt ngay sau khi nhập title, slug và mô tả ngắn.</div>
             <div class="lang-tabs" data-tab-group="seo">
@@ -467,7 +532,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             </div>
             </section>
 
-            <section id="section-departure" class="form-section is-collapsed">
+            <section id="section-departure" class="form-section is-step-hidden" data-tour-step-panel="3">
             <div class="section-title-row">
                 <div>
                     <h2 class="section-title">Ngày khởi hành</h2>
@@ -534,7 +599,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
             </div>
             </section>
 
-            <section id="section-itinerary" class="form-section is-collapsed">
+            <section id="section-itinerary" class="form-section is-step-hidden" data-tour-step-panel="4">
             <h2 class="section-title">Lịch trình từng ngày</h2>
             <div class="section-meta">Nhập từng ngày theo thứ tự. Mô tả dùng rich text ngắn để làm nổi bật điểm chính.</div>
             <div class="section-title-row">
@@ -624,7 +689,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."
             </div>
             </section>
 
-            <section id="section-media" class="form-section is-collapsed">
+            <section id="section-media" class="form-section is-step-hidden" data-tour-step-panel="5">
             <h2 class="section-title">Hình ảnh / Gallery</h2>
             <div class="section-meta">Ưu tiên `cover` cho tour card, `banner` cho hero, `gallery` cho phần trải nghiệm trong detail.</div>
             <div class="section-title-row">
@@ -671,7 +736,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."
             </div>
             </section>
 
-            <section id="section-inclusions" class="form-section is-collapsed">
+            <section id="section-inclusions" class="form-section is-collapsed is-step-hidden" data-tour-step-panel="4">
             <div class="section-title-row">
                 <h2 class="section-title mb-0">Giá bao gồm / không bao gồm</h2>
                 <button type="button" class="accordion-toggle js-accordion-toggle"><span class="icon">&#9662;</span><span>Thu gọn</span></button>
@@ -743,7 +808,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."
             </div>
             </section>
 
-            <section id="section-faq" class="form-section is-collapsed">
+            <section id="section-faq" class="form-section is-collapsed is-step-hidden" data-tour-step-panel="4">
             <h2 class="section-title">FAQ</h2>
             <div class="section-meta">Chỉ giữ các câu hỏi thật sự lặp lại nhiều trong tư vấn để phần detail gọn hơn.</div>
             <div class="section-title-row">
@@ -770,7 +835,7 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."
             </section>
 
             <?php if (false): ?>
-            <section id="section-seo" class="form-section">
+            <section id="section-seo-legacy" class="form-section" data-tour-step-panel="2">
             <h2 class="section-title">SEO</h2>
             <div class="section-meta">Meta riêng cho từng ngôn ngữ để không phụ thuộc vào phần content ở trên.</div>
             <div class="lang-tabs" data-tab-group="seo">
@@ -797,15 +862,20 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."
 
             <div class="sticky-action-bar">
                 <div>
-                    <div class="fw-semibold"><?= $tourId ? 'Editing tour #' . (int) $tourId : 'Creating new tour' ?></div>
-                    <div class="meta">Kiểm tra lại destinations, media và slug trước khi lưu. Các block lớn đã được tách để thao tác nhanh hơn.</div>
+                    <div class="fw-semibold" id="stickyStepTitle">Bước 1/5 · Thông tin cơ bản</div>
+                    <div class="meta">Tour được tự lưu tạm trên trình duyệt trong lúc nhập.</div>
                 </div>
                 <div class="d-flex gap-2 toolbar-wrap">
-                    <?php if ($tourId): ?><a class="btn btn-outline-secondary btn-lg" href="<?= site_url('admin/tours/' . (int) $tourId . '/edit') ?>">Đặt lại</a><?php else: ?><a class="btn btn-outline-secondary btn-lg" href="<?= site_url('admin/tours/create') ?>">Đặt lại</a><?php endif; ?>
+                    <div class="step-nav-actions">
+                        <button class="btn btn-outline-secondary btn-lg" type="button" id="previousTourStep">Quay lại</button>
+                        <button class="btn btn-outline-primary btn-lg" type="button" id="nextTourStep">Tiếp theo</button>
+                    </div>
                     <button class="btn btn-primary btn-lg" type="submit"><?= esc($submitLabel ?? 'Lưu tour') ?></button>
                 </div>
             </div>
         </form>
+        </div>
+        </div>
     </div>
 </main>
 
@@ -862,10 +932,12 @@ function fillProvinces(row) {
 
 function toggleDestinationMode(row) {
   const tourType = document.querySelector('[name="tour_type"]')?.value || 'outbound';
-  row.querySelector('.js-outbound-fields')?.classList.toggle('d-none', tourType !== 'outbound');
-  row.querySelector('.js-inbound-fields')?.classList.toggle('d-none', tourType !== 'inbound');
-  if (tourType !== 'outbound') row.classList.remove('is-new-country');
-  if (tourType !== 'inbound') row.classList.remove('is-new-province');
+  const usesVietnamDestinations = tourType === 'domestic' || tourType === 'inbound';
+  const usesInternationalDestinations = tourType === 'outbound' || tourType === 'inbound';
+  row.querySelector('.js-outbound-fields')?.classList.toggle('d-none', !usesInternationalDestinations);
+  row.querySelector('.js-inbound-fields')?.classList.toggle('d-none', !usesVietnamDestinations);
+  if (!usesInternationalDestinations) row.classList.remove('is-new-country');
+  if (!usesVietnamDestinations) row.classList.remove('is-new-province');
 }
 
 function bindDestinationRow(row) {
@@ -1024,17 +1096,38 @@ function updatePrimaryDestinationOptions() {
   const tourType = document.querySelector('[name="tour_type"]')?.value || 'outbound';
   const primarySelect = document.querySelector('[name="primary_destination_id"]');
   if (!primarySelect) return;
-  primarySelect.querySelectorAll('optgroup, option[data-tour-type]').forEach(element => {
-    const elementType = element.getAttribute('data-tour-type');
-    const shouldShow = !elementType || elementType === tourType;
+  primarySelect.querySelectorAll('optgroup, option[data-tour-type], option[data-tour-types]').forEach(element => {
+    const allowedTypes = (element.getAttribute('data-tour-types') || element.getAttribute('data-tour-type') || '')
+      .split(',')
+      .map(type => type.trim())
+      .filter(Boolean);
+    const shouldShow = allowedTypes.length === 0 || allowedTypes.includes(tourType);
     element.hidden = !shouldShow;
     if (element.tagName === 'OPTION') element.disabled = !shouldShow;
   });
+
+  const selectedOption = primarySelect.selectedOptions[0];
+  if (selectedOption?.disabled) primarySelect.value = '';
+}
+
+function updateCategoryOptions() {
+  const tourType = document.querySelector('[name="tour_type"]')?.value || 'outbound';
+  const categorySelect = document.querySelector('[name="category_id"]');
+  if (!categorySelect) return;
+
+  categorySelect.querySelectorAll('option[data-tour-type]').forEach(option => {
+    const shouldShow = option.dataset.tourType === tourType;
+    option.hidden = !shouldShow;
+    option.disabled = !shouldShow;
+  });
+
+  if (categorySelect.selectedOptions[0]?.disabled) categorySelect.value = '';
 }
 
 function syncTourTypeUI() {
   document.querySelectorAll('.destination-row').forEach(toggleDestinationMode);
   updatePrimaryDestinationOptions();
+  updateCategoryOptions();
   refreshSummaryMetrics();
 }
 
@@ -1280,7 +1373,12 @@ function formatPrice(value) {
 }
 
 function refreshSummaryMetrics() {
-  const tourTypeLabel = (document.querySelector('[name="tour_type"]')?.value || 'outbound') === 'inbound' ? 'Tour trong nước' : 'Tour nước ngoài';
+  const tourType = document.querySelector('[name="tour_type"]')?.value || 'outbound';
+  const tourTypeLabel = {
+    outbound: 'Outbound · khách Việt đi nước ngoài',
+    domestic: 'Domestic · khách Việt đi trong nước',
+    inbound: 'Inbound · khách quốc tế đi Việt Nam / Đông Dương',
+  }[tourType] || 'Tour';
   const statusValue = document.querySelector('[name="status"]')?.value || 'draft';
   const statusLabel = statusValue === 'published' ? 'Đã xuất bản' : 'Bản nháp';
   const nameValue = document.getElementById('name_vi')?.value.trim() || 'Chưa có tên tour';
@@ -1392,12 +1490,12 @@ document.getElementById('addDestination').addEventListener('click', () => {
   wrapper.innerHTML = `
     <button type="button" class="btn btn-sm btn-outline-danger repeat-remove js-remove-row">Xóa</button>
     <div class="row g-3 js-outbound-fields">
-      <div class="col-md-4"><label>Châu lục</label><select name="destinations[${destinationIndex}][continent_id]" class="form-select js-continent-select"><option value="">-- Chọn châu lục --</option>${continents.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+      <div class="col-md-4"><label>Châu lục / tuyến quốc tế</label><select name="destinations[${destinationIndex}][continent_id]" class="form-select js-continent-select"><option value="">-- Chọn châu lục --</option>${continents.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
       <div class="col-md-4"><label>Quốc gia</label><select name="destinations[${destinationIndex}][country_id]" class="form-select js-country-select"><option value="">-- Chọn quốc gia có sẵn --</option></select></div>
       <div class="col-md-4"><label>Hoặc tạo quốc gia</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-country">Tạo quốc gia mới</button></div>
     </div>
     <div class="row g-3 js-inbound-fields d-none">
-      <div class="col-md-4"><label>Vùng miền</label><select name="destinations[${destinationIndex}][region_key]" class="form-select js-region-select"><option value="">-- Chọn vùng miền --</option>${regions.map(r => `<option value="${r.key}">${r.name}</option>`).join('')}</select></div>
+      <div class="col-md-4"><label>Vùng miền tại Việt Nam</label><select name="destinations[${destinationIndex}][region_key]" class="form-select js-region-select"><option value="">-- Chọn vùng miền --</option>${regions.map(r => `<option value="${r.key}">${r.name}</option>`).join('')}</select></div>
       <div class="col-md-4"><label>Tỉnh / thành phố</label><select name="destinations[${destinationIndex}][province_id]" class="form-select js-province-select"><option value="">-- Chọn tỉnh/thành --</option></select></div>
       <div class="col-md-4"><label>Hoặc tạo tỉnh/thành</label><button type="button" class="btn btn-outline-primary w-100 js-toggle-new-province">Tạo tỉnh/thành mới</button></div>
     </div>
@@ -2065,12 +2163,140 @@ function syncShortDescriptionsFromMeta() {
   });
 }
 
+function bindPromotionFields() {
+  const toggle = document.querySelector('[name="is_promotion"]');
+  const fields = document.getElementById('tourPromotionFields');
+  if (!toggle || !fields) return;
+
+  const sync = () => {
+    fields.classList.toggle('d-none', !toggle.checked);
+    fields.setAttribute('aria-hidden', toggle.checked ? 'false' : 'true');
+  };
+  toggle.addEventListener('change', sync);
+  sync();
+}
+
+const tourStepCount = 5;
+const tourStepStorageKey = `${draftStorageKey}-active-step`;
+let activeTourStep = 1;
+
+function stepHasRequiredValues(step) {
+  const panels = Array.from(document.querySelectorAll(`[data-tour-step-panel="${step}"]`));
+  const requiredFields = panels.flatMap(panel => Array.from(panel.querySelectorAll('[required]')));
+  if (!requiredFields.length) return false;
+
+  return requiredFields.every(field => {
+    if (field.type === 'checkbox' || field.type === 'radio') return field.checked;
+    return String(field.value || '').trim() !== '';
+  });
+}
+
+function stepHasDeparture() {
+  return Array.from(document.querySelectorAll('#departureRows [name$="[departure_date]"]'))
+    .some(field => String(field.value || '').trim() !== '');
+}
+
+function stepHasItinerary() {
+  return Array.from(document.querySelectorAll('#itineraryRows [name$="[title_vi]"]'))
+    .some(field => String(field.value || '').trim() !== '');
+}
+
+function stepHasMedia() {
+  return Array.from(document.querySelectorAll('#mediaRows .media-row')).some(row => {
+    const currentPath = row.querySelector('[name$="[file_path]"]');
+    const upload = row.querySelector('.js-media-file');
+    return String(currentPath?.value || '').trim() !== '' || (upload?.files?.length || 0) > 0;
+  });
+}
+
+function updateTourStepCompletion() {
+  document.querySelectorAll('[data-tour-step]').forEach(button => {
+    const step = Number(button.dataset.tourStep || 1);
+    let complete = stepHasRequiredValues(step);
+    if (step === 3) complete = stepHasDeparture();
+    if (step === 4) complete = stepHasItinerary();
+    if (step === 5) complete = stepHasMedia();
+    button.classList.toggle('is-complete', complete);
+  });
+}
+
+function activateTourStep(step, options = {}) {
+  const normalizedStep = Math.min(tourStepCount, Math.max(1, Number(step) || 1));
+  const button = document.querySelector(`[data-tour-step="${normalizedStep}"]`);
+  if (!button) return;
+
+  activeTourStep = normalizedStep;
+  document.querySelectorAll('[data-tour-step-panel]').forEach(panel => {
+    const isActive = Number(panel.dataset.tourStepPanel) === normalizedStep;
+    panel.classList.toggle('is-step-hidden', !isActive);
+    panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+  });
+
+  document.querySelectorAll('[data-tour-step]').forEach(stepButton => {
+    const isActive = stepButton === button;
+    stepButton.classList.toggle('is-active', isActive);
+    stepButton.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+
+  const title = button.dataset.stepTitle || '';
+  document.getElementById('activeStepKicker').textContent = `Bước ${normalizedStep} / ${tourStepCount}`;
+  document.getElementById('activeStepTitle').textContent = title;
+  document.getElementById('activeStepDescription').textContent = button.dataset.stepDescription || '';
+  document.getElementById('activeStepBadge').textContent = button.dataset.stepBadge || '';
+  document.getElementById('stickyStepTitle').textContent = `Bước ${normalizedStep}/${tourStepCount} · ${title}`;
+  document.getElementById('tourProgressBar').style.width = `${(normalizedStep / tourStepCount) * 100}%`;
+  document.getElementById('tourProgressLabel').textContent = `Bước ${normalizedStep}/${tourStepCount}`;
+
+  const previousButton = document.getElementById('previousTourStep');
+  const nextButton = document.getElementById('nextTourStep');
+  previousButton.disabled = normalizedStep === 1;
+  nextButton.disabled = normalizedStep === tourStepCount;
+  nextButton.textContent = normalizedStep === tourStepCount ? 'Đã tới bước cuối' : 'Tiếp theo';
+
+  try { sessionStorage.setItem(tourStepStorageKey, String(normalizedStep)); } catch (error) {}
+  updateTourStepCompletion();
+
+  if (options.scroll !== false) {
+    document.querySelector('.tour-step-heading')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function initTourSteps() {
+  document.querySelectorAll('[data-tour-step]').forEach(button => {
+    button.addEventListener('click', () => activateTourStep(button.dataset.tourStep));
+  });
+  document.getElementById('previousTourStep')?.addEventListener('click', () => activateTourStep(activeTourStep - 1));
+  document.getElementById('nextTourStep')?.addEventListener('click', () => activateTourStep(activeTourStep + 1));
+
+  const form = document.getElementById('tourForm');
+  form?.addEventListener('input', updateTourStepCompletion);
+  form?.addEventListener('change', updateTourStepCompletion);
+  form?.addEventListener('invalid', event => {
+    const panel = event.target.closest('[data-tour-step-panel]');
+    if (!panel) return;
+    activateTourStep(panel.dataset.tourStepPanel, { scroll: false });
+    window.setTimeout(() => event.target.focus({ preventScroll: false }), 0);
+  }, true);
+
+  let initialStep = 1;
+  if (formErrorAlert) {
+    const firstMissingRequired = Array.from(form?.querySelectorAll('[required]') || [])
+      .find(field => String(field.value || '').trim() === '');
+    initialStep = Number(firstMissingRequired?.closest('[data-tour-step-panel]')?.dataset.tourStepPanel || 1);
+  } else {
+    try { initialStep = Number(sessionStorage.getItem(tourStepStorageKey) || 1); } catch (error) {}
+  }
+  activateTourStep(initialStep, { scroll: false });
+}
+
 bindAutoSlug('name_vi', 'slug_vi');
 bindAutoSlug('name_en', 'slug_en');
 bindLangTabs();
 bindAccordions();
 bindCopyActions();
 syncShortDescriptionsFromMeta();
+bindPromotionFields();
+initTourSteps();
 </script>
 <?= view('admin/partials/app_end') ?>
 </body>

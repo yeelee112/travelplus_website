@@ -18,19 +18,19 @@ final class TourCatalogLocationSlugTest extends TestCase
         $this->method = new ReflectionMethod(TourCatalogService::class, 'findCardForLocationSlug');
     }
 
-    public function testInboundTourMatchesDomesticRegionSlug(): void
+    public function testDomesticTourMatchesRegionSlug(): void
     {
         $cards = [
             ['id' => 10, 'region_slug' => 'mien-bac', 'continent_slug' => 'asia'],
             ['id' => 11, 'region_slug' => 'mien-trung', 'continent_slug' => 'asia'],
         ];
 
-        $result = $this->method->invoke($this->service, $cards, 'mien-trung', 'inbound');
+        $result = $this->method->invoke($this->service, $cards, 'mien-trung', 'domestic');
 
         $this->assertSame(11, $result['id']);
     }
 
-    public function testInboundMultiRegionTourMatchesAnyDestinationRegion(): void
+    public function testDomesticMultiRegionTourMatchesAnyDestinationRegion(): void
     {
         $cards = [[
             'id' => 12,
@@ -39,7 +39,7 @@ final class TourCatalogLocationSlugTest extends TestCase
             'continent_slug' => 'asia',
         ]];
 
-        $result = $this->method->invoke($this->service, $cards, 'mien-nam', 'inbound');
+        $result = $this->method->invoke($this->service, $cards, 'mien-nam', 'domestic');
 
         $this->assertSame(12, $result['id']);
     }
@@ -62,8 +62,44 @@ final class TourCatalogLocationSlugTest extends TestCase
             ['id' => 30, 'region_slug' => 'mien-nam', 'continent_slug' => 'asia'],
         ];
 
-        $result = $this->method->invoke($this->service, $cards, 'mien-trung', 'inbound');
+        $result = $this->method->invoke($this->service, $cards, 'mien-trung', 'domestic');
 
         $this->assertNull($result);
+    }
+
+    public function testInboundTourAlsoUsesVietnamRegionSlug(): void
+    {
+        $cards = [[
+            'id' => 40,
+            'region_slug' => 'mien-trung',
+            'region_slugs' => ['mien-trung'],
+            'continent_slug' => 'asia',
+        ]];
+
+        $result = $this->method->invoke($this->service, $cards, 'mien-trung', 'inbound');
+
+        $this->assertSame(40, $result['id']);
+    }
+
+    public function testGenericVietnamSlugResolvesLocalTour(): void
+    {
+        $cards = [['id' => 50, 'region_slug' => 'mien-bac']];
+
+        $result = $this->method->invoke($this->service, $cards, 'viet-nam', 'inbound');
+
+        $this->assertSame(50, $result['id']);
+    }
+
+    public function testInboundTourMatchesNeighboringCountrySlug(): void
+    {
+        $cards = [[
+            'id' => 60,
+            'region_slugs' => ['mien-nam'],
+            'destination_slugs' => ['viet-nam', 'campuchia', 'lao'],
+        ]];
+
+        $result = $this->method->invoke($this->service, $cards, 'campuchia', 'inbound');
+
+        $this->assertSame(60, $result['id']);
     }
 }

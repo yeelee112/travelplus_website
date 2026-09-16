@@ -5,10 +5,12 @@ $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args,
 $copy = [
     'vi' => [
         'domestic' => 'Tour trong nước',
+        'inbound' => 'Tour inbound & Đông Dương',
         'outbound' => 'Tour nước ngoài',
         'routeFallback' => 'Điểm đến đang cập nhật',
         'duration' => 'Thời lượng',
         'flightFrom' => 'Bay từ',
+        'departureFrom' => 'Khởi hành từ',
         'meetingPoint' => 'Điểm đón',
         'departure' => 'Khởi hành',
         'scheduleUpdating' => 'Đang cập nhật lịch',
@@ -16,10 +18,12 @@ $copy = [
     ],
     'en' => [
         'domestic' => 'Domestic tour',
+        'inbound' => 'Inbound & Indochina tour',
         'outbound' => 'Outbound tour',
         'routeFallback' => 'Destination updating',
         'duration' => 'Duration',
         'flightFrom' => 'From',
+        'departureFrom' => 'Departure from',
         'meetingPoint' => 'Meeting point',
         'departure' => 'Departure',
         'scheduleUpdating' => 'Schedule updating',
@@ -37,8 +41,12 @@ $promotionBadge = trim((string) ($promotion['badge'] ?? ''));
 $isPromotion = ! empty($promotion['is_active']);
 $badgeText = $isPromotion && $promotionBadge !== '' ? $promotionBadge : $badge;
 $tourType = (string) ($tour['tour_type'] ?? '');
-$typeLabel = $tourType === 'inbound' ? $copy['domestic'] : $copy['outbound'];
-$departureFromLabel = $tourType === 'inbound' ? $copy['meetingPoint'] : $copy['flightFrom'];
+$typeLabel = $copy[$tourType] ?? $copy['outbound'];
+$departureFromLabel = match ($tourType) {
+    'inbound' => $copy['meetingPoint'],
+    'domestic' => $copy['departureFrom'],
+    default => $copy['flightFrom'],
+};
 $locationName = trim((string) ($tour['continent'] ?? '')) ?: $copy['routeFallback'];
 $locationLink = trim((string) ($tour['continent_link'] ?? '#')) ?: '#';
 $departureFrom = trim((string) ($tour['departure_from'] ?? ''));

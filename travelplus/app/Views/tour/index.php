@@ -227,9 +227,11 @@ if ($tourToolId === '') {
     $tourToolId = md5((string) current_url() . '|' . (string) ($tour['title'] ?? ''));
 }
 $tourType = (string) ($tour['tour_type'] ?? '');
-$tourTypeLabel = $tourType === 'inbound'
-    ? ($locale === 'en' ? 'Domestic tour' : 'Tour trong nước')
-    : ($locale === 'en' ? 'Outbound tour' : 'Tour nước ngoài');
+$tourTypeLabel = match ($tourType) {
+    'domestic' => $locale === 'en' ? 'Domestic tour' : 'Tour trong nước',
+    'inbound' => $locale === 'en' ? 'Inbound & Indochina tour' : 'Tour inbound & Đông Dương',
+    default => $locale === 'en' ? 'Outbound tour' : 'Tour nước ngoài',
+};
 $tourToolTravelers = $hasBookableDepartures && ! empty($departureOptions[0]['max_travelers'])
     ? ($locale === 'en' ? 'Available: ' . (int) $departureOptions[0]['max_travelers'] . ' seats' : 'Còn ' . (int) $departureOptions[0]['max_travelers'] . ' chỗ')
     : ($locale === 'en' ? 'Up to ' . $maxTravelers . ' guests' : 'Tối đa ' . $maxTravelers . ' khách');

@@ -1,44 +1,43 @@
 <?php
 $locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
 $homeTours = $homeTours ?? $tours ?? getTourCards(null, 6);
-$summerTours = array_slice(array_values($homeTours), 0, 3);
+$featuredTours = array_slice(array_values($homeTours), 0, 3);
 $allToursUrl = \App\Data\LocalizedPathCatalog::url('search', $locale);
-$summerUrl = \App\Data\LocalizedPathCatalog::url('summer', $locale);
 $copy = $locale === 'en'
     ? [
-        'eyebrow' => 'Summer collection 2026',
-        'title' => 'A summer journey for every travel style',
-        'desc' => 'From beaches and vibrant cities to long-haul discoveries, choose a well-planned route with clear departure dates.',
-        'campaignCta' => 'Explore summer tours',
+        'eyebrow' => 'Travel Plus selections',
+        'title' => 'Find the right journey for your travel style',
+        'desc' => 'Explore inbound and outbound journeys with clear schedules and pricing.',
+        'campaignCta' => 'Explore tours',
         'allToursCta' => 'View all tours',
-        'listTitle' => 'Suggestions for this summer',
+        'listTitle' => 'Featured tours',
         'highlights' => [
             ['icon' => 'bi-calendar2-check', 'label' => 'Clear departure dates'],
-            ['icon' => 'bi-airplane', 'label' => 'Domestic and outbound'],
+            ['icon' => 'bi-airplane', 'label' => 'Inbound and outbound tours'],
             ['icon' => 'bi-people', 'label' => 'For families and groups'],
         ],
     ]
     : [
-        'eyebrow' => 'Bộ sưu tập hè 2026',
-        'title' => 'Tour hè cho từng kiểu trải nghiệm',
-        'desc' => 'Từ biển xanh, thành phố sôi động đến hành trình đường dài, chọn chuyến đi được chuẩn bị rõ lịch và dễ lên kế hoạch.',
-        'campaignCta' => 'Khám phá Tour hè',
+        'eyebrow' => 'Travel Plus tuyển chọn',
+        'title' => 'Chọn hành trình phù hợp với bạn',
+        'desc' => 'Khám phá tour trong nước và nước ngoài với lịch khởi hành cùng mức giá rõ ràng.',
+        'campaignCta' => 'Khám phá tour',
         'allToursCta' => 'Xem tất cả tour',
-        'listTitle' => 'Gợi ý cho mùa hè này',
+        'listTitle' => 'Tour nổi bật',
         'highlights' => [
             ['icon' => 'bi-calendar2-check', 'label' => 'Lịch khởi hành rõ'],
-            ['icon' => 'bi-airplane', 'label' => 'Trong nước và nước ngoài'],
+            ['icon' => 'bi-airplane', 'label' => 'Tour trong nước và nước ngoài'],
             ['icon' => 'bi-people', 'label' => 'Phù hợp gia đình, nhóm bạn'],
         ],
     ];
 ?>
 
-<?php if ($summerTours !== []): ?>
+<?php if ($featuredTours !== []): ?>
 <section class="home-page__tour-grid home-tour-section home-summer-section home-section" aria-labelledby="home-tour-title">
     <div class="container">
         <div class="home-summer-spotlight">
             <div class="home-summer-spotlight__copy">
-                <span class="home-summer-spotlight__eyebrow"><i class="bi bi-sun-fill" aria-hidden="true"></i><?= esc($copy['eyebrow']) ?></span>
+                <span class="home-summer-spotlight__eyebrow"><i class="bi bi-compass" aria-hidden="true"></i><?= esc($copy['eyebrow']) ?></span>
                 <h2 id="home-tour-title"><?= esc($copy['title']) ?></h2>
                 <p><?= esc($copy['desc']) ?></p>
 
@@ -49,7 +48,7 @@ $copy = $locale === 'en'
                 </ul>
 
                 <div class="home-summer-spotlight__actions">
-                    <a class="home-summer-spotlight__primary" href="<?= esc($summerUrl, 'attr') ?>">
+                    <a class="home-summer-spotlight__primary" href="<?= esc($allToursUrl, 'attr') ?>">
                         <?= esc($copy['campaignCta']) ?>
                         <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
                     </a>
@@ -62,14 +61,14 @@ $copy = $locale === 'en'
 
         <div class="home-summer-list-head">
             <h3><?= esc($copy['listTitle']) ?></h3>
-            <a href="<?= esc($summerUrl, 'attr') ?>">
+            <a href="<?= esc($allToursUrl, 'attr') ?>">
                 <?= esc($copy['campaignCta']) ?>
                 <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
         </div>
 
         <div class="home-tour-grid">
-            <?php foreach ($summerTours as $tour): ?>
+            <?php foreach ($featuredTours as $tour): ?>
                 <div class="home-tour-grid__item">
                     <?= view('components/tour-card', ['tour' => $tour]) ?>
                 </div>

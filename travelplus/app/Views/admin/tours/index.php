@@ -85,11 +85,16 @@
                         $basePrice = (float) ($tour['base_price'] ?? 0);
                         $salePrice = (float) ($tour['sale_price'] ?? 0);
                         $displayPrice = $salePrice > 0 ? $salePrice : $basePrice;
+                        $tourTypeLabel = match ((string) ($tour['tour_type'] ?? '')) {
+                            'domestic' => 'Domestic · khách Việt đi trong nước',
+                            'inbound' => 'Inbound · khách quốc tế đi Việt Nam / Đông Dương',
+                            default => 'Outbound · khách Việt đi nước ngoài',
+                        };
                     ?>
                     <tr>
                         <td>#<?= esc((string) $tourId) ?></td>
                         <td><?= esc((string) $tour['name']) ?></td>
-                        <td><?= esc((string) $tour['tour_type']) ?></td>
+                        <td><?= esc($tourTypeLabel) ?></td>
                         <td><?= esc(number_format((int) ($tour['view_count'] ?? 0), 0, ',', '.')) ?></td>
                         <td><?= esc((string) $tour['status']) ?></td>
                         <td>
@@ -121,6 +126,10 @@
                             <div class="tour-actions">
                                 <button type="button" class="btn btn-sm btn-outline-secondary js-quick-edit-toggle" data-target="quick-edit-<?= $tourId ?>">Sửa nhanh</button>
                                 <a class="btn btn-sm btn-outline-primary" href="<?= site_url('admin/tours/' . $tourId . '/edit') ?>">Sửa</a>
+                                <form method="post" action="<?= site_url('admin/tours/' . $tourId . '/duplicate') ?>">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Nhân bản</button>
+                                </form>
                                 <form method="post" action="<?= site_url('admin/tours/' . $tourId . '/delete') ?>" onsubmit="return confirm('Xóa tour này?');">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>

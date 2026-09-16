@@ -26,18 +26,18 @@ class Home extends BaseController
         $tourFallback = array_slice(TourCard::getAll(), 0, 6);
         $featuredTours = $this->safeSection(
             'featured tours',
-            static fn(): array => (new TourCatalogService())->getFeaturedTours($locale, 6),
+            static fn(): array => (new TourCatalogService())->getFeaturedTours($locale, 18),
             $tourFallback,
             true,
-            'home:featured-tours:' . $locale,
+            'home:featured-tours:v2:' . $locale,
             300
         );
         $promotionalTours = $this->safeSection(
             'promotional tours',
-            static fn(): array => (new TourCatalogService())->getPromotionalTours($locale, 4),
+            static fn(): array => (new TourCatalogService())->getPromotionalTours($locale, 12),
             [],
             true,
-            'home:promotional-tours:' . $locale,
+            'home:promotional-tours:v2:' . $locale,
             180
         );
         $featuredDestinations = $this->safeSection(
@@ -50,10 +50,10 @@ class Home extends BaseController
         );
         $homeTours = $this->safeSection(
             'home tours',
-            static fn(): array => (new TourCatalogService())->getHomeTours($locale, 6),
+            static fn(): array => (new TourCatalogService())->getHomeTours($locale, 18),
             $tourFallback,
             true,
-            'home:tours:' . $locale,
+            'home:tours:v2:' . $locale,
             300
         );
         $homeBlogs = $this->safeSection(
@@ -64,6 +64,10 @@ class Home extends BaseController
             'home:blogs:' . $locale,
             300
         );
+
+        $featuredTours = $this->filterToursForLocale($featuredTours, $locale, 6);
+        $promotionalTours = $this->filterToursForLocale($promotionalTours, $locale, 4);
+        $homeTours = $this->filterToursForLocale($homeTours, $locale, 6);
 
         return view('home/index', [
             'featuredTours' => $featuredTours,
@@ -92,6 +96,21 @@ class Home extends BaseController
                 $seo->itemListSchema($t('blog.listTitle'), $canonicalUrl, $homeBlogs, 'BlogPosting'),
             ],
         ]);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $tours
+     * @return array<int, array<string, mixed>>
+     */
+    private function filterToursForLocale(array $tours, string $locale, int $limit): array
+    {
+        $excludedTourType = $locale === 'en' ? 'domestic' : 'inbound';
+        $filtered = array_filter(
+            $tours,
+            static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') !== $excludedTourType
+        );
+
+        return array_slice(array_values($filtered), 0, max(1, $limit));
     }
 
     /**
@@ -235,6 +254,12 @@ class Home extends BaseController
             }
 
             if ($regionSlug !== '' && $destinationSlug !== '') {
+                if ($locale === 'en') {
+                    return rtrim(LocalizedPathCatalog::url('inbound', 'en'), '/')
+                        . '/' . rawurlencode($regionSlug)
+                        . '/' . rawurlencode($destinationSlug);
+                }
+
                 return localized_url('tour-trong-nuoc/' . $regionSlug . '/' . $destinationSlug);
             }
         }

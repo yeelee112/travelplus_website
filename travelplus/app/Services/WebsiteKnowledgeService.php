@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Data\AboutPageContent;
 use App\Data\LegalPageCatalog;
+use App\Data\LocalizedPathCatalog;
 use App\Data\MicePageContent;
 use App\Data\OfficeLocationCatalog;
 use App\Data\ServicePageCatalog;
@@ -2278,10 +2279,7 @@ class WebsiteKnowledgeService
             }
 
             $tourType = (string) ($row['tour_type'] ?? 'outbound');
-            $locationSlug = $tourType === 'inbound' ? 'viet-nam' : 'diem-den';
-            $url = $tourType === 'inbound'
-                ? localized_url('tour-trong-nuoc/' . $locationSlug . '/tour/' . $slug)
-                : localized_url('tour-nuoc-ngoai/' . $locationSlug . '/' . $slug);
+            $url = $this->buildTourUrl($tourType, $slug, $locale);
 
             $matches[] = [
                 'title' => $title,
@@ -2371,10 +2369,7 @@ class WebsiteKnowledgeService
                 continue;
             }
 
-            $locationSlug = $tourType === 'inbound' ? 'viet-nam' : 'diem-den';
-            $url = $tourType === 'inbound'
-                ? localized_url('tour-trong-nuoc/' . $locationSlug . '/tour/' . $slug)
-                : localized_url('tour-nuoc-ngoai/' . $locationSlug . '/' . $slug);
+            $url = $this->buildTourUrl($tourType, $slug, $locale);
 
             $matches[] = [
                 'title' => $title,
@@ -2635,7 +2630,7 @@ class WebsiteKnowledgeService
                     $row['description'] ?? '',
                     ($locale === 'en' ? 'Duration' : 'Thời lượng') . ': ' . (int) ($row['duration_days'] ?? 0) . ' / ' . (int) ($row['duration_nights'] ?? 0),
                 ]), 1600),
-                'url' => $this->makeLocalizedUrl($searchPath, $locale) . '?q=' . $query . '&type=' . rawurlencode($tourType),
+                'url' => $this->makeLocalizedUrl($searchPath, $locale) . '?q=' . $query . '&tour_type=' . rawurlencode($tourType),
             ];
         }
 
@@ -3857,10 +3852,7 @@ class WebsiteKnowledgeService
                 continue;
             }
 
-            $locationSlug = $tourType === 'inbound' ? 'viet-nam' : 'diem-den';
-            $url = $tourType === 'inbound'
-                ? localized_url('tour-trong-nuoc/' . $locationSlug . '/tour/' . $slug)
-                : localized_url('tour-nuoc-ngoai/' . $locationSlug . '/' . $slug);
+            $url = $this->buildTourUrl($tourType, $slug, $locale);
 
             $matches[] = [
                 'title' => $title,
@@ -3925,10 +3917,7 @@ class WebsiteKnowledgeService
                 continue;
             }
 
-            $locationSlug = $tourType === 'inbound' ? 'viet-nam' : 'diem-den';
-            $url = $tourType === 'inbound'
-                ? localized_url('tour-trong-nuoc/' . $locationSlug . '/tour/' . $slug)
-                : localized_url('tour-nuoc-ngoai/' . $locationSlug . '/' . $slug);
+            $url = $this->buildTourUrl($tourType, $slug, $locale);
 
             $matches[] = [
                 'title' => $title,
@@ -4301,5 +4290,24 @@ class WebsiteKnowledgeService
         }
 
         return base_url($normalized);
+    }
+
+    private function buildTourUrl(string $tourType, string $tourSlug, string $locale): string
+    {
+        if ($tourType === 'domestic') {
+            return $this->makeLocalizedUrl(
+                LocalizedPathCatalog::path('domestic', $locale) . '/viet-nam/tour/' . $tourSlug,
+                $locale
+            );
+        }
+
+        if ($tourType === 'inbound') {
+            return $this->makeLocalizedUrl(
+                LocalizedPathCatalog::path('inbound', $locale) . '/hanh-trinh/tour/' . $tourSlug,
+                $locale
+            );
+        }
+
+        return $this->makeLocalizedUrl('tour-nuoc-ngoai/diem-den/' . $tourSlug, $locale);
     }
 }

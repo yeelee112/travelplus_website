@@ -37,17 +37,18 @@ class Contact extends BaseController
         $leadContext = strtolower(trim((string) $this->request->getPost('lead_context')));
         $isVisaRequest = $serviceType === 'visa';
         $isMiceRequest = $serviceType === 'mice';
+        $isInboundRequest = $leadContext === 'inbound';
         $isSpecializedRequest = $isVisaRequest || $isMiceRequest;
 
         $rules = [
             'service_type' => 'permit_empty|in_list[visa,mice]',
-            'lead_context' => 'permit_empty|in_list[summer]',
+            'lead_context' => 'permit_empty|in_list[summer,inbound]',
             'company_name' => 'permit_empty|max_length[160]',
             'event_type' => 'permit_empty|max_length[160]',
             'conference_name' => 'permit_empty|max_length[180]',
             'name' => 'required|min_length[2]|max_length[120]',
             'email' => 'required|valid_email|max_length[160]',
-            'phone' => 'required|validVietnamPhone|max_length[30]',
+            'phone' => $isInboundRequest ? 'required|min_length[6]|max_length[30]' : 'required|validVietnamPhone|max_length[30]',
             'destination' => 'permit_empty|max_length[160]',
             'visa_type' => 'permit_empty|max_length[120]',
             'visa_refusal' => 'permit_empty|max_length[120]',
@@ -101,7 +102,9 @@ class Contact extends BaseController
 
         $name = trim((string) $this->request->getPost('name'));
         $email = trim((string) $this->request->getPost('email'));
-        $phone = VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
+        $phone = $isInboundRequest
+            ? trim((string) $this->request->getPost('phone'))
+            : VietnamPhoneService::normalize((string) $this->request->getPost('phone'));
         $destination = trim((string) $this->request->getPost('destination'));
         $visaType = trim((string) $this->request->getPost('visa_type'));
         $visaRefusal = trim((string) $this->request->getPost('visa_refusal'));
@@ -127,18 +130,18 @@ class Contact extends BaseController
 
         $leadSource = $isVisaRequest
             ? 'visa_form'
-            : ($isMiceRequest ? 'mice_form' : ($leadContext === 'summer' ? 'summer_form' : 'contact_form'));
+            : ($isMiceRequest ? 'mice_form' : ($leadContext === 'summer' ? 'summer_form' : ($isInboundRequest ? 'inbound_landing' : 'contact_form')));
         $leadId = (new CrmLeadCaptureService())->capture([
             'source' => $leadSource,
             'stage' => 'new',
-            'priority' => $isMiceRequest || $isVisaRequest ? 'high' : 'normal',
+            'priority' => $isMiceRequest || $isVisaRequest || $isInboundRequest ? 'high' : 'normal',
             'customer_name' => $name,
             'customer_email' => $email,
             'customer_phone' => $phone,
             'service_type' => $serviceType !== '' ? $serviceType : 'tour',
             'interest_title' => $isVisaRequest
                 ? 'Visa consultation'
-                : ($isMiceRequest ? 'MICE proposal' : ($leadContext === 'summer' ? 'Summer tour request' : 'Contact request')),
+                : ($isMiceRequest ? 'MICE proposal' : ($leadContext === 'summer' ? 'Summer tour request' : ($isInboundRequest ? 'Vietnam & Indochina trip request' : 'Contact request'))),
             'interest_url' => $redirectTarget ?? LocalizedPathCatalog::url('contact', $locale),
             'destination' => $destination,
             'travel_date' => $estimatedTime,
@@ -186,7 +189,7 @@ class Contact extends BaseController
             ? ($locale === 'en' ? 'New visa consultation request from Travel Plus website' : 'Yêu cầu tư vấn visa mới từ website Travel Plus')
             : ($isMiceRequest
                 ? ($locale === 'en' ? 'New MICE brief request from Travel Plus website' : 'Yêu cầu nhận proposal MICE mới từ website Travel Plus')
-                : lang('Frontend.contact.mailSubject', [], $locale)));
+                : ($isInboundRequest ? 'New Vietnam & Indochina trip request from Travel Plus website' : lang('Frontend.contact.mailSubject', [], $locale))));
         $mailer->setMessage($this->buildMailBody([
             'service_type' => $serviceType,
             'company_name' => $companyName,

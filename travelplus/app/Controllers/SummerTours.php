@@ -11,6 +11,15 @@ class SummerTours extends BaseController
     private const LANDING_TOUR_LIMIT = 24;
     private const BUCKET_TOUR_LIMIT = 8;
 
+    public function legacyRedirect()
+    {
+        $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
+
+        return redirect()
+            ->to(LocalizedPathCatalog::url('search', $locale))
+            ->setStatusCode(302);
+    }
+
     public function index()
     {
         $locale = $this->request->getLocale() === 'en' ? 'en' : 'vi';
@@ -37,11 +46,11 @@ class SummerTours extends BaseController
 
         $domesticTours = array_values(array_filter(
             $featuredCollection,
-            static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') === 'inbound'
+            static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') === 'domestic'
         ));
         $outboundTours = array_values(array_filter(
             $featuredCollection,
-            static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') !== 'inbound'
+            static fn(array $tour): bool => (string) ($tour['tour_type'] ?? '') === 'outbound'
         ));
 
         $heroLocations = [];

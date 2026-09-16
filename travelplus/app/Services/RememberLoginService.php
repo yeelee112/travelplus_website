@@ -19,7 +19,7 @@ class RememberLoginService
 
         $db = db_connect();
 
-        $this->clearAllForUser((int) ($user['id'] ?? 0));
+        $this->deleteCurrentSelector();
 
         $selector = bin2hex(random_bytes(9));
         $validator = bin2hex(random_bytes(32));
@@ -37,17 +37,7 @@ class RememberLoginService
             'updated_at' => $now,
         ]);
 
-        service('response')->setCookie(
-            self::COOKIE_NAME,
-            $selector . ':' . $validator,
-            self::LIFETIME_SECONDS,
-            '',
-            '/',
-            '',
-            null,
-            true,
-            'Lax'
-        );
+        $this->writeClientCookie($selector . ':' . $validator);
     }
 
     public function restoreUser(): ?array
@@ -72,7 +62,7 @@ class RememberLoginService
         $validator = trim($validator);
 
         if ($selector === '' || $validator === '') {
-            $this->clear();
+            $this->expireClientCookie();
             return null;
         }
 
@@ -88,19 +78,18 @@ class RememberLoginService
         }
 
         if (! is_array($row)) {
-            $this->clear();
+            $this->expireClientCookie();
             return null;
         }
 
         if (strtotime((string) ($row['expires_at'] ?? '')) < time()) {
             $this->deleteSelector($selector);
-            $this->clear();
+            $this->expireClientCookie();
             return null;
         }
 
         if (! hash_equals((string) ($row['token_hash'] ?? ''), hash('sha256', $validator))) {
-            $this->deleteSelector($selector);
-            $this->clear();
+            $this->expireClientCookie();
             return null;
         }
 
@@ -117,34 +106,28 @@ class RememberLoginService
 
         if (! is_array($user)) {
             $this->deleteSelector($selector);
-            $this->clear();
+            $this->expireClientCookie();
             return null;
         }
 
-        $newValidator = bin2hex(random_bytes(32));
         $now = date('Y-m-d H:i:s');
         $expiresAt = date('Y-m-d H:i:s', time() + self::LIFETIME_SECONDS);
 
-        $db->table('user_remember_tokens')
-            ->where('id', (int) $row['id'])
-            ->update([
-                'token_hash' => hash('sha256', $newValidator),
-                'expires_at' => $expiresAt,
-                'last_used_at' => $now,
-                'updated_at' => $now,
-            ]);
+        try {
+            $db->table('user_remember_tokens')
+                ->where('id', (int) $row['id'])
+                ->update([
+                    'expires_at' => $expiresAt,
+                    'last_used_at' => $now,
+                    'updated_at' => $now,
+                ]);
+        } catch (Throwable $exception) {
+            DatabaseAvailabilityService::markUnavailable($exception, 'Remember login token refresh failed');
+        }
 
-        service('response')->setCookie(
-            self::COOKIE_NAME,
-            $selector . ':' . $newValidator,
-            self::LIFETIME_SECONDS,
-            '',
-            '/',
-            '',
-            null,
-            true,
-            'Lax'
-        );
+        // Keep the validator stable across restoration requests. Rotating it here
+        // makes concurrent requests invalidate each other after a session reset.
+        $this->writeClientCookie($selector . ':' . $validator);
 
         return $user;
     }
@@ -157,7 +140,7 @@ class RememberLoginService
             $this->deleteSelector(trim($selector));
         }
 
-        service('response')->deleteCookie(self::COOKIE_NAME);
+        $this->expireClientCookie();
     }
 
     public function revokeAllForUser(int $userId): void
@@ -191,6 +174,37 @@ class RememberLoginService
 
         $db = db_connect();
         $db->table('user_remember_tokens')->where('selector', $selector)->delete();
+    }
+
+    private function deleteCurrentSelector(): void
+    {
+        $rawCookie = (string) service('request')->getCookie(self::COOKIE_NAME);
+        if ($rawCookie === '' || ! str_contains($rawCookie, ':')) {
+            return;
+        }
+
+        [$selector] = explode(':', $rawCookie, 2);
+        $this->deleteSelector(trim($selector));
+    }
+
+    private function writeClientCookie(string $value): void
+    {
+        service('response')->setCookie(
+            self::COOKIE_NAME,
+            $value,
+            self::LIFETIME_SECONDS,
+            '',
+            '/',
+            '',
+            null,
+            true,
+            'Lax'
+        );
+    }
+
+    private function expireClientCookie(): void
+    {
+        service('response')->deleteCookie(self::COOKIE_NAME);
     }
 
     private function hasTokenTable(): bool

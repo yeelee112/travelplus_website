@@ -36,7 +36,7 @@ $routes->GET('dich-vu-khach-san', 'Services::hotels');
 $routes->GET('dieu-khoan-su-dung', 'LegalController::terms/vi');
 $routes->GET('chinh-sach-bao-mat', 'LegalController::privacy/vi');
 $routes->GET('tim-kiem-tour', 'SearchController::tours');
-$routes->GET('tour-he', 'SummerTours::index');
+$routes->GET('tour-he', 'SummerTours::legacyRedirect');
 $routes->GET('travelplus-reward', 'PassportProgram::index');
     $routes->GET('travelplus-passport', 'PassportProgram::legacyRedirect');
 
@@ -56,6 +56,7 @@ $routes->GET('admin/tours/create', 'Admin\Tours::create');
 $routes->POST('admin/tours', 'Admin\Tours::store');
 $routes->GET('admin/tours/(:num)/edit', 'Admin\Tours::edit/$1');
 $routes->POST('admin/tours/(:num)', 'Admin\Tours::update/$1');
+$routes->POST('admin/tours/(:num)/duplicate', 'Admin\Tours::duplicate/$1');
 $routes->POST('admin/tours/(:num)/quick-update', 'Admin\Tours::quickUpdate/$1');
 $routes->POST('admin/tours/(:num)/delete', 'Admin\Tours::delete/$1');
 $routes->GET('admin/blogs', 'Admin\Blogs::index');
@@ -63,6 +64,7 @@ $routes->GET('admin/blogs/create', 'Admin\Blogs::create');
 $routes->POST('admin/blogs', 'Admin\Blogs::store');
 $routes->GET('admin/blogs/(:num)/edit', 'Admin\Blogs::edit/$1');
 $routes->POST('admin/blogs/(:num)', 'Admin\Blogs::update/$1');
+$routes->POST('admin/blogs/(:num)/duplicate', 'Admin\Blogs::duplicate/$1');
 $routes->POST('admin/blogs/(:num)/status', 'Admin\Blogs::updateStatus/$1');
 $routes->POST('admin/blogs/(:num)/delete', 'Admin\Blogs::delete/$1');
 $routes->POST('admin/blogs/upload-image', 'Admin\Blogs::uploadEditorImage');
@@ -127,10 +129,14 @@ $routes->GET('booking/vnpay/ipn', 'BookingController::vnpayIpn');
 
 $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
 $routes->GET('tour-trong-nuoc', 'Domestic::index');
+$routes->GET('tour-inbound', 'Inbound::index');
 $routes->POST('tour/reviews', 'TourController::submitReview');
 $routes->POST('tour/enquiry', 'TourController::submitEnquiry');
 $routes->get('tour-nuoc-ngoai/(:segment)/(:segment)', 'TourController::detail/outbound/vi/$1/$2');
-$routes->get('tour-trong-nuoc/(:segment)/tour/(:segment)', 'TourController::detail/inbound/vi/$1/$2');
+$routes->get('tour-trong-nuoc/(:segment)/tour/(:segment)', 'TourController::detail/domestic/vi/$1/$2');
+$routes->get('tour-inbound/(:segment)/tour/(:segment)', 'TourController::detail/inbound/vi/$1/$2');
+$routes->get('tour-inbound/(:segment)', 'Inbound::region/vi/$1');
+$routes->get('tour-inbound/(:segment)/(:segment)', 'Inbound::province/vi/$1/$2');
 $routes->get('tour-trong-nuoc/(:segment)', 'Domestic::region/vi/$1');
 $routes->get('tour-trong-nuoc/(:segment)/(:segment)', 'Domestic::province/vi/$1/$2');
 
@@ -162,7 +168,7 @@ $routes->group('en', function ($routes) {
     $routes->GET('terms-of-service', 'LegalController::terms/en');
     $routes->GET('privacy-statement', 'LegalController::privacy/en');
     $routes->GET('tour-search', 'SearchController::tours');
-    $routes->GET('summer-tours', 'SummerTours::index');
+    $routes->GET('summer-tours', 'SummerTours::legacyRedirect');
     $routes->GET('travelplus-reward', 'PassportProgram::index');
     $routes->GET('travelplus-passport', 'PassportProgram::legacyRedirect');
 
@@ -199,10 +205,14 @@ $routes->group('en', function ($routes) {
     
     $routes->GET('tour-nuoc-ngoai', 'Outbound::index');
     $routes->GET('tour-trong-nuoc', 'Domestic::index');
+    $routes->GET('inbound-tours', 'Inbound::index');
     $routes->POST('tour/reviews', 'TourController::submitReview');
     $routes->POST('tour/enquiry', 'TourController::submitEnquiry');
     $routes->get('tour-nuoc-ngoai/(:segment)/(:segment)', 'TourController::detail/outbound/en/$1/$2');
-    $routes->get('tour-trong-nuoc/(:segment)/tour/(:segment)', 'TourController::detail/inbound/en/$1/$2');
+    $routes->get('tour-trong-nuoc/(:segment)/tour/(:segment)', 'TourController::detail/domestic/en/$1/$2');
+    $routes->get('inbound-tours/(:segment)/tour/(:segment)', 'TourController::detail/inbound/en/$1/$2');
+    $routes->get('inbound-tours/(:segment)', 'Inbound::region/en/$1');
+    $routes->get('inbound-tours/(:segment)/(:segment)', 'Inbound::province/en/$1/$2');
     $routes->get('tour-trong-nuoc/(:segment)', 'Domestic::region/en/$1');
     $routes->get('tour-trong-nuoc/(:segment)/(:segment)', 'Domestic::province/en/$1/$2');
     $routes->get('(:segment)', 'LocationController::continent/en/$1');

@@ -65,15 +65,21 @@ $amountLabel = match (true) {
     default => $t('bookingSuccess.amountPending'),
 };
 $amountValue = $formatCurrency((float) ($isPaid ? ($booking['amount_paid_vnd'] ?? 0) : ($booking['amount_due_vnd'] ?? $booking['grand_total'] ?? 0)));
+$subtotalValue = max(0, (float) ($booking['subtotal_vnd'] ?? $booking['grand_total'] ?? 0));
+$membershipDiscountValue = max(0, (float) ($booking['membership_discount_amount_vnd'] ?? 0));
+$voucherDiscountValue = max(0, (float) ($booking['discount_amount_vnd'] ?? 0));
+$grandTotalValue = max(0, (float) ($booking['grand_total'] ?? 0));
 $bookingCode = (string) ($booking['booking_code'] ?? '-');
 $tourTitle = (string) ($booking['tour_title'] ?? '-');
 $departureLabel = (string) ($booking['departure_label'] ?? '-');
 $bookingTourType = (string) ($bookingTourType ?? '');
 $departureFromLabel = trim((string) ($departureFrom ?? ''));
 $departureFromLabel = $departureFromLabel !== '' ? $departureFromLabel : ($locale === 'en' ? 'To be confirmed' : 'Đang cập nhật');
-$departureFromTitle = $bookingTourType === 'inbound'
-    ? ($locale === 'en' ? 'Pickup point' : 'Điểm đón')
-    : ($locale === 'en' ? 'Departure from' : 'Bay từ');
+$departureFromTitle = match ($bookingTourType) {
+    'inbound' => $locale === 'en' ? 'Pickup point' : 'Điểm đón',
+    'domestic' => $locale === 'en' ? 'Departure from' : 'Khởi hành từ',
+    default => $locale === 'en' ? 'Departure from' : 'Bay từ',
+};
 $tourLink = (string) ($booking['tour_link'] ?? localized_url(''));
 $homeLink = localized_url('');
 $contactLink = \App\Data\LocalizedPathCatalog::url('contact', $locale);
@@ -125,8 +131,16 @@ $customerItems = [
 $paymentItems = [
     ['label' => $t('bookingSuccess.paymentMethod'), 'value' => $paymentMethodLabel],
     ['label' => $t('bookingSuccess.paymentPlan'), 'value' => $paymentPlanLabel],
-    ['label' => $amountLabel, 'value' => $amountValue],
+    ['label' => $locale === 'en' ? 'Tour price & supplements' : 'Giá tour & phụ thu', 'value' => $formatCurrency($subtotalValue)],
 ];
+if ($membershipDiscountValue > 0) {
+    $paymentItems[] = ['label' => $locale === 'en' ? 'Tier saving' : 'Giảm theo hạng', 'value' => '-' . $formatCurrency($membershipDiscountValue)];
+}
+if ($voucherDiscountValue > 0) {
+    $paymentItems[] = ['label' => $locale === 'en' ? 'Voucher saving' : 'Giảm voucher', 'value' => '-' . $formatCurrency($voucherDiscountValue)];
+}
+$paymentItems[] = ['label' => $locale === 'en' ? 'Booking total' : 'Tổng booking', 'value' => $formatCurrency($grandTotalValue)];
+$paymentItems[] = ['label' => $amountLabel, 'value' => $amountValue];
 ?>
 <section class="travelplus-booking-success travelplus-booking-success--<?= esc($statusTone, 'attr') ?>">
     <div class="container">

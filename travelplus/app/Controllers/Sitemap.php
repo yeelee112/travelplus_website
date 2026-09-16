@@ -14,7 +14,7 @@ class Sitemap extends Controller
     public function index()
     {
         $contentCache = new PublicContentCacheService();
-        $cacheKey = 'sitemap:v6:' . $this->stylesheetVersion() . ':' . base_url();
+        $cacheKey = 'sitemap:v9:' . $this->stylesheetVersion() . ':' . base_url();
         $cachedXml = $contentCache->get($cacheKey);
         if (is_string($cachedXml) && $cachedXml !== '') {
             return $this->response
@@ -35,7 +35,6 @@ class Sitemap extends Controller
         $staticPathKeys = [
             'about',
             'blog',
-            'summer',
             'passport.program',
             'service.visa',
             'service.mice',
@@ -48,6 +47,7 @@ class Sitemap extends Controller
             'legal.privacy',
             'outbound',
             'domestic',
+            'inbound',
         ];
         $staticPaths = [
             'vi' => [''],
@@ -56,6 +56,10 @@ class Sitemap extends Controller
 
         foreach ($staticPathKeys as $key) {
             foreach ($locales as $locale) {
+                if (($key === 'inbound' && $locale !== 'en') || ($key === 'domestic' && $locale === 'en')) {
+                    continue;
+                }
+
                 $path = LocalizedPathCatalog::path($key, $locale);
                 if ($path === '') {
                     continue;
@@ -80,7 +84,8 @@ class Sitemap extends Controller
 
         $tourService = new TourCatalogService();
         foreach ($locales as $locale) {
-            $result = $tourService->getPagedTours($locale, 5000, 1);
+            $excludedTourType = $locale === 'en' ? 'domestic' : 'inbound';
+            $result = $tourService->getPagedTours($locale, 5000, 1, null, [], false, $excludedTourType);
 
             foreach ($result['tours'] as $tour) {
                 if (empty($tour['link'])) {
