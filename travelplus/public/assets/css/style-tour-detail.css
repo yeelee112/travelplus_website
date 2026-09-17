@@ -3280,3 +3280,47 @@ body.modal-open .tour-detail-content .pricing-and-booking-area{visibility:hidden
 .tour-detail-hero__departure-label{font-size:11px}
 .tour-detail-hero__departure-value b{font-size:13px}
 }
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px;
+    gap: 12px;
+    padding-right: 0;
+}
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button:after{
+    position: static;
+    margin-left: 0;
+    transform: none;
+}
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button:not(.collapsed):after{
+    transform: rotate(180deg);
+}
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button .tour-itinerary-row{
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) !important;
+    column-gap: 12px;
+
+    width: 100%;
+    min-width: 0;
+    align-items: start;
+}
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button .tour-itinerary-heading{
+    display: block;
+    min-width: 0;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button .tour-itinerary-row {
+    grid-template-columns: 96px minmax(0, 1fr) !important;
+}
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button .tour-itinerary-day {
+    box-sizing: border-box;
+    width: 96px;
+    min-width: 96px;
+    max-width: 96px;
+    flex: 0 0 96px;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 7px 10px 7px 21px;
+    font-size: 13px;
+}
