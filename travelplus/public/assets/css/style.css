@@ -7627,9 +7627,9 @@ header.style-3.two .main-menu>ul>li.active>a i {color: var(--white-color)}
     text-transform: uppercase;}
 .tour-detail-hero h1 {margin: 0;
     color: #fff;
-    font-size: clamp(40px, 4.35vw, 66px);
+    font-size: clamp(32px, 2.5vw, 42px);
     font-weight: 850;
-    line-height: 1.04;
+    line-height: 1.18;
     letter-spacing: 0;}
 .tour-detail-hero__copy p {max-width: 720px;
     margin: 22px 0 0;
