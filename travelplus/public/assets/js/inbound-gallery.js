@@ -23,5 +23,36 @@
     });
     track.addEventListener('scroll', update, {passive: true});
     window.addEventListener('resize', update, {passive: true});
+    document.querySelectorAll('[data-glimpse-open]').forEach(button => {
+        button.addEventListener('click', () => {
+            const dialog = document.getElementById(button.dataset.glimpseOpen);
+            if (dialog instanceof HTMLDialogElement) {
+                dialog.querySelectorAll('[data-destination-photo]').forEach(photo => {
+                    if (!photo.hasAttribute('src')) photo.src = photo.dataset.destinationPhoto;
+                });
+                dialog.showModal();
+            }
+        });
+    });
+    document.querySelectorAll('.inbound-glimpse-dialog').forEach(dialog => {
+        const close = () => dialog.close();
+        dialog.querySelector('[data-glimpse-close]')?.addEventListener('click', close);
+        dialog.querySelector('[data-glimpse-plan]')?.addEventListener('click', event => {
+            const destination = document.querySelector('.inbound-enquiry-form [name="destination"]');
+            const name = event.currentTarget.dataset.glimpsePlan;
+            if (destination && name) {
+                const current = destination.value.trim();
+                if (!current.toLowerCase().includes(name.toLowerCase())) {
+                    destination.value = current ? `${current}, ${name}` : name;
+                    destination.dispatchEvent(new Event('input', {bubbles: true}));
+                }
+            }
+            close();
+        });
+        dialog.addEventListener('click', event => {
+            const box = dialog.getBoundingClientRect();
+            if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) close();
+        });
+    });
     update();
 })();

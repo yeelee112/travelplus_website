@@ -33,7 +33,7 @@
         const interactive = target.closest('a, button:not(:disabled), summary');
         cursor.classList.toggle('is-photo', Boolean(photo));
         cursor.classList.toggle('is-link', Boolean(interactive) && !photo);
-        label.textContent = photo ? 'Explore ↗' : '';
+        label.textContent = photo ? (photo.matches('.inbound-glimpse__card') ? 'Discover +' : 'Explore ↗') : '';
         cursor.classList.add('is-visible');
         if (!frame) frame = requestAnimationFrame(paint);
     };

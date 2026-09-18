@@ -6,5 +6,5 @@
         <p>Drift between limestone cliffs. Follow a quiet country road. Leave a little space in your itinerary for the unexpected.</p>
         <a class="inbound-btn inbound-btn--primary" href="<?= esc(\App\Data\LocalizedPathCatalog::url('inbound', 'en') . '/northern-vietnam', 'attr') ?>">Explore Northern Vietnam <i class="bi bi-arrow-up-right"></i></a>
     </div>
-    <span class="inbound-nature__caption">A quieter side of Vietnam · Illustrative image</span>
+    <span class="inbound-nature__caption">A quieter side of Vietnam</span>
 </section>

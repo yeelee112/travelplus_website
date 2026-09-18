@@ -2,7 +2,7 @@
     <div class="container inbound-culture__layout">
         <figure class="inbound-culture__photo">
             <img src="<?= esc(base_url('assets/images/landing/inbound/vietnam-local-table.webp'), 'attr') ?>" alt="Vietnamese pho, spring rolls and iced coffee on a local café table" width="1536" height="1024" loading="lazy" decoding="async">
-            <figcaption>A taste of Vietnam · Illustrative image</figcaption>
+            <figcaption>A taste of Vietnam</figcaption>
         </figure>
         <div class="inbound-culture__copy">
             <span class="inbound-section-kicker">The everyday is extraordinary</span>

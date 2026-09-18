@@ -77,7 +77,7 @@ $faqs = [
             <div class="inbound-hero__visual">
                 <figure class="inbound-hero__main-photo"><img src="<?= esc(base_url('assets/images/destination/sa-pa.webp'), 'attr') ?>" alt="Mountain landscapes of Sapa, northern Vietnam" width="960" height="1100" fetchpriority="high"><figcaption>01 / NORTHERN VIETNAM</figcaption></figure>
                 <figure class="inbound-hero__inset-photo"><img src="<?= esc(base_url('assets/images/gallery-3.jpg'), 'attr') ?>" alt="A traveller exploring the lantern-filled streets of Hoi An" width="385" height="405" loading="eager"><figcaption>Little moments.<br>Lasting memories.</figcaption></figure>
-                <span class="inbound-hero__seal">LOCAL ROOTS<br><i class="bi bi-flower1"></i><br>PERSONAL JOURNEYS</span>
+                <span class="inbound-hero__seal"><i class="bi bi-flower1"></i><span><strong>Designed locally</strong><small>in Vietnam</small></span></span>
             </div>
         </div>
     </section>
