@@ -12,6 +12,50 @@ use Config\Email as EmailConfig;
 
 class Contact extends BaseController
 {
+    public function customTour()
+    {
+        if ($this->request->getMethod() === 'POST') {
+            return $this->submitContactForm(true);
+        }
+        $locale = $this->request->getLocale() ?: 'vi';
+        $token = bin2hex(random_bytes(16));
+        session()->set('custom_tour_token', $token);
+        $title = $locale === 'en' ? 'Tailor-made Tours & Private Travel' : 'Thiết kế tour theo yêu cầu, du lịch riêng';
+        $description = $locale === 'en'
+            ? 'Plan a tailor-made tour with TravelPlus. Share your destination, dates and budget for a private itinerary for your family, friends or company.'
+            : 'Thiết kế tour theo yêu cầu cùng TravelPlus. Lịch trình riêng cho gia đình, nhóm bạn, doanh nghiệp; linh hoạt ngày đi và ngân sách. Gửi nhu cầu để nhận tư vấn.';
+        $url = LocalizedPathCatalog::url('customTour', $locale);
+        $image = base_url('assets/images/tailor-made/img-01.png');
+        $faqs = \App\Data\CustomTourContent::faqs($locale);
+        $seo = new SeoService();
+        $breadcrumbs = [
+            ['label' => $locale === 'en' ? 'Home' : 'Trang chủ', 'url' => localized_url('/')],
+            ['label' => $locale === 'en' ? 'Tailor-made tours' : 'Tour theo yêu cầu'],
+        ];
+        return view('custom-tour/index', [
+            'breadcrumbs' => $breadcrumbs,
+            'faqs' => $faqs,
+            'contact_form_token' => $token,
+            'meta_title' => $title . ' | Travel Plus',
+            'meta_desc' => $description,
+            'meta_image' => $image,
+            'meta_image_alt' => $locale === 'en' ? 'Planning a private journey overlooking a sunlit bay' : 'Lên kế hoạch du lịch riêng bên vịnh biển trong ánh hoàng hôn',
+            'canonical_url' => $url,
+            'alternate_links' => [
+                ['hreflang' => 'vi', 'href' => base_url('tour-theo-yeu-cau')],
+                ['hreflang' => 'en', 'href' => base_url('en/custom-tours')],
+                ['hreflang' => 'x-default', 'href' => base_url('tour-theo-yeu-cau')],
+            ],
+            'schema_graph' => [
+                $seo->organizationSchema(),
+                $seo->webpageSchema($title, $description, $url),
+                $seo->breadcrumbSchema($breadcrumbs, $url),
+                $seo->serviceSchema($title, $description, $url, $image, [$locale === 'en' ? 'Tailor-made tours' : 'Thiết kế tour theo yêu cầu']),
+                $seo->faqSchema($faqs),
+            ],
+        ]);
+    }
+
     public function index()
     {
         if ($this->request->getMethod() === 'POST') {
@@ -21,20 +65,21 @@ class Contact extends BaseController
         return view('contact/index', $this->buildPageData());
     }
 
-    private function submitContactForm()
+    private function submitContactForm(bool $isCustomRequest = false)
     {
         $locale = $this->request->getLocale() ?: 'vi';
-        $redirectTarget = $this->resolveRedirectTarget();
+        $redirectTarget = $isCustomRequest ? LocalizedPathCatalog::url('customTour', $locale) : $this->resolveRedirectTarget();
+        $tokenKey = $isCustomRequest ? 'custom_tour_token' : 'contact_form_token';
         $postedToken = (string) $this->request->getPost('contact_form_token');
-        $sessionToken = (string) session()->get('contact_form_token');
+        $sessionToken = (string) session()->get($tokenKey);
 
         if ($postedToken === '' || $sessionToken === '' || ! hash_equals($sessionToken, $postedToken)) {
             return $this->redirectWithMessage($locale, $redirectTarget, 'error', lang('Frontend.contact.invalidToken', [], $locale), true);
         }
 
-        session()->remove('contact_form_token');
-        $serviceType = strtolower(trim((string) $this->request->getPost('service_type')));
-        $leadContext = strtolower(trim((string) $this->request->getPost('lead_context')));
+        session()->remove($tokenKey);
+        $serviceType = $isCustomRequest ? '' : strtolower(trim((string) $this->request->getPost('service_type')));
+        $leadContext = $isCustomRequest ? '' : strtolower(trim((string) $this->request->getPost('lead_context')));
         $isVisaRequest = $serviceType === 'visa';
         $isMiceRequest = $serviceType === 'mice';
         $isInboundRequest = $leadContext === 'inbound';
@@ -61,6 +106,20 @@ class Contact extends BaseController
             'privacy_agree' => 'required',
             'recaptcha_token' => 'required',
         ];
+        if ($isCustomRequest) {
+            $rules['estimated_time'] = 'permit_empty|max_length[80]';
+            $rules['email'] = 'permit_empty|valid_email|max_length[160]';
+            $rules['message'] = 'permit_empty|max_length[3000]';
+            $rules['privacy_agree'] = 'required|in_list[1]';
+            $rules += [
+                'departure' => 'permit_empty|max_length[160]',
+                'adults' => 'required|is_natural_no_zero|less_than_equal_to[1000]',
+                'children' => 'required|is_natural|less_than_equal_to[1000]',
+                'child_ages' => 'permit_empty|max_length[160]',
+                'interests' => 'permit_empty|in_list[relax,explore,food,team,family]',
+                'reference_tour' => 'permit_empty|max_length[250]',
+            ];
+        }
 
         $messages = [
             'name' => [
@@ -88,7 +147,10 @@ class Contact extends BaseController
             ],
         ];
 
-        if (! $this->validate($rules, $messages)) {
+        $valid = $isCustomRequest
+            ? $this->validateData($this->request->getPost(), $rules, $messages)
+            : $this->validate($rules, $messages);
+        if (! $valid) {
             return $this->redirectWithMessage($locale, $redirectTarget, 'error', implode("\n", $this->validator->getErrors()), true);
         }
 
@@ -128,38 +190,65 @@ class Contact extends BaseController
         $conferenceName = trim((string) $this->request->getPost('conference_name'));
         $budget = trim((string) $this->request->getPost('budget'));
 
+        if ($isCustomRequest) {
+            $travelers = (int) $this->request->getPost('adults') . ' người lớn, ' . (int) $this->request->getPost('children') . ' trẻ em';
+            $preferences = ['relax' => 'Nghỉ dưỡng', 'explore' => 'Khám phá', 'food' => 'Ẩm thực', 'team' => 'Team building', 'family' => 'Gia đình'];
+            $message = implode("\n", [
+                'Tour theo yêu cầu',
+                'Nơi khởi hành: ' . trim((string) $this->request->getPost('departure')),
+                'Thời lượng chuyến đi: ' . ($tripLength ?: 'Cần tư vấn'),
+                'Số khách: ' . $travelers,
+                'Độ tuổi trẻ em: ' . ((int) $this->request->getPost('children') > 0 ? trim((string) $this->request->getPost('child_ages')) : 'Không có'),
+                'Sở thích: ' . ($preferences[(string) $this->request->getPost('interests')] ?? 'Cần tư vấn'),
+                'Ngân sách mỗi người (VND): ' . ($budget ?: 'Cần tư vấn'),
+                'Tour tham khảo: ' . trim((string) $this->request->getPost('reference_tour')),
+                'Ghi chú: ' . $message,
+            ]);
+        }
+
         $leadSource = $isVisaRequest
             ? 'visa_form'
             : ($isMiceRequest ? 'mice_form' : ($leadContext === 'summer' ? 'summer_form' : ($isInboundRequest ? 'inbound_landing' : 'contact_form')));
-        $leadId = (new CrmLeadCaptureService())->capture([
-            'source' => $leadSource,
-            'stage' => 'new',
-            'priority' => $isMiceRequest || $isVisaRequest || $isInboundRequest ? 'high' : 'normal',
-            'customer_name' => $name,
-            'customer_email' => $email,
-            'customer_phone' => $phone,
-            'service_type' => $serviceType !== '' ? $serviceType : 'tour',
-            'interest_title' => $isVisaRequest
-                ? 'Visa consultation'
-                : ($isMiceRequest ? 'MICE proposal' : ($leadContext === 'summer' ? 'Summer tour request' : ($isInboundRequest ? 'Vietnam & Indochina trip request' : 'Contact request'))),
-            'interest_url' => $redirectTarget ?? LocalizedPathCatalog::url('contact', $locale),
-            'destination' => $destination,
-            'travel_date' => $estimatedTime,
-            'travelers' => $travelers,
-            'budget' => $budget,
-            'message' => $message,
-            'metadata' => [
-                'locale' => $locale,
-                'company_name' => $companyName,
-                'event_type' => $eventType,
-                'conference_name' => $conferenceName,
-                'visa_type' => $visaType,
-                'visa_refusal' => $visaRefusal,
-                'trip_length' => $tripLength,
-                'hotel_rating' => $hotelRating,
-                'lead_context' => $leadContext,
-            ],
-        ]);
+        if ($isCustomRequest) { $leadSource = 'custom_tour'; }
+        try {
+            $leadId = (new CrmLeadCaptureService())->capture([
+                'deduplicate' => ! $isCustomRequest,
+                'source' => $leadSource,
+                'stage' => 'new',
+                'priority' => $isMiceRequest || $isVisaRequest || $isInboundRequest ? 'high' : 'normal',
+                'customer_name' => $name,
+                'customer_email' => $email,
+                'customer_phone' => $phone,
+                'service_type' => $serviceType !== '' ? $serviceType : 'tour',
+                'interest_title' => $isCustomRequest ? 'Tour theo yêu cầu' : ($isVisaRequest
+                    ? 'Visa consultation'
+                    : ($isMiceRequest ? 'MICE proposal' : ($leadContext === 'summer' ? 'Summer tour request' : ($isInboundRequest ? 'Vietnam & Indochina trip request' : 'Contact request')))),
+                'interest_url' => $redirectTarget ?? LocalizedPathCatalog::url('contact', $locale),
+                'destination' => $destination,
+                'travel_date' => $estimatedTime,
+                'travelers' => $travelers,
+                'budget' => $budget,
+                'message' => $message,
+                'metadata' => [
+                    'locale' => $locale,
+                    'company_name' => $companyName,
+                    'event_type' => $eventType,
+                    'conference_name' => $conferenceName,
+                    'visa_type' => $visaType,
+                    'visa_refusal' => $visaRefusal,
+                    'trip_length' => $tripLength,
+                    'hotel_rating' => $hotelRating,
+                    'lead_context' => $leadContext,
+                ],
+            ]);
+        } catch (\Throwable $exception) {
+            if (! $isCustomRequest) { throw $exception; }
+            log_message('error', 'Custom tour request could not be saved: {message}', ['message' => $exception->getMessage()]);
+            $leadId = false;
+        }
+        if ($isCustomRequest && $leadId === false) {
+            return $this->redirectWithMessage($locale, $redirectTarget, 'error', $locale === 'en' ? 'We could not save your request. Please try again or contact us by phone.' : 'Chưa lưu được yêu cầu. Vui lòng thử lại hoặc liên hệ hotline.', true);
+        }
         $analyticsEvent = $leadId !== false ? [
             'name' => 'generate_lead',
             'dedupe_key' => 'crm_lead_' . $leadId,
@@ -184,7 +273,7 @@ class Contact extends BaseController
         $mailer->clear(true);
         $mailer->setFrom($fromEmail, $fromName);
         $mailer->setTo($recipient);
-        $mailer->setReplyTo($email, $name);
+        if ($email !== '') { $mailer->setReplyTo($email, $name); }
         $mailer->setSubject($isVisaRequest
             ? ($locale === 'en' ? 'New visa consultation request from Travel Plus website' : 'Yêu cầu tư vấn visa mới từ website Travel Plus')
             : ($isMiceRequest

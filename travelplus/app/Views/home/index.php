@@ -117,6 +117,7 @@
     <?= $this->include('sections/hero-search') ?>
     <?= $this->include('sections/home-promotions') ?>
     <?= $this->include('sections/home-tour') ?>
+    <?= $this->include('sections/custom-tour-cta') ?>
     <?= $this->include('sections/home-passport') ?>
     <?= $this->include('sections/featured-destination') ?>
     <?= $this->include('sections/home-blog') ?>

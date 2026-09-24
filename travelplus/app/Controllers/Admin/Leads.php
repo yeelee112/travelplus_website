@@ -8,8 +8,8 @@ use App\Services\CrmLeadCaptureService;
 
 class Leads extends BaseAdminController
 {
-    private const STAGES = ['new', 'consulting', 'won', 'lost'];
-    private const SOURCES = ['contact_form', 'summer_form', 'visa_form', 'mice_form', 'tour_enquiry', 'ai_chat', 'booking', 'manual'];
+    private const STAGES = ['new', 'consulting', 'quoted', 'won', 'lost'];
+    private const SOURCES = ['contact_form', 'custom_tour', 'summer_form', 'visa_form', 'mice_form', 'tour_enquiry', 'ai_chat', 'booking', 'manual'];
     private const PER_PAGE = 12;
     private const STATS_CACHE_KEY = 'admin_crm_leads_stage_stats';
     private const STATS_CACHE_TTL = 60;
@@ -153,7 +153,7 @@ class Leads extends BaseAdminController
      */
     private function buildStats(): array
     {
-        $defaults = ['new' => 0, 'consulting' => 0, 'won' => 0, 'lost' => 0, 'total' => 0];
+        $defaults = ['new' => 0, 'consulting' => 0, 'quoted' => 0, 'won' => 0, 'lost' => 0, 'total' => 0];
         $cached = cache()->get(self::STATS_CACHE_KEY);
 
         if (is_array($cached)) {

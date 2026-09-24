@@ -166,19 +166,15 @@ class DomesticRegionService
     {
         $locale = $locale === 'en' ? 'en' : 'vi';
         if (isset(self::$menuCache[$locale])) {
-            return self::$menuCache[$locale];
+            return $this->withCurrentLinks(self::$menuCache[$locale], $locale);
         }
 
         $regions = $this->baseRegions($locale);
 
         if (DatabaseAvailabilityService::isUnavailable()) {
-            foreach ($regions as $key => $region) {
-                $regions[$key]['link'] = localized_url('tour-trong-nuoc/' . $region['slug']);
-            }
-
             self::$menuCache[$locale] = $regions;
 
-            return $regions;
+            return $this->withCurrentLinks($regions, $locale);
         }
 
         $cacheKey = 'domestic_region_menu_' . $locale;
@@ -187,7 +183,7 @@ class DomesticRegionService
             if (is_array($cached)) {
                 self::$menuCache[$locale] = $cached;
 
-                return $cached;
+                return $this->withCurrentLinks($cached, $locale);
             }
         } catch (Throwable) {
         }
@@ -205,15 +201,10 @@ class DomesticRegionService
                     'name' => (string) $province['name'],
                     'slug' => (string) $province['slug'],
                     'code' => (string) $province['code'],
-                    'link' => localized_url('tour-trong-nuoc/' . $regions[$regionKey]['slug'] . '/' . $province['slug']),
                 ];
             }
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Domestic region menu load failed');
-        }
-
-        foreach ($regions as $key => $region) {
-            $regions[$key]['link'] = localized_url('tour-trong-nuoc/' . $region['slug']);
         }
 
         try {
@@ -222,6 +213,22 @@ class DomesticRegionService
         }
 
         self::$menuCache[$locale] = $regions;
+
+        return $this->withCurrentLinks($regions, $locale);
+    }
+
+    /** Cache destination data only; rebuild URLs for the current site on every read. */
+    private function withCurrentLinks(array $regions, string $locale): array
+    {
+        foreach ($regions as &$region) {
+            $path = 'tour-trong-nuoc/' . $region['slug'];
+            $region['link'] = localized_url_for($path, $locale);
+            foreach ($region['provinces'] as &$province) {
+                $province['link'] = localized_url_for($path . '/' . $province['slug'], $locale);
+            }
+            unset($province);
+        }
+        unset($region);
 
         return $regions;
     }

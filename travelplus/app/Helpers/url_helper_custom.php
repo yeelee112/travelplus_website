@@ -160,6 +160,8 @@ function switch_locale_url(string $targetLocale): string
     }
 
     $staticMap = [
+        'tour-theo-yeu-cau' => ['vi' => 'tour-theo-yeu-cau', 'en' => 'custom-tours'],
+        'custom-tours' => ['vi' => 'tour-theo-yeu-cau', 'en' => 'custom-tours'],
         'dich-vu-ve-may-bay' => ['vi' => 'dich-vu-ve-may-bay', 'en' => 'airline-ticket-service'],
         'airline-ticket-service' => ['vi' => 'dich-vu-ve-may-bay', 'en' => 'airline-ticket-service'],
         'dich-vu-van-chuyen' => ['vi' => 'dich-vu-van-chuyen', 'en' => 'transport-service'],

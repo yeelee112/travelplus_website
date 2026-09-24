@@ -1,6 +1,5 @@
 <?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
-<?= view('layouts/breadcrumb') ?>
 
 <?php
 $locale = service('request')->getLocale() ?: 'vi';

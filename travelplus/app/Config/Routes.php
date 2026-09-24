@@ -52,6 +52,9 @@ $routes->GET('admin/booking-emails', 'Admin\BookingEmails::index');
 $routes->POST('admin/booking-emails/send', 'Admin\BookingEmails::send');
 $routes->GET('admin/bookings/(:num)', 'Admin\Bookings::show/$1');
 $routes->POST('admin/bookings/(:num)/status', 'Admin\Bookings::updateStatus/$1');
+$routes->GET('admin/tour-collections', 'Admin\\TourCollections::index');
+$routes->POST('admin/tour-collections', 'Admin\\TourCollections::save');
+$routes->POST('admin/tour-collections/(:num)', 'Admin\\TourCollections::save/$1');
 $routes->GET('admin/tours', 'Admin\Tours::index');
 $routes->GET('admin/tours/create', 'Admin\Tours::create');
 $routes->GET('admin/tours/create-v2', 'Admin\Tours::createV2');
@@ -147,6 +150,7 @@ $routes->get('tour-trong-nuoc/(:segment)/(:segment)', 'Domestic::province/vi/$1/
 
 
 $routes->match(['GET','POST'], 'contact', 'Contact::index');
+$routes->match(['GET','POST'], 'tour-theo-yeu-cau', 'Contact::customTour');
 
 
 
@@ -169,6 +173,7 @@ $routes->group('en', function ($routes) {
     $routes->GET('translation-service', 'Services::translation');
     $routes->GET('hotel-service', 'Services::hotels');
     $routes->match(['GET','POST'], 'contact', 'Contact::index');
+    $routes->match(['GET','POST'], 'custom-tours', 'Contact::customTour');
     $routes->GET('terms-of-service', 'LegalController::terms/en');
     $routes->GET('privacy-statement', 'LegalController::privacy/en');
     $routes->GET('tour-search', 'SearchController::tours');

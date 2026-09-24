@@ -232,6 +232,7 @@ class Tours extends BaseAdminController
         $formData['code'] = '';
         $formData['sku'] = '';
         $formData['status'] = 'draft';
+        $formData['collection_ids'] = [];
         $formData['is_featured'] = 0;
         $formData['is_promotion'] = 0;
         $formData['promotion_badge'] = '';
@@ -299,6 +300,7 @@ class Tours extends BaseAdminController
 
         $db->transStart();
         $this->deleteTourRelations($db, $tourId);
+        if ($db->tableExists('tour_collection_tours')) $db->table('tour_collection_tours')->where('tour_id', $tourId)->delete();
         $db->table('tours')->where('id', $tourId)->delete();
         $db->transComplete();
 
@@ -338,6 +340,7 @@ class Tours extends BaseAdminController
         }
 
         return view('admin/tours/form', array_merge($viewData, [
+            'collections' => (new \App\Services\TourCollectionService())->all(),
             'categories' => $this->getCategories(),
             'locations' => $this->getLocations(),
             'continents' => $this->getLocationsByType('continent'),
@@ -827,10 +830,13 @@ class Tours extends BaseAdminController
                 return 0;
             }
 
-            return (int) $db->insertID();
+            $newId = (int) $db->insertID();
+            (new \App\Services\TourCollectionService())->sync($newId, $post['collection_ids'] ?? []);
+            return $newId;
         }
 
         $db->table('tours')->where('id', $tourId)->update($data);
+        (new \App\Services\TourCollectionService())->sync($tourId, $post['collection_ids'] ?? []);
 
         return $tourId;
     }
@@ -1333,6 +1339,7 @@ class Tours extends BaseAdminController
             'infant_price_rate' => $tour['infant_price_rate'] ?? '0.25',
             'thumbnail' => $tour['thumbnail'] ?? '',
             'status' => $tour['status'] ?? 'draft',
+            'collection_ids' => (new \App\Services\TourCollectionService())->selected($tourId),
             'is_featured' => (int) ($tour['is_featured'] ?? 0),
             'is_promotion' => (int) ($tour['is_promotion'] ?? 0),
             'promotion_badge' => $tour['promotion_badge'] ?? '',

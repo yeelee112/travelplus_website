@@ -142,6 +142,24 @@ abstract class BaseController extends Controller
             }
         }
 
+        $navigationCollections = [];
+        if ($usesSiteNavigation && !DatabaseAvailabilityService::isUnavailable()) {
+            try {
+                foreach ((new \App\Services\TourCollectionService())->all() as $collection) {
+                    if (empty($collection['is_active'])) continue;
+                    $navigationCollections[] = [
+                        'slug' => $collection['slug'],
+                        'label' => $locale === 'en' ? ($collection['name_en'] ?: $collection['name_vi']) : $collection['name_vi'],
+                        'url' => $collection['slug'] === 'mua-thu'
+                            ? \App\Data\LocalizedPathCatalog::url('autumn', $locale)
+                            : \App\Data\LocalizedPathCatalog::url('search', $locale) . '?' . http_build_query(['collection' => $collection['slug']]),
+                    ];
+                }
+            } catch (Throwable $exception) {
+                log_message('error', 'Collection navigation unavailable: {message}', ['message' => $exception->getMessage()]);
+            }
+        }
+        service('renderer')->setVar('navigationCollections', $navigationCollections);
         service('renderer')->setVar('menu', $menu);
         service('renderer')->setVar('domesticMenu', $domesticMenu);
         service('renderer')->setVar('authUser', is_array($authUser) ? $authUser : null);

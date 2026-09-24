@@ -3310,10 +3310,10 @@ body.modal-open .tour-detail-content .pricing-and-booking-area{visibility:hidden
     overflow-wrap: anywhere;
     line-height: 1.45;
 }
-.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button .tour-itinerary-row {
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button .tour-itinerary-row{
     grid-template-columns: 96px minmax(0, 1fr) !important;
 }
-.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button .tour-itinerary-day {
+.package-details-page.tour-detail-content .package-details-warpper .tour-itinerary-area .tour-plan-wrap .accordion .accordion-item .accordion-header .accordion-button .tour-itinerary-day{
     box-sizing: border-box;
     width: 96px;
     min-width: 96px;

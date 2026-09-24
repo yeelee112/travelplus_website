@@ -1,7 +1,6 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<?= view('layouts/breadcrumb') ?>
 <?php
 $locale = service('request')->getLocale() ?: 'vi';
 $t = static fn(string $key, array $args = []) => lang('Frontend.' . $key, $args, $locale);

@@ -29,6 +29,7 @@ final class PassportProgram extends BaseController
         ];
 
         return view('passport/index', [
+            'breadcrumbs' => $breadcrumbs,
             'locale' => $locale,
             'meta_title' => $title,
             'meta_desc' => $description,

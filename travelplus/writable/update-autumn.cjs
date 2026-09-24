@@ -1,0 +1,26 @@
+const fs = require('fs');
+const file='app/Views/autumn/index.php'; let s=fs.readFileSync(file,'utf8');
+s=s.replace("$settings = new", "$customTourUrl = \\App\\Data\\LocalizedPathCatalog::url('customTour', $currentLocale) . '?' . http_build_query(['tour' => $t('Tour thiết kế riêng mùa thu ', 'Private autumn journey ') . $autumnYear]);\n$rewardUrl = \\App\\Data\\LocalizedPathCatalog::url('passport.program', $currentLocale);\n$settings = new");
+s=s.replace(/  <p class="at-results">.*?<\/p>\r?\n/, '');
+s=s.replace('<div class="at-tour-grid">','<div class="at-tour-grid" id="autumn-tour-track" tabindex="0" role="region" aria-label="<?= $t(\'Danh sách tour mùa thu, vuốt ngang để xem thêm\', \'Autumn tours, swipe to explore\') ?>">');
+s=s.replace('<?php foreach ($autumnTours as $tour): ?><article class="at-tour-card">', `<?php foreach ($autumnTours as $tour):
+    $amount = (float) ($tour['price']['amount'] ?? 0);
+    $points = \\App\\Services\\LoyaltyPointService::previewPoints($amount);
+    $benefit = \\App\\Services\\TourPassportPricePresenter::build($amount, is_array($authUser ?? null) ? $authUser : null, is_array($headerMembership ?? null) ? $headerMembership : null, $currentLocale);
+   ?><article class="at-tour-card">`);
+const start=s.indexOf('    <div class="at-tour-body">'); const end=s.indexOf('\n   </article>',start);
+s=s.slice(0,start)+`    <div class="at-tour-body">
+     <p class="at-tour-place"><?= $icon('geo-alt-fill') ?> <?= esc($tour['destination_summary'] ?: $tour['destination_name']) ?></p>
+     <h3><a href="<?= esc($tour['link'], 'attr') ?>"><?= esc($tour['title']) ?></a></h3>
+     <div class="at-tour-meta"><div><span><?= $icon('calendar3') ?> <?= $t('Khởi hành', 'Departure') ?></span><strong><?= esc($tour['departure'] ?: $t('Liên hệ tư vấn', 'Contact us')) ?></strong></div><?php if (!empty($tour['departure_from'])): ?><div><span><?= $icon('geo-alt') ?> <?= $t('Điểm đi', 'From') ?></span><strong><?= esc($tour['departure_from']) ?></strong></div><?php endif ?></div>
+     <div class="at-tour-bottom"><div class="at-tour-price"><small><?= $t('Giá từ / khách', 'From / person') ?></small><?php if (($benefit['state'] ?? '') === 'active'): ?><?= view('components/passport-price-benefit', ['benefit' => $benefit, 'originalPrice' => $tour['price']['label'] ?? '']) ?><?php else: ?><strong><?= $amount > 0 ? esc($tour['price']['label']) : $t('Liên hệ', 'Contact us') ?></strong><?php endif ?></div><a class="at-btn at-btn-small" href="<?= esc($tour['link'], 'attr') ?>"><?= $t('Xem lịch trình', 'View itinerary') ?> <?= $icon('arrow-up-right') ?></a></div>
+     <a class="at-reward" href="<?= esc($rewardUrl, 'attr') ?>"><span class="at-reward-icon"><?= $icon('gift') ?></span><span><b>Travel Plus Reward</b><small><?= $points > 0 ? $t('Dự kiến tích ', 'Earn an estimated ') . number_format($points, 0, '.', $en ? ',' : '.') . $t(' điểm thành viên', ' member points') : $t('Khám phá quyền lợi thành viên', 'Explore member benefits') ?></small></span><?= $icon('chevron-right') ?></a>
+     <?php if ($points > 0): ?><small class="at-reward-note"><?= $t('Điểm thực nhận tính theo số tiền đã thanh toán.', 'Actual points depend on the paid booking amount.') ?></small><?php endif ?>
+    </div>`+s.slice(end);
+s=s.replace('  </div><?php else: ?>', `  </div><div class="at-slider-controls" hidden><span><?= $t('Vuốt để khám phá thêm', 'Swipe to explore') ?></span><div><button type="button" data-slide="-1" aria-controls="autumn-tour-track" aria-label="<?= $t('Tour trước', 'Previous tour') ?>"><?= $icon('arrow-left') ?></button><button type="button" data-slide="1" aria-controls="autumn-tour-track" aria-label="<?= $t('Tour tiếp theo', 'Next tour') ?>"><?= $icon('arrow-right') ?></button></div></div><?php else: ?>`);
+s=s.replace("'CÓ TRAVEL PLUS ĐỒNG HÀNH', 'PLAN WITH TRAVEL PLUS'", "'TOUR THIẾT KẾ RIÊNG MÙA THU', 'TAILOR-MADE AUTUMN JOURNEYS'");
+s=s.replace("'Bạn chọn cảm hứng.<br>Chúng tôi giúp lên đường.', 'Bring your inspiration.<br>We’ll help you get there.'", "'Mùa thu của bạn.<br>Hành trình theo cách bạn muốn.', 'Your autumn.<br>Your own way to travel.'");
+s=s.replace("'Đi cùng gia đình, nhóm bạn hay cả công ty? Chia sẻ dự định, chúng tôi giúp bạn chọn hành trình phù hợp.', 'Travelling with family, friends or your company? Tell us your plans and we’ll help find the right journey.'", "'Một chuyến ngắm lá đỏ cùng gia đình, kỳ nghỉ riêng với nhóm bạn hay hành trình gắn kết cả công ty. Bạn chọn điểm đến và nhịp đi, Travel Plus thiết kế lịch trình mùa thu phù hợp.', 'A foliage trip with family, a private escape with friends or a company retreat. Choose your destination and pace; Travel Plus will tailor your autumn itinerary.'");
+s=s.replace(`<a class="at-btn" href="<?= esc($settings->get('zalo_url'), 'attr') ?>"><?= $icon('chat-dots') ?> <?= $t('Trao đổi ngay qua Zalo', 'Chat with us on Zalo') ?></a>`, `<a class="at-btn" href="<?= esc($customTourUrl, 'attr') ?>"><?= $icon('magic') ?> <?= $t('Thiết kế tour mùa thu riêng', 'Design my autumn journey') ?></a>`);
+s+=`\n<?= $this->section('scripts') ?>\n<script src="<?= esc(frontend_asset_url('assets/js/autumn.js'), 'attr') ?>" defer></script>\n<?= $this->endSection() ?>\n`;
+fs.writeFileSync(file,s);

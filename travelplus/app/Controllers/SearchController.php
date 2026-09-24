@@ -31,10 +31,17 @@ class SearchController extends BaseController
         $tourType = in_array($tourType, $allowedTourTypes, true) ? $tourType : '';
         $excludedTourType = $locale === 'en' ? 'domestic' : 'inbound';
         $promotionOnly = (string) $this->request->getGet('promotion') === '1';
+        $destinationId = max(0, (int) $this->request->getGet('destination_id'));
+        $collectionSlug = trim((string) $this->request->getGet('collection'));
+        if ($collectionSlug === '' && (string) $this->request->getGet('autumn') === '1') $collectionSlug = 'mua-thu';
+        $collectionName = '';
+        foreach ((new \App\Services\TourCollectionService())->all() as $collection) {
+            if ($collection['slug'] === $collectionSlug && !empty($collection['is_active'])) $collectionName = $locale === 'en' ? ($collection['name_en'] ?: $collection['name_vi']) : $collection['name_vi'];
+        }
         $page = (int) ($this->request->getGet('page') ?? 1);
 
         $tourService = new TourCatalogService();
-        $result = $tourService->searchTours($locale, $query, $departureFrom, $departureTo, 9, $page, $tourType !== '' ? $tourType : null, $promotionOnly, $excludedTourType);
+        $result = $tourService->searchTours($locale, $query, $departureFrom, $departureTo, 9, $page, $tourType !== '' ? $tourType : null, $promotionOnly, $excludedTourType, $collectionSlug, $destinationId);
         $fallbackTours = [];
 
         (new SearchAnalyticsService())->track(
@@ -48,7 +55,7 @@ class SearchController extends BaseController
             session()->get('auth_user')
         );
 
-        if (((int) ($result['total'] ?? 0)) === 0) {
+        if ($destinationId === 0 && $collectionSlug === '' && ((int) ($result['total'] ?? 0)) === 0) {
             $fallback = $tourService->getPagedTours($locale, 999, 1, $tourType !== '' ? $tourType : null, [], $promotionOnly, $excludedTourType);
             $fallbackTours = $fallback['tours'];
         }
@@ -59,6 +66,8 @@ class SearchController extends BaseController
             'departure_to' => $departureTo,
             'tour_type' => $tourType,
             'promotion' => $promotionOnly ? '1' : '',
+            'destination_id' => $destinationId ?: '',
+            'collection' => $collectionSlug,
         ], static fn($value): bool => $value !== '');
         $viSearchUrl = LocalizedPathCatalog::url('search', 'vi') . ($alternateParams !== [] ? '?' . http_build_query($alternateParams) : '');
         $enSearchUrl = LocalizedPathCatalog::url('search', 'en') . ($alternateParams !== [] ? '?' . http_build_query($alternateParams) : '');
@@ -74,10 +83,11 @@ class SearchController extends BaseController
 
         return view('tour-search/index', [
             'breadcrumbs' => $breadcrumbs,
-            'pageTitle' => $t('search.resultsTitle'),
+            'pageTitle' => $collectionName !== '' ? $collectionName : $t('search.resultsTitle'),
             'pageSubtitle' => $query !== ''
                 ? $t('search.resultsFor', [$query])
                 : $t('search.resultsAll'),
+            'collectionSlug' => $collectionSlug,
             'listingSearch' => [
                 'q' => $query,
                 'departure_from' => $departureFrom,

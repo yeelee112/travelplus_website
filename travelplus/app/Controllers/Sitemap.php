@@ -14,7 +14,7 @@ class Sitemap extends Controller
     public function index()
     {
         $contentCache = new PublicContentCacheService();
-        $cacheKey = 'sitemap:v9:' . $this->stylesheetVersion() . ':' . base_url();
+        $cacheKey = 'sitemap:v10:' . $this->stylesheetVersion() . ':' . base_url();
         $cachedXml = $contentCache->get($cacheKey);
         if (is_string($cachedXml) && $cachedXml !== '') {
             return $this->response
@@ -31,6 +31,10 @@ class Sitemap extends Controller
             APPPATH . 'Views/layouts/main.php',
             APPPATH . 'Controllers/Home.php',
         ]);
+        $customTourLastmod = $this->lastModifiedFromFiles([
+            APPPATH . 'Views/custom-tour/index.php',
+            APPPATH . 'Data/CustomTourContent.php',
+        ]);
 
         $staticPathKeys = [
             'about',
@@ -43,6 +47,7 @@ class Sitemap extends Controller
             'service.translation',
             'service.hotels',
             'contact',
+            'customTour',
             'legal.terms',
             'legal.privacy',
             'outbound',
@@ -73,7 +78,7 @@ class Sitemap extends Controller
             foreach ($staticPaths[$locale] as $path) {
                 $urls[] = [
                     'loc' => base_url($path),
-                    'lastmod' => $staticLastmod,
+                    'lastmod' => in_array($path, ['tour-theo-yeu-cau', 'en/custom-tours'], true) ? $customTourLastmod : $staticLastmod,
                     'changefreq' => $path === '' || $path === 'en' ? 'daily' : 'weekly',
                     'priority' => $path === '' || $path === 'en' ? '1.0' : '0.8',
                     'locale' => $locale,
@@ -250,6 +255,7 @@ class Sitemap extends Controller
         }
 
         foreach ([
+            'custom-tours' => 'tour-theo-yeu-cau',
             'travel-inspiration' => 'cam-hung-du-lich',
             'summer-tours' => 'tour-he',
             'airline-ticket-service' => 'dich-vu-ve-may-bay',

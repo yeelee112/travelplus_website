@@ -1,0 +1,2 @@
+const fs=require('fs');const p='app/Views/sections/tour-list-filter.php';let s=fs.readFileSync(p,'utf8');s=s.replace(/            <form class="tour-list-filter__form"[\s\S]*?method="get">/,`            <form class="tour-list-filter__form" action="<?= esc($searchUrl, 'attr') ?>" method="get">
+                <?php if ((string) service('request')->getGet('autumn') === '1'): ?><input type="hidden" name="autumn" value="1"><?php endif ?>`);fs.writeFileSync(p,s);

@@ -241,7 +241,6 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
     static fn(array $item): string => trim((string) ($item['label'] ?? '')),
     $includedItems
 ))), 0, 3));
-$heroBreadcrumbs = is_array($breadcrumbs ?? null) ? array_values($breadcrumbs) : [];
 $tourHeroImage = (string) ($tour['image'] ?? '');
 $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
 ?>
@@ -282,25 +281,6 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
     <div class="container">
         <div class="tour-detail-hero__grid">
             <div class="tour-detail-hero__copy">
-                <?php if ($heroBreadcrumbs !== []): ?>
-                    <nav class="tour-detail-hero__breadcrumbs" aria-label="Breadcrumb">
-                        <ol>
-                            <?php foreach ($heroBreadcrumbs as $crumbIndex => $crumb): ?>
-                                <?php $isLastCrumb = $crumbIndex === array_key_last($heroBreadcrumbs); ?>
-                                <li>
-                                    <?php if (! $isLastCrumb && ! empty($crumb['url'])): ?>
-                                        <a href="<?= esc((string) $crumb['url']) ?>"><?= esc((string) ($crumb['label'] ?? '')) ?></a>
-                                    <?php else: ?>
-                                        <span><?= esc((string) ($crumb['label'] ?? '')) ?></span>
-                                    <?php endif; ?>
-                                </li>
-                                <?php if (! $isLastCrumb): ?>
-                                    <li class="tour-detail-hero__breadcrumb-separator" aria-hidden="true"><i class="bi bi-chevron-right"></i></li>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </ol>
-                    </nav>
-                <?php endif; ?>
                 <span class="tour-detail-hero__eyebrow">Travel Plus Tour</span>
                 <h1 itemprop="name"><?= esc($tour['title']) ?></h1>
                 <?php if ($heroIntro !== ''): ?>
@@ -314,6 +294,7 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
                     </ul>
                 <?php endif; ?>
                 <div class="tour-detail-hero__actions">
+                    <a class="primary-btn1 transparent" href="<?= esc(\App\Data\LocalizedPathCatalog::url('customTour', $locale) . '?' . http_build_query(['tour' => (string) ($tour['title'] ?? '')]), 'attr') ?>"><span><?= $locale === 'en' ? 'Customize this tour' : 'Tùy chỉnh tour này' ?></span><span><?= $locale === 'en' ? 'Customize this tour' : 'Tùy chỉnh tour này' ?></span></a>
                     <button class="primary-btn1" <?= $hasBookableDepartures ? 'data-bs-toggle="modal" data-bs-target="#bookingModal"' : 'disabled' ?>>
                         <span><?= esc($hasBookableDepartures ? $t('tour.sidebar.checkAvailability') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>
                         <span><?= esc($hasBookableDepartures ? $t('tour.sidebar.checkAvailability') : $t('tour.booking.noDeparturesShort')) ?><i class="bi bi-arrow-up-right"></i></span>

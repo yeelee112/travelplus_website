@@ -223,6 +223,8 @@ $trustItems = $locale === 'en'
     </div>
 </section>
 
+<?= $this->include('sections/home-autumn-banner') ?>
+
 <section class="home-hero-trust-section" aria-label="<?= esc($locale === 'en' ? 'Travel Plus commitments' : 'Cam kết của Travel Plus', 'attr') ?>">
     <div class="container">
         <ul class="home-hero-trust">

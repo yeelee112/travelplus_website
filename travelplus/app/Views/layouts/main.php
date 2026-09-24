@@ -238,6 +238,7 @@ if ($analyticsEventName === '') {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap">
 <link rel="stylesheet" href="<?= esc($styleAssetUrl, 'attr') ?>">
+<link rel="stylesheet" href="<?= esc(frontend_asset_url('assets/css/collection-discovery.css'), 'attr') ?>">
 <?php foreach ($pageStyleAssetUrls as $pageStyleAssetUrl): ?>
 <link rel="stylesheet" href="<?= esc($pageStyleAssetUrl, 'attr') ?>">
 <?php endforeach; ?>
@@ -260,6 +261,7 @@ if ($analyticsEventName === '') {
 <?= $this->include('partials/language-entry') ?>
 <?php endif; ?>
 <?= $this->include($isInboundLanding ? 'inbound/header' : 'partials/header') ?>
+<?= $this->include('layouts/breadcrumb') ?>
 <?= $contentSection ?>
 <?= $this->include($isInboundLanding ? 'inbound/footer' : 'partials/footer') ?>
 <?php if ($showAiChatbox): ?>

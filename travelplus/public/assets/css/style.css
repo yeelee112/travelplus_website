@@ -1415,7 +1415,7 @@ header.style-1 .nav-right {display: flex;
 }
 header.style-1 .nav-right .mobile-menu-btn {display: none;
     visibility: hidden}
-@media (max-width:991px) {header.style-1 .nav-right .mobile-menu-btn {display: flex;
+@media (max-width:1199px) {header.style-1 .nav-right .mobile-menu-btn {display: flex;
         align-items: center;
         visibility: visible;
         justify-content: center;
@@ -1845,7 +1845,7 @@ header.style-1 .mobile-logo-area .menu-close-btn i {font-size: 26px;
 header.style-1 .mobile-logo-area .menu-close-btn:hover {background-color: var(--title-color)}
 header.style-1 .mobile-logo-area .menu-close-btn:hover i {color: var(--white-color)}
 header.style-1 .primary-btn1 .transparent {padding: 19px 17px}
-@media only screen and (max-width:991px) {header.style-1 .dropdown-icon {color: var(--white-color)}
+@media only screen and (max-width:1199px) {header.style-1 .dropdown-icon {color: var(--white-color)}
 header.style-1 .main-menu {position: fixed;
         top: 0;
         left: 0;
@@ -23687,4 +23687,52 @@ body.modal-open .tour-detail-content .pricing-and-booking-area{visibility:hidden
     white-space: nowrap;
     padding: 7px 10px 7px 21px;
     font-size: 13px;
+}
+
+/* Shared, readable navigation and breadcrumbs across public pages. */
+.site-breadcrumb-band { background: #f8fbfc; }
+.site-breadcrumb { padding-top: 24px; padding-bottom: 20px; color: #526a76; font-size: 13px; font-weight: 400; }
+.site-breadcrumb ol { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; list-style: none; padding: 0; margin: 0; }
+.site-breadcrumb li { min-width: 0; line-height: 1.7; overflow-wrap: anywhere; }
+.site-breadcrumb a { color: #007d9f; text-decoration: none; }
+.site-breadcrumb a:hover { color: #005f7b; text-decoration: underline; text-underline-offset: 3px; }
+.site-breadcrumb a:focus-visible { outline: 2px solid #008bae; outline-offset: 4px; border-radius: 3px; }
+.site-breadcrumb-separator { flex: 0 0 auto; color: #91a4ad; }
+.site-breadcrumb [aria-current="page"] { color: #526a76; }
+@media (min-width: 1200px) {
+    .site-header-modern .site-header-container { width: calc(100% - 48px); max-width: 1360px; padding-inline: 0; }
+    .site-header-modern .site-header-shell { width: 100%; min-height: 76px; padding: 12px 22px; gap: 0; border-radius: 22px; border-color: #ddecf2; box-shadow: 0 10px 30px rgba(10,56,76,.08); }
+    .site-header-modern .main-menu { flex: 1 1 auto; min-width: 0; }
+    header.style-1.two.site-header-modern .main-menu > ul { width: 100%; justify-content: space-evenly; flex-wrap: wrap; gap: 8px 14px; }
+    header.style-1.two.site-header-modern .main-menu > ul > li { flex: 0 0 auto; }
+    header.style-1.two.site-header-modern .main-menu > ul > li > a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 14px 18px; font-size: 15px; font-weight: 600; line-height: 1.35; white-space: nowrap; }
+    header.style-1.two.site-header-modern .main-menu > ul > li:not(.current-menu-item):not(.active):not(.menu-open) > a { color: #244351; }
+    header.style-1.two.site-header-modern .main-menu > ul > li:not(.current-menu-item):not(.active):not(.menu-open) > a:hover { color: #007da5; background: #f1f9fc; }
+    header.style-1.two.site-header-modern .main-menu > ul > li > a i { font-size: 10px; margin-left: 0; }
+    header.style-1.two.site-header-modern .main-menu > ul > li > a:focus-visible { outline: 2px solid #009cde; outline-offset: 3px; }
+    .site-header-modern .nav-right { display: none; }
+    .site-header-modern.sticky .site-header-shell { box-shadow: 0 10px 35px rgba(10,56,76,.12); }
+}
+@media (min-width: 1200px) and (max-width: 1299px) {
+    .site-header-modern .site-header-shell { padding-inline: 14px; }
+    header.style-1.two.site-header-modern .main-menu > ul { gap: 8px; }
+    header.style-1.two.site-header-modern .main-menu > ul > li > a { padding-inline: 13px; }
+}
+@media (max-width: 575px) {
+    .site-breadcrumb { padding-top: 18px; padding-bottom: 15px; font-size: 12px; }
+    .site-breadcrumb ol { gap: 5px 10px; }
+}
+@media (max-width:1199px) {
+    .header-brand-stage { display:none !important; }
+    .site-header-modern .header-logo.d-lg-none { display:block !important; }
+    .site-header-modern .mobile-logo-area { display:flex !important; }
+    .site-header-modern .language-and-login-area { display:block !important; }
+    header.style-1.two.site-header-modern .main-menu { width:min(340px, calc(100vw - 32px)); height:100dvh; padding:24px !important; }
+    header.style-1.two.site-header-modern .main-menu > ul > li > a { line-height:1.45; border-radius:12px; }
+    .site-header-modern .main-menu > ul > li > a > i { display:none; }
+    .site-header-modern .main-menu .dropdown-icon { opacity:1; }
+}
+@media (max-width:1199px) {
+    header.style-1.two.site-header-modern .main-menu .menu-list > li > a { padding-left:12px !important; border-radius:12px; }
+    header.style-1.two.site-header-modern .main-menu .menu-list > li.current-menu-item > a { color:#0477a5; background:linear-gradient(180deg, rgba(213,245,255,.95), rgba(231,250,255,.86)); }
 }

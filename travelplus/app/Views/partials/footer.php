@@ -65,7 +65,7 @@ $infoLinks = [
     ['label' => lang('Frontend.footer.link.about'), 'url' => \App\Data\LocalizedPathCatalog::url('about', $locale)],
     ['label' => lang('Frontend.footer.link.contact'), 'url' => \App\Data\LocalizedPathCatalog::url('contact', $locale)],
     ['label' => $locale === 'en' ? 'Booking lookup' : 'Tra cứu booking', 'url' => \App\Data\LocalizedPathCatalog::url('booking.lookup', $locale)],
-    ['label' => lang('Frontend.footer.link.customTour'), 'url' => \App\Data\LocalizedPathCatalog::url('contact', $locale)],
+    ['label' => lang('Frontend.footer.link.customTour'), 'url' => \App\Data\LocalizedPathCatalog::url('customTour', $locale)],
     ['label' => lang('Frontend.footer.link.profile'), 'url' => base_url('assets/images/TravelPlus_CompanyProfile.png')],
     ['label' => lang('Frontend.footer.link.terms'), 'url' => \App\Data\LocalizedPathCatalog::url('legal.terms', $locale)],
     ['label' => lang('Frontend.footer.link.privacy'), 'url' => \App\Data\LocalizedPathCatalog::url('legal.privacy', $locale)],

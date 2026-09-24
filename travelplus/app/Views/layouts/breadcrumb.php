@@ -29,8 +29,6 @@ foreach ($rawBreadcrumbs as $crumb) {
     ];
 }
 
-$homeLabel = lang('Frontend.common.home', [], $locale) ?: 'Home';
-
 if ($crumbs !== []):
     $schemaItems = [];
 
@@ -48,27 +46,20 @@ if ($crumbs !== []):
         $schemaItems[] = $item;
     }
 ?>
-    <div class="container pt-3 pb-3 mt-3">
-        <nav aria-label="breadcrumb" class="breadcrumb-wrapper">
-            <ol class="breadcrumb">
+    <div class="site-breadcrumb-band">
+        <nav aria-label="<?= $locale === 'en' ? 'Breadcrumb' : 'Đường dẫn' ?>" class="container site-breadcrumb">
+            <ol>
                 <?php foreach ($crumbs as $index => $crumb): ?>
-                    <?php if ($index === 0): ?>
-                        <li class="breadcrumb-item">
-                            <a href="<?= esc((string) ($crumb['url'] ?? localized_url('/')), 'attr') ?>" aria-label="<?= esc($homeLabel, 'attr') ?>" title="<?= esc($homeLabel, 'attr') ?>">
-                                <i class="bi bi-house-fill main-color"></i>
-                                <span class="visually-hidden"><?= esc($homeLabel) ?></span>
-                            </a>
-                        </li>
-                    <?php elseif (! empty($crumb['url'])): ?>
-                        <li class="breadcrumb-separator" aria-hidden="true"><i class="bi bi-chevron-right"></i></li>
-                        <li class="breadcrumb-item">
+                    <?php $last = $index === array_key_last($crumbs); ?>
+                    <?php if ($index > 0): ?><li class="site-breadcrumb-separator" aria-hidden="true">/</li><?php endif; ?>
+                    <?php if (! $last && ! empty($crumb['url'])): ?>
+                        <li>
                             <a href="<?= esc((string) $crumb['url'], 'attr') ?>">
                                 <?= esc($crumb['label']) ?>
                             </a>
                         </li>
                     <?php else: ?>
-                        <li class="breadcrumb-separator" aria-hidden="true"><i class="bi bi-chevron-right"></i></li>
-                        <li class="breadcrumb-item active" aria-current="page" title="<?= esc($crumb['label'], 'attr') ?>">
+                        <li aria-current="page">
                             <?= esc($crumb['label']) ?>
                         </li>
                     <?php endif; ?>

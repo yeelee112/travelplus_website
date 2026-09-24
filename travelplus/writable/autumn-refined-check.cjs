@@ -1,0 +1,22 @@
+const {chromium}=require('C:/Users/an.chauh/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({channel:'msedge',headless:true});try{
+const context=await browser.newContext({viewport:{width:1440,height:1000}});await context.addCookies([{name:'travelplus_locale',value:'vi',url:'http://localhost'}]);const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://localhost/tour-mua-thu',{waitUntil:'networkidle'});const reject=page.getByRole('button',{name:'Từ chối tùy chọn',exact:true});if(await reject.isVisible())await reject.click();
+assert.equal(await page.locator('.at-results').count(),0);assert.equal(await page.locator('.at-reward').count(),await page.locator('.at-tour-card').count());
+await page.locator('.autumn-landing img').evaluateAll(imgs=>imgs.forEach(i=>i.loading='eager'));await page.waitForFunction(()=>[...document.querySelectorAll('.autumn-landing img')].every(i=>i.complete&&i.naturalWidth>0));
+await page.locator('.at-select-trigger').first().click();await page.locator('.at-search').screenshot({path:'writable/autumn-refined-select.png'});await page.screenshot({path:'writable/autumn-refined-dropdown-desktop.png'});
+await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');assert.equal(await page.locator('select[name="destination"]').inputValue(),'nhat-ban');
+await page.locator('.at-select-trigger').nth(1).click();await page.keyboard.press('ArrowDown');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');assert.equal(await page.locator('select[name="month"]').inputValue(),'10');
+await Promise.all([page.waitForURL('**destination=nhat-ban&month=10#autumn-tours'),page.locator('.at-search button[type=submit]').click()]);assert.equal(await page.locator('.at-filters .is-active').innerText(),'Nhật Bản');assert.match(await page.locator('.at-select-trigger').nth(1).innerText(),/10/);
+await page.goto('http://localhost/tour-mua-thu',{waitUntil:'networkidle'});await page.locator('#autumn-tours').scrollIntoViewIfNeeded();await page.screenshot({path:'writable/autumn-refined-cards-desktop.png'});
+const custom=page.locator('.at-help-copy .at-btn');assert.match(await custom.getAttribute('href'),/tour-theo-yeu-cau\?tour=/);await custom.click();assert.match(await page.locator('[name="reference_tour"]').inputValue(),/mùa thu/);
+await page.setViewportSize({width:390,height:844});await page.goto('http://localhost/tour-mua-thu',{waitUntil:'networkidle'});await page.locator('#autumn-tours').scrollIntoViewIfNeeded();await page.screenshot({path:'writable/autumn-refined-cards-mobile.png'});
+assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.ok(await page.locator('.at-tour-grid').evaluate(el=>el.scrollWidth>el.clientWidth));assert.equal(await page.locator('[data-slide="-1"]').isDisabled(),true);
+await page.locator('[data-slide="1"]').click();await page.waitForFunction(()=>document.querySelector('.at-tour-grid').scrollLeft>100);await page.waitForFunction(()=>!document.querySelector('[data-slide="-1"]').disabled);
+await page.locator('.at-select-trigger').first().click();await page.screenshot({path:'writable/autumn-refined-dropdown-mobile.png'});await page.keyboard.press('Escape');assert.equal(await page.locator('.at-select-menu').first().isVisible(),false);
+await page.setViewportSize({width:320,height:800});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+await page.goto('http://localhost/en/autumn-tours',{waitUntil:'networkidle'});assert.match(await page.locator('.at-help-copy .at-btn').innerText(),/autumn/);assert.equal(errors.length,0,errors.join('\n'));
+const nojs=await browser.newContext({javaScriptEnabled:false});const fallback=await nojs.newPage();await fallback.goto('http://localhost/tour-mua-thu');assert.equal(await fallback.locator('select[name=destination]').isVisible(),true);await nojs.close();
+console.log('PASS: reward cards, removed count, accessible dropdown keyboard/filter, custom tour prefill, mobile carousel/navigation, 320px overflow, English, no-JS fallback; no JS errors.');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1)});

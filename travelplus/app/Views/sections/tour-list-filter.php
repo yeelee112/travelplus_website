@@ -116,6 +116,7 @@ $filterTotal = (int) (($pagination['total'] ?? null) ?? count($tours ?? []));
             </div>
 
             <form class="tour-list-filter__form" action="<?= esc($searchUrl, 'attr') ?>" method="get">
+                <?php if (!empty($collectionSlug)): ?><input type="hidden" name="destination_id" value="<?= max(0, (int) service('request')->getGet('destination_id')) ?>"><input type="hidden" name="collection" value="<?= esc($collectionSlug, 'attr') ?>"><?php endif ?>
                 <?php if (! empty($searchState['promotion_only'])): ?>
                     <input type="hidden" name="promotion" value="1">
                 <?php endif; ?>

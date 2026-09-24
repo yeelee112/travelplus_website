@@ -51,6 +51,7 @@
                 <p class="text-muted mb-0">Quản lý tour, giá bán và lịch khởi hành từ một màn hình gọn hơn.</p>
             </div>
             <div class="d-flex gap-2 flex-wrap justify-content-end">
+                <a class="btn btn-outline-primary" href="<?= site_url('admin/tour-collections') ?>">Bộ sưu tập tour</a>
                 <a class="btn btn-primary" href="<?= site_url('admin/tours/create') ?>">Tạo tour</a>
                 <a class="btn btn-outline-primary" href="<?= site_url('admin/tours/create-v2') ?>">Tạo tour v2</a>
             </div>

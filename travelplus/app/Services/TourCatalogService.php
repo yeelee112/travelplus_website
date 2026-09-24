@@ -426,6 +426,35 @@ class TourCatalogService
     /**
      * @return array{tours: array<int, array<string, mixed>>, total: int, page: int, perPage: int, lastPage: int}
      */
+    /** Available destinations across the whole collection, before destination/month filtering. */
+    public function getCollectionDestinations(string $locale, string $collectionSlug, string $from, string $to, ?string $excludedTourType = null): array
+    {
+        if (!$this->hasSchemaForTourCatalog() || !$this->db->tableExists('tour_collections') || !$this->db->tableExists('tour_collection_tours')) return [];
+        try {
+            $countryId = "CASE WHEN t.tour_type = 'outbound' AND dl.type = 'country' THEN dl.id WHEN t.tour_type = 'outbound' AND dlp.type = 'country' THEN dlp.id WHEN t.tour_type = 'outbound' AND dlgp.type = 'country' THEN dlgp.id ELSE dl.id END";
+            $name = "CASE WHEN t.tour_type = 'outbound' AND dl.type = 'country' THEN dltn.name WHEN t.tour_type = 'outbound' AND dlp.type = 'country' THEN dlptn.name WHEN t.tour_type = 'outbound' AND dlgp.type = 'country' THEN dlgptn.name ELSE dltn.name END";
+            $slug = "CASE WHEN t.tour_type = 'outbound' AND dl.type = 'country' THEN dltn.slug WHEN t.tour_type = 'outbound' AND dlp.type = 'country' THEN dlptn.slug WHEN t.tour_type = 'outbound' AND dlgp.type = 'country' THEN dlgptn.slug ELSE dltn.slug END";
+            $rows = $this->baseToursBuilder($locale, null, [], false, false, $excludedTourType)
+                ->join('tour_collection_tours tct', 'tct.tour_id = t.id', 'inner')
+                ->join('tour_collections tc', 'tc.id = tct.collection_id', 'inner')
+                ->where('tc.slug', $collectionSlug)->where('tc.is_active', 1)
+                ->where('td.departure_date >=', $from)->where('td.departure_date <=', $to)
+                ->select($countryId . ' AS id, ' . $name . ' AS name, ' . $slug . ' AS slug', false)
+                ->distinct()->get()->getResultArray();
+            $options = [];
+            foreach ($rows as $row) {
+                if (empty($row['id']) || trim((string)$row['name']) === '') continue;
+                $key = trim((string)$row['slug']) ?: 'location-' . $row['id'];
+                $options[$key] = ['id'=>(int)$row['id'], $locale=>TextEncodingService::repairNullable($row['name'])];
+            }
+            uasort($options, static fn(array $a, array $b): int => strnatcasecmp($a[$locale], $b[$locale]));
+            return $options;
+        } catch (Throwable $exception) {
+            log_message('error', 'Collection destinations unavailable: {message}', ['message'=>$exception->getMessage()]);
+            return [];
+        }
+    }
+
     public function searchTours(
         string $locale,
         string $query,
@@ -435,7 +464,9 @@ class TourCatalogService
         int $page = 1,
         ?string $tourType = null,
         bool $promotionOnly = false,
-        ?string $excludedTourType = null
+        ?string $excludedTourType = null,
+        string $collectionSlug = '',
+        int $destinationId = 0
     ): array {
         $page = max(1, $page);
         $perPage = max(1, $perPage);
@@ -443,11 +474,11 @@ class TourCatalogService
         $tourType = in_array($tourType, ['outbound', 'domestic', 'inbound'], true) ? $tourType : null;
         $excludedTourType = in_array($excludedTourType, ['outbound', 'domestic', 'inbound'], true) ? $excludedTourType : null;
 
-        if ($query === '' && $departureFrom === '' && $departureTo === '') {
+        if ($destinationId <= 0 && $collectionSlug === '' && $query === '' && $departureFrom === '' && $departureTo === '') {
             return $this->getPagedTours($locale, $perPage, $page, $tourType, [], $promotionOnly, $excludedTourType);
         }
 
-        if (!$this->hasSchemaForTourCatalog()) {
+        if (!$this->hasSchemaForTourCatalog() || ($collectionSlug !== '' && (!$this->db->tableExists('tour_collections') || !$this->db->tableExists('tour_collection_tours')))) {
             return [
                 'tours' => [],
                 'total' => 0,
@@ -460,6 +491,12 @@ class TourCatalogService
         try {
             $builder = $this->baseToursBuilder($locale, $tourType, [], false, $promotionOnly, $excludedTourType)
             ->join('tour_media tm', 'tm.tour_id = t.id AND tm.type = "gallery"', 'left');
+
+        if ($collectionSlug !== '') {
+            $builder->join('tour_collection_tours tct', 'tct.tour_id = t.id', 'inner')
+                ->join('tour_collections tc', 'tc.id = tct.collection_id', 'inner')
+                ->where('tc.slug', $collectionSlug)->where('tc.is_active', 1);
+        }
 
         if ($query !== '') {
             $slugKeyword = str_replace(' ', '-', mb_strtolower($query));

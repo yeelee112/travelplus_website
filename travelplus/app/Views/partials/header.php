@@ -342,7 +342,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
         <div class="main-menu">
             <div class="mobile-logo-area d-lg-none d-flex align-items-center justify-content-between">
                 <a class="mobile-logo-wrap" href="<?= localized_url('/') ?>">
-                    <img alt="Travel Plus" loading="lazy" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo-white.svg') ?>">
+                    <img alt="Travel Plus" loading="lazy" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo.svg') ?>">
                 </a>
                 <div class="menu-close-btn"><i class="bi bi-x"></i></div>
             </div>
@@ -406,6 +406,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                                     </div>
                                 <?php endforeach; ?>
                             </div>
+                            <?= view('partials/collection-navigation', ['navigationCollections' => $navigationCollections ?? [], 'locale' => $locale]) ?>
                         </div>
                     </div>
                 </li>
@@ -438,6 +439,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                                     </div>
                                 <?php endforeach; ?>
                             </div>
+                            <?= view('partials/collection-navigation', ['navigationCollections' => $navigationCollections ?? [], 'locale' => $locale]) ?>
                         </div>
                     </div>
                 </li>
@@ -472,7 +474,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                                     <div class="menu-title"><a href="<?= esc($inboundUrl, 'attr') ?>"><h5>Plan your trip</h5></a></div>
                                     <ul class="none">
                                         <li><a href="<?= esc($inboundUrl, 'attr') ?>"><i class="bi bi-grid" aria-hidden="true"></i> View all inbound tours</a></li>
-                                        <li><a href="<?= esc($contactUrl, 'attr') ?>"><i class="bi bi-chat-dots" aria-hidden="true"></i> Request a custom tour</a></li>
+                                        <li><a href="<?= esc(\App\Data\LocalizedPathCatalog::url('customTour', $locale), 'attr') ?>"><i class="bi bi-chat-dots" aria-hidden="true"></i> Request a custom tour</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -495,6 +497,7 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
                 </li>
 
                 <li class="<?= $isActiveHeaderUrl($blogUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $blogUrl ?>"><?= esc(lang('Frontend.header.menu.blog')) ?></a></li>
+                <li class="<?= $isActiveHeaderUrl(\App\Data\LocalizedPathCatalog::url('customTour', $locale)) ? 'current-menu-item' : '' ?>"><a href="<?= esc(\App\Data\LocalizedPathCatalog::url('customTour', $locale), 'attr') ?>"><?= $locale === 'en' ? 'Custom tours' : 'Tour theo yêu cầu' ?></a></li>
                 <li class="<?= $isActiveHeaderUrl($contactUrl) ? 'current-menu-item' : '' ?>"><a href="<?= $contactUrl ?>"><?= esc(lang('Frontend.header.menu.contact')) ?></a></li>
                 <li class="mobile-passport-menu-item"><a href="<?= esc($headerPassportUrl, 'attr') ?>"><i class="bi bi-passport-fill" aria-hidden="true"></i>Travel Plus Reward</a></li>
                 <li class="mobile-booking-menu-item <?= $isActiveHeaderUrl($bookingLookupUrl) ? 'current-menu-item' : '' ?>"><a href="<?= esc($bookingLookupUrl) ?>"><?= esc($bookingLookupLabel) ?></a></li>

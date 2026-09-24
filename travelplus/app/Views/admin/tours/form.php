@@ -14,6 +14,12 @@
         label { font-weight:600; margin-bottom:6px; }
         textarea { min-height:105px; }
         .help { color:#6b778c; font-size:13px; }
+        .tour-collections { min-width:0; }
+        .tour-collections > legend { float:none; width:auto; margin-bottom:12px; }
+        .tour-collections__options { display:flex; flex-wrap:wrap; gap:12px 24px; margin-bottom:10px; }
+        .tour-collections__options .form-check { display:inline-flex; align-items:flex-start; gap:8px; padding-left:0; margin:0; max-width:100%; }
+        .tour-collections__options .form-check-input { float:none; flex-shrink:0; margin:4px 0 0; }
+        .tour-collections__options .form-check-label { min-width:0; overflow-wrap:anywhere; }
         .repeat-item { border:1px solid #e5ebf2; border-radius:14px; padding:16px; background:#fbfcfe; margin-bottom:12px; position:relative; }
         .repeat-remove { position:absolute; top:14px; right:14px; }
         .repeat-duplicate { position:absolute; top:14px; right:94px; }
@@ -348,6 +354,17 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                         <input type="checkbox" name="is_promotion" value="1" class="form-check-input" <?= (int) $fv('is_promotion') === 1 ? 'checked' : '' ?>>
                         <span class="form-check-label">Hiển thị ở khuyến mãi trang chủ</span>
                     </label>
+                </div>
+                <div class="col-12">
+                    <fieldset class="tour-collections"><legend class="fs-6 fw-bold">Bộ sưu tập tour</legend>
+                    <input type="hidden" name="collections_present" value="1">
+                    <?php $selectedCollections = old('collections_present') !== null ? (array) old('collection_ids', []) : (array) ($formData['collection_ids'] ?? []); ?>
+                    <div class="tour-collections__options">
+                    <?php foreach ($collections as $collection): ?>
+                    <label class="form-check"><input type="checkbox" class="form-check-input" name="collection_ids[]" value="<?= (int) $collection['id'] ?>" <?= in_array((int)$collection['id'], array_map('intval',$selectedCollections),true) ? 'checked' : '' ?>>
+                    <span class="form-check-label"><?= esc($collection['name_vi']) ?><?= empty($collection['is_active']) ? ' (đang ẩn)' : '' ?></span></label>
+                    <?php endforeach ?></div>
+                    <div class="help">Có thể chọn nhiều bộ sưu tập cho một tour. <a href="<?= site_url('admin/tour-collections') ?>" target="_blank" rel="noopener">Quản lý bộ sưu tập</a></div></fieldset>
                 </div>
                 <div class="col-12 tour-promotion-fields" id="tourPromotionFields">
                     <div class="row g-3">

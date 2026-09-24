@@ -53,6 +53,12 @@ Sau khi publish, kiem tra: trang chu VI/EN, booking lookup, form lien he, email,
 
 Asset co `?v=` va file upload ten duy nhat duoc cache mot nam. Anh tinh cache mot thang, CSS/JS khong version cache bay ngay, tai lieu cong khai cache mot ngay; cac trang loi khong duoc cache.
 
+## Bộ sưu tập tour
+
+Trước khi triển khai phiên bản bộ sưu tập, import `database/sql/2026-09-24_create_tour_collections.sql` (hoặc chạy migration `CreateTourCollections`). Bản cập nhật chuyển các lựa chọn `is_autumn` sang bộ sưu tập `mua-thu`, sau đó bỏ cột cũ. Không chạy lại file SQL thêm `is_autumn` sau bản cập nhật này.
+
+Vào `/admin/tour-collections` để thêm, đổi tên hoặc ẩn bộ sưu tập. Trong trang tạo/sửa tour, chọn một hoặc nhiều bộ sưu tập. Mỗi bộ sưu tập có danh sách tại `/tim-kiem-tour?collection=<mã>`; landing page mùa thu dùng mã `mua-thu`. Bộ sưu tập mới dùng ngay được với trang danh sách, còn thiết kế landing page riêng là thay đổi giao diện riêng.
+
 ## Bao mat
 
 - Khong commit hoac chia se `.env`, API key, mat khau database va SMTP.

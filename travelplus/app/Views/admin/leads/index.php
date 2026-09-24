@@ -58,12 +58,14 @@
 <?php helper('display'); ?>
 <?php
 $stageLabels = [
+    'quoted' => 'Đã gửi báo giá',
     'new' => 'Mới',
     'consulting' => 'Đang tư vấn',
     'won' => 'Đã chốt',
     'lost' => 'Thua / huỷ',
 ];
 $sourceLabels = [
+    'custom_tour' => 'Tour theo yêu cầu',
     'contact_form' => 'Contact',
     'summer_form' => 'Tour hè',
     'visa_form' => 'Visa',
@@ -183,7 +185,7 @@ $hasNextPage = ! empty($hasNextPage);
                             <?php endif; ?>
                             <small><?= esc($contextParts !== [] ? implode(' · ', $contextParts) : 'Chưa có thời gian/điểm đến') ?></small>
                             <?php if (! empty($lead['message'])): ?>
-                                <p><?= esc((string) $lead['message']) ?></p>
+                                <p<?= $leadSource === 'custom_tour' ? ' style="white-space:pre-line"' : '' ?>><?= esc((string) $lead['message']) ?></p>
                             <?php endif; ?>
                         </div>
 

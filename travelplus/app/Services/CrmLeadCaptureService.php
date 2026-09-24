@@ -6,7 +6,7 @@ use App\Models\CrmLeadModel;
 
 class CrmLeadCaptureService
 {
-    private const STAGES = ['new', 'consulting', 'won', 'lost'];
+    private const STAGES = ['new', 'consulting', 'quoted', 'won', 'lost'];
 
     /**
      * @param array<string, mixed> $data
@@ -51,7 +51,7 @@ class CrmLeadCaptureService
         ];
 
         $model = new CrmLeadModel();
-        $existing = $this->findExistingLead(
+        $existing = ($data['deduplicate'] ?? true) ? $this->findExistingLead(
             $model,
             $source,
             (string) ($payload['service_type'] ?? ''),
@@ -61,7 +61,7 @@ class CrmLeadCaptureService
             $phone,
             $bookingId,
             $bookingCode
-        );
+        ) : null;
 
         if (is_array($existing)) {
             $payload['stage'] = $this->resolveStage((string) ($existing['stage'] ?? 'new'), $stage);

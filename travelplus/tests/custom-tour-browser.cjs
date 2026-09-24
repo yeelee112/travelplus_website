@@ -1,0 +1,95 @@
+// Run against a local development server: node tests/custom-tour-browser.cjs <playwright-path> <base-url>
+const { chromium } = require(process.argv[2] || 'playwright');
+const assert = require('node:assert/strict');
+const base = process.argv[3] || 'http://127.0.0.1:8097';
+(async () => {
+  const browser = await chromium.launch({ headless: true, channel: 'msedge' });
+  try {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+    await context.addCookies([{ name: 'travelplus_locale', value: 'vi', url: base }]);
+    await context.route('**/recaptcha/**', route => route.abort());
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    const response = await page.goto(base + '/tour-theo-yeu-cau?tour=' + encodeURIComponent('Tour Nhật Bản <test>'), { waitUntil: 'networkidle' });
+    assert.equal(response.status(), 200);
+    const rejectCookies = page.getByRole('button', { name: 'Từ chối tùy chọn', exact: true });
+    if (await rejectCookies.isVisible()) await rejectCookies.click();
+    await page.locator('#customTourForm .ct-next').waitFor();
+    assert.equal(await page.locator('[name="reference_tour"]').inputValue(), 'Tour Nhật Bản <test>');
+    assert.equal(await page.locator('[data-step]:visible').count(), 1);
+    assert.equal(await page.locator('.ct-page h1').count(), 1);
+    assert.match(await page.title(), /Thiết kế tour theo yêu cầu/);
+    assert.match(await page.locator('link[rel="canonical"]').getAttribute('href'), /\/tour-theo-yeu-cau$/);
+    assert.match(await page.locator('meta[property="og:image"]').getAttribute('content'), /tailor-made\/img-01.png$/);
+    assert.equal(await page.locator('.ct-hero-photo img').evaluate(el => el.complete && el.naturalWidth > 0), true);
+    const graph = await page.locator('script[type="application/ld+json"]').evaluateAll(nodes => nodes.flatMap(node => JSON.parse(node.textContent)['@graph'] || []));
+    assert.ok(graph.some(item => item['@type'] === 'Service'));
+    const faq = graph.find(item => item['@type'] === 'FAQPage');
+    assert.equal(faq.mainEntity.length, await page.locator('.ct-faq-list details').count());
+    assert.equal(faq.mainEntity[0].acceptedAnswer.text, await page.locator('.ct-faq-list details p').first().textContent());
+    await page.screenshot({ path: 'writable/custom-tour-desktop.png', fullPage: true });
+    await page.locator('[data-interest="team"]').click();
+    assert.equal(await page.locator('[name="interests"][value="team"]').isChecked(), true);
+    await page.locator('[name="destination"]').fill('Đà Nẵng');
+    await page.locator('.ct-next').click();
+    assert.equal(await page.locator('[name="child_ages"]').isVisible(), false);
+    await page.locator('[name="children"]').fill('2');
+    assert.equal(await page.locator('[name="child_ages"]').isVisible(), true);
+    await page.locator('[name="child_ages"]').fill('4 và 8');
+    await page.locator('[name="adults"]').fill('0');
+    await page.locator('.ct-next').click();
+    assert.equal(await page.locator('[name="adults"]').isVisible(), true);
+    await page.locator('[name="adults"]').fill('3');
+    await page.locator('.ct-back').click();
+    assert.equal(await page.locator('[name="destination"]').inputValue(), 'Đà Nẵng');
+    await page.locator('.ct-next').click();
+    assert.equal(await page.locator('[name="children"]').inputValue(), '2');
+    await page.locator('.ct-next').click();
+    assert.match(await page.locator('#tripSummary').innerText(), /Đà Nẵng/);
+    assert.match(await page.locator('#tripSummary').innerText(), /4 và 8/);
+    await page.locator('[name="name"]').fill('Khách Kiểm Thử');
+    await page.locator('[name="phone"]').fill('123');
+    await page.locator('[name="privacy_agree"]').check();
+    await page.locator('.ct-submit').click();
+    assert.equal(await page.locator('[name="phone"]').evaluate(el => el.checkValidity()), false);
+    await page.locator('[name="phone"]').fill('0901234567');
+    // Missing captcha must preserve the form and allow retry without sending a lead.
+    await page.locator('.ct-submit').click();
+    await page.locator('.ct-error').waitFor({ state: 'visible' });
+    assert.equal(await page.locator('.ct-submit').isEnabled(), true);
+    await page.evaluate(() => {
+      document.getElementById('customTourForm').dataset.key = 'test-key';
+      window.grecaptcha = { ready: callback => callback(), execute: () => Promise.resolve('test-token') };
+      HTMLFormElement.prototype.submit = function () { window.testPayload = Object.fromEntries(new FormData(this)); };
+    });
+    await page.locator('.ct-submit').click();
+    await page.waitForFunction(() => window.testPayload);
+    const payload = await page.evaluate(() => window.testPayload);
+    assert.equal(payload.email, '');
+    assert.equal(payload.recaptcha_token, 'test-token');
+    assert.equal(payload.children, '2');
+    assert.equal(payload.reference_tour, 'Tour Nhật Bản <test>');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(base + '/tour-theo-yeu-cau', { waitUntil: 'networkidle' });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await page.screenshot({ path: 'writable/custom-tour-mobile.png', fullPage: true });
+    await page.screenshot({ path: 'writable/custom-tour-mobile-hero.png' });
+    await page.locator('.ct-faq-list summary').first().click();
+    assert.equal(await page.locator('.ct-faq-list details').first().getAttribute('open'), '');
+    for (const width of [320, 768]) {
+      await page.setViewportSize({ width, height: 900 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `overflow at ${width}px`);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('.ct-next').click();
+    await page.locator('.ct-next').click();
+    assert.equal(await page.locator('.ct-submit').isVisible(), true);
+    await page.goto(base + '/en/custom-tours', { waitUntil: 'networkidle' });
+    assert.match(await page.locator('.ct-hero h1').innerText(), /Tailor-made tours/);
+    assert.match(await page.locator('#customTourForm').getAttribute('action'), /en\/custom-tours$/);
+    assert.match(await page.locator('link[hreflang="vi"]').getAttribute('href'), /\/tour-theo-yeu-cau$/);
+    assert.equal(errors.length, 0, errors.join('\n'));
+    console.log('PASS: desktop/mobile, step validation, back navigation, children, summary, reference escaping, optional email, captcha retry, submission payload and English route. No requests sent.');
+  } finally { await browser.close(); }
+})();
