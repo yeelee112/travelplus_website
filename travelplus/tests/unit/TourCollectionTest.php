@@ -3,6 +3,33 @@ use CodeIgniter\Test\CIUnitTestCase;
 use App\Services\TourCollectionService;
 final class TourCollectionTest extends CIUnitTestCase
 {
+    public function testSavingWithoutCollectionsWorksBeforeMigration(): void
+    {
+        $db = db_connect();
+        $this->assertSame(':memory:', $db->database);
+        $forge = \Config\Database::forge();
+        $forge->dropTable('tour_collection_tours', true);
+        $forge->dropTable('tour_collections', true);
+
+        $service = new TourCollectionService();
+        $service->sync(1, []);
+        $this->assertSame([], $service->selected(1));
+        $this->assertSame([], $service->all());
+    }
+
+    public function testSelectedCollectionsRequireMigration(): void
+    {
+        $db = db_connect();
+        $this->assertSame(':memory:', $db->database);
+        $forge = \Config\Database::forge();
+        $forge->dropTable('tour_collection_tours', true);
+        $forge->dropTable('tour_collections', true);
+
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('cần cập nhật cơ sở dữ liệu bộ sưu tập tour');
+        (new TourCollectionService())->sync(1, [1]);
+    }
+
     public function testMigrationAndMultipleMemberships(): void
     {
         $db = db_connect();

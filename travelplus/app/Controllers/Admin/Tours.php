@@ -678,30 +678,44 @@ class Tours extends BaseAdminController
         }
         $now = date('Y-m-d H:i:s');
 
-        $db->transStart();
+        try {
+            $db->transStart();
 
-        $tourId = $this->persistTour($db, $tourId, $post, $now);
-        if ($tourId <= 0) {
+            $tourId = $this->persistTour($db, $tourId, $post, $now);
+            if ($tourId <= 0) {
+                $db->transRollback();
+                log_message('error', 'Admin tour insert did not return a valid tour ID.');
+
+                return redirect()->to($formUrl)->withInput()->with('errors', ['Không thể tạo tour mới vì hệ thống không nhận được mã tour hợp lệ. Vui lòng thử lại hoặc kiểm tra nhật ký hệ thống.']);
+            }
+
+            $this->replaceTourTranslations($db, $tourId, $post);
+            $this->replaceTourDestinations($db, $tourId, $post);
+            $this->replaceTourDepartures($db, $tourId, $post, $now);
+            $this->replaceTourInclusions($db, $tourId, $post, $now);
+            $this->replaceTourMedia($db, $tourId, $post, $now);
+            $this->replaceTourItinerary($db, $tourId, $post, $now);
+            $this->replaceTourFaqs($db, $tourId, $post, $now);
+
             $db->transComplete();
-            log_message('error', 'Admin tour insert did not return a valid tour ID.');
 
-            return redirect()->to($formUrl)->withInput()->with('errors', ['Không thể tạo tour mới vì hệ thống không nhận được mã tour hợp lệ. Vui lòng thử lại hoặc kiểm tra nhật ký hệ thống.']);
-        }
+            if (! $db->transStatus()) {
+                log_message('error', 'Admin tour save transaction failed for ' . ($isUpdate ? 'tour #' . $tourId : 'a new tour') . '.');
 
-        $this->replaceTourTranslations($db, $tourId, $post);
-        $this->replaceTourDestinations($db, $tourId, $post);
-        $this->replaceTourDepartures($db, $tourId, $post, $now);
-        $this->replaceTourInclusions($db, $tourId, $post, $now);
-        $this->replaceTourMedia($db, $tourId, $post, $now);
-        $this->replaceTourItinerary($db, $tourId, $post, $now);
-        $this->replaceTourFaqs($db, $tourId, $post, $now);
+                return redirect()->to($formUrl)->withInput()->with('errors', ['Không thể lưu tour. Vui lòng kiểm tra dữ liệu hoặc nhật ký hệ thống.']);
+            }
 
-        $db->transComplete();
+        } catch (Throwable $exception) {
+            $db->transRollback();
+            log_message('error', 'Admin tour save failed for ' . ($isUpdate ? 'tour #' . $tourId : 'a new tour') . ': ' . (string) $exception);
 
-        if (! $db->transStatus()) {
-            log_message('error', 'Admin tour save transaction failed for ' . ($isUpdate ? 'tour #' . $tourId : 'a new tour') . '.');
+            $message = $exception instanceof \DomainException
+                ? $exception->getMessage()
+                : 'Không thể lưu tour do lỗi hệ thống. Vui lòng thử lại hoặc liên hệ quản trị viên kiểm tra nhật ký lỗi.';
 
-            return redirect()->to($formUrl)->withInput()->with('errors', ['Không thể lưu tour. Vui lòng kiểm tra dữ liệu hoặc nhật ký hệ thống.']);
+            return redirect()->to($formUrl)->withInput()->with('errors', [
+                $message . ' Nội dung nhập được giữ lại; nếu có tải ảnh mới, vui lòng chọn lại ảnh.',
+            ]);
         }
 
         $this->clearNavigationCaches();
