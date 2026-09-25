@@ -21,6 +21,7 @@
         .departure-stack small { color:#64748b; }
         .quick-edit-row { display:none; background:#f8fbff; }
         .quick-edit-row.is-open { display:table-row; }
+        tr[hidden] { display:none !important; }
         .quick-edit-cell { padding:0 !important; border-top:0 !important; }
         .quick-edit-panel { border-top:1px solid #e6ebf0; padding:18px 22px 22px; }
         .quick-edit-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
@@ -60,6 +61,13 @@
         <?php if (! empty($success)): ?><div class="alert alert-success"><?= esc($success) ?></div><?php endif; ?>
         <?php if (! empty($error)): ?><div class="alert alert-danger"><?= esc($error) ?></div><?php endif; ?>
 
+        <div class="mb-3" role="search">
+            <label for="tour-search" class="form-label fw-semibold">Tìm kiếm tour</label>
+            <input type="search" id="tour-search" class="form-control" placeholder="Nhập tên, ID, loại hoặc trạng thái tour…" aria-controls="tour-list" aria-describedby="tour-search-help" autocomplete="off">
+            <div id="tour-search-help" class="form-text">Kết quả cập nhật ngay khi gõ, hỗ trợ tìm không dấu.</div>
+            <div id="tour-search-count" class="text-muted small mt-2" role="status" aria-live="polite" aria-atomic="true">Hiển thị <?= count($tours) ?> / <?= count($tours) ?> tour</div>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
@@ -75,7 +83,7 @@
                     <th class="text-end">Thao tác</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="tour-list">
                 <?php if (empty($tours)): ?>
                     <tr><td colspan="9" class="text-center text-muted py-4">Chưa có tour.</td></tr>
                 <?php endif; ?>
@@ -93,7 +101,7 @@
                             default => 'Outbound · khách Việt đi nước ngoài',
                         };
                     ?>
-                    <tr>
+                    <tr data-tour-search="<?= esc('#' . $tourId . ' ' . (string) $tour['name'] . ' ' . $tourTypeLabel . ' ' . (string) $tour['status'], 'attr') ?>" data-quick-edit="quick-edit-<?= $tourId ?>">
                         <td>#<?= esc((string) $tourId) ?></td>
                         <td><?= esc((string) $tour['name']) ?></td>
                         <td><?= esc($tourTypeLabel) ?></td>
@@ -239,6 +247,7 @@
                         </td>
                     </tr>
                 <?php endforeach; ?>
+                    <tr id="tour-search-empty" hidden><td colspan="9" class="text-center text-muted py-4">Không tìm thấy tour phù hợp. Hãy thử từ khóa khác.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -246,6 +255,28 @@
 </main>
 <?= view('admin/partials/app_end') ?>
 <script>
+const tourSearch = document.getElementById('tour-search');
+const normalizeTourSearch = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().trim();
+const searchableTours = Array.from(document.querySelectorAll('[data-tour-search]'), (row) => ({
+  row,
+  text: normalizeTourSearch(row.dataset.tourSearch),
+  quickEdit: document.getElementById(row.dataset.quickEdit),
+}));
+const filterTours = () => {
+  const terms = normalizeTourSearch(tourSearch.value).split(/\s+/).filter(Boolean);
+  let visibleCount = 0;
+  searchableTours.forEach(({ row, text, quickEdit }) => {
+    const matches = terms.every((term) => text.includes(term));
+    row.hidden = !matches;
+    if (quickEdit) quickEdit.hidden = !matches;
+    if (matches) visibleCount += 1;
+  });
+  document.getElementById('tour-search-count').textContent = `Hiển thị ${visibleCount} / ${searchableTours.length} tour`;
+  document.getElementById('tour-search-empty').hidden = visibleCount > 0 || searchableTours.length === 0;
+};
+tourSearch.addEventListener('input', filterTours);
+filterTours();
+
 document.querySelectorAll('.js-quick-edit-toggle').forEach((button) => {
   button.addEventListener('click', () => {
     const targetId = button.getAttribute('data-target');
