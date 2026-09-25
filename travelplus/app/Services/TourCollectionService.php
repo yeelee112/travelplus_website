@@ -2,6 +2,13 @@
 namespace App\Services;
 class TourCollectionService
 {
+    public const SETUP_MESSAGE = 'Chưa cập nhật cơ sở dữ liệu bộ sưu tập. Vui lòng import file database/sql/2026-09-24_create_tour_collections.sql vào cơ sở dữ liệu trên hosting rồi thử lại.';
+
+    public function isReady(): bool
+    {
+        $db = db_connect();
+        return $db->tableExists('tour_collections') && $db->tableExists('tour_collection_tours');
+    }
     public function all(): array
     {
         $db = db_connect();

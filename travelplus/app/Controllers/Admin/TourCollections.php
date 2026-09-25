@@ -6,11 +6,16 @@ class TourCollections extends BaseAdminController
     public function index()
     {
         if ($redirect = $this->requireAdmin()) return $redirect;
-        return view('admin/tour-collections/index', ['collections'=>(new TourCollectionService())->all()]);
+        $service = new TourCollectionService();
+        $ready = $service->isReady();
+        return view('admin/tour-collections/index', ['collections'=>$ready ? $service->all() : [], 'collectionsReady'=>$ready]);
     }
     public function save(?int $id = null)
     {
         if ($redirect = $this->requireAdmin()) return $redirect;
+        if (!(new TourCollectionService())->isReady()) {
+            return redirect()->to(site_url('admin/tour-collections'))->withInput()->with('error', TourCollectionService::SETUP_MESSAGE);
+        }
         $db = db_connect();
         $existing = $id === null ? null : $db->table('tour_collections')->where('id',$id)->get()->getRowArray();
         if ($id !== null && !$existing) return redirect()->to(site_url('admin/tour-collections'))->with('error','Không tìm thấy bộ sưu tập.');
