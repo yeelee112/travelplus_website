@@ -9,11 +9,26 @@ $customTourUrl = \App\Data\LocalizedPathCatalog::url('customTour', $currentLocal
 $rewardUrl = \App\Data\LocalizedPathCatalog::url('passport.program', $currentLocale);
 $settings = new \App\Services\WebsiteSettingsService();
 $places = [
- ['nhat-ban', 'nhat-ban.webp', 'Nhật Bản', 'Japan', 'Sắc phong đỏ bên núi Phú Sĩ', 'Maple colours by Mount Fuji', 'Ngắm lá đỏ · Văn hóa · Ẩm thực', 'Autumn leaves · Culture · Food'],
- ['han-quoc', 'han-quoc.jpg', 'Hàn Quốc', 'South Korea', 'Một mùa thu thật lãng mạn', 'An autumn to fall in love with', 'Dạo phố · Cảnh đẹp · Mua sắm', 'City walks · Scenery · Shopping'],
- ['trung-quoc', 'china.jpg', 'Trung Quốc', 'China', 'Đi qua những miền cổ tích', 'Step into extraordinary landscapes', 'Thiên nhiên · Phố cổ · Văn hóa', 'Nature · Old towns · Culture'],
- ['sa-pa', 'sa-pa.webp', 'Sa Pa', 'Sa Pa', 'Hẹn một sớm giữa mây ngàn', 'Wake up above the clouds', 'Núi rừng · Bản làng · Nghỉ ngơi', 'Mountains · Villages · Slow days'],
+ ['Bắc Mỹ', 'North America', 'canada.webp', [
+  ['Mỹ','USA','Mỹ','USA'], ['Canada','Canada','Canada','Canada'],
+ ]],
+ ['Châu Úc', 'Oceania', 'australia.jpg', [
+  ['Úc','Australia','Úc','Australia'], ['New Zealand','New Zealand','New Zealand','New Zealand'],
+ ]],
+ ['Châu Âu', 'Europe', 'thuy-si.webp', [
+  ['Pháp – Ý – Thụy Sĩ','France – Italy – Switzerland','Pháp','France'],
+  ['Anh – Scotland','England – Scotland','Anh','England'],
+  ['Đông Âu (Đức – Slovakia – Áo – Czech)','Eastern Europe (Germany – Slovakia – Austria – Czechia)','Đức','Germany'],
+ ]],
+ ['Châu Á', 'Asia', 'nhat-ban.webp', [
+  ['Bali','Bali','Bali','Bali'], ['Nhật Bản','Japan','Nhật Bản','Japan'],
+ ]],
+ ['Việt Nam', 'Vietnam', 'sa-pa.webp', [
+  ['Tây Bắc','Northwest Vietnam','Tây Bắc','Northwest'], ['Đông Bắc','Northeast Vietnam','Đông Bắc','Northeast'],
+  ['Miền Trung','Central Vietnam','Miền Trung','Central'], ['Tà Đùng – Đà Lạt – Mũi Né','Ta Dung – Da Lat – Mui Ne','Tà Đùng','Ta Dung'],
+ ]],
 ];
+$collectionSearchUrl = \App\Data\LocalizedPathCatalog::url('search', $currentLocale);
 $icon = static fn(string $name): string => '<i class="bi bi-' . $name . '" aria-hidden="true"></i>';
 ?>
 <div class="autumn-landing">
@@ -43,8 +58,17 @@ $icon = static fn(string $name): string => '<i class="bi bi-' . $name . '" aria-
  </div>
  <nav class="at-container at-page-nav" aria-label="<?= $t('Nội dung trang mùa thu', 'Autumn page navigation') ?>"><a href="#autumn-destinations"><?= $t('Điểm đến mùa thu', 'Destinations') ?></a><a href="#autumn-tours"><?= $t('Tour & lịch khởi hành', 'Tours & departures') ?></a><a href="#autumn-faq"><?= $t('Câu hỏi thường gặp', 'FAQs') ?></a><a href="#autumn-advice"><?= $t('Nhờ tư vấn', 'Get advice') ?> <?= $icon('arrow-up-right') ?></a></nav>
  <section class="at-container at-section" id="autumn-destinations">
-  <div class="at-section-head"><div><p class="at-kicker"><?= $t('MỖI NƠI, MỘT SẮC THU', 'FIND YOUR AUTUMN COLOURS') ?></p><h2><?= $t('Chạm vào mùa thu bạn thích', 'Your kind of autumn') ?></h2><p><?= $t('Thích lá đỏ, mê phố cổ hay muốn trốn phố lên núi? Bắt đầu từ đây.', 'Maple leaves, old towns or a mountain escape? Start here.') ?></p></div><span class="at-handwritten"><?= $t('Đi để thấy, đi để nhớ.', 'Go. Explore. Remember.') ?></span></div>
-  <div class="at-destinations"><?php foreach ($places as $place): ?><a class="at-destination" href="<?= esc($url . '?' . http_build_query(['destination' => $place[0], 'month' => $selectedMonth]), 'attr') ?>#autumn-tours"><img src="<?= base_url('assets/images/destination/' . $place[1]) ?>" alt="<?= esc($place[$en ? 3 : 2]) ?>" width="800" height="533" loading="lazy"><div class="at-destination-body"><span><?= esc($place[$en ? 7 : 6]) ?></span><h3><?= esc($place[$en ? 3 : 2]) ?></h3><p><?= esc($place[$en ? 5 : 4]) ?></p></div><span class="at-circle"><?= $icon('arrow-up-right') ?></span></a><?php endforeach ?></div>
+  <div class="at-section-head"><div><p class="at-kicker"><?= $t('MỖI NƠI, MỘT SẮC THU', 'FIND YOUR AUTUMN COLOURS') ?></p><h2><?= $t('Chạm vào mùa thu bạn thích', 'Your kind of autumn') ?></h2><p><?= $t('Từ Bắc Mỹ, châu Úc, châu Âu đến châu Á và những cung đường Việt Nam.', 'From North America, Oceania and Europe to Asia and the landscapes of Vietnam.') ?></p></div><span class="at-handwritten"><?= $t('Đi để thấy, đi để nhớ.', 'Go. Explore. Remember.') ?></span></div>
+  <div class="at-collection-regions">
+   <?php foreach ($places as $place): ?>
+    <article class="at-region-card">
+     <div class="at-region-photo"><img src="<?= base_url('assets/images/destination/' . $place[2]) ?>" alt="<?= esc($place[$en ? 1 : 0]) ?>" width="800" height="533" loading="lazy"></div>
+     <div class="at-region-overlay"><h3><?= esc($place[$en ? 1 : 0]) ?></h3><ul><?php foreach ($place[3] as $journey): ?>
+      <li><a href="<?= esc($collectionSearchUrl . '?' . http_build_query(['collection'=>'mua-thu', 'q'=>$journey[$en ? 3 : 2]]), 'attr') ?>"><span><?= esc($journey[$en ? 1 : 0]) ?></span><?= $icon('arrow-up-right') ?></a></li>
+     <?php endforeach ?></ul></div>
+    </article>
+   <?php endforeach ?>
+  </div>
  </section>
  <section class="at-tour-section" id="autumn-tours"><div class="at-container">
   <div class="at-section-head"><div><p class="at-kicker"><?= $t('CHỌN CHUYẾN ĐI CỦA BẠN', 'YOUR NEXT JOURNEY') ?></p><h2><?= $t('Tour & lịch khởi hành mùa thu', 'Autumn tours & departures') ?></h2><p><?= $t('Xem giá, ngày đi và lịch trình trước khi quyết định.', 'Compare prices, dates and itineraries before you decide.') ?></p></div><a class="at-link" href="<?= esc($allToursUrl, 'attr') ?>"><?= $t('Xem tất cả tour', 'View all tours') ?> <?= $icon('arrow-right') ?></a></div>
