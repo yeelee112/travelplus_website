@@ -908,6 +908,8 @@ Tham quan tháp Eiffel, bảo tàng Louvre..."
     </div>
 </main>
 
+<script src="<?= base_url('assets/js/admin-location-catalog.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin-location-picker.js') ?>"></script>
 <script>
 const countriesByParent = <?= json_encode($countriesByParent, JSON_UNESCAPED_UNICODE) ?>;
 const provincesByRegion = <?= json_encode($domesticProvincesByRegion, JSON_UNESCAPED_UNICODE) ?>;
@@ -970,6 +972,7 @@ function toggleDestinationMode(row) {
 }
 
 function bindDestinationRow(row) {
+  window.bindTourLocationPicker(row);
   row.querySelector('.js-continent-select')?.addEventListener('change', () => {
     const select = row.querySelector('.js-country-select');
     if (select) select.dataset.selected = '';
