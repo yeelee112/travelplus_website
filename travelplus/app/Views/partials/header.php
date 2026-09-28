@@ -339,12 +339,12 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
             <img alt="Travel Plus" loading="eager" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo.svg') ?>">
         </a>
 
-        <div class="main-menu">
+        <div class="main-menu" id="site-navigation" aria-label="<?= $locale === 'en' ? 'Main navigation' : 'Điều hướng chính' ?>">
             <div class="mobile-logo-area d-lg-none d-flex align-items-center justify-content-between">
                 <a class="mobile-logo-wrap" href="<?= localized_url('/') ?>">
                     <img alt="Travel Plus" loading="lazy" width="550" height="220" decoding="async" src="<?= base_url('assets/images/logo.svg') ?>">
                 </a>
-                <div class="menu-close-btn"><i class="bi bi-x"></i></div>
+                <button type="button" class="menu-close-btn" aria-label="<?= $locale === 'en' ? 'Close menu' : 'Đóng menu' ?>"><i class="bi bi-x" aria-hidden="true"></i></button>
             </div>
 
             <ul class="menu-list">
@@ -594,13 +594,13 @@ $headerProfileLabel = $locale === 'en' ? 'My account' : 'Tài khoản của tôi
         </div>
 
         <div class="nav-right">
-            <div class="sidebar-button mobile-menu-btn">
+            <button type="button" class="sidebar-button mobile-menu-btn" aria-controls="site-navigation" aria-expanded="false" aria-label="<?= $locale === 'en' ? 'Open menu' : 'Mở menu' ?>">
                 <svg width="20" height="18" viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.29445 2.8421H10.5237C11.2389 2.8421 11.8182 2.2062 11.8182 1.42105C11.8182 0.635903 11.2389 0 10.5237 0H1.29445C0.579249 0 0 0.635903 0 1.42105C0 2.2062 0.579249 2.8421 1.29445 2.8421Z"></path>
                     <path d="M1.23002 10.421H18.77C19.4496 10.421 20 9.78506 20 8.99991C20 8.21476 19.4496 7.57886 18.77 7.57886H1.23002C0.550421 7.57886 0 8.21476 0 8.99991C0 9.78506 0.550421 10.421 1.23002 10.421Z"></path>
                     <path d="M18.8052 15.1579H10.2858C9.62563 15.1579 9.09094 15.7938 9.09094 16.5789C9.09094 17.3641 9.62563 18 10.2858 18H18.8052C19.4653 18 20 17.3641 20 16.5789C20 15.7938 19.4653 15.1579 18.8052 15.1579Z"></path>
                 </svg>
-            </div>
+            </button>
         </div>
         </div>
     </div>

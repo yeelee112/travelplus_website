@@ -1,0 +1,105 @@
+from pathlib import Path
+css='''/* Shared UI scale. Add new components here or use the tp-ui-* utility classes.
+   This file loads after page bundles. Decorative icons and headings keep their own scale. */
+:root {
+ --tp-text-caption:12px;
+ --tp-text-control:14px;
+ --tp-leading-caption:1.5;
+ --tp-leading-control:1.4;
+ --tp-icon-caption:14px;
+ --tp-icon-control:16px;
+ --tp-control-height:44px;
+ --tp-control-compact:40px;
+ --tp-control-padding:16px;
+ --tp-control-gap:8px;
+ --tp-caption-gap:6px;
+ --tp-focus-color:#007da5;
+}
+/* Supporting copy, independent of viewport size. */
+body.tp-ui :is(.tp-ui-caption,.home-hero-search-footer,.home-modern-search__popular,
+ .tp-tour-card__route,.tp-tour-card__chip,.tp-tour-card__points,.tp-tour-card__passport-unlock,
+ .home-promo-points,.home-promo-card__meta,.home-blog-card__meta,.home-blog-feature__meta,
+ .checkout-coupon-hint,.checkout-passport-voucher__meta,.travelplus-inline-error,
+ .at-reward small,.at-reward-note,.at-tour-price>small,.at-tour-meta,
+ .home-hero-trust small,.home-hero-rotation) {
+ font-size:var(--tp-text-caption); line-height:var(--tp-leading-caption);
+}
+body.tp-ui .tp-tour-card .tp-tour-card__schedule span,
+body.tp-ui .tp-tour-card .tp-tour-card__price>span:not(.tour-passport-price),
+body.tp-ui .tour-passport-price :is(.tour-passport-price__hint,.tour-passport-price__badge,.tour-passport-price__badge>span,.tour-passport-price__badge>b,.tour-passport-price__saving,.tour-passport-price__comparison) {
+ font-size:var(--tp-text-caption); line-height:var(--tp-leading-caption);
+}
+body.tp-ui :is(.home-modern-search__field label,.tour-list-filter__field>span,.tour-list-filter__field>label,.home-search-date__hint,.home-search-date__footer p) {
+ font-size:var(--tp-text-caption); line-height:var(--tp-leading-caption);
+}
+body.tp-ui :is(.tp-ui-label,.travelplus-auth-field>span,.form-inner>label,.travelplus-contact-form label,.checkout-stepper-page label) {
+ font-size:var(--tp-text-control); line-height:var(--tp-leading-control);
+}
+/* One control size for primary actions; colors and existing brand shapes remain component-owned. */
+body.tp-ui :is(.tp-ui-button,.primary-btn1,.primary-btn2,.travelplus-auth-submit,.travelplus-auth-google-btn,
+ .travelplus-contact-submit,.tp-tour-card__cta,.tour-detail-tool-btn,.at-btn,
+ .tour-list-filter__actions>button,.tour-list-filter__actions>a,.tour-list-filter__mobile-toggle,
+ .home-modern-search__submit,.home-promo-link,.home-section-link) {
+ display:inline-flex; align-items:center; justify-content:center;
+ gap:var(--tp-control-gap); min-height:var(--tp-control-height);
+ padding:10px var(--tp-control-padding); font-size:var(--tp-text-control);
+ font-weight:600; line-height:var(--tp-leading-control); text-align:center;
+}
+body.tp-ui :is(.tp-ui-button--compact,.tp-tour-card__cta,.home-section-link,.tour-list-filter__mobile-toggle) {
+ min-height:var(--tp-control-compact); padding:8px 14px;
+}
+/* Search buttons align with their taller composite fields. */
+body.tp-ui .home-modern-search__submit { min-height:60px; }
+body.tp-ui .at-search>.at-btn { align-self:stretch; }
+/* Icons alongside text have a predictable box instead of a font baseline offset. */
+body.tp-ui :is(.tp-ui-icon,.primary-btn1 .bi,.primary-btn2 .bi,.at-btn .bi,
+ .tp-tour-card__cta .bi,.tour-detail-tool-btn .bi,.tp-tour-tool-btn .bi,
+ .home-modern-search__submit .bi,.travelplus-contact-submit .bi,
+ .tour-list-filter__actions .bi,.tour-list-filter__mobile-toggle .bi,
+ .home-section-link .bi,.home-promo-link .bi) {
+ display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
+ width:1em; height:1em; font-size:var(--tp-icon-control); line-height:1;
+}
+body.tp-ui :is(.home-hero-search-footer,.tp-tour-card__schedule,.tp-tour-card__meta,
+ .tp-tour-card__points,.tp-tour-card__passport-unlock,.tour-passport-price,.home-promo-points,
+ .home-hero-rotation) .bi {
+ display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
+ width:1em; height:1em; font-size:var(--tp-icon-caption); line-height:1;
+}
+body.tp-ui :is(.tp-ui-icon,.primary-btn1 .bi,.primary-btn2 .bi,.at-btn .bi,.tp-tour-card .bi,
+ .tour-passport-price .bi,.home-hero-search-footer .bi,.home-section-link .bi,
+ .home-promo-link .bi,.home-modern-search__submit .bi,.tour-detail-tool-btn .bi,
+ .travelplus-contact-submit .bi,.tour-list-filter__actions .bi,.home-hero-rotation .bi)::before {
+ display:block; vertical-align:0; line-height:1;
+}
+body.tp-ui .tp-tour-card .tp-tour-card__media .tp-tour-tool-btn {
+ width:var(--tp-control-compact); height:var(--tp-control-compact); min-height:var(--tp-control-compact); padding:0;
+}
+body.tp-ui :is(.tp-ui-button,.primary-btn1,.primary-btn2,.at-btn,.tp-tour-card__cta,
+ .tp-tour-tool-btn,.tour-detail-tool-btn,.home-section-link,.travelplus-contact-submit):focus-visible {
+ outline:2px solid var(--tp-focus-color); outline-offset:3px;
+}
+/* Admin uses the same scale without changing its Bootstrap layout. */
+body .admin-shell :is(.form-text,.text-muted.small,small,.small) {
+ font-size:var(--tp-text-caption); line-height:var(--tp-leading-caption);
+}
+body .admin-shell :is(.form-label,label) { font-size:var(--tp-text-control); line-height:var(--tp-leading-control); }
+body .admin-shell .btn {
+ display:inline-flex; align-items:center; justify-content:center; gap:var(--tp-control-gap);
+ font-size:var(--tp-text-control); line-height:var(--tp-leading-control);
+ min-height:var(--tp-control-height); padding:10px var(--tp-control-padding);
+}
+body .admin-shell .btn-sm { min-height:var(--tp-control-compact); padding:8px 12px; }
+body .admin-shell .btn .bi { display:inline-flex; font-size:var(--tp-icon-control); line-height:1; }
+body .admin-shell .btn .bi::before { display:block; vertical-align:0; }
+@media(max-width:991px) { body.tp-ui .home-modern-search__submit { min-height:var(--tp-control-height); } }
+@media(pointer:coarse) {
+ body.tp-ui .tp-tour-card .tp-tour-card__media .tp-tour-tool-btn {
+  width:var(--tp-control-height); height:var(--tp-control-height); min-height:var(--tp-control-height);
+ }
+}
+'''
+Path('public/assets/css/ui-system.css').write_text(css,encoding='utf-8')
+p=Path('app/Views/layouts/main.php');s=p.read_text(encoding='utf-8');s=s.replace('class="<?= esc($bodyClass) ?>"','class="tp-ui <?= esc($bodyClass) ?>"',1);anchor='<link rel="stylesheet" href="<?= esc($languagePreferenceCssAssetUrl, \'attr\') ?>">';assert anchor in s;s=s.replace(anchor,anchor+'\n<link rel="stylesheet" href="<?= esc(frontend_asset_url(\'assets/css/ui-system.css\'), \'attr\') ?>">');p.write_text(s,encoding='utf-8')
+p=Path('public/assets/css/admin.css');s=p.read_text(encoding='utf-8');p.write_text("@import url('ui-system.css');\n"+s,encoding='utf-8')
+p=Path('scripts/build-frontend-assets.php');s=p.read_text(encoding='utf-8');s=s.replace('$assets = [',"$assets = [\n    ['public/assets/css/ui-system.css', 'public/assets/css/ui-system.min.css'],\n    ['public/assets/css/admin.css', 'public/assets/css/admin.min.css'],",1);p.write_text(s,encoding='utf-8')

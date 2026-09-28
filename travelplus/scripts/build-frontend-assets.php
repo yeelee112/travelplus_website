@@ -38,6 +38,8 @@ $run([PHP_BINARY, 'scripts/minify-css.php'], $root);
 $run([PHP_BINARY, 'scripts/split-frontend-css.php'], $root);
 
 $assets = [
+    ['public/assets/css/ui-system.css', 'public/assets/css/ui-system.min.css'],
+    ['public/assets/css/admin.css', 'public/assets/css/admin.min.css'],
     ['public/assets/css/style-reward.css', 'public/assets/css/style-reward.min.css'],
     ['public/assets/css/widgets.css', 'public/assets/css/widgets.min.css'],
     ['public/assets/css/style-common.css', 'public/assets/css/style-common.min.css'],

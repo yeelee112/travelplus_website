@@ -371,17 +371,54 @@
   const mainMenu = qs(".main-menu");
 
   if (mobileMenuBtn && mainMenu) {
-    mobileMenuBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      mainMenu.classList.add("show-menu");
+    const mobileViewport = window.matchMedia("(max-width: 1199px)");
+    let previousOverflow = "";
+    let menuOpen = false;
+    const setMobileMenu = (open, restoreFocus = true) => {
+      const next = open && mobileViewport.matches;
+      if (next && !menuOpen) {
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+      } else if (!next && menuOpen) {
+        document.body.style.overflow = previousOverflow;
+      }
+      menuOpen = next;
+      mainMenu.classList.toggle("show-menu", next);
+      mainMenu.inert = mobileViewport.matches && !next;
+      mobileMenuBtn.setAttribute("aria-expanded", String(next));
+      if (next) {
+        mainMenu.setAttribute("role", "dialog");
+        mainMenu.setAttribute("aria-modal", "true");
+        menuCloseBtn?.focus();
+      } else {
+        mainMenu.removeAttribute("role");
+        mainMenu.removeAttribute("aria-modal");
+        if (restoreFocus && mobileViewport.matches) mobileMenuBtn.focus();
+      }
+    };
+    mobileMenuBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setMobileMenu(!menuOpen);
     });
-  }
-
-  if (menuCloseBtn && mainMenu) {
-    menuCloseBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      mainMenu.classList.remove("show-menu");
+    menuCloseBtn?.addEventListener("click", () => setMobileMenu(false));
+    document.addEventListener("click", (event) => {
+      if (menuOpen && !mainMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) setMobileMenu(false);
     });
+    document.addEventListener("keydown", (event) => {
+      if (!menuOpen) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMobileMenu(false);
+      } else if (event.key === "Tab") {
+        const focusable = [...mainMenu.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, [tabindex="0"]')]
+          .filter(el => el.getClientRects().length && getComputedStyle(el).visibility !== "hidden");
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    });
+    mobileViewport.addEventListener("change", () => setMobileMenu(false, false));
+    setMobileMenu(false, false);
   }
 
   /* =====================================================
@@ -483,6 +520,24 @@
   /* =====================================================
      MOBILE SUB MENU
   ===================================================== */
+  qsa("header.site-header-modern .dropdown-icon").forEach((toggle, index) => {
+    const panel = toggle.parentElement.querySelector(":scope > .mega-menu, :scope > .sub-menu, :scope > ul");
+    if (!panel) return;
+    panel.id ||= `navigation-submenu-${index}`;
+    toggle.setAttribute("role", "button");
+    toggle.setAttribute("tabindex", "0");
+    toggle.setAttribute("aria-controls", panel.id);
+    toggle.setAttribute("aria-expanded", "false");
+    const label = toggle.parentElement.querySelector(":scope > a, :scope > h6, :scope > h5")?.textContent.trim() || "Menu";
+    toggle.setAttribute("aria-label", label);
+    toggle.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggle.click(); }
+    });
+    toggle.addEventListener("click", () => {
+      if (window.innerWidth < 1200) toggle.setAttribute("aria-expanded", String(!toggle.classList.contains("active")));
+    });
+  });
+
   qsa("header.site-header-modern .main-menu > .menu-list > .menu-item-has-children").forEach((item) => {
     const dropdownIcon = qs(":scope > .dropdown-icon", item);
     const submenu = qs(":scope > .sub-menu, :scope > .mega-menu", item);
@@ -834,21 +889,12 @@
       error: locale === "en" ? "Error loading data" : "Không tải được dữ liệu",
     };
     suggestionCopy.searchFor = locale === "en" ? "Search with this keyword" : "Tìm theo từ khóa đã nhập";
-    const popularSuggestions = locale === "en"
-      ? [
-          { type: "popular", name: "Japan", subtitle: "Tokyo, Osaka, Kyoto" },
-          { type: "popular", name: "South Korea", subtitle: "Seoul, Nami, Busan" },
-          { type: "popular", name: "France", subtitle: "Paris and Europe routes" },
-          { type: "popular", name: "Thailand", subtitle: "Bangkok, Pattaya, Phuket" },
-          { type: "popular", name: "Da Nang", subtitle: "Central Vietnam" },
-        ]
-      : [
-          { type: "popular", name: "Nhật Bản", subtitle: "Tokyo, Osaka, Kyoto" },
-          { type: "popular", name: "Hàn Quốc", subtitle: "Seoul, Nami, Busan" },
-          { type: "popular", name: "Pháp", subtitle: "Paris và tuyến châu Âu" },
-          { type: "popular", name: "Thái Lan", subtitle: "Bangkok, Pattaya, Phuket" },
-          { type: "popular", name: "Đà Nẵng", subtitle: "Miền Trung Việt Nam" },
-        ];
+    const hasCatalogSuggestions = box.hasAttribute("data-destination-suggestions");
+    let popularSuggestions = [];
+    try {
+      const supplied = JSON.parse(box.dataset.destinationSuggestions || "[]");
+      popularSuggestions = Array.isArray(supplied) ? supplied : [];
+    } catch (_) { /* No sample destinations when catalog data is unavailable. */ }
 
     const truncateText = function (value, maxLength = 42) {
       const text = String(value || "").trim();
@@ -940,6 +986,8 @@
         const subtitle = document.createElement("span");
 
         li.className = "single-item";
+        li.tabIndex = 0;
+        li.setAttribute("role", "button");
         destination.className = "destination";
         title.textContent = getItemLabel(item);
         subtitle.textContent = getItemSubtitle(item);
@@ -953,6 +1001,20 @@
         li.addEventListener("click", (event) => {
           event.stopPropagation();
           selectItem(item);
+        });
+        li.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            selectItem(item);
+            input.focus();
+          } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            (event.key === "ArrowDown" ? li.nextElementSibling : li.previousElementSibling)?.focus();
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            input.focus();
+            closeDestinationWrap();
+          }
         });
 
         list.appendChild(li);
@@ -1016,6 +1078,15 @@
 
     // click ra ngoài → đóng dropdown
     input.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeDestinationWrap();
+        return;
+      }
+      if (event.key === "ArrowDown" && wrap.classList.contains("active")) {
+        event.preventDefault();
+        list.querySelector('[role="button"]')?.focus();
+        return;
+      }
       if (event.key !== "Enter") {
         return;
       }
@@ -1084,65 +1155,63 @@
   const heroRotator = document.querySelector("[data-hero-rotator]");
 
   if (heroRotator) {
-    const heroSlides = [...heroRotator.querySelectorAll("img")];
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const configuredInterval = Number.parseInt(heroRotator.dataset.interval || "7000", 10);
-    const rotationInterval = Number.isFinite(configuredInterval) && configuredInterval >= 5000
-      ? configuredInterval
-      : 7000;
-
-    if (heroSlides.length > 1 && !reduceMotion) {
-      let activeHeroIndex = 0;
-
-      const loadHeroSlide = (slide) => new Promise((resolve) => {
-        const pendingSource = slide.dataset.heroSrc || "";
-        const pendingSourceSet = slide.dataset.heroSrcset || "";
-
-        if (pendingSource === "") {
-          resolve(slide.complete && slide.naturalWidth > 0);
-          return;
-        }
-
-        const handleLoad = () => {
-          delete slide.dataset.heroSrc;
-          delete slide.dataset.heroSrcset;
-          resolve(true);
+    const slides = [...heroRotator.querySelectorAll("img")];
+    const toggle = document.querySelector("[data-hero-toggle]");
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const interval = Math.max(5000, Number(heroRotator.dataset.interval) || 7000);
+    let paused = motionPreference.matches;
+    let index = 0;
+    let timer;
+    let generation = 0;
+    const loads = new WeakMap();
+    const loadSlide = slide => {
+      if (loads.has(slide)) return loads.get(slide);
+      const pending = new Promise(resolve => {
+        if (!slide.dataset.heroSrc) { resolve(slide.complete && slide.naturalWidth > 0); return; }
+        const finish = ok => {
+          slide.removeEventListener("load", loaded);
+          slide.removeEventListener("error", failed);
+          resolve(ok);
         };
-        const handleError = () => {
-          slide.removeAttribute("src");
-          resolve(false);
-        };
-
-        slide.addEventListener("load", handleLoad, { once: true });
-        slide.addEventListener("error", handleError, { once: true });
-        if (pendingSourceSet !== "") {
-          slide.srcset = pendingSourceSet;
-        }
-        slide.src = pendingSource;
+        const loaded = () => finish(true);
+        const failed = () => { loads.delete(slide); finish(false); };
+        slide.addEventListener("load", loaded);
+        slide.addEventListener("error", failed);
+        slide.loading = "eager";
+        if (slide.dataset.heroSrcset) slide.srcset = slide.dataset.heroSrcset;
+        slide.src = slide.dataset.heroSrc;
       });
-
-      const preloadNextHero = () => {
-        const nextIndex = (activeHeroIndex + 1) % heroSlides.length;
-        loadHeroSlide(heroSlides[nextIndex]);
-      };
-
-      const rotateHero = async () => {
-        const nextIndex = (activeHeroIndex + 1) % heroSlides.length;
-        const nextSlide = heroSlides[nextIndex];
-
-        if (await loadHeroSlide(nextSlide)) {
-          heroSlides[activeHeroIndex].classList.remove("is-active");
-          nextSlide.classList.add("is-active");
-          activeHeroIndex = nextIndex;
+      loads.set(slide, pending);
+      return pending;
+    };
+    const schedule = () => {
+      clearTimeout(timer);
+      const currentGeneration = ++generation;
+      if (paused || document.hidden || slides.length < 2) return;
+      timer = setTimeout(async () => {
+        const next = (index + 1) % slides.length;
+        const ready = await loadSlide(slides[next]);
+        if (currentGeneration !== generation || paused || document.hidden) return;
+        if (ready) {
+          slides[index].classList.remove("is-active");
+          slides[next].classList.add("is-active");
+          index = next;
         }
-
-        window.setTimeout(preloadNextHero, Math.max(1000, rotationInterval - 2000));
-        window.setTimeout(rotateHero, rotationInterval);
-      };
-
-      window.setTimeout(preloadNextHero, Math.max(1000, rotationInterval - 2000));
-      window.setTimeout(rotateHero, rotationInterval);
-    }
+        schedule();
+      }, interval);
+    };
+    const updateToggle = () => {
+      if (!toggle) return;
+      toggle.hidden = slides.length < 2;
+      toggle.setAttribute("aria-pressed", String(paused));
+      toggle.querySelector("span").textContent = paused ? toggle.dataset.playLabel : toggle.dataset.pauseLabel;
+      toggle.querySelector("i").className = paused ? "bi bi-play-fill" : "bi bi-pause-fill";
+    };
+    toggle?.addEventListener("click", () => { paused = !paused; updateToggle(); schedule(); });
+    motionPreference.addEventListener("change", event => { paused = event.matches; updateToggle(); schedule(); });
+    document.addEventListener("visibilitychange", schedule);
+    updateToggle();
+    schedule();
   }
 
   const sliderEl = document.querySelector(".home-page__hero-slider");

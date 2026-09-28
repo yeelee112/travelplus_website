@@ -115,15 +115,18 @@
 
 <main class="home-page">
     <?= $this->include('sections/hero-search') ?>
-    <?= $this->include('sections/home-promotions') ?>
     <?= $this->include('sections/home-tour') ?>
-    <?= $this->include('sections/custom-tour-cta') ?>
-    <?= $this->include('sections/home-passport') ?>
+    <?= $this->include('sections/home-promotions') ?>
+    <?= $this->include('sections/home-trust') ?>
     <?= $this->include('sections/featured-destination') ?>
+    <?= $this->include('sections/home-services-compact') ?>
     <?= $this->include('sections/home-blog') ?>
     <?= $this->include('sections/testimonial') ?>
-    <?= $this->include('sections/counter') ?>
-    <?= $this->include('sections/gallery-home') ?>
+    <details class="home-more-stories container">
+        <summary><?= service('request')->getLocale() === 'en' ? 'More about Travel Plus · Photos & milestones' : 'Thêm về Travel Plus · Hình ảnh & dấu ấn' ?><i class="bi bi-chevron-down" aria-hidden="true"></i></summary>
+        <?= $this->include('sections/counter') ?>
+        <?= $this->include('sections/gallery-home') ?>
+    </details>
 </main>
 
 

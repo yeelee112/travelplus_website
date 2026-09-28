@@ -27,6 +27,31 @@ class TourCatalogService
         $this->db = \Config\Database::connect();
     }
 
+    public function getHeroDestinations(string $locale): array
+    {
+        try {
+            $rows = $this->db->table('tour_destinations td')
+                ->select('lt.name, COUNT(DISTINCT t.id) AS tour_count')
+                ->join('tours t', 't.id = td.tour_id')
+                ->join('tour_translations tt', 'tt.tour_id = t.id AND tt.locale = ' . $this->db->escape($locale))
+                ->join('locations l', 'l.id = td.location_id')
+                ->join('location_translations lt', 'lt.location_id = l.id AND lt.locale = ' . $this->db->escape($locale))
+                ->where('t.status', 'published')
+                ->whereIn('t.tour_type', $locale === 'en' ? ['outbound', 'inbound'] : ['outbound', 'domestic'])
+                ->whereIn('l.type', ['country', 'province'])
+                ->groupBy('lt.name')->orderBy('tour_count', 'DESC')->orderBy('lt.name', 'ASC')
+                ->get()->getResultArray();
+            return array_map(static fn(array $row): array => [
+                'type' => 'destination',
+                'name' => (string) $row['name'],
+                'subtitle' => (int) $row['tour_count'] . ($locale === 'en' ? ' available tours' : ' tour đang giới thiệu'),
+            ], $rows);
+        } catch (Throwable $exception) {
+            log_message('error', 'Hero destinations unavailable: {message}', ['message' => $exception->getMessage()]);
+            return [];
+        }
+    }
+
     public function getHomeTours(string $locale = 'vi', int $limit = 6, ?string $tourType = null): array
     {
         return $this->fetchTours($locale, $limit, 0, $tourType);

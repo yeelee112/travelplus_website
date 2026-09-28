@@ -16,80 +16,35 @@ $dateHintLabel = $locale === 'en'
     : 'Chọn khoảng thời gian dự kiến để xem các tour có lịch khởi hành phù hợp.';
 $heroImages = [
     ['path' => 'assets/images/home/banner00.png', 'width' => 2051, 'height' => 767],
+    ['path' => 'assets/images/home/banner01.webp', 'width' => 1920, 'height' => 1024],
+    ['path' => 'assets/images/home/banner02.webp', 'width' => 1693, 'height' => 929],
+    ['path' => 'assets/images/home/banner03.webp', 'width' => 2012, 'height' => 782],
 ];
 
 $copy = $locale === 'en'
     ? [
-        'eyebrow' => 'Travel Plus Vietnam',
-        'titleParts' => ['Tours, visa and MICE', 'designed with purpose'],
-        'desc' => 'Travel Plus plans inbound and outbound tours, visa support and corporate MICE programs for international travelers, groups and companies.',
-        'primaryCta' => 'Find a tour',
-        'secondaryCta' => 'Explore MICE services',
-        'secondaryUrl' => $miceUrl,
-        'searchTitle' => 'Start with a destination',
-        'destinationLabel' => 'Destination',
-        'destinationPlaceholder' => 'Japan, Europe, Da Nang...',
-        'quickLinks' => [
-            ['MICE', $miceUrl, 'bi-briefcase-fill'],
-            ['Visa', $visaUrl, 'bi-passport-fill'],
-            ['Tours', $allToursUrl, 'bi-map-fill'],
-        ],
-    ]
-    : [
-        'eyebrow' => 'Travel Plus Vietnam',
-        'titleParts' => ['Tour, visa và MICE', 'thiết kế đúng mục tiêu'],
-        'desc' => 'Khám phá tour nước ngoài, tour trong nước, dịch vụ visa và chương trình MICE doanh nghiệp được Travel Plus thiết kế trọn gói cho từng mục tiêu.',
-        'primaryCta' => 'Tìm tour phù hợp',
-        'secondaryCta' => 'Xem dịch vụ MICE',
-        'secondaryUrl' => $miceUrl,
-        'searchTitle' => 'Bắt đầu từ điểm đến',
-        'destinationLabel' => 'Điểm đến',
-        'destinationPlaceholder' => 'Nhật Bản, Châu Âu, Đà Nẵng...',
-        'quickLinks' => [
-            ['MICE', $miceUrl, 'bi-briefcase-fill'],
-            ['Visa', $visaUrl, 'bi-passport-fill'],
-            ['Tour', $allToursUrl, 'bi-map-fill'],
-        ],
-    ];
-
-$copy = $locale === 'en'
-    ? [
-        'eyebrow' => 'Explore the world',
-        'titleParts' => ['A JOURNEY OF INSPIRATION'],
-        'desc' => 'Quality tours – Dedicated service – Lasting value',
-        'primaryCta' => 'Watch introduction video',
-        'searchTitle' => 'Find a tour',
+        'eyebrow' => 'TRAVEL PLUS · EXPLORE & EXPERIENCE',
+        'titleParts' => ['A new journey.', 'Memories to keep.'],
+        'desc' => 'Find your destination. Choose your dates. Let Travel Plus take care of the journey.',
+        'searchTitle' => 'Where will your next journey take you?',
         'destinationLabel' => 'Destination',
         'destinationPlaceholder' => 'Where would you like to go?',
     ]
     : [
-        'eyebrow' => 'Khám phá thế giới',
-        'titleParts' => ['SẴN SÀNG CHO CHUYẾN ĐI MỚI'],
-        'desc' => 'Tour chất lượng – Dịch vụ tận tâm – Giá trị bền vững',
-        'primaryCta' => 'Xem video giới thiệu',
-        'searchTitle' => 'Tìm tour',
+        'eyebrow' => 'TRAVEL PLUS · KHÁM PHÁ & TRẢI NGHIỆM',
+        'titleParts' => ['Chuyến đi mới,', 'kỷ niệm đáng nhớ.'],
+        'desc' => 'Chọn điểm đến bạn yêu thích. Cùng Travel Plus lên kế hoạch cho hành trình tiếp theo.',
+        'searchTitle' => 'Bạn muốn khám phá nơi đâu?',
         'destinationLabel' => 'Điểm đến',
-        'destinationPlaceholder' => 'Bạn muốn đi đâu?',
+        'destinationPlaceholder' => 'Nhập điểm đến bạn muốn đi',
     ];
-$popularDestinations = $locale === 'en'
-    ? ['South Korea', 'Japan', 'Thailand', 'Europe', 'Da Nang', 'Phu Quoc', 'Nha Trang', 'Da Lat']
-    : ['Hàn Quốc', 'Nhật Bản', 'Thái Lan', 'Châu Âu', 'Đà Nẵng', 'Phú Quốc', 'Nha Trang', 'Đà Lạt'];
-$trustItems = $locale === 'en'
-    ? [
-        ['bi-shield-check', 'Thoughtful service', 'Carefully prepared for every journey'],
-        ['bi-tag', 'Great prices every day', 'Attractive offers are always available'],
-        ['bi-headset', 'Dedicated support', 'With you before, during and after'],
-        ['bi-bag-check', 'Secure payment', 'Your information is always protected'],
-    ]
-    : [
-        ['bi-shield-check', 'Dịch vụ chỉn chu', 'Tận tâm trong từng hành trình'],
-        ['bi-tag', 'Giá tốt mỗi ngày', 'Luôn có ưu đãi hấp dẫn'],
-        ['bi-headset', 'Hỗ trợ tận tâm', 'Đồng hành trước – trong – sau tour'],
-        ['bi-bag-check', 'Thanh toán an toàn', 'Bảo mật thông tin tuyệt đối'],
-    ];
+$dateFieldLabel = $locale === 'en' ? 'Departure dates · optional' : 'Ngày khởi hành · không bắt buộc';
+$dateEmptyLabel = $locale === 'en' ? 'Choose your dates' : 'Chọn khoảng ngày đi';
+$heroDestinations = (new \App\Services\TourCatalogService())->getHeroDestinations($locale);
+$popularDestinations = array_slice(array_column($heroDestinations, 'name'), 0, 5);
 ?>
 
-<section class="home-modern-hero" aria-labelledby="home-hero-title">
+<section class="home-modern-hero home-hero-redesign" aria-labelledby="home-hero-title">
     <div class="home-modern-hero__media" aria-hidden="true" data-hero-rotator data-interval="7000">
         <?php foreach ($heroImages as $index => $heroImage): ?>
             <?php
@@ -117,7 +72,14 @@ $trustItems = $locale === 'en'
     </div>
     <div class="container">
         <div class="home-modern-hero__content">
-            <span class="home-modern-eyebrow"><?= esc($copy['eyebrow']) ?></span>
+            <div class="home-hero-heading-tools">
+                <span class="home-modern-eyebrow"><?= esc($copy['eyebrow']) ?></span>
+                <button type="button" class="home-hero-rotation" data-hero-toggle hidden aria-pressed="false"
+                    data-pause-label="<?= $locale === 'en' ? 'Pause slideshow' : 'Dừng chuyển ảnh' ?>"
+                    data-play-label="<?= $locale === 'en' ? 'Play slideshow' : 'Chạy chuyển ảnh' ?>">
+                    <i class="bi bi-pause-fill" aria-hidden="true"></i><span><?= $locale === 'en' ? 'Pause slideshow' : 'Dừng chuyển ảnh' ?></span>
+                </button>
+            </div>
             <h1 id="home-hero-title">
                 <?php foreach ($copy['titleParts'] as $titlePart): ?>
                     <span><?= esc((string) $titlePart) ?></span>
@@ -126,22 +88,14 @@ $trustItems = $locale === 'en'
             <p><?= esc($copy['desc']) ?></p>
         </div>
 
-        <a class="home-hero-offer" href="<?= esc($passportUrl, 'attr') ?>">
-            <i class="bi bi-passport"></i>
-            <span>
-                <strong>Travel Plus Reward</strong>
-                <small><?= esc($locale === 'en' ? 'Book tours and earn journey points' : 'Đặt tour để tích Điểm thành viên') ?></small>
-                <em><?= esc($locale === 'en' ? 'View benefits' : 'Xem quyền lợi') ?> →</em>
-            </span>
-        </a>
-
         <div class="home-modern-search" aria-label="<?= esc($copy['searchTitle'], 'attr') ?>">
             <div class="home-modern-search__tabs">
-                <strong><i class="bi bi-airplane"></i><?= esc($copy['searchTitle']) ?></strong>
+                <strong><?= esc($copy['searchTitle']) ?></strong>
+                <a class="home-hero-browse" href="<?= esc($allToursUrl, 'attr') ?>"><?= $locale === 'en' ? 'Explore all tours' : 'Khám phá tất cả tour' ?> <span aria-hidden="true">↗</span></a>
             </div>
 
             <form class="filter-input show home-modern-search__form" action="<?= esc($allToursUrl, 'attr') ?>" method="get" data-tour-search-form>
-                <div class="home-modern-search__field destination-box">
+                <div class="home-modern-search__field destination-box" data-destination-suggestions="<?= esc(json_encode($heroDestinations, JSON_UNESCAPED_UNICODE), 'attr') ?>">
                     <label for="homeSearchDestination"><?= esc($copy['destinationLabel']) ?></label>
                     <div class="home-modern-search__input-wrap">
                         <i class="bi bi-geo-alt-fill"></i>
@@ -152,7 +106,7 @@ $trustItems = $locale === 'en'
                             class="destination-input"
                             placeholder="<?= esc($copy['destinationPlaceholder'], 'attr') ?>"
                             autocomplete="off">
-                        <button type="button" class="clear-destination hidden" aria-label="Clear destination">&times;</button>
+                        <button type="button" class="clear-destination hidden" aria-label="<?= $locale === 'en' ? 'Clear destination' : 'Xóa điểm đến' ?>">&times;</button>
                     </div>
                     <div class="custom-select-wrap">
                         <ul class="option-list-destination"></ul>
@@ -212,11 +166,17 @@ $trustItems = $locale === 'en'
                     <?= esc(lang('Frontend.hero.search.submit')) ?>
                 </button>
             </form>
+            <?php if ($popularDestinations !== []): ?>
             <div class="home-modern-search__popular">
-                <span><?= esc($locale === 'en' ? 'Popular:' : 'Điểm đến phổ biến:') ?></span>
+                <span><?= esc($locale === 'en' ? 'Suggestions:' : 'Gợi ý cho bạn:') ?></span>
                 <?php foreach ($popularDestinations as $popularDestination): ?>
                     <a href="<?= esc($allToursUrl . '?q=' . rawurlencode($popularDestination), 'attr') ?>"><?= esc($popularDestination) ?></a>
                 <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+            <div class="home-hero-search-footer">
+                <span><i class="bi bi-headset" aria-hidden="true"></i> <?= $locale === 'en' ? 'Need help choosing? We’re here for you.' : 'Cần chọn tour? Travel Plus luôn sẵn sàng tư vấn.' ?></span>
+                <a href="<?= esc($passportUrl, 'attr') ?>"><i class="bi bi-person-vcard" aria-hidden="true"></i> <?= $locale === 'en' ? 'Discover member benefits' : 'Khám phá quyền lợi thành viên' ?> <span aria-hidden="true">→</span></a>
             </div>
         </div>
 
@@ -224,16 +184,3 @@ $trustItems = $locale === 'en'
 </section>
 
 <?= $this->include('sections/home-autumn-banner') ?>
-
-<section class="home-hero-trust-section" aria-label="<?= esc($locale === 'en' ? 'Travel Plus commitments' : 'Cam kết của Travel Plus', 'attr') ?>">
-    <div class="container">
-        <ul class="home-hero-trust">
-            <?php foreach ($trustItems as $trustItem): ?>
-                <li>
-                    <i class="bi <?= esc($trustItem[0], 'attr') ?>"></i>
-                    <span><strong><?= esc($trustItem[1]) ?></strong><small><?= esc($trustItem[2]) ?></small></span>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-</section>

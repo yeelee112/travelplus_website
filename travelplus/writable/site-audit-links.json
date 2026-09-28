@@ -1,0 +1,317 @@
+{
+  "menu": {
+    "class": "main-menu",
+    "rect": {
+      "x": -320,
+      "y": 0,
+      "width": 320,
+      "height": 812,
+      "top": 0,
+      "right": 0,
+      "bottom": 812,
+      "left": -320
+    },
+    "transform": "matrix(1, 0, 0, 1, -320, 0)"
+  },
+  "suggestions": "Đà Nẵng\nViệt Nam",
+  "links": [
+    {
+      "url": "http://localhost/ve-chung-toi",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/booking/lookup",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/en",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/travelplus-reward",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-nuoc-ngoai",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/bac-my",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/bac-my/my",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-a",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-a/nhat-ban",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-a/thai-lan",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-a/trung-quoc",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-au",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-au/nuoc-y",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-au/phap",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-au/thuy-si",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-mua-thu",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tim-kiem-tour?collection=mua-djong",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-bac",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-bac/ha-noi",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-bac/quang-ninh",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-bac/sa-pa",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-trung",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-trung/da-nang",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-trung/hue",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-nam",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-nam/thanh-pho-ho-chi-minh",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-tay",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-tay/vinh-long",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/xuyen-viet",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/xuyen-viet/xuyen-viet",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/dich-vu-visa",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/dich-vu-mice",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/dich-vu-ve-may-bay",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/dich-vu-van-chuyen",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/dich-vu-dich-thuat",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/dich-vu-khach-san",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/cam-hung-du-lich",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-theo-yeu-cau",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/contact",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tim-kiem-tour",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tim-kiem-tour?q=%C4%90%C3%A0%20N%E1%BA%B5ng",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tim-kiem-tour?q=Ph%C3%A1p",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tim-kiem-tour?q=H%C3%A0%20N%E1%BB%99i",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tim-kiem-tour?q=Hu%E1%BA%BF",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tim-kiem-tour?q=M%E1%BB%B9",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-nuoc-ngoai/bac-my/tham-quan-du-lich-my-hai-bo-dong-tay-13n1d2",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-nuoc-ngoai/chau-a/kham-pha-tinh-hoa-trung-hoa-thuong-hai-o-tran-bac-kinh-7n6",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-bac/tour/tinh-hoa-viet-nam-10n9d",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-trung/nha-trang",
+      "status": 404
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-nam/da-lat",
+      "status": 404
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-nam/phu-quoc",
+      "status": 404
+    },
+    {
+      "url": "http://localhost/chau-au/duc",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-au/hy-lap",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-au/anh",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-au/tay-ban-nha",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-a/maldives",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-a/han-quoc",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-a/singapore",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-a/uae",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/bac-my/canada",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/bac-my/mexico",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-dai-duong/uc",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chau-dai-duong/new-zealand",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/cam-hung-du-lich/i-choi-moc-chau-mua-hoa-no-trai-nghiem-tuyet-ep-giua-cao-nguyen",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/cam-hung-du-lich/du-lich-bui-hay-du-lich-huong-thu-lua-chon-phong-cach-du-lich-phu-hop-cho-ban",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/cam-hung-du-lich/thang-7-nen-i-au-choi-gi-goi-y-nhung-iem-en-hap-dan-trong-nuoc-quoc-te",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/dieu-khoan-su-dung",
+      "status": 200
+    },
+    {
+      "url": "http://localhost/chinh-sach-bao-mat",
+      "status": 200
+    }
+  ],
+  "badLinks": [
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-trung/nha-trang",
+      "status": 404
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-nam/da-lat",
+      "status": 404
+    },
+    {
+      "url": "http://localhost/tour-trong-nuoc/mien-nam/phu-quoc",
+      "status": 404
+    }
+  ],
+  "usTour": {
+    "url": "http://localhost/tour-nuoc-ngoai/bac-my/tham-quan-du-lich-my-hai-bo-dong-tay-13n1d2",
+    "text": "Tour nước ngoài\nTour trong nước\nVisa\nMICE\nDịch vụ\nCảm hứng du lịch\nTour theo yêu cầu\nLiên hệ\nTravel Plus Reward\nTra cứu booking\nVI\nĐăng nhập\nTrang chủ\n/\nTour nước ngoài\n/\nBắc Mỹ\n/\nTHAM QUAN DU LỊCH MỸ: HAI BỜ ĐÔNG TÂY (13N12Đ)\nTRAVEL PLUS TOUR\nTHAM QUAN DU LỊCH MỸ: HAI BỜ ĐÔNG TÂY (13N12Đ)\n\nHoa Kỳ (Mỹ) miền đất hứa ngày nay vẫn là điểm hẹn du lịch mơ ước.\n\n11 Ngày 10 Đêm\nThành phố Hồ Chí Minh\nBắc Mỹ\nTùy chỉnh tour này\nKiểm tra chỗ ngay\nGửi yêu cầu tư vấn\nLưu tour\nSo sánh\nTổng quan về tour\nĐịa điểm khám phá\nLịch trình tour\nChi tiết\nĐánh giá khách hàng\nTổng quan về tour\nTour du lịch nước Mỹ từ Bờ Đông sang Bờ Tây, được coi là chuyến đi thế giới thu nhỏ, vô số kỳ quan thiên nhiên, thành phố lịch sử và khu giải trí.\nKHÁCH SẠN\n3-4 sao\nẨM THỰC\nSáng, trưa và tối\nPHƯƠNG TIỆN\nMáy bay, xe di chuyển\nNHÓM\n10-20 khách\nHƯỚNG DẪN VIÊN\nNgười Việt\nLOẠI HÌNH\nDu lịch\nĐịa điểm khám phá\nMassachusetts\nBảo tàng Khoa học Boston\nPhố Wall\nGround Zero\nTượng Nữ thần Tự do\nTòa nhà Độc Lập\nNhà Trắng\nGrand Canyon\nĐại lộ Hollywood\nLịch trình tour\nNgày 1\nTPHCM - BOSTON\nNgày 2\nBOSTON CITY TOUR\nNgày 3\nTHAM QUAN, KHÁM PHÁ NEW YORK\nNgày 4\nNEW YORK - PHILADELPHIA - WASHINGTON D.C\nNgày 5\nWASHINGTON D.C\nNgày 6\nWASHINGTON D.C – GRAND CANYON - HOOVER DAM - LAS VEGAS\nNgày 7\nLAS VEGAS - LOS ANGELES\nNgày 8\nLOS ANGELES\nNgày 9\nLOS ANGELES – SAN JOSE\nNgày 10\nSAN JOSE – SAN FRANCISCO\nNgày 11\nSAN FRANCISCO – AIRPORT\nChi tiết\nĐÃ GỒM TRONG GIÁ\nGiá tour bao gồm\n8 mục\nVé máy bay khứ hồi - Thuế sân bay\nXe vận chuyển như chương trình\nKhách sạn 3 sao và 4 sao (phòng nghỉ tiêu chuẩn 2-3 người / phòng).\nThuế thành phố (city tax phải trả tại khách sạn)\nChi phí visa châu Âu\nĂn uống như trong chương trình\nHướng dẫn viên tiếng Việt suốt tuyến\nBảo hiểm du lịch theo chương trình\nCHƯA GỒM TRONG GIÁ\nGiá tour không bao gồm\n5 mục\nPhụ thu phòng đơn\nChi phí cá nhân (điện thoại, giặt ủi, hành lý quá cước theo quy định của hãng hàng không…)\nNước uống trong các bữa ăn\nTiền bồi dưỡng cho hướng dẫn viên và tài xế\nVà những chi phí không kể ra trong phần bao gồm\nMột số lưu ý\nGiá tour – (áp dụng cho quý khách 12-69 tuổi) có thể thay đổi vào thời điểm đặt tour hoặc vào ngày khởi hành chính xác và phụ thuộc vào giá vé máy bay / vé tàu.\nGiá vé máy bay / vé tàu – có thể thay đổi mà không báo trước và sẽ được xác nhận lại vào thời điểm có danh sách khách chính xác và khi xuất vé.\nĐiểm tham quan có thể sắp xếp lại nhưng vẫn đảm bảo đầy đủ nội dung của chương trình tour.\nVì lý do bất khả kháng nào mà đoàn không đủ số lượng khách để khởi hành, quý khách vui lòng chuyển sang ngày khởi hành khác hoặc Travel Plus sẽ hoàn lại tiền đặt cọc mà quý khách đã thanh toán cho công ty sau khi trừ chi phí đã thanh toán như visa, đặt cọc vé máy bay…\nĐánh giá khách hàng\nChưa có đánh giá\n\n0.0 dựa trên 0 đánh giá\n\nViết đánh giá\nDịch vụ\n0.0/5\nĐiểm đến\n0.0/5\nVận chuyển\n0.0/5\nGiá trị\n0.0/5\n\nChưa có đánh giá nào được duyệt cho tour này.\n\nGiá tour\n111.690.000đ\n/ khách\nChọn ngày\nTRAVEL PLUS VIETNAM\nCần tour, visa hoặc chương trình MICE riêng?\n\nGửi nhu cầu để Travel Plus đề xuất lịch trình, ngân sách và phương án vận hành phù hợp cho gia đình, nhóm bạn hoặc doanh nghiệp.\n\nLiên hệ Travel Plus\nTìm tour\nMST: 0305475784\nGP lữ hành quốc tế: 79-114/2014/TCDL-GP LHQT\n079 568 1 568\ninfo@travelplusvn.com\nDanh mục tour\nDịch vụ\nLiên hệ\nVăn phòng Travel Plus\nVăn phòng Hồ Chí Minh\n3/30A đường Thích Quảng Đức, Phường Đức Nhuận, TP.HCM\nVăn phòng Hà Nội\n47 đường Lê Văn Hưu, Phường Hai Bà Trưng, Hà Nội\nVăn phòng Đà Nẵng\nTầng 4 Tòa nhà Trực thăng Miền Trung, đường Nguyễn Văn Linh, Phường Hòa Cường, Đà Nẵng\n\n© 2026 Travel Plus. Nội dung và thương hiệu thuộc Travel Plus; hình ảnh minh họa có thể thuộc đối tác hoặc nguồn được cấp phép.\n\nLượt truy cập:\n6.115"
+  }
+}

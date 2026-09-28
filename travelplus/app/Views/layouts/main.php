@@ -245,6 +245,7 @@ if ($analyticsEventName === '') {
 <?php endforeach; ?>
 <link rel="stylesheet" href="<?= esc($widgetCssAssetUrl, 'attr') ?>">
 <link rel="stylesheet" href="<?= esc($languagePreferenceCssAssetUrl, 'attr') ?>">
+<link rel="stylesheet" href="<?= esc(frontend_asset_url('assets/css/ui-system.css'), 'attr') ?>">
 <?php if ($usesSwiper): ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"/>
 
@@ -252,18 +253,22 @@ if ($analyticsEventName === '') {
 <?php endif; ?>
 </head>
 <body
-    class="<?= esc($bodyClass) ?>"
+    class="tp-ui <?= esc($bodyClass) ?>"
     data-base-url="<?= esc(base_url(), 'attr') ?>"
     data-localized-url="<?= esc(localized_url(), 'attr') ?>"
     data-csrf-token-name="<?= esc(csrf_token(), 'attr') ?>"
     data-csrf-token="<?= esc(csrf_hash(), 'attr') ?>">
 
+<a class="site-skip-link" href="#site-main-content"><?= $currentLocale === 'en' ? 'Skip to content' : 'Bỏ qua menu, đến nội dung' ?></a>
 <?php if ($showLanguageEntry): ?>
 <?= $this->include('partials/language-entry') ?>
 <?php endif; ?>
 <?= $this->include($isInboundLanding ? 'inbound/header' : 'partials/header') ?>
 <?= $this->include('layouts/breadcrumb') ?>
+<?php $contentWrapperTag = preg_match('/<main\b/i', $contentSection) === 1 ? 'div' : 'main'; ?>
+<<?= $contentWrapperTag ?> id="site-main-content" tabindex="-1">
 <?= $contentSection ?>
+</<?= $contentWrapperTag ?>>
 <?= $this->include($isInboundLanding ? 'inbound/footer' : 'partials/footer') ?>
 <?php if ($showAiChatbox): ?>
 <?= $this->include('partials/ai-chatbox') ?>

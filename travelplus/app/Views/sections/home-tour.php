@@ -35,36 +35,9 @@ $copy = $locale === 'en'
 <?php if ($featuredTours !== []): ?>
 <section class="home-page__tour-grid home-tour-section home-summer-section home-section" aria-labelledby="home-tour-title">
     <div class="container">
-        <div class="home-summer-spotlight">
-            <div class="home-summer-spotlight__copy">
-                <span class="home-summer-spotlight__eyebrow"><i class="bi bi-compass" aria-hidden="true"></i><?= esc($copy['eyebrow']) ?></span>
-                <h2 id="home-tour-title"><?= esc($copy['title']) ?></h2>
-                <p><?= esc($copy['desc']) ?></p>
-
-                <ul class="home-summer-spotlight__highlights" aria-label="<?= esc($copy['eyebrow'], 'attr') ?>">
-                    <?php foreach ($copy['highlights'] as $highlight): ?>
-                        <li><i class="bi <?= esc($highlight['icon'], 'attr') ?>" aria-hidden="true"></i><?= esc($highlight['label']) ?></li>
-                    <?php endforeach; ?>
-                </ul>
-
-                <div class="home-summer-spotlight__actions">
-                    <a class="home-summer-spotlight__primary" href="<?= esc($allToursUrl, 'attr') ?>">
-                        <?= esc($copy['campaignCta']) ?>
-                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
-                    </a>
-                    <a class="home-summer-spotlight__secondary" href="<?= esc($allToursUrl, 'attr') ?>">
-                        <?= esc($copy['allToursCta']) ?>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="home-summer-list-head">
-            <h3><?= esc($copy['listTitle']) ?></h3>
-            <a href="<?= esc($allToursUrl, 'attr') ?>">
-                <?= esc($copy['campaignCta']) ?>
-                <i class="bi bi-arrow-right" aria-hidden="true"></i>
-            </a>
+        <div class="home-section-head">
+            <div><h2 id="home-tour-title"><?= esc($copy['listTitle']) ?></h2><p><?= esc($copy['desc']) ?></p></div>
+            <a class="home-section-link" href="<?= esc($allToursUrl, 'attr') ?>"><?= esc($copy['allToursCta']) ?> <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
         </div>
 
         <div class="home-tour-grid">

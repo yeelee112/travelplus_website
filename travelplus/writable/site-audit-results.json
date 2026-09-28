@@ -1,0 +1,1235 @@
+{
+  "results": [
+    {
+      "route": "/",
+      "status": 200,
+      "finalUrl": "http://localhost/",
+      "desktop": {
+        "title": "Travel Plus | Tour, Visa và MICE chuyên nghiệp cho doanh nghiệp",
+        "h1": [
+          "Chuyến đi mới,\nkỷ niệm đáng nhớ.",
+          "\n            \n                \n                    \n                    4.6.4                \n            \n        "
+        ],
+        "width": 1440,
+        "description": "Travel Plus tư vấn tour nước ngoài, tour trong nước, dịch vụ visa và tổ chức MICE chuyên nghiệp cho doanh nghiệp, gia đình và đoàn khách.",
+        "canonical": "http://localhost/",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "cls": "home-tour-grid__item"
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "package-card tp-tour-card"
+          },
+          {
+            "tag": "DIV",
+            "cls": "package-img-wrap tp-tour-card__media"
+          },
+          {
+            "tag": "A",
+            "cls": "package-img tp-tour-card__image"
+          },
+          {
+            "tag": "IMG",
+            "cls": ""
+          },
+          {
+            "tag": "DIV",
+            "cls": "tp-tour-card__tools"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/tim-kiem-tour",
+      "status": 200,
+      "finalUrl": "http://localhost/tim-kiem-tour",
+      "desktop": {
+        "title": "Tìm tour | Travel Plus",
+        "h1": [
+          "Kết quả tìm tour"
+        ],
+        "width": 1440,
+        "description": "Tìm các tour phù hợp theo điểm đến, điểm tham quan hoặc ngày khởi hành tại Travel Plus.",
+        "canonical": "http://localhost/tim-kiem-tour",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/tour-mua-thu",
+      "status": 200,
+      "finalUrl": "http://localhost/tour-mua-thu",
+      "desktop": {
+        "title": "Tour mùa thu — Hẹn nhau giữa mùa lá đỏ | Travel Plus",
+        "h1": [
+          "Thu sang.\nĐi thôi!"
+        ],
+        "width": 1440,
+        "description": "Khám phá mùa thu Nhật Bản, Hàn Quốc và Việt Nam. Tìm hành trình yêu thích và nhận tư vấn lịch khởi hành cùng Travel Plus.",
+        "canonical": "http://localhost/tour-mua-thu",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": ""
+          },
+          {
+            "tag": "I",
+            "cls": "bi bi-arrow-up-right"
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "at-region-card"
+          },
+          {
+            "tag": "DIV",
+            "cls": "at-region-photo"
+          },
+          {
+            "tag": "IMG",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/tour-nuoc-ngoai",
+      "status": 200,
+      "finalUrl": "http://localhost/tour-nuoc-ngoai",
+      "desktop": {
+        "title": "Tour nước ngoài | Travel Plus",
+        "h1": [
+          "Tour nước ngoài"
+        ],
+        "width": 1440,
+        "description": "Xem các tour nước ngoài của Travel Plus đến châu Á, châu Âu, châu Mỹ và nhiều điểm đến khác.",
+        "canonical": "http://localhost/tour-nuoc-ngoai",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/tour-trong-nuoc",
+      "status": 200,
+      "finalUrl": "http://localhost/tour-trong-nuoc",
+      "desktop": {
+        "title": "Tour trong nước | Travel Plus",
+        "h1": [
+          "Tour trong nước"
+        ],
+        "width": 1440,
+        "description": "Khám phá các tour trong nước theo miền Bắc, Trung, Nam và miền Tây cùng Travel Plus.",
+        "canonical": "http://localhost/tour-trong-nuoc",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/ve-chung-toi",
+      "status": 200,
+      "finalUrl": "http://localhost/ve-chung-toi",
+      "desktop": {
+        "title": "Về chúng tôi | Travel Plus",
+        "h1": [
+          "Vì sao Travel Plus là lựa chọn đáng tin cậy?"
+        ],
+        "width": 1440,
+        "description": "Tìm hiểu về Travel Plus, các dịch vụ du lịch và cách chúng tôi xây dựng những hành trình ý nghĩa.",
+        "canonical": "http://localhost/ve-chung-toi",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "LI",
+            "cls": "single-service"
+          },
+          {
+            "tag": "DIV",
+            "cls": "content"
+          },
+          {
+            "tag": "H4",
+            "cls": ""
+          },
+          {
+            "tag": "P",
+            "cls": ""
+          },
+          {
+            "tag": "LI",
+            "cls": "single-service"
+          },
+          {
+            "tag": "DIV",
+            "cls": "content"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/dich-vu-visa",
+      "status": 200,
+      "finalUrl": "http://localhost/dich-vu-visa",
+      "desktop": {
+        "title": "Dịch vụ Visa Mỹ, Canada, Úc, Schengen | Travel Plus",
+        "h1": [
+          "Dịch vụ làm visa Mỹ, Canada, Úc, Schengen uy tín",
+          "\n            \n                \n                    \n                    4.6.4                \n            \n        "
+        ],
+        "width": 1440,
+        "description": "Dịch vụ làm visa Mỹ, Canada, Úc, Schengen. Travel Plus gần 20 năm kinh nghiệm, hỗ trợ toàn quốc và kiểm tra hồ sơ miễn phí ban đầu.",
+        "canonical": "http://localhost/dich-vu-visa",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "cls": "col-lg-4 col-md-6"
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "visa-why-card"
+          },
+          {
+            "tag": "H3",
+            "cls": ""
+          },
+          {
+            "tag": "P",
+            "cls": ""
+          },
+          {
+            "tag": "DIV",
+            "cls": "col-lg-4 col-md-6"
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "visa-why-card"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/dich-vu-mice",
+      "status": 200,
+      "finalUrl": "http://localhost/dich-vu-mice",
+      "desktop": {
+        "title": "Dịch vụ MICE Doanh nghiệp, Hội nghị Y khoa | Travel Plus",
+        "h1": [
+          "Tổ chức MICE chuyên nghiệp cho doanh nghiệp",
+          "\n            \n                \n                    \n                    4.6.4                \n            \n        "
+        ],
+        "width": 1440,
+        "description": "Travel Plus tổ chức MICE, corporate event, Medical Congress, incentive tour, team building, gala dinner. Nhận proposal trong 24 giờ.",
+        "canonical": "http://localhost/dich-vu-mice",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "ARTICLE",
+            "cls": "mice-page__pain-card"
+          },
+          {
+            "tag": "H3",
+            "cls": ""
+          },
+          {
+            "tag": "P",
+            "cls": ""
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "mice-page__pain-card"
+          },
+          {
+            "tag": "H3",
+            "cls": ""
+          },
+          {
+            "tag": "P",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/dich-vu-ve-may-bay",
+      "status": 200,
+      "finalUrl": "http://localhost/dich-vu-ve-may-bay",
+      "desktop": {
+        "title": "Dịch vụ vé máy bay | Travel Plus",
+        "h1": [
+          "Đặt vé máy bay nhanh, đúng hành trình và có người theo sát khi lịch thay đổi."
+        ],
+        "width": 1440,
+        "description": "Travel Plus hỗ trợ đặt vé máy bay lẻ, đoàn, công tác doanh nghiệp và xử lý thay đổi hành trình khi cần.",
+        "canonical": "http://localhost/dich-vu-ve-may-bay",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "ARTICLE",
+            "cls": "service-metric-card"
+          },
+          {
+            "tag": "H3",
+            "cls": ""
+          },
+          {
+            "tag": "P",
+            "cls": ""
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "service-metric-card"
+          },
+          {
+            "tag": "DIV",
+            "cls": "service-metric-icon"
+          },
+          {
+            "tag": "I",
+            "cls": "bi bi-arrow-repeat"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/dich-vu-van-chuyen",
+      "status": 200,
+      "finalUrl": "http://localhost/dich-vu-van-chuyen",
+      "desktop": {
+        "title": "Dịch vụ vận chuyển | Travel Plus",
+        "h1": [
+          "Giải pháp vận chuyển đúng giờ, đúng tải và phù hợp với từng hành trình."
+        ],
+        "width": 1440,
+        "description": "Travel Plus cung cấp vận chuyển sân bay, xe riêng, xe đoàn và điều phối di chuyển cho tour, sự kiện, hội nghị.",
+        "canonical": "http://localhost/dich-vu-van-chuyen",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "ARTICLE",
+            "cls": "service-metric-card"
+          },
+          {
+            "tag": "H3",
+            "cls": ""
+          },
+          {
+            "tag": "P",
+            "cls": ""
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "service-metric-card"
+          },
+          {
+            "tag": "DIV",
+            "cls": "service-metric-icon"
+          },
+          {
+            "tag": "I",
+            "cls": "bi bi-shield-check"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/dich-vu-dich-thuat",
+      "status": 200,
+      "finalUrl": "http://localhost/dich-vu-dich-thuat",
+      "desktop": {
+        "title": "Dịch vụ dịch thuật | Travel Plus",
+        "h1": [
+          "Dịch đúng ngữ cảnh để hồ sơ, tài liệu và nội dung vận hành sử dụng được ngay."
+        ],
+        "width": 1440,
+        "description": "Travel Plus hỗ trợ dịch thuật hồ sơ visa, tài liệu công tác, booking và các nội dung song ngữ phục vụ vận hành du lịch.",
+        "canonical": "http://localhost/dich-vu-dich-thuat",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "ARTICLE",
+            "cls": "service-metric-card"
+          },
+          {
+            "tag": "H3",
+            "cls": ""
+          },
+          {
+            "tag": "P",
+            "cls": ""
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "service-metric-card"
+          },
+          {
+            "tag": "DIV",
+            "cls": "service-metric-icon"
+          },
+          {
+            "tag": "I",
+            "cls": "bi bi-check2-square"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/dich-vu-khach-san",
+      "status": 200,
+      "finalUrl": "http://localhost/dich-vu-khach-san",
+      "desktop": {
+        "title": "Dịch vụ khách sạn | Travel Plus",
+        "h1": [
+          "Đặt khách sạn đúng vị trí, đúng tiêu chuẩn và phù hợp với mục đích chuyến đi."
+        ],
+        "width": 1440,
+        "description": "Travel Plus hỗ trợ đặt khách sạn cho du lịch tự túc, công tác doanh nghiệp, hội nghị và đoàn MICE.",
+        "canonical": "http://localhost/dich-vu-khach-san",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "ARTICLE",
+            "cls": "service-metric-card"
+          },
+          {
+            "tag": "H3",
+            "cls": ""
+          },
+          {
+            "tag": "P",
+            "cls": ""
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "service-metric-card"
+          },
+          {
+            "tag": "DIV",
+            "cls": "service-metric-icon"
+          },
+          {
+            "tag": "I",
+            "cls": "bi bi-grid-1x2"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/cam-hung-du-lich",
+      "status": 200,
+      "finalUrl": "http://localhost/cam-hung-du-lich",
+      "desktop": {
+        "title": "Cảm hứng du lịch | Travel Plus",
+        "h1": [
+          "Cảm hứng du lịch"
+        ],
+        "width": 1440,
+        "description": "Đọc các bài viết truyền cảm hứng du lịch, ý tưởng điểm đến và kinh nghiệm lên kế hoạch cùng Travel Plus.",
+        "canonical": "http://localhost/cam-hung-du-lich",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/tour-theo-yeu-cau",
+      "status": 200,
+      "finalUrl": "http://localhost/tour-theo-yeu-cau",
+      "desktop": {
+        "title": "Thiết kế tour theo yêu cầu, du lịch riêng | Travel Plus",
+        "h1": [
+          "Thiết kế tour\ntheo yêu cầu",
+          "\n            \n                \n                    \n                    4.6.4                \n            \n        "
+        ],
+        "width": 1440,
+        "description": "Thiết kế tour theo yêu cầu cùng TravelPlus. Lịch trình riêng cho gia đình, nhóm bạn, doanh nghiệp; linh hoạt ngày đi và ngân sách. Gửi nhu cầu để nhận tư vấn.",
+        "canonical": "http://localhost/tour-theo-yeu-cau",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/contact",
+      "status": 200,
+      "finalUrl": "http://localhost/contact",
+      "desktop": {
+        "title": "Liên hệ | Travel Plus",
+        "h1": [
+          "Gửi nhu cầu của bạn. Travel Plus sẽ tư vấn lịch trình phù hợp.",
+          "\n            \n                \n                    \n                    4.6.4                \n            \n        "
+        ],
+        "width": 1440,
+        "description": "Liên hệ Travel Plus để được tư vấn tour, hỗ trợ đặt chỗ và thiết kế hành trình theo yêu cầu.",
+        "canonical": "http://localhost/contact",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/travelplus-reward",
+      "status": 200,
+      "finalUrl": "http://localhost/travelplus-reward",
+      "desktop": {
+        "title": "Travel Plus Reward – Hạng thành viên và quyền lợi",
+        "h1": [
+          "Mỗi hành trình, thêm nhiều quyền lợi"
+        ],
+        "width": 1440,
+        "description": "Khám phá các hạng Travel Plus Reward, cách tích Điểm thành viên, quyền lợi theo hạng và đổi voucher.",
+        "canonical": "http://localhost/travelplus-reward",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "SPAN",
+            "cls": "travelplus-passport-card__glow"
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/account/login",
+      "status": 200,
+      "finalUrl": "http://localhost/account/login",
+      "desktop": {
+        "title": "Travel Plus",
+        "h1": [
+          "Đăng nhập tài khoản"
+        ],
+        "width": 1440,
+        "description": "Travel Plus travel services and tour packages.",
+        "canonical": "http://localhost/account/login",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/account/register",
+      "status": 200,
+      "finalUrl": "http://localhost/account/register",
+      "desktop": {
+        "title": "Travel Plus",
+        "h1": [
+          "Đăng ký tài khoản",
+          "\n            \n                \n                    \n                    4.6.4                \n            \n        "
+        ],
+        "width": 1440,
+        "description": "Travel Plus travel services and tour packages.",
+        "canonical": "http://localhost/account/register",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/booking/lookup",
+      "status": 200,
+      "finalUrl": "http://localhost/booking/lookup",
+      "desktop": {
+        "title": "Tra cứu booking | Travel Plus",
+        "h1": [
+          "Tra cứu booking"
+        ],
+        "width": 1440,
+        "description": "Tra cứu trạng thái booking Travel Plus bằng mã booking và thông tin liên hệ.",
+        "canonical": "http://localhost/booking/lookup",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/dieu-khoan-su-dung",
+      "status": 200,
+      "finalUrl": "http://localhost/dieu-khoan-su-dung",
+      "desktop": {
+        "title": "Điều khoản sử dụng dịch vụ Travel Plus | Tour, Visa, MICE",
+        "h1": [
+          "Điều khoản sử dụng"
+        ],
+        "width": 1440,
+        "description": "Điều khoản sử dụng website và dịch vụ Travel Plus: tour du lịch, visa, vé máy bay, khách sạn, MICE, vận chuyển, thanh toán, hủy đổi và trách nhiệm các bên.",
+        "canonical": "http://localhost/dieu-khoan-su-dung",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/chinh-sach-bao-mat",
+      "status": 200,
+      "finalUrl": "http://localhost/chinh-sach-bao-mat",
+      "desktop": {
+        "title": "Chính sách bảo mật thông tin khách hàng | Travel Plus",
+        "h1": [
+          "Chính sách bảo mật"
+        ],
+        "width": 1440,
+        "description": "Chính sách bảo mật Travel Plus mô tả cách thu thập, sử dụng, lưu trữ, chia sẻ và bảo vệ dữ liệu cá nhân khi khách hàng dùng website, tour, visa, MICE và dịch vụ liên quan.",
+        "canonical": "http://localhost/chinh-sach-bao-mat",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/en",
+      "status": 200,
+      "finalUrl": "http://localhost/en",
+      "desktop": {
+        "title": "Travel Plus | Tours, Visa and Professional MICE Services",
+        "h1": [
+          "A new journey.\nMemories to keep."
+        ],
+        "width": 1440,
+        "description": "Travel Plus provides outbound tours, domestic tours, visa support and professional MICE services for enterprises, families and group travelers.",
+        "canonical": "http://localhost/en",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "cls": "home-tour-grid__item"
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "package-card tp-tour-card tp-tour-card--promo has-tour-promotion"
+          },
+          {
+            "tag": "DIV",
+            "cls": "package-img-wrap tp-tour-card__media"
+          },
+          {
+            "tag": "A",
+            "cls": "package-img tp-tour-card__image"
+          },
+          {
+            "tag": "IMG",
+            "cls": ""
+          },
+          {
+            "tag": "DIV",
+            "cls": "tour-campaigns"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/en/tour-search",
+      "status": 200,
+      "finalUrl": "http://localhost/en/tour-search",
+      "desktop": {
+        "title": "Tour Search | Travel Plus",
+        "h1": [
+          "Tour Search Results"
+        ],
+        "width": 1440,
+        "description": "Search matching tours by destination, landmark or departure date at Travel Plus.",
+        "canonical": "http://localhost/en/tour-search",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/en/autumn-tours",
+      "status": 200,
+      "finalUrl": "http://localhost/en/autumn-tours",
+      "desktop": {
+        "title": "Autumn journeys | Travel Plus",
+        "h1": [
+          "Autumn is here.\nLet’s go!"
+        ],
+        "width": 1440,
+        "description": "Find your autumn escape in Japan, Korea and Vietnam. Explore tours and plan your journey with Travel Plus.",
+        "canonical": "http://localhost/en/autumn-tours",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": ""
+          },
+          {
+            "tag": "I",
+            "cls": "bi bi-arrow-up-right"
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "at-region-card"
+          },
+          {
+            "tag": "DIV",
+            "cls": "at-region-photo"
+          },
+          {
+            "tag": "IMG",
+            "cls": ""
+          },
+          {
+            "tag": "DIV",
+            "cls": "at-region-overlay"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/admin/tours",
+      "status": 200,
+      "finalUrl": "http://localhost/account/login",
+      "desktop": {
+        "title": "Travel Plus",
+        "h1": [
+          "Đăng nhập tài khoản"
+        ],
+        "width": 1440,
+        "description": "Travel Plus travel services and tour packages.",
+        "canonical": "http://localhost/account/login",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          },
+          {
+            "tag": "A",
+            "cls": "travelplus-footer__office"
+          },
+          {
+            "tag": "STRONG",
+            "cls": ""
+          },
+          {
+            "tag": "SPAN",
+            "cls": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/booking/checkout",
+      "status": 200,
+      "finalUrl": "http://localhost/",
+      "desktop": {
+        "title": "Travel Plus | Tour, Visa và MICE chuyên nghiệp cho doanh nghiệp",
+        "h1": [
+          "Chuyến đi mới,\nkỷ niệm đáng nhớ."
+        ],
+        "width": 1440,
+        "description": "Travel Plus tư vấn tour nước ngoài, tour trong nước, dịch vụ visa và tổ chức MICE chuyên nghiệp cho doanh nghiệp, gia đình và đoàn khách.",
+        "canonical": "http://localhost/",
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "cls": "home-tour-grid__item"
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "package-card tp-tour-card"
+          },
+          {
+            "tag": "DIV",
+            "cls": "package-img-wrap tp-tour-card__media"
+          },
+          {
+            "tag": "A",
+            "cls": "package-img tp-tour-card__image"
+          },
+          {
+            "tag": "IMG",
+            "cls": ""
+          },
+          {
+            "tag": "DIV",
+            "cls": "tp-tour-card__tools"
+          }
+        ]
+      },
+      "errors": [],
+      "failed": []
+    },
+    {
+      "route": "/audit-page-not-found",
+      "status": 404,
+      "finalUrl": "http://localhost/audit-page-not-found",
+      "desktop": {
+        "title": "404 | Không tìm thấy trang bạn cần | Travel Plus",
+        "h1": [
+          "Không tìm thấy trang bạn cần"
+        ],
+        "width": 1440,
+        "imgs": []
+      },
+      "mobile": {
+        "width": 375,
+        "overflow": []
+      },
+      "errors": [],
+      "failed": [
+        {
+          "url": "http://localhost/audit-page-not-found",
+          "status": 404
+        }
+      ]
+    }
+  ],
+  "tourLinks": [
+    "http://localhost/tour-trong-nuoc/mien-bac/tour/tinh-hoa-viet-nam-10n9d",
+    "http://localhost/tour-trong-nuoc/mien-bac/tour/ha-noi-sapa-3n2d",
+    "http://localhost/tour-trong-nuoc/mien-trung/tour/ha-noi-da-nang-4n3d"
+  ]
+}

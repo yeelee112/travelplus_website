@@ -48,7 +48,7 @@ $value = static fn (string $key): string => (string) old($key, (string) ($settin
 </head>
 <body class="admin-app">
 <?= view('admin/partials/app_start', ['adminSection' => 'website_settings']) ?>
-<main class="settings-page">
+<main class="settings-page tp-admin-ui">
     <section class="settings-panel">
         <div class="settings-hero">
             <span class="settings-hero__eyebrow">Thông tin công khai</span>

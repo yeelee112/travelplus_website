@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bộ sưu tập tour | Travel Plus</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"><link href="<?= esc(frontend_asset_url('assets/css/admin.css'),'attr') ?>" rel="stylesheet"></head>
-<body class="bg-light"><main class="container py-5" style="max-width:1080px">
+<body class="bg-light"><main class="container py-5 tp-admin-ui" style="max-width:1080px">
 <a href="<?= site_url('admin/tours') ?>">← Quản lý tour</a><h1 class="h3 mt-4">Bộ sưu tập tour</h1><p class="text-secondary">Tạo mùa hoặc chiến dịch mới, sau đó chọn bộ sưu tập khi tạo/sửa tour. Một tour có thể thuộc nhiều bộ sưu tập.</p>
 <?php foreach (['error'=>'danger','success'=>'success'] as $key=>$class): ?><?php if ($message=session()->getFlashdata($key)): ?><div role="status" class="alert alert-<?= $class ?>"><?= esc($message) ?></div><?php endif ?><?php endforeach ?>
 <?php if (empty($collectionsReady)): ?>

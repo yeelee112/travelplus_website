@@ -8224,8 +8224,7 @@ header.style-1.two.site-header-modern .main-menu > ul > li.menu-open > ul.sub-me
         padding: 10px 2px;
         gap: 12px;}
 .site-header-modern .header-logo.d-lg-none{flex: 0 0 auto;}
-.site-header-modern .header-logo.d-lg-none img{width: 150px;
-        max-width: 150px;}
+.site-header-modern .header-logo.d-lg-none img{width: 175px; max-width: 175px; height: auto;}
 .site-header-modern .nav-right{margin-left: auto;
         gap: 10px;
         align-items: center;}
@@ -8292,8 +8291,7 @@ header.style-1.two.site-header-modern .main-menu > ul > li.menu-open > ul.sub-me
         width: 28px;
         height: 28px;}
 }
-@media (max-width: 576px){.site-header-modern .header-logo.d-lg-none img{width: 144px;
-        max-width: 144px;}
+@media (max-width: 576px){.site-header-modern .header-logo.d-lg-none img{width: 160px; max-width: 160px;}
 .site-header-modern .nav-right{gap: 8px;}
 .site-header-modern .nav-right .search-bar .search-btn, .site-header-modern .nav-right .mobile-menu-btn{min-width: 42px;
         max-width: 42px;
@@ -9113,7 +9111,7 @@ header.style-1.two .language-and-login-area .account-dropdown .account-list.acti
         justify-items:center;
     }
 .header-brand-stage__logo img{
-        width:165px;
+        width:210px;
         height:auto;
     }
 }
@@ -9608,4 +9606,20 @@ header.style-1.two.site-header-modern .main-menu > ul > li > a{ line-height:1.45
 }
 @media (max-width:1199px){header.style-1.two.site-header-modern .main-menu .menu-list > li > a{ padding-left:12px !important; border-radius:12px; }
 header.style-1.two.site-header-modern .main-menu .menu-list > li.current-menu-item > a{ color:#0477a5; background:linear-gradient(180deg, rgba(213,245,255,.95), rgba(231,250,255,.86)); }
+}
+
+
+/* Keyboard navigation and the shared content entry point. */
+.site-skip-link { position:fixed; top:12px; left:12px; z-index:100000; padding:12px 18px; background:#fff; color:#075a78; border:2px solid #0086ad; border-radius:8px; transform:translateY(-160%); font-size:14px; font-weight:600; }
+.site-skip-link:focus { transform:translateY(0); }
+#site-main-content { scroll-margin-top:100px; }
+#site-main-content:focus { outline:none; }
+.site-header-modern .mobile-menu-btn { border:0; padding:0; }
+.site-header-modern .menu-close-btn { padding:0; background:#fff; }
+.site-header-modern :is(.mobile-menu-btn,.menu-close-btn,.dropdown-icon):focus-visible { outline:2px solid #007da5; outline-offset:3px; }
+
+/* Keep the shared footer grid inside tablet viewports. */
+@media (min-width:768px) and (max-width:1199px) {
+ .travelplus-footer__grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .travelplus-footer__grid > * { min-width:0; }
 }
