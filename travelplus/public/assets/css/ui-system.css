@@ -1,6 +1,10 @@
 /* Shared UI scale. Add new components here or use the tp-ui-* utility classes.
    This file loads after page bundles. Decorative icons and headings keep their own scale. */
 :root {
+ --tp-font-sans:"Google Sans", Arial, Helvetica, sans-serif;
+ --font-main:var(--tp-font-sans);
+ --bs-font-sans-serif:var(--tp-font-sans);
+ --bs-body-font-family:var(--tp-font-sans);
  --tp-text-caption:12px;
  --tp-text-control:14px;
  --tp-leading-caption:1.5;

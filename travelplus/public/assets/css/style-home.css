@@ -3266,3 +3266,14 @@ body.home-search-layer-open .tp-ai-chatbox{z-index: 12;
  .home-hero-rotation { font-size:11px; padding:6px; }
  .home-hero-redesign .home-hero-heading-tools .home-modern-eyebrow { max-width:170px; line-height:1.5; }
 }
+
+/* Reserve clear-action space so selecting a destination does not resize the field. */
+.home-hero-redesign .destination-box .home-modern-search__input-wrap {
+ position:relative; grid-template-columns:auto minmax(0,1fr) 32px;
+}
+.home-hero-redesign .destination-box .clear-destination {
+ position:absolute; right:0; top:50%; transform:translateY(-50%);
+ display:flex; align-items:center; justify-content:center;
+ width:32px; height:32px; min-height:0; padding:0; line-height:1;
+}
+.home-hero-redesign .destination-box .clear-destination.hidden { display:none; }

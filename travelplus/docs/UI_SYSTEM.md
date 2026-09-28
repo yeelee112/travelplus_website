@@ -4,6 +4,7 @@ Nguồn duy nhất: `public/assets/css/ui-system.css`.
 
 | Vai trò | Quy tắc |
 | --- | --- |
+| Font giao diện | Google Sans; fallback Arial, Helvetica, sans-serif qua `--tp-font-sans` |
 | Chữ phụ, metadata, ghi chú, quyền lợi thành viên | 12px, line-height 1.5 |
 | Nhãn form và chữ nút | 14px, line-height 1.4 |
 | Icon bên chữ phụ | 14px, hộp 1em, canh giữa |
@@ -36,3 +37,5 @@ Khi publish phải upload cả file nguồn UI dùng qua import quản trị và
 ## Kiểm tra
 
 Script local: `node writable/ui-system-check.cjs`. Kiểm tra kích thước chữ thực tế và tràn ngang trên 11 trang ở 320/375/768/1440px. Luồng checkout được kiểm tra riêng bằng `writable/site-audit-booking.cjs`. Đã đăng nhập kiểm tra 9 trang quản trị và form sửa tour trên local ở 375/768/1440px. Đã sửa nút đầu trang bị bó hẹp trên mobile; bổ sung phạm vi CSS cho Bộ sưu tập và Cấu hình website. Kiểm tra giao diện, không gửi form thay đổi dữ liệu.
+
+Font quản trị áp dụng ở body, không phụ thuộc class `admin-app`; trang Hội thoại AI và Bộ sưu tập dùng cùng font. Đã kiểm tra font tải thực tế bằng trình duyệt, bao gồm Google Sans thực sự render ở tiêu đề `/admin/chat-history`. Các vùng mã nguồn/log monospace và chữ trang trí mùa thu có chủ đích vẫn giữ font chuyên biệt.

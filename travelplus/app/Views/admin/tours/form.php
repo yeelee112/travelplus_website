@@ -145,7 +145,7 @@
             .admin-shell { margin:16px auto; padding:0 10px; }
             .admin-card { padding:14px; border-radius:18px; }
             .sticky-action-bar > div:first-child { display:none; }
-            .sticky-action-bar .toolbar-wrap { width:100%; }
+            .sticky-action-bar .toolbar-wrap { width:100%; flex-wrap:wrap; }
             .toolbar-wrap .btn { flex:1 1 auto; }
             .step-nav-actions { width:100%; }
             .step-nav-actions .btn { flex:1; }

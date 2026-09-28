@@ -41,6 +41,7 @@
         .crm-update { position:absolute; right:0; top:48px; z-index:5; width:340px; padding:14px; border:1px solid #dce4ec; border-radius:16px; background:#fff; box-shadow:0 22px 55px rgba(15,23,42,.16); }
         .crm-empty { padding:46px 18px; border:1px dashed #cfd8e3; border-radius:16px; background:#fbfcfe; text-align:center; color:#64748b; }
         @media (max-width: 1199px) {
+            .crm-filter { grid-template-columns:repeat(2,minmax(0,1fr)); }
             .crm-row { grid-template-columns:minmax(240px,1fr) minmax(220px,1fr); }
             .crm-actions { grid-column:1 / -1; }
             .crm-update { left:0; right:auto; width:min(420px,100%); }

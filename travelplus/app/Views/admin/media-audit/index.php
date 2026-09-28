@@ -21,8 +21,8 @@ $formatBytes = static function (int $bytes): string {
     <link href="<?= esc(frontend_asset_url('assets/css/admin.css'), 'attr') ?>" rel="stylesheet">
     <style>
         body { background:#f5f7fa; color:#172033; }
-        .media-page { max-width:1320px; margin:28px auto; padding:0 16px; display:grid; gap:18px; }
-        .media-panel { background:#fff; border:1px solid #dfe6ee; border-radius:8px; box-shadow:0 8px 24px rgba(24,39,75,.05); }
+        .media-page { max-width:1320px; margin:28px auto; padding:0 16px; display:grid; grid-template-columns:minmax(0,1fr); gap:18px; }
+        .media-panel { min-width:0; background:#fff; border:1px solid #dfe6ee; border-radius:8px; box-shadow:0 8px 24px rgba(24,39,75,.05); }
         .media-hero { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:24px; }
         .media-hero h1 { margin:0 0 7px; color:#0b1f38; font-size:28px; font-weight:800; line-height:1.2; }
         .media-hero p { max-width:820px; margin:0; color:#65748a; line-height:1.55; }
@@ -55,7 +55,7 @@ $formatBytes = static function (int $bytes): string {
         @media (max-width: 767px) {
             .media-page { margin:16px auto; padding:0 12px; }
             .media-hero, .media-section { padding:18px; }
-            .media-hero, .media-section__head, .media-toolbar { display:grid; }
+            .media-hero, .media-section__head, .media-toolbar { display:grid; grid-template-columns:minmax(0,1fr); }
             .media-hero h1 { font-size:24px; }
             .media-summary { grid-template-columns:1fr 1fr; }
             .media-stat { padding:15px; }

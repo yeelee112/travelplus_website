@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
 
 :root {
-    --admin-font-main: "Google Sans", Arial, Helvetica, sans-serif;
+    --admin-font-main:var(--tp-font-sans);
     --admin-bg: #f5f7fb;
     --admin-surface: #ffffff;
     --admin-surface-soft: #f8fbff;
@@ -17,6 +17,10 @@
     --admin-warning: #9f6500;
     --admin-danger: #bc3229;
 }
+
+/* Apply typography to every admin page, including standalone screens. */
+body { font-family:var(--admin-font-main); }
+input, button, select, textarea { font-family:inherit; }
 
 body.admin-app {
     font-family: var(--admin-font-main);

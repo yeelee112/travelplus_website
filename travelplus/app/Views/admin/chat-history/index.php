@@ -33,7 +33,7 @@ $active = $report['conversation'];
 </head>
 <body>
 <?= view('admin/partials/app_start', ['adminSection' => 'chat_history']) ?>
-<main class="chat-history">
+<main class="chat-history tp-admin-ui">
     <h1>Hội thoại AI</h1>
     <p class="text-secondary">Lịch sử được lưu tối đa 14 ngày. Số điện thoại và email trong tin nhắn được ẩn.</p>
     <form method="get" action="<?= esc(site_url('admin/chat-history'), 'attr') ?>" class="chat-filters">

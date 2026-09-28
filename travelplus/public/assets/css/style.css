@@ -23861,3 +23861,14 @@ body.modal-open .tour-detail-content .pricing-and-booking-area{visibility:hidden
 /* Anchor the sidebar Reward tooltip inward, including when visually hidden. */
 .tour-detail-loyalty-preview--sidebar::after { left:auto; right:0; }
 .tour-detail-loyalty-preview--sidebar::before { left:auto; right:18px; }
+
+/* Reserve clear-action space so selecting a destination does not resize the field. */
+.home-hero-redesign .destination-box .home-modern-search__input-wrap {
+ position:relative; grid-template-columns:auto minmax(0,1fr) 32px;
+}
+.home-hero-redesign .destination-box .clear-destination {
+ position:absolute; right:0; top:50%; transform:translateY(-50%);
+ display:flex; align-items:center; justify-content:center;
+ width:32px; height:32px; min-height:0; padding:0; line-height:1;
+}
+.home-hero-redesign .destination-box .clear-destination.hidden { display:none; }
