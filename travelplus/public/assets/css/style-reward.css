@@ -30,7 +30,7 @@
     line-height:1;
     letter-spacing:0;
     text-transform:none;}
-.tour-passport-price__badge .bi-stars{flex:0 0 auto;
+.tour-passport-price__badge .bi-person-vcard{flex:0 0 auto;
     font-size:12px;}
 .tour-passport-price__badge b{padding-left:4px;
     border-left:1px solid currentColor;
@@ -57,7 +57,7 @@
     text-transform:none;
     white-space:nowrap;}
 .tour-passport-price__hint .bi-arrow-right{font-size:11px;}
-.tour-passport-price--guest .tour-passport-price__hint>.bi-stars{color:#008ec4;
+.tour-passport-price--guest .tour-passport-price__hint>.bi-person-vcard{color:#008ec4;
     flex:0 0 auto;
     font-size:12px;}
 .tour-passport-price--guest,
@@ -242,3 +242,16 @@
 .tour-detail-hero__summary .tour-member-price__note{margin-top:10px;padding-top:9px;border-color:#e3ecf0;color:#647986}
 .tour-detail-hero__summary .tour-member-price__head{margin-bottom:10px}
 .tour-detail-hero__summary .tour-member-price__saving{margin-top:7px;font-size:12px}
+
+/* Membership is a benefit, not a button or an AI feature. */
+.tour-passport-price.tour-passport-price--guest {
+    padding:0; border:0; border-radius:0; background:none; margin-top:2px;
+}
+.tour-passport-price--guest .tour-passport-price__hint,
+.tp-tour-card__price .tour-passport-price--guest .tour-passport-price__hint {
+    display:inline-flex; align-items:center; gap:6px; color:#416477;
+    font-size:11px; font-weight:500; line-height:1.5; text-transform:none; white-space:normal;
+}
+.tour-passport-price .bi { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1; }
+.tour-passport-price .bi::before { display:block; line-height:1; vertical-align:0; }
+.tour-passport-price--guest .tour-passport-price__hint>.bi-person-vcard { font-size:14px; color:#087e9c; }

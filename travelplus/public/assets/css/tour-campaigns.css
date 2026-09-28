@@ -1,0 +1,41 @@
+/* Consistent card anatomy: campaigns occupy the photo, never an extra body row. */
+.home-tour-grid__item .package-card.tp-tour-card,
+.home-tour-section .package-card.tp-tour-card,
+.package-card.tp-tour-card {
+    height:100%; min-height:0; align-self:stretch;
+ }
+.tp-tour-card .tp-tour-card__content { display:flex; flex:1; }
+.tp-tour-card .tp-tour-card__title { min-height:2.5em; }
+.tp-tour-card .tp-tour-card__media .tp-tour-card__tools { top:12px; right:12px; bottom:auto; gap:7px; }
+.tp-tour-card .tp-tour-card__media .tp-tour-tool-btn { width:34px; height:34px; min-height:34px; padding:0; border-radius:50%; box-shadow:0 2px 8px #122b3a18; }
+.tp-tour-card__tools [data-tour-action-text] { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.tp-tour-card__media > .tour-campaigns,
+.at-tour-image > .tour-campaigns { position:absolute; z-index:2; left:12px; right:12px; bottom:12px; display:flex; flex-wrap:wrap; gap:7px; margin:0; pointer-events:none; }
+.tour-campaign { display:inline-flex; align-items:center; gap:7px; max-width:100%; padding:8px 11px; border:1px solid #ffffff30; border-radius:8px; box-shadow:0 2px 8px #10253322; }
+.tour-campaign--promotion { color:#fff; background:#075c73; }
+.tour-campaign--autumn { color:#583014; background:#ffe2aa; }
+.tour-campaign__icon { display:flex; flex:0 0 18px; }
+.tour-campaign__icon svg { width:18px; height:18px; }
+.tour-campaign__copy { min-width:0; }
+.tour-campaign__copy small { display:none; }
+.tour-campaign__copy strong { display:block; color:inherit; font-size:12px; font-weight:650; line-height:1.35; overflow-wrap:anywhere; }
+.at-tour-image:has(.tour-campaigns) > span { bottom:auto; top:12px; }
+/* Center font-icon glyphs independently of the text baseline. */
+.tp-tour-card .bi,
+.at-tour-card .bi {
+    display:inline-flex; align-items:center; justify-content:center;
+    flex-shrink:0; line-height:1; font-style:normal;
+}
+.tp-tour-card .bi::before,
+.at-tour-card .bi::before { display:block; line-height:1; vertical-align:0; }
+.tp-tour-card .tp-tour-tool-btn { position:relative; }
+.tp-tour-card .tp-tour-card__points { display:flex; align-items:center; gap:5px; line-height:1.45; }
+.tp-tour-card .tp-tour-card__points .bi { font-size:12px; }
+.package-card.tp-tour-card.has-tour-autumn,
+.at-tour-card.has-tour-autumn { border:2px solid #c65b19; box-shadow:0 8px 24px rgba(159,75,16,.18); }
+.tp-tour-card.has-tour-autumn .tp-tour-card__body,
+.at-tour-card.has-tour-autumn .at-tour-body { background:linear-gradient(135deg,#fff0d5 0%,#fff8eb 65%,#fffaf2 100%); }
+.tour-campaign--autumn { background:#a9400e; color:#fff; border-color:#e88b39; padding:10px 14px; box-shadow:0 4px 12px rgba(92,35,8,.3); }
+.tour-campaign--autumn .tour-campaign__icon { color:#ffe0a1; flex-basis:22px; }
+.tour-campaign--autumn .tour-campaign__icon svg { width:22px; height:22px; }
+.tour-campaign--autumn .tour-campaign__copy strong { font-size:13px; font-weight:750; }

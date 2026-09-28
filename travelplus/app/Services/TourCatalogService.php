@@ -426,24 +426,30 @@ class TourCatalogService
     /**
      * @return array{tours: array<int, array<string, mixed>>, total: int, page: int, perPage: int, lastPage: int}
      */
-    /** Available destinations across the whole collection, before destination/month filtering. */
+    /** Available continents and Vietnam across the collection, before group/month filtering. */
     public function getCollectionDestinations(string $locale, string $collectionSlug, string $from, string $to, ?string $excludedTourType = null): array
     {
         if (!$this->hasSchemaForTourCatalog() || !$this->db->tableExists('tour_collections') || !$this->db->tableExists('tour_collection_tours')) return [];
         try {
-            $countryId = "CASE WHEN t.tour_type = 'outbound' AND dl.type = 'country' THEN dl.id WHEN t.tour_type = 'outbound' AND dlp.type = 'country' THEN dlp.id WHEN t.tour_type = 'outbound' AND dlgp.type = 'country' THEN dlgp.id ELSE dl.id END";
-            $name = "CASE WHEN t.tour_type = 'outbound' AND dl.type = 'country' THEN dltn.name WHEN t.tour_type = 'outbound' AND dlp.type = 'country' THEN dlptn.name WHEN t.tour_type = 'outbound' AND dlgp.type = 'country' THEN dlgptn.name ELSE dltn.name END";
-            $slug = "CASE WHEN t.tour_type = 'outbound' AND dl.type = 'country' THEN dltn.slug WHEN t.tour_type = 'outbound' AND dlp.type = 'country' THEN dlptn.slug WHEN t.tour_type = 'outbound' AND dlgp.type = 'country' THEN dlgptn.slug ELSE dltn.slug END";
+            // Overseas tours group by continent; Vietnam tours share one country group.
+            $groupType = "CASE WHEN t.tour_type = 'outbound' THEN 'continent' ELSE 'country' END";
+            $countryId = "CASE WHEN dl.type = ($groupType) THEN dl.id WHEN dlp.type = ($groupType) THEN dlp.id WHEN dlgp.type = ($groupType) THEN dlgp.id ELSE NULL END";
+            $name = "CASE WHEN dl.type = ($groupType) THEN dltn.name WHEN dlp.type = ($groupType) THEN dlptn.name WHEN dlgp.type = ($groupType) THEN dlgptn.name ELSE NULL END";
+            $slug = "CASE WHEN dl.type = ($groupType) THEN dltn.slug WHEN dlp.type = ($groupType) THEN dlptn.slug WHEN dlgp.type = ($groupType) THEN dlgptn.slug ELSE NULL END";
             $rows = $this->baseToursBuilder($locale, null, [], false, false, $excludedTourType)
                 ->join('tour_collection_tours tct', 'tct.tour_id = t.id', 'inner')
                 ->join('tour_collections tc', 'tc.id = tct.collection_id', 'inner')
                 ->where('tc.slug', $collectionSlug)->where('tc.is_active', 1)
                 ->where('td.departure_date >=', $from)->where('td.departure_date <=', $to)
-                ->select($countryId . ' AS id, ' . $name . ' AS name, ' . $slug . ' AS slug', false)
+                ->select($countryId . ' AS id, ' . $name . ' AS name, ' . $slug . ' AS slug, t.tour_type', false)
                 ->distinct()->get()->getResultArray();
             $options = [];
             foreach ($rows as $row) {
                 if (empty($row['id']) || trim((string)$row['name']) === '') continue;
+                if ($row['tour_type'] !== 'outbound') {
+                    $row['slug'] = 'viet-nam';
+                    $row['name'] = $locale === 'en' ? 'Vietnam' : 'Trong nước';
+                }
                 $key = trim((string)$row['slug']) ?: 'location-' . $row['id'];
                 $options[$key] = ['id'=>(int)$row['id'], $locale=>TextEncodingService::repairNullable($row['name'])];
             }
@@ -496,6 +502,14 @@ class TourCatalogService
             $builder->join('tour_collection_tours tct', 'tct.tour_id = t.id', 'inner')
                 ->join('tour_collections tc', 'tc.id = tct.collection_id', 'inner')
                 ->where('tc.slug', $collectionSlug)->where('tc.is_active', 1);
+        }
+
+        if ($destinationId > 0) {
+            $builder->groupStart()
+                ->where('dl.id', $destinationId)
+                ->orWhere('dlp.id', $destinationId)
+                ->orWhere('dlgp.id', $destinationId)
+                ->groupEnd();
         }
 
         if ($query !== '') {
@@ -1008,9 +1022,36 @@ class TourCatalogService
      * @param array<int, array<string, mixed>> $rows
      * @return array<int, array<string, mixed>>
      */
+    private function fetchTourCampaigns(array $ids): array
+    {
+        $ids = array_values(array_filter(array_unique(array_map('intval', $ids))));
+        if ($ids === []) return [];
+        $campaigns = [];
+        try {
+            $fields = ['id'];
+            foreach (['is_promotion', 'promotion_badge', 'promotion_ends_at', 'promotion_sort'] as $field) {
+                if ($this->fieldExists($field, 'tours')) $fields[] = $field;
+            }
+            foreach ($this->db->table('tours')->select(implode(', ', $fields))->whereIn('id', $ids)->get()->getResultArray() as $row) {
+                $campaigns[(int) $row['id']] = $row + ['is_autumn' => false];
+            }
+            if ($this->tableExists('tour_collections') && $this->tableExists('tour_collection_tours')) {
+                $members = $this->db->table('tour_collection_tours tct')
+                    ->select('tct.tour_id')->join('tour_collections tc', 'tc.id = tct.collection_id')
+                    ->where('tc.slug', 'mua-thu')->where('tc.is_active', 1)->whereIn('tct.tour_id', $ids)
+                    ->get()->getResultArray();
+                foreach ($members as $member) $campaigns[(int) $member['tour_id']]['is_autumn'] = true;
+            }
+        } catch (Throwable $exception) {
+            log_message('error', 'Tour card campaigns unavailable: {message}', ['message' => $exception->getMessage()]);
+        }
+        return $campaigns;
+    }
+
     private function mapRowsToCards(array $rows, string $locale): array
     {
         $cards = [];
+        $campaigns = $this->fetchTourCampaigns(array_column($rows, 'id'));
         $domesticRegionService = new DomesticRegionService();
         $tourDestinations = $this->fetchTourDestinations(array_values(array_filter(array_map(
             static fn(array $row): int => (int) ($row['id'] ?? 0),
@@ -1023,6 +1064,7 @@ class TourCatalogService
 
         foreach ($rows as $row) {
             $id = (int) ($row['id'] ?? 0);
+            $row = array_replace($row, $campaigns[$id] ?? []);
             $days = (int) ($row['duration_days'] ?? 0);
             $nights = (int) ($row['duration_nights'] ?? 0);
             $price = (float) ($row['min_price'] ?? 0);
@@ -1116,9 +1158,10 @@ class TourCatalogService
                 'link'      => $tourLink,
                 'image'     => $this->resolveImage($coverPath),
                 'banner_image' => $this->resolveImage($bannerPath),
-                'badge'     => !empty($row['is_featured']) ? 'Hot Sale!' : null,
+                'badge'     => !empty($row['is_featured']) ? ($locale === 'en' ? 'Featured' : 'Nổi bật') : null,
+                'is_autumn' => !empty($row['is_autumn']),
                 'promotion' => [
-                    'is_active' => !empty($row['is_promotion']),
+                    'is_active' => !empty($row['is_promotion']) && ($promotionEndsAt === '' || (strtotime($promotionEndsAt) !== false && strtotime($promotionEndsAt) >= time())),
                     'badge' => TextEncodingService::repairNullable($row['promotion_badge'] ?? ''),
                     'ends_at' => $promotionEndsAt,
                     'ends_at_iso' => $promotionEndsAtIso,

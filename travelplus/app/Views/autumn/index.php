@@ -51,7 +51,7 @@ $icon = static fn(string $name): string => '<i class="bi bi-' . $name . '" aria-
  <div class="at-container at-search-wrap">
   <form class="at-search" action="<?= esc($url, 'attr') ?>#autumn-tours" method="get">
    <div class="at-search-title"><?= $icon('compass') ?><strong><?= $t('Mùa thu này, <br>bạn muốn đi đâu?', 'Where to <br>this autumn?') ?></strong></div>
-   <label><?= $icon('geo-alt') ?><span><?= $t('Điểm đến', 'Destination') ?><select name="destination"><option value=""><?= $t('Tất cả điểm đến', 'All destinations') ?></option><?php foreach ($destinationOptions as $key => $label): ?><option value="<?= esc($key) ?>" <?= $selectedDestination === $key ? 'selected' : '' ?>><?= esc($label[$currentLocale]) ?></option><?php endforeach ?></select></span></label>
+   <label><?= $icon('geo-alt') ?><span><?= $t('Khu vực', 'Region') ?><select name="destination"><option value=""><?= $t('Tất cả khu vực', 'All regions') ?></option><?php foreach ($destinationOptions as $key => $label): ?><option value="<?= esc($key) ?>" <?= $selectedDestination === $key ? 'selected' : '' ?>><?= esc($label[$currentLocale]) ?></option><?php endforeach ?></select></span></label>
    <label><?= $icon('calendar3') ?><span><?= $t('Tháng khởi hành', 'Departure month') ?><select name="month"><option value=""><?= $t('Tháng 9 – 11', 'September – November') ?></option><?php foreach (['09', '10', '11'] as $month): ?><option value="<?= $month ?>" <?= $selectedMonth === $month ? 'selected' : '' ?>><?= $t('Tháng ', 'Month ') . (int) $month ?> / <?= (int) $autumnYear ?></option><?php endforeach ?></select></span></label>
    <button class="at-btn" type="submit"><?= $icon('search') ?> <?= $t('Tìm tour phù hợp', 'Find my tour') ?></button>
   </form>
@@ -72,14 +72,14 @@ $icon = static fn(string $name): string => '<i class="bi bi-' . $name . '" aria-
  </section>
  <section class="at-tour-section" id="autumn-tours"><div class="at-container">
   <div class="at-section-head"><div><p class="at-kicker"><?= $t('CHỌN CHUYẾN ĐI CỦA BẠN', 'YOUR NEXT JOURNEY') ?></p><h2><?= $t('Tour & lịch khởi hành mùa thu', 'Autumn tours & departures') ?></h2><p><?= $t('Xem giá, ngày đi và lịch trình trước khi quyết định.', 'Compare prices, dates and itineraries before you decide.') ?></p></div><a class="at-link" href="<?= esc($allToursUrl, 'attr') ?>"><?= $t('Xem tất cả tour', 'View all tours') ?> <?= $icon('arrow-right') ?></a></div>
-  <div class="at-filters" aria-label="<?= $t('Lọc theo điểm đến', 'Filter destinations') ?>"><?php foreach (['' => ['vi' => 'Tất cả', 'en' => 'All']] + $destinationOptions as $key => $label): ?><a class="<?= $selectedDestination === $key ? 'is-active' : '' ?>" <?= $selectedDestination === $key ? 'aria-current="true"' : '' ?> href="<?= esc($url . '?' . http_build_query(['destination' => $key, 'month' => $selectedMonth]), 'attr') ?>#autumn-tours"><?= esc($label[$currentLocale]) ?></a><?php endforeach ?></div>
+  <div class="at-filters" aria-label="<?= $t('Lọc theo châu lục', 'Filter by continent') ?>"><?php foreach (['' => ['vi' => 'Tất cả', 'en' => 'All']] + $destinationOptions as $key => $label): ?><a class="<?= $selectedDestination === $key ? 'is-active' : '' ?>" <?= $selectedDestination === $key ? 'aria-current="true"' : '' ?> href="<?= esc($url . '?' . http_build_query(['destination' => $key, 'month' => $selectedMonth]), 'attr') ?>#autumn-tours"><?= esc($label[$currentLocale]) ?></a><?php endforeach ?></div>
   <?php if ($autumnTours !== []): ?><div class="at-tour-grid" id="autumn-tour-track" tabindex="0" role="region" aria-label="<?= $t('Danh sách tour mùa thu, vuốt ngang để xem thêm', 'Autumn tours, swipe to explore') ?>">
    <?php foreach ($autumnTours as $tour):
     $amount = (float) ($tour['price']['amount'] ?? 0);
     $points = \App\Services\LoyaltyPointService::previewPoints($amount);
     $benefit = \App\Services\TourPassportPricePresenter::build($amount, is_array($authUser ?? null) ? $authUser : null, is_array($headerMembership ?? null) ? $headerMembership : null, $currentLocale);
-   ?><article class="at-tour-card">
-    <a class="at-tour-image" href="<?= esc($tour['link'], 'attr') ?>"><img src="<?= esc($tour['image'], 'attr') ?>" alt="<?= esc($tour['title']) ?>" width="600" height="400" loading="lazy"><span><?= $icon('clock') ?> <?= esc($tour['duration']['label'] ?? '') ?></span></a>
+   ?><article class="at-tour-card<?= !empty($tour['is_autumn']) ? ' has-tour-autumn' : '' ?><?= !empty($tour['promotion']['is_active']) ? ' has-tour-promotion' : '' ?>">
+    <a class="at-tour-image" href="<?= esc($tour['link'], 'attr') ?>"><img src="<?= esc($tour['image'], 'attr') ?>" alt="<?= esc($tour['title']) ?>" width="600" height="400" loading="lazy"><?= view('components/tour-campaigns', ['tour' => $tour]) ?><span><?= $icon('clock') ?> <?= esc($tour['duration']['label'] ?? '') ?></span></a>
     <div class="at-tour-body">
      <p class="at-tour-place"><?= $icon('geo-alt-fill') ?> <?= esc($tour['destination_summary'] ?: $tour['destination_name']) ?></p>
      <h3><a href="<?= esc($tour['link'], 'attr') ?>"><?= esc($tour['title']) ?></a></h3>

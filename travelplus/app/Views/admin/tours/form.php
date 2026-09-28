@@ -26,6 +26,7 @@
         .repeat-drag { position:absolute; top:14px; left:14px; cursor:grab; user-select:none; }
         .repeat-item.is-dragging { opacity:.55; border-style:dashed; }
         .repeat-item.is-sortable { padding-left:58px; }
+        .inclusion-order-controls { display:flex; gap:6px; margin-bottom:12px; padding-right:48px; }
         .new-country-fields, .new-province-fields { display:none; }
         .repeat-item.is-new-country .new-country-fields, .repeat-item.is-new-province .new-province-fields { display:flex; }
         .rich-editor-wrap { border:1px solid #d8dee6; border-radius:8px; background:#fff; overflow:hidden; }
@@ -1378,6 +1379,13 @@ function initDraftRestore() {
 
   restoreButton.addEventListener('click', () => {
     applyDraft(payload);
+    ['includedRows', 'excludedRows'].forEach(id => {
+      const container = document.getElementById(id);
+      if (!container) return;
+      Array.from(container.children)
+        .sort((a, b) => Number(a.querySelector('[name$="[sort_order]"]')?.value || 0) - Number(b.querySelector('[name$="[sort_order]"]')?.value || 0))
+        .forEach(row => container.appendChild(row));
+    });
     document.querySelectorAll('.js-rich-wrap').forEach(wrap => {
       const source = wrap.parentElement.querySelector('.js-rich-source');
       const editor = wrap.querySelector('.js-rich-editor');
@@ -1404,7 +1412,46 @@ function formatPrice(value) {
   return number.toLocaleString('vi-VN') + ' đ';
 }
 
+function syncInclusionOrder() {
+  ['includedRows', 'excludedRows'].forEach(id => {
+    const rows = Array.from(document.getElementById(id)?.children || []);
+    rows.forEach((row, index) => {
+      let controls = row.querySelector('.inclusion-order-controls');
+      if (!controls) {
+        controls = document.createElement('div');
+        controls.className = 'inclusion-order-controls';
+        controls.innerHTML = '<button type="button" class="btn btn-sm btn-outline-secondary" data-inclusion-move="up" aria-label="Đưa mục lên trên">↑ Lên</button><button type="button" class="btn btn-sm btn-outline-secondary" data-inclusion-move="down" aria-label="Đưa mục xuống dưới">↓ Xuống</button>';
+        row.prepend(controls);
+      }
+      controls.querySelector('[data-inclusion-move="up"]').disabled = index === 0;
+      controls.querySelector('[data-inclusion-move="down"]').disabled = index === rows.length - 1;
+      const order = row.querySelector('[name$="[sort_order]"]');
+      if (order) order.value = String(index);
+    });
+  });
+}
+
+document.addEventListener('click', event => {
+  const button = event.target.closest('[data-inclusion-move]');
+  if (!button) return;
+  const row = button.closest('.repeat-item');
+  const container = row?.parentElement;
+  if (!container || !['includedRows', 'excludedRows'].includes(container.id)) return;
+  const sibling = button.dataset.inclusionMove === 'up' ? row.previousElementSibling : row.nextElementSibling;
+  if (!sibling) return;
+  if (button.dataset.inclusionMove === 'up') container.insertBefore(row, sibling);
+  else container.insertBefore(sibling, row);
+  refreshSummaryMetrics();
+  scheduleDraftSave();
+  if (button.disabled) {
+    row.querySelector('[data-inclusion-move]:not(:disabled)')?.focus();
+  } else button.focus();
+});
+
+document.getElementById('tourForm').addEventListener('submit', syncInclusionOrder);
+
 function refreshSummaryMetrics() {
+  syncInclusionOrder();
   const tourType = document.querySelector('[name="tour_type"]')?.value || 'outbound';
   const tourTypeLabel = {
     outbound: 'Outbound · khách Việt đi nước ngoài',

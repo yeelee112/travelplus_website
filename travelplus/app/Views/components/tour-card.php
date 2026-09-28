@@ -35,11 +35,10 @@ $title = trim((string) ($tour['title'] ?? ''));
 $link = trim((string) ($tour['link'] ?? '#'));
 $image = trim((string) ($tour['image'] ?? '')) ?: base_url('assets/images/home/banner02.webp');
 $imageSrcset = responsive_image_srcset($image, [480, 960]);
-$badge = trim((string) ($tour['badge'] ?? ''));
 $promotion = is_array($tour['promotion'] ?? null) ? $tour['promotion'] : [];
 $promotionBadge = trim((string) ($promotion['badge'] ?? ''));
 $isPromotion = ! empty($promotion['is_active']);
-$badgeText = $isPromotion && $promotionBadge !== '' ? $promotionBadge : $badge;
+$badgeText = $isPromotion ? $promotionBadge : '';
 $tourType = (string) ($tour['tour_type'] ?? '');
 $typeLabel = $copy[$tourType] ?? $copy['outbound'];
 $departureFromLabel = match ($tourType) {
@@ -109,7 +108,7 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
 ?>
 
 <article
-    class="package-card tp-tour-card<?= $isPromotion ? ' tp-tour-card--promo' : '' ?>"
+    class="package-card tp-tour-card<?= $isPromotion ? ' tp-tour-card--promo has-tour-promotion' : '' ?><?= !empty($tour['is_autumn']) ? ' has-tour-autumn' : '' ?>"
     itemscope
     itemtype="https://schema.org/TouristTrip"
     data-tour-tools-source
@@ -143,17 +142,12 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
                 height="280">
         </a>
 
-        <div class="tp-tour-card__media-top">
-            <?php if ($badgeText !== ''): ?>
-                <span class="tp-tour-card__badge"><?= esc($badgeText) ?></span>
-            <?php endif; ?>
-            <span class="tp-tour-card__type"><?= esc($typeLabel) ?></span>
-        </div>
-
+        <?= view('components/tour-campaigns', ['tour' => $tour]) ?>
         <div class="tp-tour-card__tools" aria-label="<?= esc($tourToolCopy['toolsLabel'], 'attr') ?>">
             <button
                 type="button"
                 class="tp-tour-tool-btn"
+                title="<?= esc($tourToolCopy['wishlist'], 'attr') ?>"
                 data-tour-action="wishlist"
                 data-label-add="<?= esc($tourToolCopy['wishlist'], 'attr') ?>"
                 data-label-remove="<?= esc($tourToolCopy['wishlistSaved'], 'attr') ?>"
@@ -164,6 +158,7 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
             <button
                 type="button"
                 class="tp-tour-tool-btn"
+                title="<?= esc($tourToolCopy['compare'], 'attr') ?>"
                 data-tour-action="compare"
                 data-label-add="<?= esc($tourToolCopy['compare'], 'attr') ?>"
                 data-label-remove="<?= esc($tourToolCopy['compareSaved'], 'attr') ?>"
@@ -174,7 +169,7 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
         </div>
     </div>
 
-    <div class="h-100">
+    <div class="tp-tour-card__content">
         <div class="package-content tp-tour-card__body">
             <div class="tp-tour-card__meta">
                 <a class="tp-tour-card__route" href="<?= esc($locationLink, 'attr') ?>">
@@ -229,7 +224,7 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
                     <?php endif; ?>
                     <?php if ($loyaltyPoints > 0): ?>
                         <small class="tp-tour-card__points" title="<?= esc($locale === 'en' ? 'Actual points are based on the paid booking amount.' : 'Điểm thực nhận được tính theo số tiền booking đã thanh toán.', 'attr') ?>">
-                            <i class="bi bi-stars" aria-hidden="true"></i>
+                            <i class="bi bi-gift" aria-hidden="true"></i>
                             <?= esc($loyaltyCopy) ?>
                         </small>
                     <?php endif; ?>

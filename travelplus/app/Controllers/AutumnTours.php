@@ -20,9 +20,10 @@ class AutumnTours extends BaseController
         $destination = (string) $this->request->getGet('destination');
         $destination = isset($destinations[$destination]) ? $destination : '';
         $destinationId = $destination !== '' ? $destinations[$destination]['id'] : 0;
+        $tourType = $destination === '' ? null : ($destination === 'viet-nam' ? ($locale === 'en' ? 'inbound' : 'domestic') : 'outbound');
         $result = $catalog->searchTours(
             $locale, '',
-            $from, $to, 6, 1, null, false, $locale === 'en' ? 'domestic' : 'inbound', 'mua-thu', $destinationId
+            $from, $to, 6, 1, $tourType, false, $locale === 'en' ? 'domestic' : 'inbound', 'mua-thu', $destinationId
         );
 
         return view('autumn/index', [
@@ -34,6 +35,7 @@ class AutumnTours extends BaseController
             'destinationOptions' => $destinations,
             'allToursUrl' => LocalizedPathCatalog::url('search', $locale) . '?' . http_build_query([
                 'destination_id' => $destinationId ?: '',
+                'tour_type' => $tourType ?? '',
                 'departure_from' => $from, 'departure_to' => $to, 'collection' => 'mua-thu',
             ]),
             'breadcrumbs' => [
