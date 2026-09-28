@@ -29,6 +29,62 @@ class WebsiteKnowledgeService
      * @param array<string, mixed> $chatState
      * @return array<string, mixed>
      */
+    public function resolveTourRequest(string $message, array $history, array $state): array
+    {
+        $context = is_array($state['tour_request'] ?? null) ? $state['tour_request'] : [];
+        foreach (array_merge($history, [['role' => 'user', 'text' => $message]]) as $item) {
+            if (($item['role'] ?? '') !== 'user') {
+                continue;
+            }
+            $text = trim((string) ($item['text'] ?? ''));
+            if ($this->looksLikeVisaQuestion($text) || $this->looksLikeMiceQuestion($text)
+                || $this->looksLikeHotelQuestion($text) || $this->looksLikeTransportQuestion($text)) {
+                $context = [];
+                continue;
+            }
+            $destination = $this->extractKnownDestinationName($text);
+            if ($destination !== '' && $destination !== ($context['destination'] ?? '')) {
+                $context = ['destination' => $destination];
+            }
+            if ($context === []) {
+                continue;
+            }
+            foreach (['guests' => $this->extractGuestCount($text), 'time' => $this->extractTravelTimeText($text),
+                'budget' => $this->extractBudgetText($text)] as $key => $value) {
+                if ($value !== '') {
+                    $context[$key] = $value;
+                }
+            }
+            $normalized = $this->normalizeSearchText($text);
+            if (preg_match('/\b(tet|lunar new year)\b/', $normalized)) {
+                $context['holiday'] = str_contains($normalized, 'duong lich') ? 'solar'
+                    : ((str_contains($normalized, 'nguyen dan') || str_contains($normalized, 'lunar')) ? 'lunar' : 'unspecified');
+            } elseif (isset($context['holiday']) && preg_match('/\b(duong lich|nguyen dan)\b/', $normalized)) {
+                $context['holiday'] = str_contains($normalized, 'duong lich') ? 'solar' : 'lunar';
+            } elseif ($this->extractTravelTimeText($text) !== '') {
+                unset($context['holiday']);
+            }
+            if (preg_match('/\b(20\d{2})\b/', $text, $year)) {
+                $context['year'] = $year[1];
+            }
+        }
+        $search = $message;
+        $normalized = $this->normalizeSearchText($message);
+        $followUp = preg_match('/^(tet|thang|\d|di |vao |ngan sach|khoang |duong lich|nguyen dan|truoc tet|sau tet|trong tet)/', $normalized);
+        $isTour = $this->looksLikeTourQuestion($message) || $followUp || $this->referencesCurrentTour($message);
+        if ($context !== [] && $isTour && ! $this->looksLikeVisaQuestion($message)
+            && ! $this->looksLikeHotelQuestion($message) && ! $this->looksLikeMiceQuestion($message)) {
+            $search = 'tour ' . $context['destination'] . ' ' . $message;
+            if (! empty($context['guests'])) {
+                $search .= ' ' . $context['guests'] . ' người';
+            }
+            $search .= ' ' . ($context['time'] ?? '') . ' ' . ($context['budget'] ?? '');
+        } else {
+            $context = [];
+        }
+        return ['question' => trim($search), 'context' => $context];
+    }
+
     public function hydrateChatStateFromHistory(string $locale, array $history, array $chatState = []): array
     {
         if ($this->getLastMatchedTourFromState($locale, $chatState) !== null) {
@@ -3051,7 +3107,7 @@ class WebsiteKnowledgeService
             }
         }
 
-        return '';
+        return preg_match('/\b(?:tour|di|den|du lich)\s+nhat\b/', $search) ? 'Nhật Bản' : '';
     }
 
     private function extractGuestCount(string $question): string

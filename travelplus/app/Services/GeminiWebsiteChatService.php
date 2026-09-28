@@ -33,6 +33,38 @@ class GeminiWebsiteChatService
      */
     public function answer(string $locale, string $message, array $history = [], array $chatState = []): array
     {
+        $request = $this->knowledgeService->resolveTourRequest($message, $history, $chatState);
+        $context = $request['context'];
+        if (($context['destination'] ?? '') !== ($chatState['tour_request']['destination'] ?? '') && $context !== []) {
+            $chatState = ['tour_request' => $context];
+        }
+        if (isset($context['holiday'])) {
+            $destination = $context['destination'];
+            $question = $context['holiday'] === 'unspecified'
+                ? ($locale === 'en' ? 'Do you mean New Year or Lunar New Year, and which year?' : 'Mình dự kiến đi Tết Dương lịch hay Tết Nguyên đán, vào năm nào ạ?')
+                : ($locale === 'en' ? 'What departure date and year would you prefer?' : 'Anh/chị muốn khởi hành ngày nào, vào năm nào ạ?');
+            if (! empty($context['year'])) {
+                $question = $context['holiday'] === 'unspecified'
+                    ? ($locale === 'en' ? 'Do you mean New Year or Lunar New Year?' : 'Mình dự kiến đi Tết Dương lịch hay Tết Nguyên đán ạ?')
+                    : ($locale === 'en' ? 'Would you prefer to travel before, during or after the holiday?' : 'Mình muốn đi trước, trong hay sau Tết ạ?');
+            }
+            if (empty($context['guests'])) {
+                $question .= $locale === 'en' ? ' How many people will travel?' : ' Đoàn mình có bao nhiêu người cùng đi?';
+            }
+            return [
+                'message' => ($locale === 'en' ? "You would like to visit {$destination} for the New Year holiday. " : "Anh/chị muốn đi {$destination} dịp Tết. ") . $question
+                    . ($locale === 'en' ? "\n\nA departure for your holiday dates has not been confirmed yet." : "\n\nEm chưa xác nhận được lịch tour đúng dịp Tết của mình. Lịch khởi hành khác thời điểm này chưa thể xem là lựa chọn phù hợp."),
+                'sources' => [], 'chat_state' => array_merge($chatState, ['tour_request' => $context]),
+                'debug_meta' => ['branch' => 'holiday_clarification'],
+            ];
+        }
+        $result = $this->answerResolved($locale, $request['question'], $history, $chatState);
+        $result['chat_state'] = array_merge($result['chat_state'] ?? [], ['tour_request' => $context]);
+        return $result;
+    }
+
+    private function answerResolved(string $locale, string $message, array $history, array $chatState): array
+    {
         if (! $this->isConfigured()) {
             throw new RuntimeException('AI provider credentials are missing.');
         }
@@ -220,6 +252,7 @@ class GeminiWebsiteChatService
             'The structured facts below are trusted website data. Use only these facts. Do not invent details.',
             'Answer naturally, concisely, and directly for the user intent.',
             'Act like a Travel Plus consultation agent, not a documentation summarizer.',
+            'Fit scores and advisory sales notes are internal only. Never display match percentages or wording such as dang tu van or de tu van. Ask at most two missing details.',
             'For service requests such as visa, hotel, transport, MICE, or custom tours, first confirm Travel Plus can help, then ask 2 to 4 missing details needed to advise or hand off to sales.',
             'If the facts do not exactly match the user request, say that clearly and offer the closest option or a custom consultation instead of pretending it matches.',
             'End consultation-style answers with a soft next step such as asking for phone/email or preferred travel date when relevant.',
@@ -413,7 +446,8 @@ class GeminiWebsiteChatService
             ];
         }
 
-        if ($this->looksLikeTourConsultationRequest($message)) {
+        if ($this->looksLikeTourConsultationRequest($message)
+            && $this->knowledgeService->resolveTourRequest($message, $history, [])['context'] === []) {
             return [
                 'message' => $locale === 'en'
                     ? "Travel Plus can advise a suitable tour or tailor-made itinerary. To match the trip properly, please share: destination, expected travel date, number of guests, preferred trip length and approximate budget.\n\nIf the website does not have an exact matching tour, Travel Plus can suggest the closest option or prepare a custom itinerary."
@@ -917,10 +951,10 @@ class GeminiWebsiteChatService
      */
     private function appendTourAdvisoryLines(array $lines, string $locale, array $advisory, bool $compact = false): array
     {
-        $summary = trim((string) ($advisory['summary'] ?? ''));
+        $summary = '';
         $strengths = array_values(array_filter((array) ($advisory['strengths'] ?? []), 'is_string'));
         $suitableFor = array_values(array_filter((array) ($advisory['suitable_for'] ?? []), 'is_string'));
-        $destinationNotes = array_values(array_filter((array) ($advisory['destination_notes'] ?? []), 'is_string'));
+        $destinationNotes = [];
         $personalizedNotes = array_values(array_filter((array) ($advisory['personalized_notes'] ?? []), 'is_string'));
         $budgetNotes = array_values(array_filter((array) ($advisory['budget_notes'] ?? []), 'is_string'));
         $paceNote = trim((string) ($advisory['pace_note'] ?? ''));
@@ -932,10 +966,10 @@ class GeminiWebsiteChatService
             return $lines;
         }
 
-        $lines[] = '';
-        $lines[] = $compact
-            ? ($locale === 'en' ? 'Consultation angle:' : 'Gợi ý tư vấn:')
-            : ($locale === 'en' ? 'Why this option fits:' : 'Vì sao tour này phù hợp:');
+        if ($strengths !== [] || $personalizedNotes !== [] || $budgetNotes !== []) {
+            $lines[] = '';
+            $lines[] = $locale === 'en' ? 'Highlights and notes:' : 'Điểm nổi bật và lưu ý:';
+        }
 
         if ($summary !== '') {
             $lines[] = '- ' . $summary;
@@ -968,9 +1002,7 @@ class GeminiWebsiteChatService
 
         if ($questions !== []) {
             $lines[] = '';
-            $lines[] = $locale === 'en'
-                ? 'To advise more accurately, please share: ' . implode('; ', array_slice($questions, 0, $compact ? 2 : 3)) . '.'
-                : 'Để tư vấn sát hơn, anh/chị cho em xin thêm: ' . implode('; ', array_slice($questions, 0, $compact ? 2 : 3)) . '.';
+            $lines[] = implode(' ', array_slice($questions, 0, 2));
         } elseif ($recommendedCta !== '') {
             $lines[] = '';
             $lines[] = $recommendedCta;
@@ -1012,13 +1044,6 @@ class GeminiWebsiteChatService
                     $parts[] = ($locale === 'en' ? 'Duration' : 'Thời lượng') . ': ' . $tour['duration_label'];
                 }
 
-                $fit = is_array($tour['fit'] ?? null) ? $tour['fit'] : [];
-                $fitScore = (int) ($fit['score'] ?? 0);
-                $fitLabel = trim((string) ($fit['label'] ?? ''));
-                if ($fitScore > 0 && $fitLabel !== '') {
-                    $parts[] = ($locale === 'en' ? 'Fit' : 'Mức khớp') . ': ' . $fitLabel . ' (' . $fitScore . '%)';
-                }
-
                 $lines[] = implode(' | ', $parts);
             }
 
@@ -1044,7 +1069,7 @@ class GeminiWebsiteChatService
                 ! empty($tour['price_label']) ? (($locale === 'en' ? 'Price from' : 'Giá từ') . ': ' . $tour['price_label']) : '',
                 ! empty($tour['duration_label']) ? (($locale === 'en' ? 'Duration' : 'Thời lượng') . ': ' . $tour['duration_label']) : '',
             ]));
-            $fitLine = $this->formatTourFitLine($locale, $fit);
+            $fitLine = '';
 
             if ($intent === 'price') {
                 $priceLabel = trim((string) ($tour['price_label'] ?? ''));

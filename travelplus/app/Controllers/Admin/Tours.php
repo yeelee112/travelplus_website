@@ -611,6 +611,18 @@ class Tours extends BaseAdminController
         return str_starts_with($candidate, $root) ? $candidate : null;
     }
 
+    private function tourSaveError(string $formUrl, array $errors)
+    {
+        if ($this->request->isAJAX()) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'errors' => array_values($errors),
+                'csrf' => csrf_hash(),
+            ]);
+        }
+
+        return redirect()->to($formUrl)->withInput()->with('errors', $errors);
+    }
+
     private function saveTour(?int $tourId = null)
     {
         $isUpdate = $tourId !== null;
@@ -620,7 +632,7 @@ class Tours extends BaseAdminController
 
         $payloadLimitError = $this->validatePostPayloadSize();
         if ($payloadLimitError !== null) {
-            return redirect()->to($formUrl)->withInput()->with('errors', [$payloadLimitError]);
+            return $this->tourSaveError($formUrl, [$payloadLimitError]);
         }
 
         $rules = [
@@ -635,18 +647,18 @@ class Tours extends BaseAdminController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->to($formUrl)->withInput()->with('errors', $this->validator->getErrors());
+            return $this->tourSaveError($formUrl, $this->validator->getErrors());
         }
 
         $post = $this->request->getPost();
         $departureErrors = $this->validateDepartureRows($post);
         if ($departureErrors !== []) {
-            return redirect()->to($formUrl)->withInput()->with('errors', $departureErrors);
+            return $this->tourSaveError($formUrl, $departureErrors);
         }
 
         $mediaErrors = $this->validateTourMediaUploads();
         if ($mediaErrors !== []) {
-            return redirect()->to($formUrl)->withInput()->with('errors', $mediaErrors);
+            return $this->tourSaveError($formUrl, $mediaErrors);
         }
 
         $db = db_connect();
@@ -656,14 +668,14 @@ class Tours extends BaseAdminController
             ->get()
             ->getRowArray();
         if ((string) ($selectedCategory['type'] ?? '') !== (string) ($post['tour_type'] ?? '')) {
-            return redirect()->to($formUrl)->withInput()->with('errors', [
+            return $this->tourSaveError($formUrl, [
                 'Danh mục không thuộc loại tour đã chọn. Vui lòng chọn lại danh mục.',
             ]);
         }
 
         $slugErrors = $this->validateUniqueTourSlugs($db, $post, $tourId);
         if ($slugErrors !== []) {
-            return redirect()->to($formUrl)->withInput()->with('errors', $slugErrors);
+            return $this->tourSaveError($formUrl, $slugErrors);
         }
 
         $oldTour = $tourId === null ? null : $db->table('tours')->where('id', $tourId)->get()->getRowArray();
@@ -686,7 +698,7 @@ class Tours extends BaseAdminController
                 $db->transRollback();
                 log_message('error', 'Admin tour insert did not return a valid tour ID.');
 
-                return redirect()->to($formUrl)->withInput()->with('errors', ['Không thể tạo tour mới vì hệ thống không nhận được mã tour hợp lệ. Vui lòng thử lại hoặc kiểm tra nhật ký hệ thống.']);
+                return $this->tourSaveError($formUrl, ['Không thể tạo tour mới vì hệ thống không nhận được mã tour hợp lệ. Vui lòng thử lại hoặc kiểm tra nhật ký hệ thống.']);
             }
 
             $this->replaceTourTranslations($db, $tourId, $post);
@@ -702,7 +714,7 @@ class Tours extends BaseAdminController
             if (! $db->transStatus()) {
                 log_message('error', 'Admin tour save transaction failed for ' . ($isUpdate ? 'tour #' . $tourId : 'a new tour') . '.');
 
-                return redirect()->to($formUrl)->withInput()->with('errors', ['Không thể lưu tour. Vui lòng kiểm tra dữ liệu hoặc nhật ký hệ thống.']);
+                return $this->tourSaveError($formUrl, ['Không thể lưu tour. Vui lòng kiểm tra dữ liệu hoặc nhật ký hệ thống.']);
             }
 
         } catch (Throwable $exception) {
@@ -713,8 +725,8 @@ class Tours extends BaseAdminController
                 ? $exception->getMessage()
                 : 'Không thể lưu tour do lỗi hệ thống. Vui lòng thử lại hoặc liên hệ quản trị viên kiểm tra nhật ký lỗi.';
 
-            return redirect()->to($formUrl)->withInput()->with('errors', [
-                $message . ' Nội dung nhập được giữ lại; nếu có tải ảnh mới, vui lòng chọn lại ảnh.',
+            return $this->tourSaveError($formUrl, [
+                $message,
             ]);
         }
 
@@ -736,6 +748,11 @@ class Tours extends BaseAdminController
             foreach (array_diff($oldMediaPaths, $newMediaPaths) as $unusedPath) {
                 $this->deleteRelativeFile((string) $unusedPath, 'uploads/tours/');
             }
+        }
+
+        if ($this->request->isAJAX()) {
+            session()->setFlashdata('success', ($isUpdate ? 'Đã cập nhật' : 'Đã tạo') . ' tour #' . $tourId);
+            return $this->response->setJSON(['redirect' => site_url('admin/tours/' . $tourId . '/edit')]);
         }
 
         return redirect()->to(site_url('admin/tours/' . $tourId . '/edit'))

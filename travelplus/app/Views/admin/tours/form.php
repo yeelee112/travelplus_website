@@ -1469,41 +1469,109 @@ bindSortableList('#mediaRows', '.media-row');
 document.querySelector('[name="status"]')?.addEventListener('change', () => { refreshSummaryMetrics(); scheduleDraftSave(); });
 document.getElementById('tourForm').addEventListener('input', scheduleDraftSave);
 document.getElementById('tourForm').addEventListener('change', scheduleDraftSave);
-function validateUploadSizesBeforeSubmit() {
-  const files = Array.from(document.querySelectorAll('.js-media-file')).flatMap(input => Array.from(input.files || []));
-  const errors = [];
-  const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
-
-  files.forEach((file, index) => {
-    if (file.size > mediaUploadLimitBytes) {
-      errors.push(`Ảnh #${index + 1} vượt quá ${mediaUploadLimitMb}MB.`);
+function showTourSaveErrors(errors) {
+  document.querySelectorAll('.js-upload-error').forEach(node => node.remove());
+  document.querySelectorAll('.js-media-file').forEach(input => input.classList.remove('is-invalid'));
+  let banner = document.querySelector('[data-tour-form-errors]');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.className = 'alert alert-danger';
+    banner.setAttribute('data-tour-form-errors', '');
+    banner.setAttribute('role', 'alert');
+    banner.tabIndex = -1;
+    document.getElementById('tourForm').prepend(banner);
+  }
+  banner.replaceChildren();
+  let firstInput = null;
+  errors.forEach(message => {
+    const line = document.createElement('div');
+    line.textContent = message;
+    banner.append(line);
+    const match = message.match(/Ảnh #(\d+)/);
+    const input = match ? document.querySelector('[name="media_files[' + (Number(match[1]) - 1) + ']"]') : null;
+    if (input) {
+      firstInput ||= input;
+      input.classList.add('is-invalid');
+      const detail = document.createElement('div');
+      detail.className = 'invalid-feedback d-block js-upload-error';
+      detail.textContent = message;
+      input.after(detail);
     }
   });
+  if (firstInput) {
+    activateTourStep(firstInput.closest('[data-tour-step-panel]').dataset.tourStepPanel, { scroll: false });
+    firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    firstInput.focus({ preventScroll: true });
+  } else {
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    banner.focus({ preventScroll: true });
+  }
+}
 
+function validateUploadSizesBeforeSubmit() {
+  const inputs = Array.from(document.querySelectorAll('.js-media-file'));
+  const errors = [];
+  let totalBytes = 0;
+  inputs.forEach(input => {
+    const file = input.files?.[0];
+    if (!file) return;
+    totalBytes += file.size;
+    const index = Number(input.name.match(/\[(\d+)\]/)?.[1]) + 1;
+    if (!/\.(jpe?g|png|webp)$/i.test(file.name) ||
+        (file.type && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type))) {
+      errors.push(`Ảnh #${index} (${file.name}) không đúng định dạng. Chỉ nhận JPG, PNG hoặc WebP.`);
+    }
+    if (file.size > mediaUploadLimitBytes) {
+      errors.push(`Ảnh #${index} (${file.name}) vượt quá ${mediaUploadLimitMb}MB.`);
+    }
+  });
   if (postMaxBytes > 0 && totalBytes > postMaxBytes * 0.85) {
     errors.push('Tổng dung lượng ảnh quá lớn so với giới hạn hosting. Hãy giảm số ảnh hoặc nén ảnh trước khi lưu.');
   }
-
-  if (errors.length) {
-    window.alert(errors.join('\n'));
-    return false;
-  }
-
-  return true;
+  if (errors.length) showTourSaveErrors(errors);
+  return errors.length === 0;
 }
 
-document.getElementById('tourForm').addEventListener('submit', event => {
+let tourSavePending = false;
+document.getElementById('tourForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (tourSavePending) return;
   document.querySelectorAll('.js-rich-wrap').forEach(syncRichEditor);
-  if (!validateUploadSizesBeforeSubmit()) {
-    event.preventDefault();
-    return;
-  }
-  localStorage.removeItem(draftStorageKey);
-  const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+  if (!validateUploadSizesBeforeSubmit()) return;
+  const form = event.currentTarget;
+  const submitButton = form.querySelector('button[type="submit"]');
+  const previousLabel = submitButton?.textContent;
+  tourSavePending = true;
   if (submitButton) {
     submitButton.disabled = true;
-    submitButton.setAttribute('aria-disabled', 'true');
     submitButton.textContent = 'Đang lưu...';
+  }
+  try {
+    const response = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    });
+    const result = await response.json();
+    if (result.csrf) {
+      const csrfInput = form.elements.namedItem(csrfTokenName);
+      if (csrfInput) csrfInput.value = result.csrf;
+    }
+    if (Array.isArray(result.errors)) {
+      showTourSaveErrors(result.errors);
+      return;
+    }
+    if (!response.ok || !result.redirect) throw new Error('Unexpected save response');
+    localStorage.removeItem(draftStorageKey);
+    window.location.assign(result.redirect);
+  } catch (error) {
+    showTourSaveErrors(['Chưa xác nhận được kết quả lưu. Các ảnh đang chọn vẫn được giữ trên form. Hãy kiểm tra danh sách tour ở tab khác trước khi thử lưu lại.']);
+  } finally {
+    tourSavePending = false;
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = previousLabel;
+    }
   }
 });
 refreshSummaryMetrics();
