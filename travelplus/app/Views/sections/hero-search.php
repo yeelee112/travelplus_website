@@ -72,14 +72,7 @@ $popularDestinations = array_slice(array_column($heroDestinations, 'name'), 0, 5
     </div>
     <div class="container">
         <div class="home-modern-hero__content">
-            <div class="home-hero-heading-tools">
-                <span class="home-modern-eyebrow"><?= esc($copy['eyebrow']) ?></span>
-                <button type="button" class="home-hero-rotation" data-hero-toggle hidden aria-pressed="false"
-                    data-pause-label="<?= $locale === 'en' ? 'Pause slideshow' : 'Dừng chuyển ảnh' ?>"
-                    data-play-label="<?= $locale === 'en' ? 'Play slideshow' : 'Chạy chuyển ảnh' ?>">
-                    <i class="bi bi-pause-fill" aria-hidden="true"></i><span><?= $locale === 'en' ? 'Pause slideshow' : 'Dừng chuyển ảnh' ?></span>
-                </button>
-            </div>
+            <span class="home-modern-eyebrow"><?= esc($copy['eyebrow']) ?></span>
             <h1 id="home-hero-title">
                 <?php foreach ($copy['titleParts'] as $titlePart): ?>
                     <span><?= esc((string) $titlePart) ?></span>
