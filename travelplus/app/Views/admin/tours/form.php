@@ -539,6 +539,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 <button type="button" class="btn btn-outline-secondary btn-sm" id="copySeoViToEn">Sao chép SEO VI sang EN</button>
             </div>
             <div class="lang-panel is-active" data-tab-panel="seo-vi">
+                <?= view('admin/partials/seo_keywords', ['locale' => 'vi', 'fv' => $fv, 'kind' => 'tour']) ?>
                 <div class="row g-3">
                     <div class="col-md-12"><label>Meta title VI</label><input name="meta_title_vi" class="form-control" value="<?= esc($fv('meta_title_vi')) ?>"></div>
                     <div class="col-md-12">
@@ -549,6 +550,7 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 </div>
             </div>
             <div class="lang-panel" data-tab-panel="seo-en">
+                <?= view('admin/partials/seo_keywords', ['locale' => 'en', 'fv' => $fv, 'kind' => 'tour']) ?>
                 <div class="row g-3">
                     <div class="col-md-12"><label>Meta title EN</label><input name="meta_title_en" class="form-control" value="<?= esc($fv('meta_title_en')) ?>"></div>
                     <div class="col-md-12">
@@ -2503,6 +2505,7 @@ syncShortDescriptionsFromMeta();
 bindPromotionFields();
 initTourSteps();
 </script>
+<script src="<?= esc(frontend_asset_url('assets/js/admin-editorial-seo.js'), 'attr') ?>"></script>
 <?= view('admin/partials/app_end') ?>
 </body>
 </html>

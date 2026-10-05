@@ -646,6 +646,12 @@ class Tours extends BaseAdminController
             'name_en' => 'permit_empty|min_length[3]',
         ];
 
+        foreach (['vi', 'en'] as $locale) {
+            $rules['focus_keyword_' . $locale] = 'permit_empty|max_length[150]';
+            $rules['secondary_keywords_' . $locale] = 'permit_empty|max_length[1000]';
+            $rules['social_hashtags_' . $locale] = 'permit_empty|max_length[1000]';
+        }
+
         if (! $this->validate($rules)) {
             return $this->tourSaveError($formUrl, $this->validator->getErrors());
         }
@@ -662,6 +668,13 @@ class Tours extends BaseAdminController
         }
 
         $db = db_connect();
+        foreach (['vi', 'en'] as $locale) {
+            foreach (\App\Services\EditorialSeoService::normalize($post, $locale) as $field => $value) {
+                if ($value !== '' && !$db->fieldExists($field, 'tour_translations')) {
+                    return $this->tourSaveError($formUrl, ['Cần bổ sung cột SEO bằng file database/sql/2026-10-05_add_tour_editorial_seo.sql. Dữ liệu đã nhập được giữ lại.']);
+                }
+            }
+        }
         $selectedCategory = $db->table('tour_categories')
             ->select('type')
             ->where('id', (int) ($post['category_id'] ?? 0))
@@ -915,6 +928,7 @@ class Tours extends BaseAdminController
         ];
 
         foreach ($locales as $locale => $data) {
+            $data = array_merge($data, \App\Services\EditorialSeoService::normalize($post, $locale));
             $data['tour_id'] = $tourId;
             $data['locale'] = $locale;
             $db->table('tour_translations')->insert(array_intersect_key($data, array_flip($fields)));
@@ -1404,6 +1418,12 @@ class Tours extends BaseAdminController
                 'price_up' => $row['price_up'] ?? '',
                 'status' => $row['status'] ?? 'open',
             ], $departures) : [$this->defaultDepartureRow()],
+            'focus_keyword_vi' => $translationMap['vi']['focus_keyword'] ?? '',
+            'secondary_keywords_vi' => $translationMap['vi']['secondary_keywords'] ?? '',
+            'social_hashtags_vi' => $translationMap['vi']['social_hashtags'] ?? '',
+            'focus_keyword_en' => $translationMap['en']['focus_keyword'] ?? '',
+            'secondary_keywords_en' => $translationMap['en']['secondary_keywords'] ?? '',
+            'social_hashtags_en' => $translationMap['en']['social_hashtags'] ?? '',
             'meta_title_vi' => $translationMap['vi']['meta_title'] ?? '',
             'meta_title_en' => $translationMap['en']['meta_title'] ?? '',
             'meta_description_vi' => $translationMap['vi']['meta_description'] ?? '',

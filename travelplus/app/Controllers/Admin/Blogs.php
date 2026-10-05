@@ -11,6 +11,29 @@ use DOMElement;
 
 class Blogs extends BaseAdminController
 {
+    public function seoSuggestions()
+    {
+        if ($redirect = $this->requireAdmin()) return $redirect;
+        if (!$this->validate([
+            'locale' => 'required|in_list[vi,en]', 'title' => 'required|min_length[3]|max_length[255]',
+            'excerpt' => 'permit_empty|max_length[5000]', 'content' => 'required|max_length[60000]',
+        ])) return $this->response->setStatusCode(422)->setJSON(['error' => 'Cần tiêu đề và nội dung bài viết (tối đa 60.000 ký tự mỗi lần gợi ý).', 'csrf' => csrf_hash()]);
+        $content = (string) $this->request->getPost('content');
+        if (mb_strlen(trim(strip_tags($content))) < 100) return $this->response->setStatusCode(422)->setJSON(['error' => 'Hãy viết ít nhất 100 ký tự nội dung để có gợi ý phù hợp.', 'csrf' => csrf_hash()]);
+        $last = (int) session()->get('blog_seo_suggested_at');
+        if (time() - $last < 10) return $this->response->setStatusCode(429)->setJSON(['error' => 'Vui lòng đợi vài giây trước khi tạo gợi ý tiếp.', 'csrf' => csrf_hash()]);
+        session()->set('blog_seo_suggested_at', time());
+        try {
+            $suggestions = (new \App\Services\BlogSeoSuggestionService())->suggest(
+                (string) $this->request->getPost('locale'), (string) $this->request->getPost('title'),
+                (string) $this->request->getPost('excerpt'), $content
+            );
+            return $this->response->setJSON(['suggestions' => $suggestions, 'csrf' => csrf_hash()]);
+        } catch (\RuntimeException $e) {
+            return $this->response->setStatusCode(503)->setJSON(['error' => $e->getMessage(), 'csrf' => csrf_hash()]);
+        }
+    }
+
     public function index()
     {
         if ($redirect = $this->requireAdmin()) {
@@ -400,11 +423,25 @@ class Blogs extends BaseAdminController
             'content_en' => 'permit_empty|max_length[200000]',
         ];
 
+        foreach (['vi', 'en'] as $locale) {
+            $rules['focus_keyword_' . $locale] = 'permit_empty|max_length[150]';
+            $rules['secondary_keywords_' . $locale] = 'permit_empty|max_length[1000]';
+            $rules['social_hashtags_' . $locale] = 'permit_empty|max_length[1000]';
+        }
+
         if (! $this->validate($rules)) {
             return $this->redirectBackWithFormErrors($blogId, $this->validator->getErrors());
         }
 
         $post = $this->request->getPost();
+        foreach (['vi', 'en'] as $locale) {
+            foreach (\App\Services\EditorialSeoService::normalize($post, $locale) as $field => $value) {
+                if ($value !== '' && !$db->fieldExists($field, 'blog_translations')) {
+                    return $this->redirectBackWithFormErrors($blogId, ['Cần bổ sung cột SEO bằng file database/sql/2026-10-05_add_blog_editorial_seo.sql. Dữ liệu đã nhập được giữ lại.']);
+                }
+            }
+        }
+
         $slugErrors = $this->validateUniqueSlugs($db, $post, $blogId);
         if ($slugErrors !== []) {
             return $this->redirectBackWithFormErrors($blogId, $slugErrors);
@@ -476,6 +513,7 @@ class Blogs extends BaseAdminController
         ];
 
         foreach ($translations as $locale => $translation) {
+            $translation = array_merge($translation, \App\Services\EditorialSeoService::normalize($post, $locale));
             $this->upsertTranslation($db, $blogId, $locale, $translation, $now);
         }
 
@@ -513,6 +551,12 @@ class Blogs extends BaseAdminController
             'meta_description' => $translation['meta_description'] ?: $translation['excerpt'],
             'updated_at' => $now,
         ];
+
+        foreach (\App\Services\EditorialSeoService::FIELDS as $field) {
+            if (array_key_exists($field, $translation) && $db->fieldExists($field, 'blog_translations')) {
+                $payload[$field] = $translation[$field];
+            }
+        }
 
         $exists = $db->table('blog_translations')
             ->where('blog_id', $blogId)
@@ -621,7 +665,14 @@ class Blogs extends BaseAdminController
             return null;
         }
 
-        return [
+        $seo = [];
+        foreach ($db->table('blog_translations')->where('blog_id', $blogId)->get()->getResultArray() as $translation) {
+            foreach (\App\Services\EditorialSeoService::FIELDS as $field) {
+                $seo[$field . '_' . $translation['locale']] = (string) ($translation[$field] ?? '');
+            }
+        }
+
+        return $seo + [
             'category' => TextEncodingService::repairNullable($row['category'] ?? ''),
             'author_name' => TextEncodingService::repairNullable($row['author_name'] ?? ''),
             'thumbnail' => (string) ($row['thumbnail'] ?? ''),

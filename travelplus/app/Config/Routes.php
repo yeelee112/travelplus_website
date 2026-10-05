@@ -75,6 +75,7 @@ $routes->POST('admin/blogs/(:num)/duplicate', 'Admin\Blogs::duplicate/$1');
 $routes->POST('admin/blogs/(:num)/status', 'Admin\Blogs::updateStatus/$1');
 $routes->POST('admin/blogs/(:num)/delete', 'Admin\Blogs::delete/$1');
 $routes->POST('admin/blogs/upload-image', 'Admin\Blogs::uploadEditorImage');
+$routes->POST('admin/blogs/seo-suggestions', 'Admin\Blogs::seoSuggestions');
 $routes->GET('admin/promotion-codes', 'Admin\PromotionCodes::index');
 $routes->GET('admin/promotion-codes/create', 'Admin\PromotionCodes::create');
 $routes->POST('admin/promotion-codes', 'Admin\PromotionCodes::store');
