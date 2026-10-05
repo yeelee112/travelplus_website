@@ -26,7 +26,8 @@ class Database extends Config
      */
     public array $default = [
         'DSN'          => '',
-        'hostname'     => 'localhost',
+        // Use TCP to avoid depending on PHP's Unix socket path on hosting.
+        'hostname'     => '127.0.0.1',
         'username'     => 'root',
         'password'     => '',
         'database'     => 'travelplus_db',

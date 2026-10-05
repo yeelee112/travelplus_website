@@ -156,7 +156,7 @@ abstract class BaseController extends Controller
                     ];
                 }
             } catch (Throwable $exception) {
-                log_message('error', 'Collection navigation unavailable: {message}', ['message' => $exception->getMessage()]);
+                DatabaseAvailabilityService::markUnavailable($exception, 'Collection navigation unavailable');
             }
         }
         service('renderer')->setVar('navigationCollections', $navigationCollections);
