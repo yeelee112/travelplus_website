@@ -34,9 +34,6 @@ $isFocusedFlow = in_array($routeSegment, ['account', 'auth', 'booking'], true);
 $showAiChatbox = ! in_array($routeSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
 $showTourTools = ! in_array($routeSegment, ['admin', 'api'], true) && ! $isFocusedFlow;
 $showCookieConsent = ! in_array($routeSegment, ['admin', 'api'], true);
-$savedLanguage = strtolower(trim((string) service('request')->getCookie('travelplus_locale')));
-$showLanguageEntry = ! in_array($savedLanguage, ['vi', 'en'], true)
-    && ! in_array($routeSegment, ['admin', 'api', 'account', 'auth', 'booking'], true);
 $contentSection = $this->renderSection('content');
 $isInboundLanding = str_contains($contentSection, 'inbound-landing');
 $usesSwiper = str_contains($contentSection, 'swiper-wrapper');
@@ -260,7 +257,7 @@ if ($analyticsEventName === '') {
     data-csrf-token="<?= esc(csrf_hash(), 'attr') ?>">
 
 <a class="site-skip-link" href="#site-main-content"><?= $currentLocale === 'en' ? 'Skip to content' : 'Bỏ qua menu, đến nội dung' ?></a>
-<?php if ($showLanguageEntry): ?>
+<?php if (! $isFocusedFlow && ! in_array($routeSegment, ['admin', 'api'], true)): ?>
 <?= $this->include('partials/language-entry') ?>
 <?php endif; ?>
 <?= $this->include($isInboundLanding ? 'inbound/header' : 'partials/header') ?>

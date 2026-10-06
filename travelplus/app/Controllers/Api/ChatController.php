@@ -91,7 +91,8 @@ class ChatController extends BaseController
                     : 'AI Travel Plus đang tạm thời không khả dụng. Vui lòng thử lại sau.');
             }
 
-            $result = $service->answer($locale, $message, $normalizedHistory, $chatState);
+            $pageUrl = is_string($payload['page_url'] ?? null) ? mb_substr($payload['page_url'], 0, 2000) : '';
+            $result = $service->answer($locale, $message, $normalizedHistory, $chatState, $pageUrl);
 
             if (is_array($result['chat_state'] ?? null) && $result['chat_state'] !== []) {
                 $session->set('ai_chat_state', $result['chat_state']);
@@ -145,6 +146,11 @@ class ChatController extends BaseController
     private function appendLeadCaptureCta(string $locale, string $latestMessage, array $history, string $assistantMessage): string
     {
         $session = session();
+
+        if (preg_match('/(?:số điện thoại|SĐT|phone|email)/iu', $assistantMessage)) {
+            $session->set('ai_chat_lead_cta_asked', true);
+            return $assistantMessage;
+        }
 
         if ((bool) $session->get('ai_chat_lead_cta_asked')) {
             return $assistantMessage;

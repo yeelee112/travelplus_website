@@ -1,50 +1,26 @@
-<?php
-$locale = service('request')->getLocale() === 'en' ? 'en' : 'vi';
-$options = [
-    [
-        'locale' => 'vi',
-        'url' => switch_locale_url('vi'),
-        'flag' => base_url('assets/images/home/vi-vn.svg'),
-        'name' => 'Tiếng Việt',
-        'audience' => 'Dành cho khách Việt Nam',
-        'description' => 'Tour trong nước và tour nước ngoài',
-    ],
-    [
-        'locale' => 'en',
-        'url' => switch_locale_url('en'),
-        'flag' => base_url('assets/images/home/en-us.svg'),
-        'name' => 'English',
-        'audience' => 'For international travelers',
-        'description' => 'Inbound in Vietnam & Indochina, plus outbound tours',
-    ],
-];
-?>
-<div class="language-entry" data-language-entry>
-    <div class="language-entry__backdrop" aria-hidden="true"></div>
-    <section class="language-entry__dialog" role="dialog" aria-modal="true" aria-labelledby="language-entry-title" aria-describedby="language-entry-description">
-        <div class="language-entry__brand" aria-hidden="true">
-            <img src="<?= base_url('assets/images/logo.svg') ?>" alt="" width="190" height="76">
-        </div>
-        <span class="language-entry__eyebrow">Welcome to Travel Plus</span>
-        <h2 id="language-entry-title">Chọn ngôn ngữ <span>/</span> Choose your language</h2>
-        <p id="language-entry-description">Chọn trải nghiệm phù hợp với hành trình của bạn.</p>
-
+<?php $entryLocale = service('request')->getLocale() === 'en' ? 'en' : 'vi'; ?>
+<dialog class="language-entry" data-language-entry aria-labelledby="language-entry-title" aria-describedby="language-entry-description" tabindex="-1" autofocus>
+    <div class="language-entry__cover">
+        <img src="<?= esc(base_url('assets/images/home/banner01-768w.webp'), 'attr') ?>" alt="" width="768" height="410">
+        <span class="language-entry__welcome">WELCOME TO TRAVEL PLUS</span>
+    </div>
+    <button class="language-entry__close" type="button" data-language-dismiss aria-label="Đóng / Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    <div class="language-entry__body">
+        <img class="language-entry__logo" src="<?= esc(base_url('assets/images/logo.svg'), 'attr') ?>" alt="Travel Plus" width="112" height="45">
+        <h2 id="language-entry-title"><?= $entryLocale === 'en' ? 'Your journey starts here' : 'Hành trình bắt đầu từ đây' ?></h2>
+        <p id="language-entry-description">Chọn ngôn ngữ của bạn <span aria-hidden="true">·</span> <span lang="en">Choose your language</span></p>
         <div class="language-entry__options">
-            <?php foreach ($options as $option): ?>
-                <a
-                    class="language-entry__option<?= $option['locale'] === $locale ? ' is-current' : '' ?>"
-                    href="<?= esc($option['url'], 'attr') ?>"
-                    data-language-choice="<?= esc($option['locale'], 'attr') ?>">
-                    <img src="<?= esc($option['flag'], 'attr') ?>" alt="" width="36" height="36">
-                    <span class="language-entry__option-copy">
-                        <strong><?= esc($option['name']) ?></strong>
-                        <span><?= esc($option['audience']) ?></span>
-                        <small><?= esc($option['description']) ?></small>
-                    </span>
-                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            <?php foreach (['vi' => ['Tiếng Việt', 'Tiếp tục bằng tiếng Việt', 'vi-vn.svg'], 'en' => ['English', 'Continue in English', 'en-us.svg']] as $language => $option): ?>
+                <a class="language-entry__option" href="<?= esc(switch_locale_url($language), 'attr') ?>" data-language-choice="<?= esc($language, 'attr') ?>" lang="<?= esc($language, 'attr') ?>" hreflang="<?= esc($language, 'attr') ?>">
+                    <img src="<?= esc(base_url('assets/images/home/' . $option[2]), 'attr') ?>" alt="" width="32" height="32">
+                    <strong><?= esc($option[0]) ?></strong>
+                    <span class="language-entry__action"><?= esc($option[1]) ?><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
                 </a>
             <?php endforeach; ?>
         </div>
-        <p class="language-entry__note"><i class="bi bi-check2-circle" aria-hidden="true"></i> Lựa chọn sẽ được ghi nhớ / Your choice will be remembered</p>
-    </section>
-</div>
+        <div class="language-entry__footer">
+            <span><i class="bi bi-globe2" aria-hidden="true"></i> Đổi ngôn ngữ bất cứ lúc nào<br><span lang="en">Change language anytime</span></span>
+            <button type="button" data-language-dismiss><?= $entryLocale === 'en' ? 'Explore first' : 'Khám phá trước' ?> <span aria-hidden="true">↗</span></button>
+        </div>
+    </div>
+</dialog>

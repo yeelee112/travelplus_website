@@ -31,8 +31,18 @@ class GeminiWebsiteChatService
      * @param array<string, mixed> $chatState
      * @return array{message: string, sources: list<array{title: string, url: string}>, chat_state?: array<string, mixed>, debug_meta?: array<string, mixed>}
      */
-    public function answer(string $locale, string $message, array $history = [], array $chatState = []): array
+    public function answer(string $locale, string $message, array $history = [], array $chatState = [], string $pageUrl = ''): array
     {
+        $page = (new ChatPageContextService())->resolve($locale, $pageUrl);
+        if ($this->looksLikeVisaConsultationRequest($message)) {
+            $response = $this->buildVisaConsultationResponse($locale, $message, $history, $page);
+            return $response + ['chat_state' => $chatState, 'debug_meta' => ['branch' => 'visa_consultation', 'page_context' => $page !== []]];
+        }
+        // A verified current page supplies the tour for deictic questions, never a new destination requested by the customer.
+        if ($page !== [] && preg_match('/(?:tour này|tour nay|chương trình này|chuong trinh nay|this tour)/iu', $message)) {
+            $chatState = array_merge($chatState, ['last_tour_slug' => $page['slug'], 'last_tour_type' => $page['type'],
+                'last_tour_url' => $page['url'], 'last_tour_departure' => '', 'last_tour_departure_date' => '']);
+        }
         $request = $this->knowledgeService->resolveTourRequest($message, $history, $chatState);
         $context = $request['context'];
         if (($context['destination'] ?? '') !== ($chatState['tour_request']['destination'] ?? '') && $context !== []) {
@@ -728,14 +738,55 @@ class GeminiWebsiteChatService
 
     private function extractVisaDestination(string $message): string
     {
-        if (preg_match('/visa\s+(?:đi|di|du lịch|du lich|công tác|cong tac)?\s*([^\n,.;!?]+)/iu', $message, $matches) !== 1) {
-            return '';
+        $names = [
+            'Schengen' => 'Schengen', 'châu Âu|chau Au|Europe' => 'châu Âu',
+            'Mỹ|My|Hoa Kỳ|Hoa Ky|USA' => 'Mỹ', 'Canada' => 'Canada', 'Úc|Uc|Australia' => 'Úc',
+            'Nhật Bản|Nhat Ban|Nhật|Nhat|Japan' => 'Nhật Bản', 'Hàn Quốc|Han Quoc|Korea' => 'Hàn Quốc',
+            'Pháp|Phap|France' => 'Pháp', 'Thụy Sĩ|Thuy Si|Switzerland' => 'Thụy Sĩ',
+            'Ý|Italy' => 'Ý', 'Đức|Duc|Germany' => 'Đức', '(?<=visa )Anh|(?<=đi )Anh|(?<=di )Anh|United Kingdom|UK' => 'Anh',
+            'Trung Quốc|Trung Quoc|China' => 'Trung Quốc', 'Đài Loan|Dai Loan|Taiwan' => 'Đài Loan',
+        ];
+        foreach ($names as $pattern => $name) {
+            if (preg_match('/(?<![\p{L}\p{N}])(?:' . $pattern . ')(?![\p{L}\p{N}]|\s*\/\s*chị)/iu', $message)) {
+                return $name;
+            }
         }
+        return '';
+    }
 
-        $destination = trim((string) ($matches[1] ?? ''));
-        $destination = preg_replace('/\s{2,}/u', ' ', $destination) ?? $destination;
-
-        return mb_substr($destination, 0, 40);
+    private function buildVisaConsultationResponse(string $locale, string $message, array $history, array $page): array
+    {
+        $destination = $this->extractVisaDestination($message);
+        if ($destination === '') {
+            foreach (array_reverse($history) as $item) {
+                if (($item['role'] ?? '') !== 'user') {
+                    continue;
+                }
+                $destination = $this->extractVisaDestination((string) ($item['text'] ?? ''));
+                if ($destination !== '') {
+                    break;
+                }
+            }
+        }
+        $sources = [['title' => $locale === 'en' ? 'Visa service' : 'Dịch vụ visa', 'url' => LocalizedPathCatalog::url('service.visa', $locale)]];
+        if ($destination !== '') {
+            $text = $locale === 'en'
+                ? "Yes, Travel Plus can advise on visa documents for {$destination}. What passport nationality do you hold, and when do you plan to travel?"
+                : "Dạ có, Travel Plus hỗ trợ tư vấn và chuẩn bị hồ sơ visa đi {$destination}. Anh/chị mang hộ chiếu nước nào và dự kiến đi khi nào ạ?";
+        } elseif ($page !== [] && $page['type'] === 'outbound') {
+            $title = $page['title'];
+            $text = $locale === 'en'
+                ? "Yes, Travel Plus can advise on visa documents. You are viewing {$title}; are you asking about the visa for this itinerary? What passport nationality do you hold?\n\nVisa requirements and whether fees are included need to be confirmed for your booking."
+                : "Dạ có, Travel Plus hỗ trợ tư vấn và chuẩn bị hồ sơ visa. Anh/chị đang xem tour {$title}; mình cần hỗ trợ visa cho hành trình này đúng không ạ? Anh/chị mang hộ chiếu nước nào?\n\nTravel Plus sẽ kiểm tra hồ sơ phù hợp với hành trình. Phí visa có nằm trong giá tour hay không cần đối chiếu phần bao gồm và báo giá cụ thể.";
+            if ($page['url'] !== '') {
+                $sources[] = ['title' => $title, 'url' => $page['url']];
+            }
+        } else {
+            $text = $locale === 'en'
+                ? 'Yes, Travel Plus can advise on visa documents. Which country will you visit, and is your trip for tourism, business or visiting family?'
+                : 'Dạ có, Travel Plus hỗ trợ tư vấn và chuẩn bị hồ sơ visa. Anh/chị muốn xin visa nước nào, với mục đích du lịch, công tác hay thăm thân ạ?';
+        }
+        return ['message' => $text, 'sources' => $sources];
     }
 
     private function normalizeChatMessage(string $text): string
