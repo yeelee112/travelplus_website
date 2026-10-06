@@ -48,27 +48,20 @@ Vagrantfile
 #-------------------------
 # Temporary Files
 #-------------------------
-writable/cache/*
-!writable/cache/index.html
-
-writable/logs/*
-!writable/logs/index.html
-
-writable/session/*
-!writable/session/index.html
-
-writable/uploads/*
-!writable/uploads/index.html
-
-writable/debugbar/*
-!writable/debugbar/index.html
-
-# Temporary browser profiles created during UI quality checks.
-writable/edge-*-qa*/
-
-writable/stats/*.bak
-writable/stats/*.lock
-writable/stats/*.tmp-*
+# Runtime data and local QA artifacts must stay out of version control.
+/writable/**
+!/writable/.htaccess
+!/writable/index.html
+!/writable/cache/
+!/writable/cache/index.html
+!/writable/logs/
+!/writable/logs/index.html
+!/writable/session/
+!/writable/session/index.html
+!/writable/uploads/
+!/writable/uploads/index.html
+!/writable/debugbar/
+!/writable/debugbar/index.html
 
 php_errors.log
 
