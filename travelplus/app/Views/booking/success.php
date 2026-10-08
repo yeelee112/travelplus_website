@@ -76,8 +76,7 @@ $bookingTourType = (string) ($bookingTourType ?? '');
 $departureFromLabel = trim((string) ($departureFrom ?? ''));
 $departureFromLabel = $departureFromLabel !== '' ? $departureFromLabel : ($locale === 'en' ? 'To be confirmed' : 'Đang cập nhật');
 $departureFromTitle = match ($bookingTourType) {
-    'inbound' => $locale === 'en' ? 'Pickup point' : 'Điểm đón',
-    'domestic' => $locale === 'en' ? 'Departure from' : 'Khởi hành từ',
+    'inbound', 'domestic' => $locale === 'en' ? 'Pickup at' : 'Đón tại',
     default => $locale === 'en' ? 'Departure from' : 'Bay từ',
 };
 $tourLink = (string) ($booking['tour_link'] ?? localized_url(''));
