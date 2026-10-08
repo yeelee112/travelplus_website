@@ -312,6 +312,14 @@ $excludedRows = old('excluded_items') ?: ($formData['excluded_items'] ?? []);
                 </div>
                 <div class="col-md-2"><label>Mã tour</label><input name="code" class="form-control" value="<?= esc($fv('code')) ?>"></div>
                 <div class="col-md-2"><label>SKU</label><input name="sku" class="form-control" value="<?= esc($fv('sku')) ?>"></div>
+                <div class="col-12 js-share-inbound <?= $tourType === 'domestic' ? '' : 'd-none' ?>">
+                    <input type="hidden" name="show_on_inbound" value="0">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="show_on_inbound" id="show_on_inbound" value="1" <?= (int) $fv('show_on_inbound', 0) === 1 ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="show_on_inbound">Hiển thị tour này trên Inbound</label>
+                    </div>
+                    <div class="help">Dùng chung lịch trình, hình ảnh, lịch khởi hành và giá. Nội dung Inbound lấy từ bản tiếng Anh; hãy kiểm tra bản dịch trước khi bật.</div>
+                </div>
                 <div class="col-12"><div class="field-group-label">Thời lượng & sức chứa</div></div>
                 <div class="col-md-2"><label>Số ngày</label><input type="number" min="1" name="duration_days" class="form-control" value="<?= esc($fv('duration_days', '5')) ?>" required></div>
                 <div class="col-md-2"><label>Số đêm</label><input type="number" min="0" name="duration_nights" class="form-control" value="<?= esc($fv('duration_nights', '4')) ?>" required></div>
@@ -1160,6 +1168,10 @@ function updateCategoryOptions() {
 }
 
 function syncTourTypeUI() {
+  const isDomestic = document.querySelector('[name="tour_type"]')?.value === 'domestic';
+  document.querySelector('.js-share-inbound')?.classList.toggle('d-none', !isDomestic);
+  const inboundToggle = document.getElementById('show_on_inbound');
+  if (inboundToggle) inboundToggle.disabled = !isDomestic;
   document.querySelectorAll('.destination-row').forEach(toggleDestinationMode);
   updatePrimaryDestinationOptions();
   updateCategoryOptions();

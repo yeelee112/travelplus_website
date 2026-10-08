@@ -12,6 +12,7 @@ class TourModel extends Model
         'category_id',
         'departure_location_id',
         'tour_type',
+        'show_on_inbound',
         'duration_days',
         'duration_nights',
         'thumbnail',

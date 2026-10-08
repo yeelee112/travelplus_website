@@ -639,6 +639,7 @@ class Tours extends BaseAdminController
             'category_id' => 'required|is_natural_no_zero',
             'departure_location_id' => 'required|is_natural_no_zero',
             'tour_type' => 'required|in_list[outbound,domestic,inbound]',
+            'show_on_inbound' => 'permit_empty|in_list[0,1]',
             'duration_days' => 'required|is_natural_no_zero',
             'duration_nights' => 'required|is_natural',
             'name_vi' => 'required|min_length[3]',
@@ -683,6 +684,13 @@ class Tours extends BaseAdminController
         if ((string) ($selectedCategory['type'] ?? '') !== (string) ($post['tour_type'] ?? '')) {
             return $this->tourSaveError($formUrl, [
                 'Danh mục không thuộc loại tour đã chọn. Vui lòng chọn lại danh mục.',
+            ]);
+        }
+
+        if (($post['tour_type'] ?? '') === 'domestic' && !empty($post['show_on_inbound'])
+            && !$db->fieldExists('show_on_inbound', 'tours')) {
+            return $this->tourSaveError($formUrl, [
+                'Cần cập nhật cơ sở dữ liệu để bật hiển thị tour Domestic trên Inbound.',
             ]);
         }
 
@@ -796,8 +804,15 @@ class Tours extends BaseAdminController
                 ->select('tt.tour_id, tt.name')
                 ->join('tours t', 't.id = tt.tour_id', 'inner')
                 ->where('tt.locale', $locale)
-                ->where('tt.slug', $slug)
-                ->where('t.tour_type', $tourType);
+                ->where('tt.slug', $slug);
+            $builder->groupStart()->where('t.tour_type', $tourType);
+            if ($tourType === 'domestic' && !empty($post['show_on_inbound'])) {
+                $builder->orWhere('t.tour_type', 'inbound');
+            } elseif ($tourType === 'inbound' && $db->fieldExists('show_on_inbound', 'tours')) {
+                $builder->orGroupStart()->where('t.tour_type', 'domestic')
+                    ->where('t.show_on_inbound', 1)->groupEnd();
+            }
+            $builder->groupEnd();
 
             if ($tourId !== null) {
                 $builder->where('tt.tour_id !=', $tourId);
@@ -826,7 +841,7 @@ class Tours extends BaseAdminController
             ->join('tours t', 't.id = tt.tour_id', 'inner')
             ->where('tt.locale', $locale)
             ->where('tt.slug', $candidate)
-            ->where('t.tour_type', $tourType)
+            ->whereIn('t.tour_type', $tourType === 'outbound' ? ['outbound'] : ['domestic', 'inbound'])
             ->countAllResults() > 0) {
             $candidate = $base . '-' . $suffix;
             $suffix++;
@@ -842,6 +857,7 @@ class Tours extends BaseAdminController
             'category_id' => (int) $post['category_id'],
             'departure_location_id' => (int) $post['departure_location_id'],
             'tour_type' => $post['tour_type'],
+            'show_on_inbound' => $post['tour_type'] === 'domestic' && !empty($post['show_on_inbound']) ? 1 : 0,
             'duration_days' => (int) $post['duration_days'],
             'duration_nights' => (int) $post['duration_nights'],
             'thumbnail' => trim((string) ($post['thumbnail'] ?? '')),
@@ -1370,6 +1386,7 @@ class Tours extends BaseAdminController
 
         return [
             'tour_type' => $tour['tour_type'] ?? 'outbound',
+            'show_on_inbound' => (int) ($tour['show_on_inbound'] ?? 0),
             'category_id' => $tour['category_id'] ?? '',
             'code' => $tour['code'] ?? '',
             'sku' => $tour['sku'] ?? '',
@@ -1441,6 +1458,7 @@ class Tours extends BaseAdminController
     {
         return [
             'tour_type' => 'outbound',
+            'show_on_inbound' => 0,
             'duration_days' => 5,
             'duration_nights' => 4,
             'max_travelers' => 15,

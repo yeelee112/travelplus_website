@@ -30,17 +30,17 @@ class TourCatalogService
     public function getHeroDestinations(string $locale): array
     {
         try {
-            $rows = $this->db->table('tour_destinations td')
+            $builder = $this->db->table('tour_destinations td')
                 ->select('lt.name, COUNT(DISTINCT t.id) AS tour_count')
                 ->join('tours t', 't.id = td.tour_id')
                 ->join('tour_translations tt', 'tt.tour_id = t.id AND tt.locale = ' . $this->db->escape($locale))
                 ->join('locations l', 'l.id = td.location_id')
                 ->join('location_translations lt', 'lt.location_id = l.id AND lt.locale = ' . $this->db->escape($locale))
                 ->where('t.status', 'published')
-                ->whereIn('t.tour_type', $locale === 'en' ? ['outbound', 'inbound'] : ['outbound', 'domestic'])
                 ->whereIn('l.type', ['country', 'province'])
-                ->groupBy('lt.name')->orderBy('tour_count', 'DESC')->orderBy('lt.name', 'ASC')
-                ->get()->getResultArray();
+                ->groupBy('lt.name')->orderBy('tour_count', 'DESC')->orderBy('lt.name', 'ASC');
+            $this->applyTourMarketFilter($builder, $locale, null, $locale === 'en' ? 'domestic' : 'inbound');
+            $rows = $builder->get()->getResultArray();
             return array_map(static fn(array $row): array => [
                 'type' => 'destination',
                 'name' => (string) $row['name'],
@@ -232,7 +232,7 @@ class TourCatalogService
         }
 
         try {
-            $cards = $this->mapRowsToCards($rows, $locale);
+            $cards = $this->mapRowsToCards($rows, $locale, $tourType);
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Tour detail card mapping failed');
 
@@ -348,7 +348,7 @@ class TourCatalogService
                 ->get()
                 ->getResultArray();
 
-            $relatedTours = $this->mapRowsToCards($rows, $locale);
+            $relatedTours = $this->mapRowsToCards($rows, $locale, $tourType);
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Related tours load failed');
 
@@ -425,7 +425,7 @@ class TourCatalogService
             ->getResultArray();
 
             return [
-                'tours'    => $this->mapRowsToCards($rows, $locale),
+                'tours'    => $this->mapRowsToCards($rows, $locale, $tourType),
                 'total'    => $total,
                 'page'     => $page,
                 'perPage'  => $perPage,
@@ -596,7 +596,7 @@ class TourCatalogService
             ->getResultArray();
 
             return [
-                'tours' => $this->mapRowsToCards($rows, $locale),
+                'tours' => $this->mapRowsToCards($rows, $locale, $tourType),
                 'total' => $total,
                 'page' => $page,
                 'perPage' => $perPage,
@@ -658,11 +658,33 @@ class TourCatalogService
         }
 
         try {
-            return $this->mapRowsToCards($rows, $locale);
+            return $this->mapRowsToCards($rows, $locale, $tourType);
         } catch (Throwable $exception) {
             DatabaseAvailabilityService::markUnavailable($exception, 'Tour catalog mapping failed');
 
             return $this->fallbackTours($offset, $limit);
+        }
+    }
+
+    private function applyTourMarketFilter(BaseBuilder $builder, string $locale, ?string $tourType, ?string $excludedTourType = null): void
+    {
+        $canShare = $this->fieldExists('show_on_inbound', 'tours');
+        if ($tourType === 'inbound' && $canShare) {
+            $builder->groupStart()->where('t.tour_type', 'inbound')
+                ->orGroupStart()->where('t.tour_type', 'domestic')->where('t.show_on_inbound', 1)
+                ->groupEnd()->groupEnd();
+        } elseif ($tourType !== null) {
+            $builder->where('t.tour_type', $tourType);
+        }
+
+        if ($excludedTourType !== null && $excludedTourType !== $tourType) {
+            if ($excludedTourType === 'domestic' && $locale === 'en' && $canShare && $tourType !== 'domestic') {
+                $builder->groupStart()->where('t.tour_type !=', 'domestic')
+                    ->orWhere('t.show_on_inbound', 1)->groupEnd();
+            } else {
+                // In Vietnamese, shared domestic tours still belong in Domestic.
+                $builder->where('t.tour_type !=', $excludedTourType);
+            }
         }
     }
 
@@ -690,13 +712,7 @@ class TourCatalogService
             ->join('location_translations depltn', 'depltn.location_id = depl.id AND depltn.locale = ' . $this->db->escape($locale), 'left')
             ->where('t.status', 'published');
 
-        if ($tourType !== null) {
-            $builder->where('t.tour_type', $tourType);
-        }
-
-        if ($excludedTourType !== null && $excludedTourType !== $tourType) {
-            $builder->where('t.tour_type !=', $excludedTourType);
-        }
+        $this->applyTourMarketFilter($builder, $locale, $tourType, $excludedTourType);
 
         if ($featuredOnly && $this->fieldExists('is_featured', 'tours')) {
             $builder->where('t.is_featured', 1);
@@ -1054,7 +1070,7 @@ class TourCatalogService
         $campaigns = [];
         try {
             $fields = ['id'];
-            foreach (['is_promotion', 'promotion_badge', 'promotion_ends_at', 'promotion_sort'] as $field) {
+            foreach (['show_on_inbound', 'is_promotion', 'promotion_badge', 'promotion_ends_at', 'promotion_sort'] as $field) {
                 if ($this->fieldExists($field, 'tours')) $fields[] = $field;
             }
             foreach ($this->db->table('tours')->select(implode(', ', $fields))->whereIn('id', $ids)->get()->getResultArray() as $row) {
@@ -1073,7 +1089,7 @@ class TourCatalogService
         return $campaigns;
     }
 
-    private function mapRowsToCards(array $rows, string $locale): array
+    private function mapRowsToCards(array $rows, string $locale, ?string $market = null): array
     {
         $cards = [];
         $campaigns = $this->fetchTourCampaigns(array_column($rows, 'id'));
@@ -1094,6 +1110,10 @@ class TourCatalogService
             $nights = (int) ($row['duration_nights'] ?? 0);
             $price = (float) ($row['min_price'] ?? 0);
             $tourType = (string) ($row['tour_type'] ?? '');
+            if ($tourType === 'domestic' && !empty($row['show_on_inbound'])
+                && ($market === 'inbound' || ($market === null && $locale === 'en'))) {
+                $tourType = 'inbound';
+            }
             $destinationId = (int) ($row['destination_id'] ?? 0);
             $region = null;
             $promotionEndsAt = trim((string) ($row['promotion_ends_at'] ?? ''));
