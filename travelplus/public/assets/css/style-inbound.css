@@ -793,3 +793,6 @@ body:has(.inbound-glimpse-dialog[open]) { overflow: hidden; }
   .inbound-landing *::before,
   .inbound-landing *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Keep numerals aligned in Georgia headings and destination details. */
+.inbound-landing, .inbound-footer { font-variant-numeric: lining-nums; }
