@@ -51,6 +51,15 @@ final class ImageOptimizationService
             return $result;
         }
 
+        // WebP is already compressed. Re-encoding it for byte savings destroys
+        // detail cumulatively; retain the master and use separate resized variants.
+        if ($mimeType === 'image/webp') {
+            $result['success'] = true;
+            $result['output_bytes'] = $result['original_bytes'];
+
+            return $result;
+        }
+
         try {
             $sourceImage = match ($mimeType) {
                 'image/jpeg' => @imagecreatefromjpeg($sourcePath),

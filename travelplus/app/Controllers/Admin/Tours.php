@@ -1786,22 +1786,23 @@ class Tours extends BaseAdminController
                 return '';
             }
 
-            $maxDimension = in_array($safeType, ['cover', 'banner'], true) ? 2400 : 2000;
+            // Build variants from the original upload, not the compressed master.
+            (new ImageOptimizationService())->generateResponsiveVariants(
+                $absoluteDir . DIRECTORY_SEPARATOR . $fileName,
+                [480, 960, 1440],
+                88
+            );
+            $maxDimension = in_array($safeType, ['cover', 'banner'], true) ? 3200 : 2400;
             $optimization = (new ImageOptimizationService())->optimizeToWebp(
                 $absoluteDir . DIRECTORY_SEPARATOR . $fileName,
                 $maxDimension,
                 $maxDimension,
-                82,
-                true
+                90,
+                false
             );
 
             if ($optimization['success']) {
                 $fileName = basename((string) $optimization['output_path']);
-                (new ImageOptimizationService())->generateResponsiveVariants(
-                    (string) $optimization['output_path'],
-                    [480, 960, 1440],
-                    78
-                );
             }
         } catch (Throwable $exception) {
             log_message('error', 'Tour media upload failed for tour #' . $tourId . ': ' . $exception->getMessage());

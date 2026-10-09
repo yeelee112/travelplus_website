@@ -95,6 +95,27 @@ final class ImageOptimizationServiceTest extends CIUnitTestCase
         }
     }
 
+    public function testWebpMasterIsPreservedEvenWhenSmallerDimensionsAndQualityAreRequested(): void
+    {
+        if (! function_exists('imagewebp')) {
+            $this->markTestSkipped('PHP GD WebP support is unavailable.');
+        }
+        $path = sys_get_temp_dir() . '/travelplus-master-' . bin2hex(random_bytes(5)) . '.webp';
+        $image = imagecreatetruecolor(1000, 700);
+        imagewebp($image, $path, 92);
+        imagedestroy($image);
+        $hash = hash_file('sha256', $path);
+        try {
+            $result = (new ImageOptimizationService())->optimizeToWebp($path, 480, 480, 45, true);
+            $this->assertTrue($result['success']);
+            $this->assertFalse($result['optimized']);
+            $this->assertSame($hash, hash_file('sha256', $path));
+            $this->assertSame(1000, getimagesize($path)[0]);
+        } finally {
+            @unlink($path);
+        }
+    }
+
     public function testDoesNotRepeatedlyReencodeAnAlreadyOptimizedWebp(): void
     {
         if (! function_exists('imagewebp')) {

@@ -242,7 +242,8 @@ $tourToolIncluded = implode(', ', array_slice(array_values(array_filter(array_ma
     $includedItems
 ))), 0, 3));
 $tourHeroImage = (string) ($tour['image'] ?? '');
-$tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
+// A tall object-fit:cover hero can magnify narrow responsive variants several times.
+// Use the full cover; card thumbnails keep their independent responsive srcsets.
 ?>
 
 <section
@@ -268,7 +269,6 @@ $tourHeroSrcset = responsive_image_srcset($tourHeroImage, [480, 960, 1440]);
         <img
             class="tour-detail-hero__image"
             src="<?= esc($tourHeroImage, 'attr') ?>"
-            <?php if ($tourHeroSrcset !== ''): ?>srcset="<?= esc($tourHeroSrcset, 'attr') ?>" sizes="100vw"<?php endif; ?>
             alt="<?= esc($tour['title']) ?>"
             loading="eager"
             fetchpriority="high"
