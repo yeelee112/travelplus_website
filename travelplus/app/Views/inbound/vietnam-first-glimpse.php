@@ -56,28 +56,7 @@ unset($glimpse);
             </div>
         </div>
     </div>
-    <div class="container inbound-open-gallery">
-        <div class="inbound-section-head">
-            <div><span class="inbound-section-kicker">Find your next favourite place</span><h2>A closer look at <em>Vietnam.</em></h2></div>
-            <p>Mountains, heritage streets and days by the sea. Follow the photographs to explore each destination.</p>
-        </div>
-        <div class="inbound-open-gallery__grid">
-            <?php foreach ($glimpses as $index => $glimpse): ?>
-                <?php
-                if ($localPhotos[$index] === []) continue;
-                $galleryPhotos = $localPhotos[$index];
-                // Prefer lighter WebP assets for the always-visible gallery.
-                usort($galleryPhotos, static fn($a, $b) => (int) !str_ends_with(strtolower($a), '.webp') <=> (int) !str_ends_with(strtolower($b), '.webp'));
-                $galleryImage = base_url($galleryPhotos[0]);
-                ?>
-                <button class="inbound-open-gallery__item" type="button" data-glimpse-open="glimpse-detail-<?= $index ?>" aria-haspopup="dialog" aria-label="<?= esc('Explore ' . $glimpse[0], 'attr') ?>">
-                    <img src="<?= esc($galleryImage, 'attr') ?>" alt="<?= esc($glimpse[0] . ', Vietnam', 'attr') ?>" width="800" height="640" loading="lazy" decoding="async">
-                    <span><strong><?= esc($glimpse[0]) ?></strong><small><?= esc($glimpse[1]) ?></small></span>
-                    <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
-                </button>
-            <?php endforeach; ?>
-        </div>
-    </div>
+    <?php require __DIR__ . '/vietnam-people.php'; ?>
     <?php foreach ($glimpses as $index => $glimpse): ?>
         <dialog class="inbound-glimpse-dialog" id="glimpse-detail-<?= $index ?>" aria-labelledby="glimpse-detail-title-<?= $index ?>">
             <button class="inbound-glimpse-dialog__close" type="button" data-glimpse-close aria-label="Close details"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
