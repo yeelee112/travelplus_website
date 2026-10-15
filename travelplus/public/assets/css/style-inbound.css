@@ -796,3 +796,20 @@ body:has(.inbound-glimpse-dialog[open]) { overflow: hidden; }
 
 /* Keep numerals aligned in Georgia headings and destination details. */
 .inbound-landing, .inbound-footer { font-variant-numeric: lining-nums; }
+
+/* Destination photographs visible without opening a dialog. */
+.inbound-open-gallery { padding-top: 72px; }
+.inbound-open-gallery__grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }
+.inbound-open-gallery__item { position: relative; display: block; width: 100%; min-width: 0; height: 310px; overflow: hidden; padding: 0; border: 0; border-radius: 4px; background: #203f32; color: #fffdf5; text-align: left; cursor: pointer; }
+.inbound-open-gallery__item:nth-child(1), .inbound-open-gallery__item:nth-child(6), .inbound-open-gallery__item:nth-child(7), .inbound-open-gallery__item:nth-child(8) { grid-column: span 2; }
+.inbound-open-gallery__item img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.inbound-open-gallery__item::after { content: ''; position: absolute; inset: 35% 0 0; background: linear-gradient(transparent,rgba(12,38,28,.88)); pointer-events: none; }
+.inbound-open-gallery__item > span { position: absolute; z-index: 1; left: 22px; right: 48px; bottom: 24px; }
+.inbound-open-gallery__item strong { display: block; font: 400 29px/1.15 Georgia,serif; }
+.inbound-open-gallery__item small { display: block; margin-top: 8px; font-size: 12px; line-height: 1.5; }
+.inbound-open-gallery__item > i { position: absolute; z-index: 1; right: 20px; bottom: 26px; }
+.inbound-open-gallery__item:hover img { transform: scale(1.035); }
+.inbound-open-gallery__item:focus-visible { outline: 3px solid #9d4f33; outline-offset: 4px; }
+@media(max-width:991px) { .inbound-open-gallery__grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .inbound-open-gallery__item:nth-child(1), .inbound-open-gallery__item:nth-child(6), .inbound-open-gallery__item:nth-child(7), .inbound-open-gallery__item:nth-child(8) { grid-column: auto; } }
+@media(max-width:575px) { .inbound-open-gallery { padding-top: 44px; } .inbound-open-gallery__grid { gap: 12px; } .inbound-open-gallery__item { height: 240px; } .inbound-open-gallery__item > span { left: 14px; right: 14px; bottom: 18px; } .inbound-open-gallery__item strong { font-size: 23px; } .inbound-open-gallery__item small { font-size: 11px; } .inbound-open-gallery__item > i { display: none; } }
+@media(prefers-reduced-motion:reduce) { .inbound-open-gallery__item img { transition: none; } }
